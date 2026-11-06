@@ -40,7 +40,7 @@
     industries: (saved.industries || []).slice(0, MAX_INDUSTRIES),
     linkedin: saved.linkedin || "",
     languages: saved.languages && saved.languages.length ? saved.languages.map((l) => ({ ...l })) : [{ name: "Bahasa Indonesia", level: "" }],
-  }, editing ? {} : Mori.store.read(DRAFT_KEY, {}));
+  }, editing ? {} : Mori.store.read(DRAFT_KEY, null) || Mori.store.read(Mori.auth.PENDING_DRAFT_KEY, {}));
   let file = null;
   let removeCv = false;
   const keepDraft = () => { if (!editing) Mori.store.write(DRAFT_KEY, a); };
@@ -355,7 +355,7 @@
       if (file) {
         if (db.enabled && session.provider === "google") {
           loader.status("Uploading your CV…");
-          const up = await db.uploadCv(session.id, file, saved.cvPath);
+          const up = await db.uploadCv(file, saved.cvPath);
           Object.assign(patch, { cvPath: up.path, cvName: up.name });
         } else {
           Object.assign(patch, { cvPath: "", cvName: file.name });
@@ -370,11 +370,21 @@
       const name = [patch.firstName, patch.lastName].filter(Boolean).join(" ");
       Mori.auth.updateSession({ name, givenName: patch.firstName.split(/\s+/)[0], onboarded: true });
       Mori.store.remove(DRAFT_KEY);
+      Mori.store.remove(Mori.auth.PENDING_DRAFT_KEY);
       try { sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
 
       loader.show(editing ? "All saved" : `Welcome to Sandbox, ${patch.firstName}`, editing ? "Taking you back…" : "Opening your homepage…");
       location.replace(Mori.auth.nextUrl(editing ? "home.html" : Mori.auth.startPage()));
     } catch (err) {
+      if (err.code === "signed-out") {
+        // Answers stay saved as a draft; signing in again brings the member back here.
+        keepDraft();
+        Mori.store.write(Mori.auth.PENDING_DRAFT_KEY, a);
+        loader.show("Please sign in again", err.message);
+        Mori.auth.clearSession();
+        setTimeout(() => location.replace("index.html?next=" + encodeURIComponent("home.html")), 1600);
+        return;
+      }
       nextBtn.disabled = false;
       loader.hide();
       flash(err.message || "Couldn’t save your answers. Please try again.");

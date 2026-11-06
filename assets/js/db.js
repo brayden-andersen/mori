@@ -31,6 +31,18 @@
   }
   const fail = (error) => { if (error) throw new Error(error.message || String(error)); };
 
+  /** Id of the member Supabase has signed in; throws a "signed-out" error if the session is gone. */
+  async function signedInId(c) {
+    const { data } = await c.auth.getSession();
+    const id = data.session && data.session.user && data.session.user.id;
+    if (!id) {
+      const e = new Error("Your sign-in has expired. Please sign in with Google again.");
+      e.code = "signed-out";
+      throw e;
+    }
+    return id;
+  }
+
   /* ---------- Row ↔ profile mapping ---------- */
   function fromRow(r) {
     if (!r) return null;
@@ -110,22 +122,25 @@
       return { provider: "google", id: u.id, email: u.email || m.email || "", name: m.full_name || m.name || "", picture: m.avatar_url || m.picture || "" };
     },
 
-    async fetchProfile(id) {
+    async fetchProfile() {
       const c = await client();
+      const id = await signedInId(c);
       const { data, error } = await c.from("profiles").select("*").eq("id", id).maybeSingle();
       fail(error);
       return fromRow(data);
     },
 
-    async saveProfile(id, profile) {
+    async saveProfile(profile) {
       const c = await client();
+      const id = await signedInId(c);
       const { error } = await c.from("profiles").upsert(toRow(id, profile), { onConflict: "id" });
       fail(error);
     },
 
     /** Upload a CV to cvs/<user id>/…; returns { path, name }. Replaces the previous file. */
-    async uploadCv(id, file, previousPath) {
+    async uploadCv(file, previousPath) {
       const c = await client();
+      const id = await signedInId(c);
       const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
       const path = `${id}/${Date.now()}-${safe}`;
       const { error } = await c.storage.from("cvs").upload(path, file, { contentType: file.type, upsert: false });

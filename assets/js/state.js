@@ -33,7 +33,7 @@
      Onboarding answers plus later edits. With Supabase the database is the
      source of truth and this local copy keeps rendering instant. */
   const PROFILE_BLANK = { firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [], linkedin: "", cvPath: "", cvName: "", languages: [] };
-  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google");
+  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
 
   function profile() {
     const p = get("profile", {});
@@ -45,12 +45,12 @@
     if (opts.remote === false || !remoteEnabled()) return Promise.resolve();
     const s = session();
     const onboarded = typeof opts.onboarded === "boolean" ? opts.onboarded : !!s.onboarded;
-    return Mori.db.saveProfile(s.id, Object.assign(profile(), { onboarded, avatarUrl: s.picture }));
+    return Mori.db.saveProfile(Object.assign(profile(), { onboarded, avatarUrl: s.picture }));
   }
   /** Refresh the local copy from Supabase (app pages call this in the background). */
   async function syncProfile() {
     if (!remoteEnabled()) return false;
-    const remote = await Mori.db.fetchProfile(session().id);
+    const remote = await Mori.db.fetchProfile();
     if (!remote) return false;
     delete remote.onboarded;
     set("profile", Object.assign({}, get("profile", {}), remote));

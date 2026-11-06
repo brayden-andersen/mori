@@ -77,6 +77,19 @@
   /* ---------- Session ---------- */
   const SESSION_KEY = "mori.session.v1";
   const ACCOUNTS_KEY = "mori.accounts.v1";
+  const PENDING_DRAFT_KEY = "mori.pendingOnboardingDraft";
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  // Google members are Supabase users with UUID ids. A "google" session with any
+  // other id comes from the earlier direct-Google sign-in and has no Supabase
+  // account behind it: sign it out, but keep its onboarding answers for next time.
+  (function retireLegacySession() {
+    const old = Mori.store.read(SESSION_KEY, null);
+    if (!old || old.provider !== "google" || UUID.test(old.id)) return;
+    const draft = Mori.store.read(`mori.${old.id}.onboardingDraft`, null);
+    if (draft) Mori.store.write(PENDING_DRAFT_KEY, draft);
+    Mori.store.remove(SESSION_KEY);
+  })();
   const APP_PAGES = ["home.html", "projects.html", "network.html"];
   const params = new URLSearchParams(location.search);
   const pageName = () => location.pathname.split("/").pop() || "index.html";
@@ -89,6 +102,8 @@
 
   Mori.auth = {
     APP_PAGES,
+    PENDING_DRAFT_KEY,
+    isUuid: (id) => UUID.test(String(id || "")),
 
     session() { return Mori.store.read(SESSION_KEY, null); },
     isSignedIn() { return !!Mori.auth.session(); },
@@ -174,7 +189,8 @@
       }
       const here = pageName();
       if (!s) {
-        const next = APP_PAGES.includes(here) ? here + location.search + location.hash : "";
+        // Onboarding isn't a ?next= target, but asking to sign in still makes sense there.
+        const next = APP_PAGES.includes(here) ? here + location.search + location.hash : here === "onboarding.html" ? "home.html" : "";
         leave("index.html" + (next ? "?next=" + encodeURIComponent(next) : ""));
         return false;
       }

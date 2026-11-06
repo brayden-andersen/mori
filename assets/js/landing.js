@@ -105,7 +105,7 @@
       const user = await db.user();
       if (!user) throw new Error("Google sign-in didn’t finish. Please try again.");
       loader.status("Loading your profile…");
-      const remote = await db.fetchProfile(user.id);
+      const remote = await db.fetchProfile();
       const session = Mori.auth.completeSignIn(user, { onboarded: !!(remote && remote.onboarded) });
       if (remote) {
         delete remote.onboarded;
