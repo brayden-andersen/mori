@@ -22,6 +22,11 @@
 .panel-link .go .ico{ width:15px; height:15px }
 #insights{ scroll-margin-top: calc(var(--navH) + 90px) }
 
+/* Recent messages: unread pulse */
+.msg.is-unread h4{ display:flex; align-items:center; gap:8px }
+.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--progress-orange); animation: ping 2.2s ease-out infinite }
+.msg .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block }
+
 /* Empty panels: one centred prompt across the whole row */
 .pins > .home-empty{ grid-column: 1 / -1; flex:1; padding:28px 10px }
 .home-empty .btn{ margin-top:4px }

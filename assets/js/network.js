@@ -4,20 +4,22 @@
    Explore lists everyone who has finished signing up (from Supabase), with a
    search, filters (founder or specialist, years of experience, sprint rating,
    industry, open to build) and sorting. Requests holds the connection
-   requests you received and sent. Messages lists your connections; messaging
-   itself is coming soon.
-   Tabs are routed by the hash so the nav dropdown and notifications can
-   deep-link: #explore · #explore/<member id> · #requests · #messages · #messages/<member id>
+   requests you received and sent. Messages is a live chat with your
+   connections. Profiles and the connect / accept / remove actions come from
+   people.js. Tabs are routed by the hash so links can deep-link:
+     #explore · #explore/<member id> · #requests · #messages · #messages/<member id>
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, ago, toast, roleChip, placeGlider, createModal, loader } = Mori.ui;
+  const { $, $$, esc, icon, avatar, ago, toast, roleChip, placeGlider } = Mori.ui;
+  const { busy, fail } = Mori.people;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
+  const C = S.chat;
   const TABS = ["explore", "requests", "messages"];
   const HUES = ["orange", "blue", "purple"];
   const EXP_RANK = { "0-2 years": 1, "3-5 years": 2, "6-10 years": 3, "10+ years": 4 };
@@ -26,16 +28,16 @@
   const dash = (s) => String(s || "").replace(/(\d)-(\d)/, "$1–$2");
   const roleLabel = (role) => (D.roles[role] ? D.roles[role].label : "Member");
   const openLabel = (m) => (m.open ? D.openTypes[m.openType] || "Open to build" : "");
-  const joined = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "");
   const isNarrow = () => window.matchMedia("(max-width: 760px)").matches;
   const smooth = () => (Mori.motion.reduced() ? "instant" : "smooth");
   const emptyHTML = (ic, title, sub, action, cls = "") =>
     `<div class="empty ${cls}"><span class="empty-ico">${icon(ic)}</span><div>${title}</div>${sub ? `<div class="meta">${sub}</div>` : ""}${action || ""}</div>`;
+  const clock = (ts) => new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const shortAgo = (ts) => ago(ts).replace(" ago", "").replace("Just now", "now");
 
   /* ready: members are on screen · loading: first load · error: nothing to show · off: demo account */
   let loadState = !N.available() ? "off" : N.members().length ? "ready" : "loading";
   let loadError = null;
-  let pendingMember = null;
 
   /* ---------- Tabs ---------- */
   const tabs = $$(".net-tab");
@@ -58,13 +60,14 @@
       if (on && !initial) { p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); }
     });
     moveGlider(initial);
+    if (tab !== "messages") setViewing(null);
     renderTab();
     if (tab === "messages") requestAnimationFrame(() => fitChat(true));
   }
   function renderTab() {
     if (activeTab === "explore") renderPeople();
     else if (activeTab === "requests") renderRequests();
-    else if (activeTab === "messages") renderChats();
+    else if (activeTab === "messages") { renderChatList(); renderThread(); }
   }
 
   function parseHash() {
@@ -74,10 +77,13 @@
   function route() {
     const { tab, sub } = parseHash();
     showTab(tab);
-    if (tab === "explore" && sub) openMember(sub, { fromHash: true });
+    if (tab === "explore" && sub) {
+      Mori.people.openMember(sub, { onClose: () => { if (/^#explore\//.test(location.hash)) history.replaceState(null, "", "#explore"); } })
+        .then((ok) => { if (!ok) history.replaceState(null, "", "#explore"); });
+    }
     if (tab !== "messages") return;
     if (sub) openChat(sub);
-    else if (!isNarrow()) openChat(activeChat || (N.connections()[0] || {}).id, { quiet: true });
+    else if (!isNarrow()) openChat(activeChat || (chatPeople()[0] || {}).id, { quiet: true });
     else closeChat();
   }
   window.addEventListener("hashchange", route);
@@ -222,7 +228,7 @@
   function connectButton(m) {
     const id = esc(m.id);
     switch (N.status(m.id)) {
-      case "connected": return `<span class="btn is-done" role="status">${icon("check")} Connected</span>`;
+      case "connected": return `<button class="btn btn--ink" type="button" data-message="${id}">${icon("message")} Message</button>`;
       case "pending":   return `<button class="btn is-pending" type="button" data-withdraw="${id}" title="Withdraw your request">${icon("check")} Pending</button>`;
       case "incoming":  return `<button class="btn btn--ink" type="button" data-accept="${id}">${icon("userPlus")} Accept</button>`;
       default:          return `<button class="btn btn--ink" type="button" data-connect="${id}">${icon("userPlus")} Connect</button>`;
@@ -236,13 +242,14 @@
   function personCard(m) {
     const where = [m.region, m.employment].filter(Boolean).map(esc).join(" · ");
     const open = openLabel(m);
+    const connected = N.status(m.id) === "connected";
     return `
       <article class="pcard person spotlight" data-person="${esc(m.id)}">
         <button class="person-top" type="button" data-view="${esc(m.id)}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar(m, 52, { ring: m.open })}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${where || (m.joinedAt ? `Joined ${esc(joined(m.joinedAt))}` : roleLabel(m.role))}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
         </button>
-        <div class="chips">${roleChip(m.role)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
+        <div class="chips">${roleChip(m.role)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
         ${m.limited
           ? `<p class="person-note">${icon("shield")}${esc(first(m.name))} shares their full profile with connections.</p>`
@@ -324,131 +331,6 @@
     toast(`Showing ${want === "founder" ? "founders" : "specialists"} who are open to build`, { icon: "userPlus" });
   });
 
-  /* ---------- Member profile ---------- */
-  let shownMember = null; // { id, key } of the profile in the modal
-
-  function memberHTML(m) {
-    const st = N.status(m.id);
-    const link = N.link(m.id);
-    const id = esc(m.id);
-    const fact = (label, value) => (value ? `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>` : "");
-    const list = (items, cls) => items.map((x, i) => `<span class="badge badge--${cls ? cls(i) : "gray"}">${esc(x)}</span>`).join("");
-    const open = openLabel(m);
-
-    let action;
-    if (st === "connected") {
-      action = `<div class="mp-status"><span class="chip chip--emerald">${icon("check")} Connected</span><button class="btn btn--sm btn--ghost" type="button" data-remove="${id}">Remove connection</button></div>`;
-    } else if (st === "pending") {
-      action = `<div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div>`;
-    } else if (st === "incoming") {
-      action = `${link.note ? `<p class="req-note">“${esc(link.note)}”</p>` : ""}<div class="mp-status"><span class="meta">${esc(first(m.name))} wants to connect</span><button class="btn btn--sm" type="button" data-ignore="${id}">Ignore</button><button class="btn btn--sm btn--ink" type="button" data-accept="${id}">${icon("check")} Accept</button></div>`;
-    } else {
-      action = `
-        <form class="mp-connect" data-connect-form="${id}" novalidate>
-          <label class="field"><span>Add a note <em class="hint">optional</em></span>
-            <textarea class="textarea" name="note" maxlength="300" rows="3" placeholder="Hi ${esc(first(m.name))}, I’m working on… and would love your take."></textarea>
-          </label>
-          <button class="btn btn--ink" type="submit">${icon("userPlus")} Send request</button>
-        </form>`;
-    }
-
-    const docs = [
-      m.linkedin ? `<a class="btn btn--sm" href="${esc(m.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>` : "",
-      m.cvPath ? `<button class="btn btn--sm" type="button" data-member-cv="${id}">${icon("file")} ${esc(m.cvName || "CV")}</button>` : "",
-    ].join("");
-    const docsNote = st === "connected" ? (docs ? "" : `<span class="meta">${esc(first(m.name))} hasn’t added a CV or LinkedIn yet.</span>`) : `<span class="meta">CVs are shared with connections.</span>`;
-
-    const details = m.limited
-      ? `<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their experience, industries and links.</p></section>`
-      : `
-        <div class="pf-stats">
-          <div class="pf-stat"><b>${m.rating != null ? m.rating.toFixed(1) : "–"}</b><span>${m.rating != null ? `Sprint rating · ${m.reviews} review${m.reviews === 1 ? "" : "s"}` : "No sprint rating yet"}</span></div>
-          <div class="pf-stat"><b>${m.experience ? esc(dash(m.experience).replace(" years", "")) : "–"}</b><span>Years of experience</span></div>
-          <div class="pf-stat"><b>${esc(joined(m.joinedAt)) || "–"}</b><span>Joined Sandbox</span></div>
-        </div>
-        ${m.bio ? `<section class="pf-sec"><h3>About</h3><p>${esc(m.bio)}</p></section>` : ""}
-        <section class="pf-sec"><h3>Details</h3>
-          <dl class="pf-facts">${fact("Employment", m.employment)}${fact("Region", m.region)}</dl>
-        </section>
-        ${m.industries.length ? `<section class="pf-sec"><h3>Industry niche</h3><div class="tags">${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
-        ${m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : ""}
-        ${m.skills.length ? `<section class="pf-sec"><h3>Skills</h3><div class="tags">${list(m.skills)}</div></section>` : ""}
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`;
-
-    return `
-      <div class="pf-cover" aria-hidden="true"><span></span><span></span><span></span></div>
-      <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
-      <div class="pf-head">${avatar(m, 88, { ring: m.open })}</div>
-      <div class="pf-body">
-        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
-        ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
-        ${m.region ? `<p class="meta pf-meta">${icon("pin")} ${esc(m.region)}</p>` : ""}
-        <div class="chips">${roleChip(m.role)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
-        <div class="mp-action">${action}</div>
-        ${details}
-      </div>`;
-  }
-  const memberKey = (m) => N.status(m.id) + JSON.stringify(m);
-
-  function renderMember(m) {
-    const root = createModal("memberModal", { label: "Member profile", panelCls: "modal--profile modal--member" });
-    const panel = $(".modal", root);
-    panel.setAttribute("aria-labelledby", "mpTitle");
-    panel.innerHTML = memberHTML(m);
-    shownMember = { id: m.id, key: memberKey(m) };
-    const form = $("[data-connect-form]", panel);
-    if (form) {
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const note = form.elements.note.value;
-        busy($('button[type="submit"]', form), () => N.connect(m.id, note), () => toast(`Request sent to ${m.name}`, { icon: "userPlus" }));
-      });
-    }
-    return root;
-  }
-  function openMember(id, opts = {}) {
-    const m = N.member(id);
-    if (!m) {
-      // Not in the local copy: they may have joined since, so wait for this page's first refresh.
-      if (N.available() && !N.refreshedAt() && loadState !== "error") { pendingMember = id; return; }
-      toast("That member couldn’t be found", { icon: "x" });
-      if (opts.fromHash) history.replaceState(null, "", "#explore");
-      return;
-    }
-    const wasOpen = Mori.modal.isOpen("memberModal");
-    renderMember(m);
-    $("#memberModal .modal").scrollTop = 0;
-    if (!wasOpen) {
-      Mori.modal.open("memberModal", {
-        opener: opts.opener,
-        onClose: () => {
-          shownMember = null;
-          if (/^#explore\//.test(location.hash)) history.replaceState(null, "", "#explore");
-        },
-      });
-    }
-  }
-  /** Keep an open profile in step with new data, without wiping a note being typed. */
-  function refreshMember() {
-    if (!shownMember || !Mori.modal.isOpen("memberModal")) return;
-    const m = N.member(shownMember.id);
-    if (!m) { Mori.modal.close(); return; }
-    if (memberKey(m) !== shownMember.key) renderMember(m);
-  }
-
-  async function openCv(id) {
-    const m = N.member(id);
-    if (!m || !m.cvPath) return;
-    const win = window.open("", "_blank"); // opened now so the browser doesn't block it
-    try {
-      const url = await Mori.db.cvLink(m.cvPath);
-      if (win) win.location = url; else location.href = url;
-    } catch (err) {
-      if (win) win.close();
-      fail(err);
-    }
-  }
-
   /* ---------- Requests ---------- */
   let holdRequests = 0; // a row is animating out: re-render once it's gone
   let shownRequests = null;
@@ -525,10 +407,24 @@
       if (res.status === "fulfilled") { if (done) done(); } else fail(res.reason);
     });
   }
+  // Actions on request rows (everything else is handled by people.js).
+  $(".net-pane[data-pane='requests']").addEventListener("click", (e) => {
+    const t = e.target.closest(".req [data-accept], .req [data-ignore], .req [data-withdraw]");
+    if (!t) return;
+    const d = t.dataset;
+    const id = d.accept || d.ignore || d.withdraw;
+    const p = N.member(id);
+    const name = p ? p.name : "this member";
+    const row = t.closest(".req");
+    if (d.accept) leaveRow(row, () => N.accept(id), () => toast(`You’re now connected with ${name}`, { icon: "check" }));
+    else if (d.ignore) leaveRow(row, () => N.ignore(id), () => toast("Request ignored", { icon: "x" }));
+    else leaveRow(row, () => N.withdraw(id), () => toast("Request withdrawn", { icon: "x" }));
+  });
 
-  /* ---------- Messages: your connections (messaging is coming soon) ---------- */
+  /* ---------- Messages ---------- */
   const chat = $("#chat");
   let activeChat = null;
+  let announcedId = null; // newest incoming message already announced to screen readers
 
   /** Size the panel to the space under the sticky tab bar; optionally scroll it into place. */
   function fitChat(scroll) {
@@ -541,125 +437,185 @@
   }
   window.addEventListener("resize", () => fitChat(false));
 
+  /** Conversations first (newest on top), then connections you haven't messaged yet. */
+  function chatPeople() {
+    const threads = C.threads();
+    const seen = new Set(threads.map((t) => t.id));
+    const fresh = N.connections().filter((p) => !seen.has(p.id)).map((p) => ({ id: p.id, person: p, last: null, unread: 0, at: 0 }));
+    return threads.concat(fresh);
+  }
+  /** Who you're looking at is "read" only while the page is visible. */
+  function setViewing(id) {
+    C.viewing = id;
+    if (id && !document.hidden) C.markRead(id);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (activeTab === "messages" && activeChat) setViewing(document.hidden ? null : activeChat);
+  });
+
+  function renderChatList() {
+    const term = $("#chatQ").value.trim().toLowerCase();
+    const all = chatPeople();
+    const list = all.filter((t) => !term || t.person.name.toLowerCase().includes(term) || (t.last && t.last.body.toLowerCase().includes(term)));
+    const preview = (t) => {
+      if (!t.last) return esc(t.person.headline || "Say hello");
+      const text = (t.last.from === t.id ? "" : "You: ") + t.last.body;
+      return esc(text.length > 80 ? text.slice(0, 79) + "…" : text);
+    };
+    $("#chatList").innerHTML = list.length
+      ? list.map((t) => `
+          <button class="chat-item ${t.id === activeChat ? "is-on" : ""} ${t.unread ? "is-unread" : ""}" type="button" role="listitem" data-chat="${esc(t.id)}">
+            ${avatar(t.person, 42, { ring: t.person.open })}
+            <span class="chat-copy"><b>${esc(t.person.name)}</b><span class="preview">${preview(t)}</span></span>
+            <span class="chat-meta">${t.last ? esc(shortAgo(t.at)) : "New"}${t.unread ? `<span class="unread-dot" aria-label="${t.unread} unread"></span>` : ""}</span>
+          </button>`).join("")
+      : `<div class="chat-none meta">${loadState === "off" ? "Sign in with Google to message members." : all.length ? "No conversations match." : "Your connections appear here once a request is accepted."}</div>`;
+  }
+
   function chatIntro() {
     const any = N.connections().length;
-    return `<div class="chat-empty"><span class="empty-ico">${icon("message")}</span><p><b>Messaging is coming soon</b></p><p class="meta">You’ll be able to message your connections here.${any ? "" : " Connect with founders and specialists in Explore first."}</p>${any ? "" : `<a class="btn btn--sm" href="#explore">${icon("compass")} Explore members</a>`}</div>`;
+    return `<div class="chat-empty"><span class="empty-ico">${icon("message")}</span><p><b>${loadState === "off" ? "Messaging needs a Google sign-in" : any ? "Pick a conversation" : "No connections to message yet"}</b></p><p class="meta">${loadState === "off" ? "Demo accounts can’t message other members." : any ? "Messages arrive here as soon as they’re sent." : "Connect with founders and specialists in Explore, then message them here."}</p>${!any && loadState !== "off" ? `<a class="btn btn--sm" href="#explore">${icon("compass")} Explore members</a>` : ""}</div>`;
   }
-  function renderChats() {
-    const all = N.connections();
-    const term = $("#chatQ").value.trim().toLowerCase();
-    const list = all.filter((p) => !term || p.name.toLowerCase().includes(term));
-    $("#chatList").innerHTML = list.length
-      ? list.map((p) => `
-          <button class="chat-item ${p.id === activeChat ? "is-on" : ""}" type="button" role="listitem" data-chat="${esc(p.id)}">
-            ${avatar(p, 42, { ring: p.open })}
-            <span class="chat-copy"><b>${esc(p.name)}</b><span class="preview">${esc(p.headline || roleLabel(p.role))}</span></span>
-          </button>`).join("")
-      : `<div class="chat-none meta">${loadState === "off" ? "Sign in with Google to connect with members." : all.length ? "No connections match." : "Your connections appear here once a request is accepted."}</div>`;
-    if (activeChat && N.status(activeChat) !== "connected") activeChat = null;
-    if (!activeChat) { chat.classList.remove("is-thread"); $("#chatMain").innerHTML = chatIntro(); }
+  function bubbles(id) {
+    const msgs = C.thread(id);
+    if (!msgs.length) return "";
+    const lastMine = [...msgs].reverse().find((m) => m.from !== id && !m.pending && !m.failed);
+    let day = "";
+    return msgs.map((m) => {
+      const mine = m.from !== id;
+      const d = new Date(m.at).toDateString();
+      const divider = d !== day ? `<span class="chat-day">${esc(d === new Date().toDateString() ? "Today" : new Date(m.at).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }))}</span>` : "";
+      day = d;
+      let status = esc(clock(m.at));
+      if (m.pending) status = `${icon("clock")} Sending…`;
+      else if (m.failed) status = `<span class="cb-failed">${icon("alert")} Not sent</span> · <button class="link-btn" type="button" data-retry-msg="${esc(m.id)}">Try again</button> · <button class="link-btn" type="button" data-discard-msg="${esc(m.id)}">Remove</button>`;
+      else if (lastMine && m.id === lastMine.id && m.readAt) status += ` · ${icon("checks")} Seen`;
+      return `${divider}<div class="cb-row ${mine ? "me" : ""} ${m.pending ? "is-pending" : ""} ${m.failed ? "is-failed" : ""}" data-mid="${esc(m.id)}"><div class="cb">${esc(m.body)}</div><span class="cb-time">${status}</span></div>`;
+    }).join("");
+  }
+  function renderThread() {
+    if (!activeChat) {
+      chat.classList.remove("is-thread");
+      $("#chatMain").innerHTML = chatIntro();
+      return;
+    }
+    const p = N.member(activeChat);
+    if (!p) { closeChat(); return; }
+    const sc = $("#chatScroll");
+    const nearBottom = !sc || sc.scrollHeight - sc.scrollTop - sc.clientHeight < 80;
+    const canSend = N.status(p.id) === "connected";
+    const head = $("#chatMain .chat-head");
+    const fresh = !head || head.dataset.who !== p.id;
+    if (fresh) {
+      $("#chatMain").innerHTML = `
+        <header class="chat-head" data-who="${esc(p.id)}">
+          <button class="icon-btn chat-back" type="button" data-chat-back aria-label="Back to conversations">${icon("chevronLeft")}</button>
+          <button class="chat-who" type="button" data-view="${esc(p.id)}" aria-label="View ${esc(p.name)}’s profile">
+            ${avatar(p, 40, { ring: p.open })}
+            <span class="who"><b>${esc(p.name)}</b><span class="meta">${esc(p.headline || roleLabel(p.role))}</span></span>
+          </button>
+          ${roleChip(p.role)}
+        </header>
+        <div class="chat-scroll" id="chatScroll"></div>
+        <p class="sr-only" id="chatAnnounce" aria-live="polite"></p>
+        <form class="chat-compose" id="chatForm" autocomplete="off">
+          <input class="input" id="chatInput" maxlength="2000" aria-label="Message ${esc(p.name)}">
+          <button class="btn btn--ink" type="submit" aria-label="Send">${icon("send")}</button>
+        </form>`;
+      $("#chatForm").addEventListener("submit", onSend);
+    }
+    const msgs = bubbles(p.id);
+    $("#chatScroll").innerHTML = `<span class="chat-note">${msgs ? `Only you and ${esc(first(p.name))} can see these messages.` : `Say hello to ${esc(first(p.name))}. Only the two of you can see this conversation.`}</span>${msgs}`;
+    // Screen readers hear new incoming messages only, not the whole conversation again.
+    const lastIn = C.thread(p.id).filter((m) => m.from === p.id).pop();
+    const lastInId = lastIn ? lastIn.id : null;
+    if (!fresh && lastInId && lastInId !== announcedId) $("#chatAnnounce").textContent = `${first(p.name)}: ${lastIn.body}`;
+    announcedId = lastInId;
+    const input = $("#chatInput");
+    input.disabled = !canSend;
+    input.placeholder = canSend ? `Message ${first(p.name)}…` : `You’re no longer connected with ${first(p.name)}`;
+    $("#chatForm button").disabled = !canSend;
+    if (nearBottom) scrollChat(false);
+  }
+  function scrollChat(animated) {
+    const sc = $("#chatScroll");
+    if (sc) sc.scrollTo({ top: sc.scrollHeight, behavior: animated ? smooth() : "instant" });
   }
   function closeChat() {
     activeChat = null;
-    renderChats();
+    setViewing(null);
+    renderChatList();
+    renderThread();
   }
   function openChat(id, opts = {}) {
     const p = id && N.member(id);
-    if (!p || N.status(id) !== "connected") { closeChat(); return; }
+    if (!p || (N.status(id) !== "connected" && !C.thread(id).length)) {
+      if (id && !opts.quiet && loadState === "ready") toast("You can message people once you’re connected", { icon: "message" });
+      closeChat();
+      return;
+    }
     activeChat = id;
-    $("#chatMain").innerHTML = `
-      <header class="chat-head">
-        <button class="icon-btn chat-back" type="button" data-chat-back aria-label="Back to your connections">${icon("chevronLeft")}</button>
-        ${avatar(p, 40, { ring: p.open })}
-        <div class="who"><b>${esc(p.name)}</b><span class="meta">${esc(p.headline || roleLabel(p.role))}</span></div>
-        ${roleChip(p.role)}
-      </header>
-      <div class="chat-scroll">
-        <div class="chat-soon">
-          <span class="empty-ico">${icon("message")}</span>
-          <p><b>Messaging opens soon</b></p>
-          <p class="meta">You and ${esc(first(p.name))} are connected. Until messaging arrives, ${p.linkedin ? "you can reach them on LinkedIn" : "their profile has their details"}.</p>
-          <div class="chat-soon-actions">
-            <button class="btn btn--sm" type="button" data-view="${esc(p.id)}">${icon("user")} View profile</button>
-            ${p.linkedin ? `<a class="btn btn--sm" href="${esc(p.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>` : ""}
-          </div>
-        </div>
-      </div>
-      <div class="chat-compose" aria-hidden="true">
-        <input class="input" placeholder="Messaging is coming soon" disabled tabindex="-1">
-        <button class="btn btn--ink" type="button" disabled tabindex="-1">${icon("send")}</button>
-      </div>`;
     chat.classList.add("is-thread");
-    renderChats();
+    setViewing(id);
+    renderChatList();
+    renderThread();
+    scrollChat(false);
     if (isNarrow() && !opts.quiet) requestAnimationFrame(() => fitChat(true));
+    if (!opts.quiet && !isNarrow()) $("#chatInput").focus({ preventScroll: true });
   }
-  $("#chatQ").addEventListener("input", renderChats);
+
+  function onSend(e) {
+    e.preventDefault();
+    const input = $("#chatInput");
+    const text = input.value.trim();
+    if (!text || !activeChat) return;
+    input.value = "";
+    C.send(activeChat, text).catch((err) => {
+      if (err && err.code === "signed-out") fail(err);
+      else toast(N.status(activeChat) === "connected" ? "Your message wasn’t sent. Try again." : "You’re no longer connected, so the message wasn’t sent.", { icon: "x", duration: 3600 });
+    });
+    scrollChat(true);
+  }
+
+  $("#chatQ").addEventListener("input", renderChatList);
+  $("#chatList").addEventListener("click", (e) => {
+    const item = e.target.closest("[data-chat]");
+    if (!item) return;
+    history.replaceState(null, "", "#messages/" + item.dataset.chat);
+    openChat(item.dataset.chat);
+  });
   $("#chatMain").addEventListener("click", (e) => {
-    if (!e.target.closest("[data-chat-back]")) return;
-    history.replaceState(null, "", "#messages");
-    closeChat();
+    if (e.target.closest("[data-chat-back]")) {
+      history.replaceState(null, "", "#messages");
+      closeChat();
+      return;
+    }
+    const retry = e.target.closest("[data-retry-msg]");
+    if (retry) { C.retry(retry.dataset.retryMsg).catch(() => toast("Still couldn’t send it. Check your connection.", { icon: "x" })); return; }
+    const discard = e.target.closest("[data-discard-msg]");
+    if (discard) C.discard(discard.dataset.discardMsg);
   });
 
-  /* ---------- Actions (delegated: cards, requests, profile modal, chats) ---------- */
-  function signInAgain(message) {
-    loader.show("Please sign in again", message || "Your sign-in has expired.");
-    Mori.auth.clearSession();
-    setTimeout(() => location.replace("index.html?next=" + encodeURIComponent("network.html" + location.hash)), 1500);
-  }
-  function fail(err) {
-    if (err && err.code === "signed-out") { signInAgain(err.message); return; }
-    toast((err && err.message) || "Something went wrong. Please try again.", { icon: "x", duration: 3800 });
-  }
-  /** Disable the button while the change is saved; the views re-render when it lands. */
-  function busy(btn, work, done) {
-    if (!btn || btn.getAttribute("aria-busy") === "true") return;
-    btn.setAttribute("aria-busy", "true");
-    btn.disabled = true;
-    Promise.resolve().then(work).then(
-      () => { if (done) done(); },
-      (err) => { btn.disabled = false; btn.removeAttribute("aria-busy"); fail(err); }
-    );
-  }
-  /** First tap arms the button, a second tap within 3 s confirms. */
-  function confirmTap(btn, label) {
-    if (btn.dataset.armed) return true;
-    btn.dataset.armed = "1";
-    const html = btn.innerHTML;
-    btn.textContent = label;
-    setTimeout(() => { if (document.contains(btn)) { delete btn.dataset.armed; btn.innerHTML = html; } }, 3000);
-    return false;
-  }
-
+  /* ---------- Everything else on the page ---------- */
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-view],[data-chat],[data-member-cv],[data-retry],[data-clear-filters]");
-    if (!t) return;
-    const d = t.dataset;
-    if (d.view) { e.preventDefault(); openMember(d.view, { opener: t }); return; }
-    if (d.chat) { history.replaceState(null, "", "#messages/" + d.chat); openChat(d.chat); return; }
-    if (d.memberCv) { openCv(d.memberCv); return; }
-    if ("retry" in d) { load(true); return; }
-    if ("clearFilters" in d) { clearFilters(); return; }
-
-    const id = d.connect || d.withdraw || d.accept || d.ignore || d.remove;
-    const p = N.member(id);
-    const name = p ? p.name : "this member";
-    const row = t.closest(".req");
-    const run = (work, done) => (row ? leaveRow(row, work, done) : busy(t, work, done));
-
-    if (d.connect) run(() => N.connect(id), () => toast(N.status(id) === "connected" ? `You’re now connected with ${name}` : `Request sent to ${name}`, { icon: "userPlus" }));
-    else if (d.accept) run(() => N.accept(id), () => toast(`You’re now connected with ${name}`, { icon: "check" }));
-    else if (d.ignore) run(() => N.ignore(id), () => toast("Request ignored", { icon: "x" }));
-    else if (d.withdraw) run(() => N.withdraw(id), () => toast("Request withdrawn", { icon: "x" }));
-    else if (d.remove && confirmTap(t, "Tap again to remove")) busy(t, () => N.remove(id), () => toast(`${name} is no longer a connection`, { icon: "x" }));
+    if (e.target.closest("[data-retry]")) { load(true); return; }
+    if (e.target.closest("[data-clear-filters]")) clearFilters();
   });
 
-  // New data from Supabase, or a change you just made.
+  // New data from Supabase, a live update, or a change you just made.
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
+    if (key === "messages") {
+      if (activeTab === "messages") {
+        if (activeChat && C.viewing === activeChat && !document.hidden) C.markRead(activeChat);
+        renderChatList();
+        renderThread();
+      }
+      return;
+    }
     if (key !== "network" && key !== "links") return;
     if (key === "network" && loadState !== "off") loadState = "ready";
     renderTab();
-    refreshMember();
   });
 
   /* ---------- Load ---------- */
@@ -671,17 +627,17 @@
         loadState = "ready";
         loadError = null;
         renderTab();
-        if (pendingMember) { const id = pendingMember; pendingMember = null; openMember(id, { fromHash: true }); }
+        if (activeTab === "messages" && !activeChat && parseHash().sub) route();
       },
       (err) => {
-        if (err && err.code === "signed-out") { signInAgain(err.message); return; }
+        if (err && err.code === "signed-out") { Mori.people.signInAgain(err.message); return; }
         loadError = err;
         loadState = N.members().length ? "ready" : "error";
         renderTab();
         if (loadState === "ready") toast("Couldn’t refresh the network. Showing what was loaded before.", { icon: "x" });
-        if (pendingMember) { pendingMember = null; toast("That member couldn’t be found", { icon: "x" }); }
       }
     );
+    C.refresh({ force }).catch(() => {});
   }
 
   /* ---------- Boot ---------- */

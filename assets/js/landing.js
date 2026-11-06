@@ -33,10 +33,11 @@
   /* ---------- Signed-in visitors ---------- */
   function renderSignedIn(s) {
     const href = esc(Mori.auth.landingUrl(s));
-    $("#navActions").innerHTML = `<a class="btn btn--pill btn--ink" href="${href}">${avatar(s, 22)}Go to Sandbox</a>`;
+    const you = Object.assign({}, Mori.state.me(), { id: s.id }); // your chosen photo, or the default icon
+    $("#navActions").innerHTML = `<a class="btn btn--pill btn--ink" href="${href}">${avatar(you, 22)}Go to Sandbox</a>`;
     $("#heroAuth").innerHTML = `
       <a class="btn-google btn-google--me magnetic" href="${href}">
-        ${avatar(s, 38)}
+        ${avatar(you, 38)}
         <span class="me-copy">Continue as ${esc(s.givenName || s.name)}<small>${esc(s.email || "Demo account")}</small></span>
         ${s.provider === "google" ? googleG() : icon("arrowRight")}
       </a>

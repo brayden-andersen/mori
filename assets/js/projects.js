@@ -3,19 +3,22 @@
    --------------------------------------------------------------------------
    Search / tag filters / sort / pagination from the draft, plus:
    • a project drawer (sprint milestones, milestone ladder, team)
-   • "New Project" → declare a project, saved for this member
-   • deep links: projects.html?open=p1 and projects.html?new=1
+   • "New Project" → declare a project; founders can add co-founders from
+     their connections, and co-founders see the project too
+   • deep links: projects.html?open=<id> and projects.html?new=1
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, humanizeDays, toast, soon, createModal } = Mori.ui;
+  const { $, $$, esc, icon, avatar, avatarStack, humanizeDays, toast, soon, createModal } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
+  const N = S.network;
   const HUES = ["orange", "blue", "emerald", "teal", "purple", "gray"];
   const PAGE_SIZE = 6;
+  const first = (name) => String(name || "").split(/\s+/)[0];
 
   const grid = $("#grid");
   const empty = $("#empty");
@@ -29,6 +32,18 @@
   const activeTags = new Set();
   let currentPage = 1;
   let highlightId = null;
+  // Google members' projects come from Supabase: wait for the first load before saying "none yet".
+  let loaded = !N.available() || S.projects().length > 0;
+
+  /** People on a project (owner first), each with a label. You appear as "You". */
+  function teamOf(p) {
+    const meId = S.session().id;
+    return [p.ownerId].concat(p.cofounders || []).map((id) => {
+      const person = id === meId ? S.me() : N.member(id);
+      return person ? { id, person, you: id === meId, role: id === p.ownerId ? "Owner" : "Co-founder" } : null;
+    }).filter(Boolean);
+  }
+  const canAddCofounders = (p) => p.owner && N.available() && S.profile().role === "founder";
 
   /* ---------- Filters ---------- */
   function buildChips() {
@@ -75,12 +90,18 @@
   /* ---------- Grid ---------- */
   function cardHTML(p) {
     const chips = (p.tags || []).map((t, i) => `<span class="badge badge--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
+    const others = teamOf(p).filter((t) => !t.you);
+    const owner = others.find((t) => t.role === "Owner");
+    const teamLine = !p.owner && owner
+      ? `Co-founder · ${esc(owner.person.name)}’s project`
+      : others.length ? `With ${esc(others.slice(0, 2).map((t) => first(t.person.name)).join(" and "))}${others.length > 2 ? ` +${others.length - 2}` : ""}` : "";
     return `
       <article class="pcard spotlight ${p.id === highlightId ? "is-new" : ""}" data-open="${esc(p.id)}">
         <h4>${esc(p.name)}</h4>
         <div class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</div>
         <div class="tags" style="margin-top:12px">${chips}</div>
         <div class="rung-row">${Mori.shell.ladderBar(p.rung)}<span class="meta">Rung ${p.rung} · ${esc(D.ladder[p.rung].stage)}</span></div>
+        ${teamLine ? `<div class="pcard-team">${avatarStack(others.map((t) => t.person), 24)}<span class="meta">${teamLine}</span></div>` : ""}
         <div class="pcard-actions">
           <button class="btn" type="button" data-settings="${esc(p.id)}">Settings</button>
           <button class="btn" type="button" data-open="${esc(p.id)}">Open</button>
@@ -91,6 +112,13 @@
   function render() {
     const all = S.projects();
     const filtered = applyFilters(all);
+    if (!all.length && !loaded) {
+      countMeta.textContent = "Loading your projects…";
+      grid.innerHTML = "";
+      empty.hidden = true;
+      pager.hidden = true;
+      return;
+    }
     countMeta.textContent = all.length
       ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`
       : "No projects yet";
@@ -132,6 +160,47 @@
     if (open) openProject(open.dataset.open, open.closest("button") || open.querySelector("button[data-open]") || open);
   });
 
+  /* ---------- Co-founder picker (your connections, as a searchable checklist) ---------- */
+  function pickerHTML() {
+    return `
+      <div class="np-picked" data-co-picked></div>
+      <label class="search search--sm" aria-label="Search your connections">${icon("search")}<input type="search" data-co-q placeholder="Search your connections" autocomplete="off"></label>
+      <ul class="np-colist" data-co-list></ul>`;
+  }
+  /** Wire a picker inside `box`; `chosen` is a Set of member ids. */
+  function bindPicker(box, chosen, exclude = []) {
+    const qEl = $("[data-co-q]", box);
+    const listEl = $("[data-co-list]", box);
+    const pickedEl = $("[data-co-picked]", box);
+    const pool = () => N.connections().filter((p) => !exclude.includes(p.id));
+    const draw = () => {
+      const term = qEl.value.trim().toLowerCase();
+      const people = pool().filter((p) => !term || p.name.toLowerCase().includes(term));
+      listEl.innerHTML = people.length
+        ? people.map((p) => `<li><label class="co-opt"><input type="checkbox" value="${esc(p.id)}" ${chosen.has(p.id) ? "checked" : ""}><span class="ind-box">${icon("check")}</span>${avatar(p, 30)}<span class="co-copy"><b>${esc(p.name)}</b><span class="meta">${esc(p.headline || (D.roles[p.role] ? D.roles[p.role].label : ""))}</span></span></label></li>`).join("")
+        : `<li class="ind-none">${pool().length ? `No connections match “${esc(qEl.value.trim())}”.` : "Everyone you’re connected with is already on this project."}</li>`;
+      pickedEl.innerHTML = Array.from(chosen).map((id) => N.member(id)).filter(Boolean)
+        .map((p) => `<span class="fpill">${avatar(p, 20)}${esc(first(p.name))}<button type="button" data-co-drop="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">${icon("x")}</button></span>`).join("");
+      pickedEl.hidden = !chosen.size;
+    };
+    qEl.addEventListener("input", draw);
+    listEl.addEventListener("change", (e) => {
+      const b = e.target.closest('input[type="checkbox"]');
+      if (!b) return;
+      if (b.checked) chosen.add(b.value); else chosen.delete(b.value);
+      draw();
+    });
+    pickedEl.addEventListener("click", (e) => { const b = e.target.closest("[data-co-drop]"); if (b) { chosen.delete(b.dataset.coDrop); draw(); } });
+    draw();
+    return { draw };
+  }
+  /** What the co-founder field says when the picker can't be offered. */
+  function noPickerNote() {
+    if (!N.available()) return "Co-founders need a Google sign-in: demo projects stay on this device.";
+    if (S.profile().role !== "founder") return "Only founders can add co-founders to their projects.";
+    return `Connect with people in the <a class="link-btn" href="network.html#explore">Network</a> to add them as co-founders.`;
+  }
+
   /* ---------- Project drawer ---------- */
   const hint = (p) => (p.progress === 100 ? "Ready to post proof for the next rung." : `${p.milestones.length - p.doneCount} to go this sprint.`);
 
@@ -164,10 +233,26 @@
     }
   }
 
+  function teamHTML(p) {
+    const team = teamOf(p);
+    const rows = team.map((t) => {
+      const actions = t.you
+        ? (!p.owner ? `<button class="btn btn--sm btn--ghost" type="button" data-pd-leave>Leave project</button>` : "")
+        : `${N.status(t.id) === "connected" ? `<button class="btn btn--sm btn--ghost" type="button" data-message="${esc(t.id)}">${icon("message")} Message</button>` : ""}<button class="btn btn--sm btn--ghost" type="button" data-view="${esc(t.id)}">${icon("user")} Profile</button>${p.owner && t.role === "Co-founder" ? `<button class="btn btn--sm btn--ghost" type="button" data-pd-drop="${esc(t.id)}">Remove</button>` : ""}`;
+      return `<div class="team-row">${avatar(t.person, 36)}<div><b>${esc(t.you ? "You" : t.person.name)}</b><span class="meta">${t.role}${t.person.headline && !t.you ? " · " + esc(t.person.headline) : ""}</span></div><div class="team-actions">${actions}</div></div>`;
+    }).join("");
+    const add = canAddCofounders(p) && N.connections().some((c) => !team.some((t) => t.id === c.id))
+      ? `<button class="btn btn--sm" type="button" data-pd-add>${icon("userPlus")} Add co-founders</button>`
+      : "";
+    return `
+      <h3>Team <span>${team.length > 1 ? `${team.length} people` : "Just you"}</span></h3>
+      <div class="team">${rows}</div>
+      ${add ? `<div class="pd-team-add">${add}</div>` : team.length === 1 && p.owner ? `<p class="meta">${canAddCofounders(p) ? "Add co-founders from your connections." : noPickerNote()}</p>` : ""}`;
+  }
+
   function drawerHTML(p) {
     const now = D.ladder[p.rung];
     const next = D.ladder[Math.min(p.rung + 1, 5)];
-    const team = (p.team || []).map(S.network.member).filter(Boolean);
     const chips = p.tags.map((t, i) => `<span class="chip chip--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
     return `
       <button class="icon-btn modal-x" data-close aria-label="Close project">${icon("x")}</button>
@@ -205,18 +290,22 @@
         </ul>
       </section>
 
-      <section class="pd-sec">
-        <h3>Team <span>${team.length ? `${team.length} member${team.length === 1 ? "" : "s"}` : "Just you"}</span></h3>
-        ${team.length
-          ? `<div class="team">${team.map((t) => `<div class="team-row">${avatar(t, 36)}<div><b>${esc(t.name)}</b><span class="meta">${esc(t.headline)}</span></div><a class="btn btn--sm btn--ghost" href="network.html#explore/${esc(t.id)}">${icon("user")} Profile</a></div>`).join("")}</div>`
-          : `<p class="meta">Invite specialists from the Network to join this project.</p>`}
-      </section>
+      <section class="pd-sec" id="pdTeam">${teamHTML(p)}</section>
 
       <div class="pd-actions">
         <a class="btn btn--ink" href="network.html#explore">${icon("userPlus")} Find specialists</a>
         <button class="btn" type="button" data-pd-pin aria-pressed="${p.pinned}">${icon("pin")} <span>${p.pinned ? "Unpin from home" : "Pin to home"}</span></button>
         <button class="btn" type="button" data-pd-settings>${icon("sliders")} Project settings</button>
       </div>`;
+  }
+
+  let openId = null;
+  function paintProgress(panel, u) {
+    Mori.motion.setRing($("#pdRing", panel), u.progress);
+    $("#pdDone", panel).textContent = `${u.doneCount} of ${u.milestones.length}`;
+    $("#pdCount", panel).textContent = `${u.doneCount}/${u.milestones.length}`;
+    $("#pdHint", panel).textContent = hint(u);
+    $$("[data-ms]", panel).forEach((cb, i) => { cb.checked = !!(u.milestones[i] && u.milestones[i].done); });
   }
 
   function openProject(id, opener) {
@@ -227,21 +316,37 @@
     panel.setAttribute("aria-labelledby", "pdTitle");
     panel.innerHTML = drawerHTML(p);
     panel.scrollTop = 0;
+    openId = id;
 
     $$("[data-ms]", panel).forEach((cb) =>
       cb.addEventListener("change", () => {
-        const u = S.toggleMilestone(p.id, Number(cb.dataset.ms));
+        const { project: u, saved } = S.toggleMilestone(p.id, Number(cb.dataset.ms));
         if (!u) return;
-        Mori.motion.setRing($("#pdRing", panel), u.progress);
-        $("#pdDone", panel).textContent = `${u.doneCount} of ${u.milestones.length}`;
-        $("#pdCount", panel).textContent = `${u.doneCount}/${u.milestones.length}`;
-        $("#pdHint", panel).textContent = hint(u);
+        paintProgress(panel, u);
         if (u.progress === 100 && cb.checked) {
           burst($("#pdRing", panel));
           toast("Sprint milestones complete. Time to post your proof!", { icon: "award" });
         }
+        saved.catch((err) => {
+          const back = S.project(p.id);
+          if (back && openId === p.id) paintProgress(panel, back);
+          Mori.people.fail(err.code === "signed-out" ? err : new Error("That change wasn’t saved: " + err.message));
+        });
       })
     );
+    panel.addEventListener("click", (e) => {
+      if (e.target.closest("[data-pd-add]")) { openAddCofounders(S.project(p.id), e.target.closest("[data-pd-add]")); return; }
+      const drop = e.target.closest("[data-pd-drop]");
+      if (drop && Mori.people.confirmTap(drop, "Tap again")) {
+        const who = N.member(drop.dataset.pdDrop);
+        Mori.people.busy(drop, () => S.removeCofounder(p.id, drop.dataset.pdDrop), () => toast(`${who ? who.name : "They"} ${who ? "is" : "are"} no longer on this project`, { icon: "x" }));
+        return;
+      }
+      const leave = e.target.closest("[data-pd-leave]");
+      if (leave && Mori.people.confirmTap(leave, "Tap again to leave")) {
+        Mori.people.busy(leave, () => S.removeCofounder(p.id, S.session().id), () => { Mori.modal.close(); toast(`You left “${p.name}”`, { icon: "x" }); });
+      }
+    });
     $("[data-pd-settings]", panel).addEventListener("click", () => soon("Project settings"));
     $("[data-pd-pin]", panel).addEventListener("click", (e) => {
       const u = S.togglePin(p.id);
@@ -249,16 +354,53 @@
       const btn = e.currentTarget;
       btn.setAttribute("aria-pressed", String(u.pinned));
       btn.querySelector("span").textContent = u.pinned ? "Unpin from home" : "Pin to home";
-      Mori.shell.mountNav(); // the Projects menu lists pinned projects
       toast(u.pinned ? `“${u.name}” is pinned to your homepage` : `“${u.name}” unpinned`, { icon: "pin" });
     });
     Mori.motion.refresh(panel);
 
     Mori.modal.open("projectDrawer", {
       opener,
-      onClose: () => { setOpenParam(null); render(); },
+      onClose: () => { openId = null; setOpenParam(null); render(); },
     });
     setOpenParam(id);
+  }
+  /** Keep the open drawer's team and progress in step with new data. */
+  function refreshDrawer() {
+    if (!openId || !Mori.modal.isOpen("projectDrawer")) return;
+    const p = S.project(openId);
+    const panel = $("#projectDrawer .modal");
+    if (!p) { Mori.modal.close(); toast("You’re no longer on that project", { icon: "x" }); return; }
+    paintProgress(panel, p);
+    $("#pdTeam", panel).innerHTML = teamHTML(p);
+  }
+
+  /* ---------- Add co-founders to an existing project ---------- */
+  function openAddCofounders(p, opener) {
+    if (!p) return;
+    const chosen = new Set();
+    const root = createModal("addCofoundersModal", { label: "Add co-founders", panelCls: "modal--new" });
+    const panel = $(".modal", root);
+    panel.setAttribute("aria-labelledby", "acTitle");
+    panel.innerHTML = `
+      <div class="modal-head">
+        <div><h2 id="acTitle">Add co-founders</h2><p class="meta">They’ll see “${esc(p.name)}” in their projects and can tick off milestones.</p></div>
+        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      </div>
+      <div class="modal-body np-cofounders">${pickerHTML()}</div>
+      <div class="modal-foot">
+        <button class="btn" type="button" data-close>Cancel</button>
+        <button class="btn btn--ink" type="button" id="acSave">${icon("userPlus")} Add to project</button>
+      </div>`;
+    bindPicker(panel, chosen, [p.ownerId].concat(p.cofounders));
+    $("#acSave", panel).addEventListener("click", (e) => {
+      if (!chosen.size) { toast("Pick at least one connection", { icon: "userPlus" }); return; }
+      Mori.people.busy(e.currentTarget, () => S.addCofounders(p.id, Array.from(chosen)), (added) => {
+        Mori.modal.close({ restoreFocus: false });
+        toast(`Added ${added.length} co-founder${added.length === 1 ? "" : "s"}`, { icon: "check" });
+        openProject(p.id);
+      });
+    });
+    Mori.modal.open("addCofoundersModal", { opener });
   }
 
   /* ---------- Declare a new project ---------- */
@@ -269,6 +411,8 @@
     const root = createModal("newProjectModal", { label: "Declare a new project", panelCls: "modal--new" });
     const panel = $(".modal", root);
     const chosen = new Set();
+    const cofounders = new Set();
+    const offerPicker = N.available() && S.profile().role === "founder" && N.connections().length > 0;
     let rung = 0;
     panel.setAttribute("aria-labelledby", "npTitle");
     panel.innerHTML = `
@@ -284,6 +428,10 @@
           <div class="filters" id="npTags">${tagChoices().map((t) => `<button type="button" class="fchip" data-np-tag="${esc(t)}" data-active="false">${esc(t)}</button>`).join("")}</div>
           <div class="np-addtag"><input class="input" id="npNewTag" maxlength="20" placeholder="Add your own tag and press Enter" aria-label="Add a tag"></div>
         </div>
+        <div class="field np-cofounders">
+          <span>Co-founders <em class="hint">optional · from your connections</em></span>
+          ${offerPicker ? pickerHTML() : `<p class="meta np-co-note">${noPickerNote()}</p>`}
+        </div>
         <div class="field">
           <span>Where are you on the milestone ladder?</span>
           <div class="np-rungs" role="radiogroup" aria-label="Starting rung">
@@ -298,6 +446,7 @@
       </div>`;
 
     const form = $("#npForm", panel);
+    if (offerPicker) bindPicker($(".np-cofounders", panel), cofounders);
     const describe = () => {
       const r = D.ladder[rung];
       $("#npRungDesc", panel).innerHTML = `<b>Rung ${r.rung} · ${esc(r.stage)}.</b> ${esc(r.proof)}`;
@@ -318,7 +467,22 @@
       b.dataset.active = String(chosen.has(t));
     });
 
-    const create = () => {
+    const created = (id, name) => {
+      Mori.modal.close({ restoreFocus: false });
+      q.value = "";
+      activeTags.clear();
+      sortBy.value = "updated_desc";
+      currentPage = 1;
+      highlightId = id;
+      buildChips();
+      render();
+      highlightId = null;
+      setTimeout(() => {
+        const card = grid.querySelector(`.pcard[data-open="${CSS.escape(id)}"]`);
+        if (card) card.scrollIntoView({ behavior: Mori.motion.reduced() ? "auto" : "smooth", block: "center" });
+      }, 120);
+    };
+    const create = async () => {
       const nameInput = form.elements.name;
       const name = nameInput.value.trim();
       if (!name) {
@@ -329,21 +493,18 @@
         toast("Give your project a name", { icon: "edit" });
         return;
       }
-      const id = S.createProject({ name, focus: form.elements.focus.value, tags: Array.from(chosen), rung });
-      Mori.modal.close({ restoreFocus: false });
-      q.value = "";
-      activeTags.clear();
-      sortBy.value = "updated_desc";
-      currentPage = 1;
-      highlightId = id;
-      buildChips();
-      render();
-      highlightId = null;
-      toast(`“${name}” declared`, { icon: "check" });
-      setTimeout(() => {
-        const card = grid.querySelector(`.pcard[data-open="${CSS.escape(id)}"]`);
-        if (card) card.scrollIntoView({ behavior: Mori.motion.reduced() ? "auto" : "smooth", block: "center" });
-      }, 120);
+      const btn = $("#npCreate", panel);
+      if (btn.disabled) return;
+      btn.disabled = true;
+      try {
+        const id = await S.createProject({ name, focus: form.elements.focus.value, tags: Array.from(chosen), rung, cofounders: Array.from(cofounders) });
+        created(id, name);
+        toast(cofounders.size ? `“${name}” declared with ${cofounders.size} co-founder${cofounders.size === 1 ? "" : "s"}` : `“${name}” declared`, { icon: "check" });
+      } catch (err) {
+        btn.disabled = false;
+        if (err.projectId) { created(err.projectId, name); toast(err.message, { icon: "x", duration: 5000 }); return; }
+        Mori.people.fail(err);
+      }
     };
 
     $("#npNewTag", panel).addEventListener("keydown", (e) => {
@@ -357,7 +518,10 @@
       else $("#npTags", panel).insertAdjacentHTML("beforeend", `<button type="button" class="fchip enter" data-np-tag="${esc(t)}" data-active="true">${esc(t)}</button>`);
       e.target.value = "";
     });
-    form.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.name && e.target.id !== "npNewTag") { e.preventDefault(); create(); } });
+    form.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.name && e.target.id !== "npNewTag" && !e.target.matches("[data-co-q]")) { e.preventDefault(); create(); }
+      if (e.key === "Enter" && e.target.matches("[data-co-q]")) e.preventDefault();
+    });
     form.addEventListener("submit", (e) => { e.preventDefault(); create(); });
     $("#npCreate", panel).addEventListener("click", create);
     form.elements.name.addEventListener("input", () => form.elements.name.classList.remove("is-invalid"));
@@ -373,10 +537,23 @@
   $("#newProjectBtn").addEventListener("click", (e) => openNewProject(e.currentTarget));
   document.addEventListener("click", (e) => { const b = e.target.closest("[data-new-project]"); if (b) openNewProject(b); });
 
+  // Projects shared with you, co-founders' changes and team names arrive in the background.
+  document.addEventListener("mori:change", (e) => {
+    const key = e.detail && e.detail.key;
+    if (!["projectsRemote", "projectsCreated", "projectOverrides", "network"].includes(key)) return;
+    if (key !== "projectOverrides" && !Mori.modal.isOpen("newProjectModal")) { buildChips(); render(); }
+    refreshDrawer();
+  });
+
   /* ---------- Boot ---------- */
   buildChips();
   render();
   const params = new URLSearchParams(location.search);
-  if (params.get("open")) setTimeout(() => openProject(params.get("open")), 250);
-  else if (params.get("new")) setTimeout(() => openNewProject($("#newProjectBtn")), 250);
+  const ready = N.available() ? S.refreshProjects({ force: true }).catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else toast("Couldn’t load your projects: " + err.message, { icon: "x" }); }) : Promise.resolve();
+  ready.then(() => {
+    loaded = true;
+    render();
+    if (params.get("open")) openProject(params.get("open"));
+    else if (params.get("new")) openNewProject($("#newProjectBtn"));
+  });
 })();

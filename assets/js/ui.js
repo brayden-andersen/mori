@@ -62,6 +62,10 @@
     link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
     briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
     trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+    camera: '<path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+    checks: '<path d="m2 12.5 4 4 8.5-8.5"/><path d="m11.5 15.5 1 1 8.5-8.5"/>',
   };
   const icon = (name, cls = "ico") =>
     `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
@@ -76,22 +80,47 @@
   const googleG = () =>
     '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
 
-  /* ---------- Avatars (Google photo, else gradient initials) ---------- */
-  const PALETTE = [["#60a5fa", "#818cf8"], ["#fb923c", "#f472b6"], ["#34d399", "#22d3ee"], ["#a78bfa", "#f472b6"], ["#f59e0b", "#f97316"], ["#38bdf8", "#34d399"], ["#f472b6", "#fb7185"], ["#818cf8", "#22d3ee"]];
-  const hash = (str) => { let h = 2166136261; for (const ch of String(str)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }; // FNV-1a
+  /* ---------- Avatars: the member's chosen photo, else a plain gray-and-white user icon ---------- */
+  const FACE = '<svg class="avatar-face" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9.4" r="4.3"/><path d="M3.2 24c.7-5.4 4.3-8.9 8.8-8.9s8.1 3.5 8.8 8.9z"/></svg>';
   function initials(name) {
     const parts = String(name || "?").replace(/[^\p{L}\p{N}\s]/gu, "").trim().split(/\s+/).filter(Boolean);
     if (!parts.length) return "?";
     return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
   }
   function avatar(p, size = 40, opts = {}) {
-    const name = (p && p.name) || "Member";
-    const tone = p && Number.isInteger(p.tone) ? p.tone : hash((p && p.id) || name);
-    const [a1, a2] = PALETTE[tone % PALETTE.length];
+    // The icon sits underneath, so it shows if the photo is missing or fails to load.
     const img = p && p.picture ? `<img src="${esc(p.picture)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">` : "";
-    const av = `<span class="avatar" style="--size:${size}px;--a1:${a1};--a2:${a2}" aria-hidden="true">${esc(initials(name))}${img}</span>`;
+    const av = `<span class="avatar avatar--face" style="--size:${size}px" aria-hidden="true">${FACE}${img}</span>`;
     return opts.ring ? `<span class="open-ring">${av}</span>` : av;
   }
+
+  /** Centre-crop an image file to a square JPEG, at most `size` pixels wide (profile photos). */
+  function squareImage(file, size = 512, quality = 0.86) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const side = Math.min(img.naturalWidth, img.naturalHeight);
+        if (!side) { reject(new Error("That image couldn’t be read.")); return; }
+        const out = Math.min(size, side);
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = out;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, out, out);
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("That image couldn’t be processed."))), "image/jpeg", quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("That file isn’t an image this browser can open.")); };
+      img.src = url;
+    });
+  }
+  const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error("Couldn’t read that image."));
+    r.readAsDataURL(blob);
+  });
   const avatarStack = (people, size = 26) => `<span class="av-stack">${people.map((p) => avatar(p, size)).join("")}</span>`;
 
   /* ---------- Shared fragments ---------- */
@@ -321,6 +350,6 @@
 
   hydrateIcons();
 
-  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, soon, loader, go, createModal, seg, placeGlider, measureNav, splitWords };
+  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, soon, loader, go, createModal, seg, placeGlider, measureNav, splitWords, squareImage, blobToDataUrl };
   Mori.modal = Modal;
 })();

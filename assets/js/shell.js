@@ -3,7 +3,8 @@
    --------------------------------------------------------------------------
    Renders the shared nav and footer into [data-shell="nav"] / [data-shell="footer"],
    keeps nav badges in sync, prerenders linked pages for instant navigation,
-   and owns the account modals: Profile, Settings and Notifications.
+   owns the account modals (Profile with photo and links, Settings,
+   Notifications) and starts live updates for signed-in Google members.
      data-modal="profile|settings|notifications"  opens a modal
      data-soon="Label"                           "coming soon" toast
      data-action="signout"                       signs out
@@ -21,6 +22,7 @@
   /* ---------- Nav ---------- */
   function navHTML() {
     const s = S.session();
+    const you = S.me();
     const sub = s.email || (s.provider === "demo" ? "Demo account" : "");
     const link = (href, label, ic) => `<a class="drop-link" role="menuitem" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
     return `
@@ -41,20 +43,21 @@
             </div>
           </div>
           <div class="item">
-            <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span></a>
+            <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
             <div class="dropdown" role="menu" aria-label="Network">
               ${link("network.html#explore", "Explore", "compass")}
               <a class="drop-link" role="menuitem" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages</a>
+              <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
+              <a class="drop-link" role="menuitem" href="#" data-connections>${icon("network")} Connections</a>
             </div>
           </div>
           <div class="item account">
             <button class="nav-btn account-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
               <span class="nav-label acct-label">Account</span>
-              <span class="pfp-wrap">${avatar(s, 24)}<span class="pfp-dot" hidden></span></span>
+              <span class="pfp-wrap">${avatar(you, 24)}<span class="pfp-dot" hidden></span></span>
             </button>
             <div class="dropdown" role="menu" aria-label="Account">
-              <div class="drop-head">${avatar(s, 36)}<div><b>${esc(s.name)}</b><span>${esc(sub)}</span></div></div>
+              <div class="drop-head">${avatar(you, 36)}<div><b>${esc(you.name)}</b><span>${esc(sub)}</span></div></div>
               <div class="drop-sep" role="separator"></div>
               <a class="drop-link" role="menuitem" href="#" data-modal="profile">${icon("user")} Profile</a>
               <a class="drop-link" role="menuitem" href="#" data-modal="settings">${icon("sliders")} Settings</a>
@@ -120,10 +123,22 @@
 
   function updateBadges() {
     if (!$("#topNav.app-nav")) return;
-    const counts = { notifications: S.unreadNotifications(), requests: S.network.incoming().length };
+    const counts = { notifications: S.unreadNotifications(), requests: S.network.incoming().length, messages: S.chat.unreadCount() };
     Object.entries(counts).forEach(([key, n]) => $$(`[data-badge="${key}"]`).forEach((b) => { b.textContent = n > 9 ? "9+" : String(n); b.hidden = !n; }));
     const dot = $(".pfp-dot");
     if (dot) dot.hidden = counts.notifications === 0;
+    // New messages or requests: a dot on Network, so they're noticed without opening the menu.
+    const waiting = counts.requests + counts.messages;
+    const net = $('.nav-btn[data-nav="network"]');
+    const netDot = $("[data-nav-dot]");
+    if (netDot) netDot.hidden = !waiting;
+    if (net) {
+      const parts = [];
+      if (counts.messages) parts.push(`${counts.messages} unread conversation${counts.messages === 1 ? "" : "s"}`);
+      if (counts.requests) parts.push(`${counts.requests} request${counts.requests === 1 ? "" : "s"}`);
+      if (parts.length) net.setAttribute("aria-label", `Network, ${parts.join(" and ")}`);
+      else net.removeAttribute("aria-label");
+    }
   }
 
   /* ---------- Instant page changes: prerender linked app pages on hover (Chrome / Edge) ---------- */
@@ -161,7 +176,8 @@
   const closeBtn = (label = "Close") => `<button class="icon-btn modal-x" data-close aria-label="${label}">${icon("x")}</button>`;
   const switchHTML = (attrs, on, label) =>
     `<label class="switch"><input type="checkbox" ${attrs} ${on ? "checked" : ""}><span class="switch-track"><span class="switch-knob"></span></span>${label ? `<span class="switch-label">${label}</span>` : ""}</label>`;
-  const fullName = (p, s) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;
+  const fullName = (p, s) => S.fullName(p, s);
+  const LINK_TYPES = D.linkTypes;
 
   /** Rung 0–5 bar used in the profile and project views */
   function ladderBar(rung) {
@@ -183,16 +199,24 @@
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
     const where = [p.region, p.age ? `${p.age} years old` : "", s.email].filter(Boolean).map(esc).join(" · ");
-    const docs = [
-      p.linkedin ? `<a class="btn btn--sm" href="${esc(p.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>` : "",
-      p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "",
+    const docs = Mori.people.linkButtons(p) + (p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "");
+    const google = s.provider === "google" && /^https:/.test(s.picture || "") && s.picture !== p.photo ? s.picture : "";
+    const photoMenu = [
+      `<button class="drop-link" type="button" role="menuitem" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
+      google ? `<button class="drop-link" type="button" role="menuitem" data-photo="google">${googleG()} Use my Google photo</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
     ].join("");
 
     return `
       <div class="pf-cover" aria-hidden="true"><span></span><span></span><span></span></div>
       ${closeBtn("Close profile")}
       <div class="pf-head">
-        ${avatar({ id: s.id, name: fullName(p, s), picture: s.picture }, 88, { ring: p.open })}
+        <div class="pf-photo">
+          ${avatar(S.me(), 88, { ring: p.open })}
+          <button class="icon-btn pf-photo-btn" type="button" data-pf-photo aria-haspopup="menu" aria-expanded="false" aria-label="Change profile photo">${icon("camera")}</button>
+          <div class="pf-photo-menu" role="menu" aria-label="Profile photo" hidden>${photoMenu}</div>
+          <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-photo-file hidden>
+        </div>
         <button class="btn btn--sm" data-pf-edit>${icon("edit")} Edit profile</button>
       </div>
       <div class="pf-body">
@@ -201,7 +225,7 @@
         <p class="meta pf-meta">${icon("pin")} ${where || "Add your region"}</p>
         <div class="chips">${roleChip(p.role)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
         <div class="pf-stats">
-          <div class="pf-stat"><b data-count="${S.network.connections().length}">0</b><span>Connections</span></div>
+          <button class="pf-stat pf-stat--link" type="button" data-connections aria-label="See your connections"><b data-count="${S.network.connections().length}">0</b><span>Connections ${icon("arrowRight")}</span></button>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
           <div class="pf-stat"><b>${p.rating != null ? Number(p.rating).toFixed(1) : "–"}</b><span>${p.rating != null ? `Sprint rating · ${p.reviews} review${p.reviews === 1 ? "" : "s"}` : "Sprint rating"}</span></div>
         </div>
@@ -211,7 +235,7 @@
         </section>
         <section class="pf-sec"><h3>Industry niche</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
         <section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page or upload a CV.</span>'}</div></section>
+        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
         <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
         <section class="pf-sec"><h3>Milestone record</h3>${record}</section>
         <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
@@ -231,9 +255,65 @@
           ${switchHTML('name="open"', p.open, "Show that I’m open to build")}
           <select class="select" name="openType" aria-label="What are you open to?">${openOpts}</select>
         </div>
-        <p class="field--full meta pf-edit-note">Name, age, region, role, industries, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
+        <fieldset class="field field--full pf-links" id="pfLinks">
+          <legend>Links <em class="hint">GitHub, portfolio, socials · up to 8</em></legend>
+          <div class="pf-link-rows">${(p.links || []).map(linkRowHTML).join("")}</div>
+          <button class="btn btn--sm" type="button" data-pf-addlink>${icon("plus")} Add a link</button>
+        </fieldset>
+        <p class="field--full meta pf-edit-note">Name, age, region, role, industries, LinkedIn, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
       </form>
       <div class="modal-foot"><button class="btn" type="button" data-pf-cancel>Cancel</button><button class="btn btn--ink" type="button" data-pf-save>${icon("check")} Save profile</button></div>`;
+  }
+
+  function linkRowHTML(l = { type: "github", url: "" }) {
+    const opts = LINK_TYPES.map((t) => `<option value="${t.id}" ${t.id === l.type ? "selected" : ""}>${esc(t.label)}</option>`).join("");
+    const t = LINK_TYPES.find((x) => x.id === l.type) || LINK_TYPES[0];
+    return `<div class="pf-link-row">
+      <select class="select" data-link-type aria-label="Kind of link">${opts}</select>
+      <input class="input" data-link-url type="url" inputmode="url" value="${esc(l.url)}" placeholder="${esc(t.hint)}" aria-label="Link address" maxlength="300">
+      <button class="icon-btn" type="button" data-pf-droplink aria-label="Remove this link">${icon("x")}</button>
+    </div>`;
+  }
+  /** Read the links editor: https only, "github.com/x" becomes "https://github.com/x". */
+  function readLinks(form) {
+    const out = [];
+    for (const row of $$(".pf-link-row", form)) {
+      const raw = $("[data-link-url]", row).value.trim();
+      if (!raw) continue;
+      let url;
+      try { url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : "https://" + raw); } catch (e) { url = null; }
+      if (!url || !/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) {
+        const err = new Error(`“${raw}” doesn’t look like a web address.`);
+        err.field = $("[data-link-url]", row);
+        throw err;
+      }
+      url.protocol = "https:";
+      out.push({ type: $("[data-link-type]", row).value, url: url.href });
+    }
+    return out.slice(0, 8);
+  }
+
+  /* Profile photo: upload (cropped square), your Google photo, or the default icon */
+  async function changePhoto(choice, panel, file) {
+    const wrap = $(".pf-photo", panel);
+    if (wrap) wrap.classList.add("is-busy");
+    try {
+      if (choice === "upload") {
+        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Choose a JPG, PNG or WebP image.");
+        if (file.size > 15 * 1024 * 1024) throw new Error("That image is over 15 MB. Choose a smaller one.");
+        await S.setPhoto(await Mori.ui.squareImage(file, 512));
+        toast("Profile photo updated", { icon: "check" });
+      } else if (choice === "google") {
+        await S.setPhoto(S.session().picture);
+        toast("Using your Google photo", { icon: "check" });
+      } else {
+        await S.setPhoto(null);
+        toast("Back to the default icon", { icon: "check" });
+      }
+    } catch (err) {
+      toast(err.code === "signed-out" ? err.message : "Couldn’t change your photo: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+    }
+    if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
   }
 
   async function openCv() {
@@ -249,7 +329,7 @@
     }
   }
 
-  function renderProfile(mode = "view") {
+  function renderProfile(mode = "view", opts = {}) {
     const el = createModal("modal-profile", { label: "Profile", panelCls: "modal--profile" });
     const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "pfTitle");
@@ -257,15 +337,58 @@
     panel.scrollTop = 0;
     if (mode === "view") {
       $("[data-pf-edit]", panel).addEventListener("click", () => renderProfile("edit"));
+      $("[data-pf-links]", panel).addEventListener("click", () => renderProfile("edit", { links: true }));
       const cv = $("[data-pf-cv]", panel);
       if (cv) cv.addEventListener("click", openCv);
+      const photoBtn = $("[data-pf-photo]", panel);
+      const menu = $(".pf-photo-menu", panel);
+      const fileInput = $("[data-pf-photo-file]", panel);
+      const showMenu = (open) => { menu.hidden = !open; photoBtn.setAttribute("aria-expanded", String(open)); };
+      photoBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (menu.children.length === 1) fileInput.click(); // nothing to choose between: go straight to the picker
+        else showMenu(menu.hidden);
+      });
+      menu.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-photo]");
+        if (!b) return;
+        showMenu(false);
+        if (b.dataset.photo === "upload") fileInput.click();
+        else changePhoto(b.dataset.photo, panel);
+      });
+      panel.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".pf-photo")) showMenu(false); });
+      fileInput.addEventListener("change", () => { const f = fileInput.files && fileInput.files[0]; if (f) changePhoto("upload", panel, f); });
       Mori.motion.refresh(panel);
       return el;
     }
     const form = $("#pfForm", panel);
+    const rows = $(".pf-link-rows", form);
+    const addBtn = $("[data-pf-addlink]", form);
+    const syncAdd = () => { addBtn.hidden = $$(".pf-link-row", rows).length >= 8; };
+    const addRow = () => {
+      rows.insertAdjacentHTML("beforeend", linkRowHTML());
+      syncAdd();
+      const input = $$("[data-link-url]", rows).pop();
+      input.focus();
+      return input;
+    };
+    addBtn.addEventListener("click", addRow);
+    rows.addEventListener("click", (e) => { const b = e.target.closest("[data-pf-droplink]"); if (b) { b.closest(".pf-link-row").remove(); syncAdd(); } });
+    rows.addEventListener("change", (e) => {
+      if (!e.target.matches("[data-link-type]")) return;
+      const t = LINK_TYPES.find((x) => x.id === e.target.value);
+      if (t) e.target.closest(".pf-link-row").querySelector("[data-link-url]").placeholder = t.hint;
+    });
+    syncAdd();
     const save = async () => {
       const f = new FormData(form);
       const btn = $("[data-pf-save]", panel);
+      let links;
+      try { links = readLinks(form); } catch (err) {
+        toast(err.message, { icon: "x", duration: 3600 });
+        if (err.field) err.field.focus();
+        return;
+      }
       btn.disabled = true;
       try {
         await S.saveProfile({
@@ -274,6 +397,7 @@
           skills: String(f.get("skills") || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 12),
           open: !!form.elements.open.checked,
           openType: String(f.get("openType") || "cofound"),
+          links,
         });
         toast("Profile updated", { icon: "check" });
       } catch (err) {
@@ -284,7 +408,14 @@
     $("[data-pf-cancel]", panel).addEventListener("click", () => renderProfile("view"));
     $("[data-pf-save]", panel).addEventListener("click", save);
     form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
-    setTimeout(() => form.elements.headline.focus(), 80);
+    if (opts.links) {
+      setTimeout(() => {
+        $("#pfLinks", panel).scrollIntoView({ block: "center", behavior: Mori.motion.reduced() ? "auto" : "smooth" });
+        if (!$$(".pf-link-row", rows).length) addRow(); else $$("[data-link-url]", rows).pop().focus();
+      }, 80);
+    } else {
+      setTimeout(() => form.elements.headline.focus(), 80);
+    }
     return el;
   }
 
@@ -319,13 +450,13 @@
         <div class="st-panes">
           ${pane("account", `
             <div class="st-card">
-              ${avatar(s, 48)}
-              <div class="st-card-copy"><b>${esc(s.name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
+              ${avatar(S.me(), 48)}
+              <div class="st-card-copy"><b>${esc(S.me().name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
               <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + "Demo"}</span>
             </div>
-            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile and CV are stored in your Sandbox account." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
+            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
             ${row("Sign out", "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} Sign out</button>`)}
-            ${row("Reset this browser", "Clears the projects and settings saved in this browser. Your sign-up answers and connections stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
+            ${row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
@@ -335,7 +466,7 @@
                 .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
           `)}
           ${pane("notifications", `
-            ${notifyRow("messages", "Messages and mentions", "When someone messages you or mentions you in notes.")}
+            ${notifyRow("messages", "Messages", "A pop-up when a connection messages you. The Messages badge always shows unread conversations.")}
             ${notifyRow("requests", "Connection requests", "When founders or specialists want to connect, or accept your request.")}
             ${notifyRow("projects", "Projects and milestones", "Sprint progress and rungs reached on your projects.")}
             ${notifyRow("announcements", "Sprints, rooms and insights", "Sprint lobbies, room events, badges and new insights.")}
@@ -484,6 +615,7 @@
     Mori.modal.close({ restoreFocus: false });
     loader.show("Signing out", "See you soon…");
     await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
+    S.forgetPrivate(); // other members' details and messages don't stay on this device
     Mori.auth.clearSession();
     location.replace("index.html?signedout=1");
   }
@@ -501,10 +633,31 @@
     if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
   });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
+  // The nav shows your photo, name and pinned projects: rebuild it when any of those change.
+  const navKey = () => JSON.stringify([S.me(), S.pinnedProjects().map((p) => [p.id, p.name])]);
+  let lastNav = "";
   document.addEventListener("mori:change", (e) => {
-    updateBadges();
     const key = e.detail && e.detail.key;
+    if (["profile", "projectsRemote", "projectsCreated", "projectOverrides"].includes(key) && $("#topNav.app-nav") && navKey() !== lastNav) {
+      lastNav = navKey();
+      mountNav();
+    } else {
+      updateBadges();
+    }
     if ((key === "network" || key === "links") && Mori.modal.isOpen("modal-notifications")) renderNotifications();
+  });
+
+  // Live updates: a short pop-up for requests, acceptances and messages.
+  document.addEventListener("mori:live", (e) => {
+    const d = e.detail || {};
+    const name = d.person ? d.person.name : "Someone";
+    const st = S.settings().notify;
+    if (d.kind === "request" && st.requests !== false) toast(`${name} wants to connect`, { icon: "userPlus", duration: 3600 });
+    else if (d.kind === "accepted" && st.requests !== false) toast(`${name} accepted your request`, { icon: "check", duration: 3600 });
+    else if (d.kind === "message" && st.messages !== false && !(d.person && S.chat.viewing === d.person.id && !document.hidden)) {
+      const text = d.message.body.length > 60 ? d.message.body.slice(0, 57) + "…" : d.message.body;
+      toast(`${name.split(/\s+/)[0]}: ${text}`, { icon: "message", duration: 4200 });
+    }
   });
   document.addEventListener("mori:modal", (e) => { if (e.detail.open) closeMenus(); });
 
@@ -519,11 +672,20 @@
       if (name && name !== S.session().name) { Mori.auth.updateSession({ name, givenName: name.split(/\s+/)[0] }); mountNav(); }
       if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
     }).catch(() => { /* offline: keep the local copy */ });
-    // New requests and accepted ones drive the badges and notifications.
-    const refreshNetwork = () => S.network.refresh().catch(() => { /* keep the local copy */ });
-    refreshNetwork();
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNetwork(); });
-    setInterval(() => { if (!document.hidden) refreshNetwork(); }, 45000); // pick up requests while the page stays open
+    // Requests, messages and projects: load the latest, then stay live.
+    const refreshAll = () => {
+      S.network.refresh().catch(() => { /* keep the local copy */ });
+      S.chat.refresh().catch(() => {});
+      S.refreshProjects().catch(() => {});
+    };
+    const goLive = () => { refreshAll(); S.live.start(); };
+    // A page prerendered on hover waits until it's actually opened.
+    if (document.prerendering) document.addEventListener("prerenderingchange", goLive, { once: true });
+    else goLive();
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll(); });
+    // Safety net in case the live connection drops without telling us.
+    setInterval(() => { if (!document.hidden && S.live.state !== "SUBSCRIBED") refreshAll(); }, 45000);
+    lastNav = navKey();
   }
 
   Mori.shell = { openModal: openAccountModal, updateBadges, mountNav, ladderBar, switchHTML, closeMenus, signOut };

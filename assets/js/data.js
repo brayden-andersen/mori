@@ -38,6 +38,21 @@ Mori.data = {
   languages: ["Bahasa Indonesia", "English", "Javanese", "Sundanese", "Malay", "Mandarin", "Cantonese", "Hokkien", "Japanese", "Korean", "Arabic", "Hindi", "Tagalog", "Thai", "Vietnamese", "Dutch", "German", "French", "Spanish", "Balinese", "Minangkabau", "Batak", "Buginese", "Madurese"],
   languageLevels: ["Native", "Fluent", "Professional", "Conversational", "Basic"],
 
+  /* Extra profile links, shown next to the CV */
+  linkTypes: [
+    { id: "github",    label: "GitHub",      icon: "code",     hint: "github.com/username" },
+    { id: "website",   label: "Website",     icon: "globe",    hint: "yourname.com" },
+    { id: "portfolio", label: "Portfolio",   icon: "layers",   hint: "your portfolio page" },
+    { id: "x",         label: "X (Twitter)", icon: "at",       hint: "x.com/username" },
+    { id: "instagram", label: "Instagram",   icon: "camera",   hint: "instagram.com/username" },
+    { id: "tiktok",    label: "TikTok",      icon: "megaphone", hint: "tiktok.com/@username" },
+    { id: "youtube",   label: "YouTube",     icon: "radio",    hint: "youtube.com/@channel" },
+    { id: "behance",   label: "Behance",     icon: "layers",   hint: "behance.net/username" },
+    { id: "dribbble",  label: "Dribbble",    icon: "target",   hint: "dribbble.com/username" },
+    { id: "medium",    label: "Medium",      icon: "file",     hint: "medium.com/@username" },
+    { id: "other",     label: "Other link",  icon: "link",     hint: "https://…" },
+  ],
+
   /* Milestone ladder — rung 0 to 5 */
   ladder: [
     { rung: 0, stage: "Idea declared",      proof: "A one-page problem brief, the hours you have and the role you need.", time: "One evening",         toolkit: "Problem brief template",                                  opens: "A startup page in the MORI Network and a place in a sprint lobby." },

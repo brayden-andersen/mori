@@ -1,6 +1,8 @@
 /* ==========================================================================
-   Mori: Sandbox — Supabase (sign-in, profiles, CVs, members, connections)
+   Mori: Sandbox — Supabase
    --------------------------------------------------------------------------
+   Sign-in, profiles (with photo and links), CVs, the member directory,
+   connection requests, shared projects, messages and live updates.
    The client library loads on demand and only when the site is served over
    http(s) with keys in config.js. Otherwise Mori.db.enabled is false and the
    rest of the site runs in demo mode on localStorage.
@@ -14,6 +16,9 @@
   const ROLE_TO_DB = { founder: "Founder", specialist: "Specialist" };
   const ROLE_FROM_DB = { Founder: "founder", Specialist: "specialist" };
   const LINK_COLS = "id, requester_id, addressee_id, status, note, created_at, responded_at";
+  const MSG_COLS = "id, sender_id, recipient_id, body, created_at, read_at";
+  const PROJECT_COLS = "id, owner_id, name, focus, tags, rung, milestones, created_at, updated_at, project_members(member_id, created_at)";
+  const PHOTO_PATH = "/storage/v1/object/public/avatars/";
   let clientPromise = null;
 
   function client() {
@@ -38,6 +43,12 @@
     throw e;
   };
   const https = (url) => (/^https:\/\//i.test(url || "") ? url : "");
+  const LINK_TYPES = new Set(((Mori.data && Mori.data.linkTypes) || []).map((t) => t.id));
+  /** Only https links of a known type, at most 8. */
+  const cleanLinks = (list) => (Array.isArray(list) ? list : [])
+    .map((l) => ({ type: LINK_TYPES.has(l && l.type) ? l.type : "other", url: https(l && l.url) }))
+    .filter((l) => l.url)
+    .slice(0, 8);
 
   /** Id of the member Supabase has signed in; throws a "signed-out" error if the session is gone. */
   async function signedInId(c) {
@@ -50,8 +61,12 @@
     }
     return id;
   }
+  async function signedIn() {
+    const c = await client();
+    return { c, id: await signedInId(c) };
+  }
 
-  /* ---------- Row ↔ profile mapping ---------- */
+  /* ---------- Row ↔ object mapping ---------- */
   function fromRow(r) {
     if (!r) return null;
     const role = ROLE_FROM_DB[r.profile_type] || null;
@@ -65,6 +80,8 @@
       employment: r.employment_status || "",
       industries: r.business_sector || [],
       linkedin: r.linkedin_url || "",
+      links: cleanLinks(r.links),
+      photo: https(r.avatar_url),
       cvPath: r.cv_path || "",
       cvName: r.cv_name || "",
       languages: Array.isArray(r.languages) ? r.languages : [],
@@ -92,6 +109,8 @@
       employment_status: p.employment || null,
       business_sector: (p.industries || []).slice(0, 3),
       linkedin_url: p.linkedin || null,
+      links: cleanLinks(p.links),
+      avatar_url: https(p.photo) || null, // demo photos (data: URLs) never leave the browser
       cv_path: p.cvPath || null,
       cv_name: p.cvName || null,
       languages: p.languages || [],
@@ -102,7 +121,6 @@
       open_type: p.openType || null,
       profile_visibility: p.visibility === "connections" ? "connections" : "everyone",
       onboarding_completed: !!p.onboarded,
-      avatar_url: p.avatarUrl || null,
     };
   }
 
@@ -125,6 +143,7 @@
       open: r.open_to_build === true,
       openType: r.open_type || "",
       linkedin: https(r.linkedin_url),
+      links: cleanLinks(r.links),
       cvPath: r.cv_path || "",
       cvName: r.cv_name || "",
       rating: r.sprint_rating == null ? null : Number(r.sprint_rating),
@@ -141,6 +160,26 @@
     note: r.note || "",
     at: Date.parse(r.created_at) || Date.now(),
     respondedAt: Date.parse(r.responded_at) || 0,
+  });
+  const messageFromRow = (r) => ({
+    id: r.id,
+    from: r.sender_id,
+    to: r.recipient_id,
+    body: r.body,
+    at: Date.parse(r.created_at) || Date.now(),
+    readAt: Date.parse(r.read_at) || 0,
+  });
+  const projectFromRow = (r) => ({
+    id: r.id,
+    ownerId: r.owner_id,
+    name: r.name,
+    focus: r.focus || "",
+    tags: r.tags || [],
+    rung: r.rung || 0,
+    milestones: (Array.isArray(r.milestones) ? r.milestones : []).map((m) => ({ text: String((m && m.text) || ""), done: !!(m && m.done) })),
+    createdAt: Date.parse(r.created_at) || Date.now(),
+    updatedAt: Date.parse(r.updated_at) || 0,
+    cofounders: (r.project_members || []).map((x) => x.member_id),
   });
 
   Mori.db = {
@@ -171,25 +210,41 @@
       return { provider: "google", id: u.id, email: u.email || m.email || "", name: m.full_name || m.name || "", picture: m.avatar_url || m.picture || "" };
     },
 
+    /* ---------- Profile ---------- */
     async fetchProfile() {
-      const c = await client();
-      const id = await signedInId(c);
+      const { c, id } = await signedIn();
       const { data, error } = await c.from("profiles").select("*").eq("id", id).maybeSingle();
       fail(error);
       return fromRow(data);
     },
 
     async saveProfile(profile) {
-      const c = await client();
-      const id = await signedInId(c);
+      const { c, id } = await signedIn();
       const { error } = await c.from("profiles").upsert(toRow(id, profile), { onConflict: "id" });
+      fail(error);
+    },
+
+    /** Upload a square photo to avatars/<user id>/…; returns its public URL. */
+    async uploadPhoto(blob) {
+      const { c, id } = await signedIn();
+      const path = `${id}/${Date.now()}.jpg`;
+      const { error } = await c.storage.from("avatars").upload(path, blob, { contentType: "image/jpeg", upsert: false, cacheControl: "31536000" });
+      fail(error);
+      return c.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    },
+
+    /** Delete a photo this site uploaded (by its public URL); other photos are left alone. */
+    async removePhoto(url) {
+      if (!url || url.indexOf(PHOTO_PATH) === -1) return;
+      const { c } = await signedIn();
+      const path = decodeURIComponent(url.split(PHOTO_PATH)[1].split("?")[0]);
+      const { error } = await c.storage.from("avatars").remove([path]);
       fail(error);
     },
 
     /** Upload a CV to cvs/<user id>/…; returns { path, name }. Replaces the previous file. */
     async uploadCv(file, previousPath) {
-      const c = await client();
-      const id = await signedInId(c);
+      const { c, id } = await signedIn();
       const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
       const path = `${id}/${Date.now()}-${safe}`;
       const { error } = await c.storage.from("cvs").upload(path, file, { contentType: file.type, upsert: false });
@@ -206,10 +261,10 @@
       return data.signedUrl;
     },
 
+    /* ---------- Members and connection requests ---------- */
     /** Everyone who finished sign-up, except you. */
     async members() {
-      const c = await client();
-      await signedInId(c);
+      const { c } = await signedIn();
       const { data, error } = await c.rpc("member_directory");
       fail(error);
       return (data || []).map(memberFromRow);
@@ -217,16 +272,14 @@
 
     /** Connection requests you sent or received, newest first. */
     async connections() {
-      const c = await client();
-      await signedInId(c);
+      const { c } = await signedIn();
       const { data, error } = await c.from("connections").select(LINK_COLS).order("created_at", { ascending: false });
       fail(error);
       return (data || []).map(linkFromRow);
     },
 
     async requestConnection(memberId, note) {
-      const c = await client();
-      await signedInId(c);
+      const { c } = await signedIn();
       const body = { addressee_id: memberId, note: note ? String(note).trim().slice(0, 300) || null : null };
       const { data, error } = await c.from("connections").insert(body).select(LINK_COLS).single();
       fail(error);
@@ -235,8 +288,7 @@
 
     /** Accept or ignore a request sent to you. Resolves null if it was withdrawn meanwhile. */
     async answerRequest(linkId, status) {
-      const c = await client();
-      await signedInId(c);
+      const { c } = await signedIn();
       const { data, error } = await c.from("connections").update({ status }).eq("id", linkId).select(LINK_COLS).maybeSingle();
       fail(error);
       return data ? linkFromRow(data) : null;
@@ -244,11 +296,102 @@
 
     /** Withdraw a request you sent, or remove a connection. */
     async deleteConnection(linkId) {
-      const c = await client();
-      await signedInId(c);
+      const { c } = await signedIn();
       const { error } = await c.from("connections").delete().eq("id", linkId);
       fail(error);
     },
+
+    /* ---------- Projects (shared with co-founders) ---------- */
+    /** Projects you own or co-found, newest first. */
+    async projects() {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("projects").select(PROJECT_COLS).order("created_at", { ascending: false });
+      fail(error);
+      return (data || []).map(projectFromRow);
+    },
+
+    /** Create a project; co-founders (connections) are added straight after. */
+    async createProject(p, cofounders = []) {
+      const { c } = await signedIn();
+      const body = { name: p.name, focus: p.focus || "", tags: p.tags || [], rung: p.rung || 0, milestones: p.milestones || [] };
+      const { data, error } = await c.from("projects").insert(body).select(PROJECT_COLS).single();
+      fail(error);
+      const project = projectFromRow(data);
+      if (cofounders.length) project.cofounders = await Mori.db.addCofounders(project.id, cofounders);
+      return project;
+    },
+
+    /** Change a project's name, focus, tags, rung or milestones. Resolves null if you no longer have access. */
+    async updateProject(id, patch) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("projects").update(patch).eq("id", id).select(PROJECT_COLS).maybeSingle();
+      fail(error);
+      return data ? projectFromRow(data) : null;
+    },
+
+    /** Add co-founders to a project you own; returns the ids that were added. */
+    async addCofounders(projectId, memberIds) {
+      const { c } = await signedIn();
+      const rows = memberIds.map((member_id) => ({ project_id: projectId, member_id }));
+      const { data, error } = await c.from("project_members").insert(rows).select("member_id");
+      fail(error);
+      return (data || []).map((r) => r.member_id);
+    },
+
+    async removeCofounder(projectId, memberId) {
+      const { c } = await signedIn();
+      const { error } = await c.from("project_members").delete().eq("project_id", projectId).eq("member_id", memberId);
+      fail(error);
+    },
+
+    /* ---------- Messages ---------- */
+    /** Your most recent messages, sent and received, newest first. */
+    async messages(limit = 500) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("messages").select(MSG_COLS).order("created_at", { ascending: false }).limit(limit);
+      fail(error);
+      return (data || []).map(messageFromRow);
+    },
+
+    async sendMessage(to, body) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("messages").insert({ recipient_id: to, body }).select(MSG_COLS).single();
+      fail(error);
+      return messageFromRow(data);
+    },
+
+    /** Mark everything a member sent you as read. */
+    async markRead(fromId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("messages").update({ read_at: new Date().toISOString() })
+        .eq("sender_id", fromId).eq("recipient_id", id).is("read_at", null);
+      fail(error);
+    },
+
+    /* ---------- Live updates ---------- */
+    /**
+     * Listen for changes that concern you: requests sent to or by you, new
+     * messages, and your messages being read. Supabase only delivers rows you
+     * may read. handlers: { connection, message, messageRead, status }.
+     * Returns a function that stops listening.
+     */
+    async live(handlers) {
+      const { c, id } = await signedIn();
+      const call = (name) => (payload) => {
+        try { if (handlers[name]) handlers[name](payload); } catch (e) { console.error(e); }
+      };
+      const ch = c.channel("member-" + id)
+        .on("postgres_changes", { event: "*", schema: "public", table: "connections", filter: "addressee_id=eq." + id }, call("connection"))
+        .on("postgres_changes", { event: "*", schema: "public", table: "connections", filter: "requester_id=eq." + id }, call("connection"))
+        .on("postgres_changes", { event: "DELETE", schema: "public", table: "connections" }, call("connection"))
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: "recipient_id=eq." + id }, call("message"))
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: "sender_id=eq." + id }, call("messageRead"))
+        .subscribe((state) => call("status")(state));
+      return () => { c.removeChannel(ch); };
+    },
+
+    linkFromRow,
+    messageFromRow,
 
     async signOut() {
       if (!enabled) return;

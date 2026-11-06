@@ -217,6 +217,17 @@
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
   if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index.html")) root.classList.add("is-signing-in");
 
+  // The browser skips a page-change animation when it can't run it (for
+  // example, the page was already showing). That's fine, but unhandled it
+  // logs an error, so the skip is acknowledged here.
+  const quietTransition = (e) => {
+    const vt = e.viewTransition;
+    if (!vt) return;
+    [vt.ready, vt.finished, vt.updateCallbackDone].forEach((p) => { if (p && p.catch) p.catch(() => {}); });
+  };
+  window.addEventListener("pageswap", quietTransition);
+  window.addEventListener("pagereveal", quietTransition);
+
   const kind = root.getAttribute("data-auth");
   if (kind) Mori.auth.guard(kind);
 })();

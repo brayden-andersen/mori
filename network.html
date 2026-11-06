@@ -18,6 +18,7 @@
   <script defer src="assets/js/motion.js"></script>
   <script defer src="assets/js/db.js"></script>
   <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/people.js"></script>
   <script defer src="assets/js/network.js"></script>
 </head>
 <body data-page="network">
@@ -45,7 +46,7 @@
         <span class="net-glider" aria-hidden="true"></span>
         <a class="net-tab" role="tab" href="#explore" data-tab="explore"><i data-icon="compass"></i>Explore</a>
         <a class="net-tab" role="tab" href="#requests" data-tab="requests"><i data-icon="inbox"></i>Requests<span class="drop-badge" data-badge="requests" hidden></span></a>
-        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages</a>
+        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages<span class="drop-badge" data-badge="messages" hidden></span></a>
       </div>
     </section>
 
@@ -122,13 +123,13 @@
       </section>
     </div>
 
-    <!-- ===== Messages (connections; messaging itself is coming soon) ===== -->
+    <!-- ===== Messages: live chat with your connections ===== -->
     <div class="net-pane" data-pane="messages" role="tabpanel" aria-label="Messages" hidden>
-      <section class="panel chat" id="chat" aria-label="Your connections">
+      <section class="panel chat" id="chat" aria-label="Conversations">
         <aside class="chat-side">
-          <label class="search" aria-label="Search your connections">
+          <label class="search" aria-label="Search conversations">
             <i data-icon="search"></i>
-            <input type="search" id="chatQ" placeholder="Search your connections" autocomplete="off">
+            <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
           </label>
           <div class="chat-list" id="chatList" role="list"></div>
         </aside>
