@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mori: Sandbox • Home</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/home.js"></script>
+</head>
+<body data-page="home">
+  <div class="aura" aria-hidden="true" data-parallax></div>
+  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <main class="wrap wrap--home">
+    <section class="hero" role="banner">
+      <h1 class="hello" id="hello">Welcome back, <span id="username">Founder</span></h1>
+      <p class="prompt" id="prompt" data-reveal="fade" style="--reveal-delay:420ms">Where would you like to go?</p>
+
+      <div class="sections" aria-label="Primary actions" data-stagger="120">
+        <a href="projects.html" class="card spotlight tilt" data-tilt="4" id="toProjects">
+          <span class="card-go" aria-hidden="true"></span>
+          <h2>Projects &amp; Companies</h2>
+          <p>Review roadmaps, tasks, and milestones.</p>
+        </a>
+        <a href="network.html" class="card spotlight tilt" data-tilt="4" id="toNetworking">
+          <span class="card-go" aria-hidden="true"></span>
+          <h2>Explore Networking Space</h2>
+          <p>Discover collaborators, mentors, and active rooms.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Pinned projects: one half-width tile with separator + circular progress -->
+    <section class="panel" aria-labelledby="pinnedTitle" id="pinnedPanel" data-reveal>
+      <div class="panel-head">
+        <h3 id="pinnedTitle">Pinned projects</h3>
+        <a class="panel-link" href="projects.html">All projects <span class="go"></span></a>
+      </div>
+      <div class="pins" id="pins"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="msgsTitle" data-reveal>
+      <div class="panel-head">
+        <h3 id="msgsTitle">Recent messages</h3>
+        <a class="panel-link" href="network.html#messages">Open messages <span class="go"></span></a>
+      </div>
+      <div class="pins" id="msgs"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="insightsTitle" data-reveal>
+      <h3 id="insightsTitle">Insights</h3>
+      <div class="feed" id="insights"></div>
+    </section>
+  </main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>

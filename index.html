@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mori: Sandbox • Find your people. Build your idea. Earn the spotlight.</title>
+  <meta name="description" content="Sandbox by MORI Group is the open-access space where Indonesia’s aspiring founders find the people to build with, the tools and guidance to build right, and a way to get noticed by the people who can back them." />
+  <meta name="theme-color" content="#f8fafc" />
+  <meta property="og:title" content="Mori: Sandbox" />
+  <meta property="og:description" content="Find your people. Build your idea. Earn the spotlight." />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/landing.js"></script>
+</head>
+<body class="landing" data-page="landing">
+  <div class="aura" aria-hidden="true" data-parallax></div>
+  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav landing-nav" id="topNav" aria-label="Main">
+    <div class="nav-inner">
+      <a href="index.html" class="brand" aria-label="Mori: Sandbox — home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>
+        <div class="brand-name">Mori: Sandbox</div>
+      </a>
+
+      <div class="l-links" aria-label="Sections">
+        <a class="nav-btn" href="#network"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Network</a>
+        <a class="nav-btn" href="#toolkits"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7l10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>Toolkits</a>
+        <a class="nav-btn" href="#sprints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Sprints</a>
+        <a class="nav-btn" href="#ladder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2v20M17 2v20M7 6h10M7 11h10M7 16h10"/></svg>Ladder</a>
+      </div>
+
+      <div class="l-actions" id="navActions">
+        <button class="nav-btn" type="button" data-auth="join">Join now</button>
+        <button class="btn btn--pill btn--blue" type="button" data-auth="signin">Sign in</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="l-hero l-wrap" aria-labelledby="heroTitle">
+      <div class="l-hero-copy">
+        <span class="eyebrow" data-reveal="fade"><span class="dot" aria-hidden="true"></span>Open-access · Built for Indonesia’s founders</span>
+        <h1 class="l-title" id="heroTitle">
+          <span class="line"><span class="line-in grad-ink" style="--i:0">Find your <em class="grad-brand">people</em>.</span></span>
+          <span class="line"><span class="line-in grad-ink" style="--i:1">Build your <em class="grad-brand">idea</em>.</span></span>
+          <span class="line"><span class="line-in grad-ink" style="--i:2">Earn the <em class="grad-brand">spotlight</em>.</span></span>
+        </h1>
+        <p class="l-lead" data-reveal style="--reveal-delay:380ms">Sandbox gives aspiring founders what selective incubators offer only a few: the right people to build with, the tools and guidance to build right, and a way to get noticed by the people who can back them.</p>
+
+        <div class="auth-stack" id="heroAuth" data-reveal style="--reveal-delay:520ms">
+          <button class="btn-google magnetic" type="button" data-auth="google">
+            <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+          <p class="legal">By clicking Continue to join or sign in, you agree to Sandbox’s <a href="#" data-soon="User Agreement">User Agreement</a>, <a href="#" data-soon="Privacy Policy">Privacy Policy</a>, and <a href="#" data-soon="Cookie Policy">Cookie Policy</a>.</p>
+          <p class="switch-line">New to Sandbox? <button class="link-btn" type="button" data-auth="join">Join now</button></p>
+        </div>
+      </div>
+
+      <!-- Floating product preview -->
+      <div class="hero-art" aria-hidden="true" data-parallax>
+        <svg class="art-lines" viewBox="0 0 520 560" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="artLine" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".55"/><stop offset="1" stop-color="#f97316" stop-opacity=".55"/></linearGradient>
+          </defs>
+          <path d="M96 420 C 160 360, 200 330, 260 300"/>
+          <path d="M260 300 C 320 250, 360 170, 420 110"/>
+          <path d="M260 300 C 330 350, 380 420, 430 470"/>
+        </svg>
+
+        <div class="fc fc--main">
+          <div class="fc-top">
+            <span class="chip chip--orange">Marketplace</span>
+            <span class="fc-live"><i class="live-dot"></i>Sprint 4 · live</span>
+          </div>
+          <h4>Raflesia — Talent Graph</h4>
+          <p class="meta">Rung 2 · Solution tested</p>
+          <div class="ladder-bar"><i class="on"></i><i class="on"></i><i class="on now"></i><i></i><i></i><i></i></div>
+          <div class="fc-row">
+            <div class="progress-wrapper"><div class="progress-circle" data-percent="75"><div class="progress-inner"></div><div class="progress-label">0%</div></div></div>
+            <div><div class="fc-cap">Sprint milestones</div><div class="caption">Awaiting pitch deck approval</div></div>
+          </div>
+          <div class="fc-team">
+            <span class="av-stack">
+              <span class="avatar" style="--size:28px;--a1:#60a5fa;--a2:#818cf8">AS</span>
+              <span class="avatar" style="--size:28px;--a1:#34d399;--a2:#22d3ee">RP</span>
+              <span class="avatar" style="--size:28px;--a1:#fb923c;--a2:#f472b6">KT</span>
+            </span>
+            <span class="meta">+2 builders interested</span>
+          </div>
+        </div>
+
+        <div class="fc fc--match">
+          <div class="fc-kicker"><span class="spark"></span>New match</div>
+          <div class="fc-person">
+            <span class="avatar" style="--size:38px;--a1:#60a5fa;--a2:#818cf8">AS</span>
+            <div><b>Anna S.</b><span class="meta">Product designer · Jakarta</span></div>
+          </div>
+          <span class="chip chip--emerald"><i class="live-dot"></i>Open to co-found</span>
+        </div>
+
+        <div class="fc fc--msg" id="heroMsg">
+          <div class="fc-person">
+            <span class="avatar msg-av" style="--size:34px;--a1:#34d399;--a2:#22d3ee">RP</span>
+            <div><b class="msg-name">Rahul P.</b><span class="meta">Builder · just now</span></div>
+          </div>
+          <div class="bubble"><span class="msg-text">Shared notes on the pitch deck v3 — take a look!</span></div>
+          <div class="typing" hidden><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="fc fc--badge">
+          <span class="badge-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg></span>
+          <div><b>Sprint badge earned</b><span class="meta">3 sprints · 92% would work again</span></div>
+        </div>
+
+        <span class="float-chip fcp--1"><i style="--c:#3b82f6"></i>Problem sprint</span>
+        <span class="float-chip fcp--2"><i style="--c:#f97316"></i>Pitch deck</span>
+        <span class="float-chip fcp--3"><i style="--c:#10b981"></i>Mentor review</span>
+      </div>
+    </section>
+
+    <!-- What's inside -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marqueeTrack">
+        <span>Co-founders</span><span>Builders</span><span>Mentors</span><span>Problem sprints</span><span>Pitch decks</span><span>Financial models</span><span>Peer reviews</span><span>Sprint badges</span><span>Declared startups</span><span>Investors</span><span>Recruiters</span><span>Campus founders</span>
+      </div>
+    </div>
+
+    <!-- ===== WHAT IS SANDBOX ===== -->
+    <section class="l-section l-wrap l-intro" aria-labelledby="introTitle">
+      <div class="l-intro-head" data-reveal>
+        <p class="kicker">What is Sandbox?</p>
+        <h2 class="l-h2 grad-ink" id="introTitle">A professional network, an incubator and a case competition — open to everyone.</h2>
+        <p class="l-lead">Incubators are selective and time-boxed. Collaborators, mentors and templates are scattered across group chats and blogs. And without a track record, early founders struggle to stand out. Sandbox brings the people, the tools and the proof together in one open place.</p>
+      </div>
+      <div class="pillars" data-stagger="110">
+        <a class="card pillar spotlight tilt" data-tilt="4" href="#network">
+          <span class="pillar-ico" style="--c1:#60a5fa;--c2:#6366f1"><i data-icon="network"></i></span>
+          <span class="pillar-num">01 · MORI Network</span>
+          <h3>Find your people</h3>
+          <p>Founder, builder and mentor profiles, declared startup pages and intent-based matching to find co-founders and collaborators.</p>
+          <span class="pillar-more">Explore the network <i data-icon="arrowRight"></i></span>
+        </a>
+        <a class="card pillar spotlight tilt" data-tilt="4" href="#toolkits">
+          <span class="pillar-ico" style="--c1:#fb923c;--c2:#f97316"><i data-icon="layers"></i></span>
+          <span class="pillar-num">02 · Toolkits &amp; guidance</span>
+          <h3>Build your idea</h3>
+          <p>Pitch, financial, legal and go-to-market toolkits, with guidance and insights shared by mentors and fellow founders.</p>
+          <span class="pillar-more">See the toolkits <i data-icon="arrowRight"></i></span>
+        </a>
+        <a class="card pillar spotlight tilt" data-tilt="4" href="#sprints">
+          <span class="pillar-ico" style="--c1:#a78bfa;--c2:#ec4899"><i data-icon="award"></i></span>
+          <span class="pillar-num">03 · Sprints &amp; track record</span>
+          <h3>Earn the spotlight</h3>
+          <p>Online sprints, peer reviews and sprint badges build a visible track record. Leaderboards and showcases come next.</p>
+          <span class="pillar-more">How sprints work <i data-icon="arrowRight"></i></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===== EXPLORE (topics) ===== -->
+    <section class="l-section l-wrap l-split" id="network" aria-labelledby="exploreTitle">
+      <div data-reveal>
+        <h2 class="l-h2 grad-ink" id="exploreTitle">Explore what founders are building</h2>
+        <p class="l-lead">Browse declared startups and the insights mentors and fellow founders share, organised by topic.</p>
+      </div>
+      <div class="pill-cloud" data-stagger="35" data-reveal-type="scale">
+        <button class="pill" type="button" data-gate="explore Marketplace startups">Marketplace</button>
+        <button class="pill" type="button" data-gate="explore Fundraising">Fundraising</button>
+        <button class="pill" type="button" data-gate="explore EdTech startups">EdTech</button>
+        <button class="pill" type="button" data-gate="explore FinTech startups">FinTech</button>
+        <button class="pill" type="button" data-gate="explore AgriTech startups">AgriTech</button>
+        <button class="pill" type="button" data-gate="explore HealthTech startups">HealthTech</button>
+        <button class="pill" type="button" data-gate="explore Climate startups">Climate</button>
+        <button class="pill" type="button" data-gate="explore the creator economy">Creator economy</button>
+        <button class="pill" type="button" data-gate="explore Food &amp; beverage startups">Food &amp; beverage</button>
+        <button class="pill" type="button" data-gate="explore Logistics startups">Logistics</button>
+        <button class="pill" type="button" data-gate="explore Community projects">Community</button>
+        <button class="pill pill--more" type="button" data-gate="explore every topic">Show all <i data-icon="chevronDown"></i></button>
+      </div>
+    </section>
+
+    <!-- ===== FIND YOUR TEAM (suggested searches) ===== -->
+    <section class="l-section l-wrap l-split" aria-labelledby="teamTitle">
+      <div data-reveal>
+        <h2 class="l-h2 grad-ink" id="teamTitle">Find the right people for your idea</h2>
+        <p class="l-lead">Search by role, skill or intent: who’s open to co-found, who’s looking for a Build sprint, who mentors first-time founders.</p>
+      </div>
+      <div>
+        <p class="kicker" data-reveal="fade">Suggested searches</p>
+        <div class="pill-cloud" data-stagger="35" data-reveal-type="scale">
+          <button class="pill" type="button" data-gate="find a technical co-founder">Technical co-founder</button>
+          <button class="pill" type="button" data-gate="find a product designer">Product designer</button>
+          <button class="pill" type="button" data-gate="find a full-stack developer">Full-stack developer</button>
+          <button class="pill" type="button" data-gate="find a mobile developer">Mobile developer</button>
+          <button class="pill" type="button" data-gate="find data &amp; ML builders">Data &amp; ML</button>
+          <button class="pill" type="button" data-gate="find a growth marketer">Growth marketer</button>
+          <button class="pill" type="button" data-gate="find an operations lead">Operations lead</button>
+          <button class="pill" type="button" data-gate="find a mentor">Mentor</button>
+          <button class="pill" type="button" data-gate="meet angel investors">Angel investor</button>
+          <button class="pill" type="button" data-gate="meet recruiters">Recruiter</button>
+          <button class="pill pill--more" type="button" data-gate="search the whole network">Show more <i data-icon="chevronDown"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DECLARE BAND ===== -->
+    <section class="l-wrap l-band-wrap" aria-labelledby="declareTitle">
+      <div class="l-band" data-reveal="scale">
+        <div>
+          <h2 id="declareTitle">Declare your startup for builders to discover</h2>
+          <p>Put your idea in a form a builder can judge in two minutes: a one-page problem brief, the hours you have and the role you need.</p>
+        </div>
+        <button class="btn btn--pill btn--blue btn--lg magnetic" type="button" data-auth="join" data-role="founder" data-gate="declare your startup">Declare a startup</button>
+      </div>
+    </section>
+
+    <!-- ===== TOOLKITS ===== -->
+    <section class="l-section l-wrap l-split" id="toolkits" aria-labelledby="toolkitsTitle">
+      <div data-reveal>
+        <h2 class="l-h2 grad-ink" id="toolkitsTitle">Build with toolkits made for every stage</h2>
+        <p class="l-lead">Templates and frameworks with guidance from mentors and fellow founders. Networking is free; toolkits and guidance come with membership.</p>
+      </div>
+      <div class="pill-cloud" data-stagger="35" data-reveal-type="scale">
+        <button class="pill" type="button" data-gate="open the problem brief template">Problem brief <span class="free">Free</span></button>
+        <button class="pill" type="button" data-gate="open the interview script">Interview script <span class="free">Free</span></button>
+        <button class="pill" type="button" data-gate="open the pitch deck toolkit">Pitch deck</button>
+        <button class="pill" type="button" data-gate="open the financial model">Financial model</button>
+        <button class="pill" type="button" data-gate="open the prototype testing guide">Prototype testing</button>
+        <button class="pill" type="button" data-gate="open the landing page guide">Landing page &amp; pricing</button>
+        <button class="pill" type="button" data-gate="open the founders’ agreement">Founders’ agreement</button>
+        <button class="pill" type="button" data-gate="open the NDA &amp; IP templates">NDA &amp; IP assignment</button>
+        <button class="pill" type="button" data-gate="open the go-to-market framework">Go-to-market</button>
+        <button class="pill" type="button" data-gate="open the branding framework">Branding</button>
+      </div>
+    </section>
+
+    <!-- ===== SPRINTS ===== -->
+    <section class="l-section l-wrap" id="sprints" aria-labelledby="sprintsTitle">
+      <div class="l-center" data-reveal>
+        <h2 class="l-h2 grad-ink" id="sprintsTitle">Sharpen your idea in sprints</h2>
+        <p class="l-lead">Team up for two-week online sprints. Ship real proof, get peer reviews, and earn badges that show how you work.</p>
+      </div>
+      <div class="sprints" data-stagger="80">
+        <button class="card sprint spotlight" type="button" data-gate="join a Problem sprint">
+          <span class="sprint-ico" style="--c1:#60a5fa;--c2:#3b82f6"><i data-icon="target"></i></span>
+          <h3>Problem sprint</h3>
+          <p>Talk to 8–10 people who have the problem, then decide what to build.</p>
+          <span class="chip chip--blue">Toward rung 1</span>
+        </button>
+        <button class="card sprint spotlight" type="button" data-gate="join a Prototype sprint">
+          <span class="sprint-ico" style="--c1:#a78bfa;--c2:#8b5cf6"><i data-icon="flask"></i></span>
+          <h3>Prototype sprint</h3>
+          <p>Put a clickable prototype in front of five real users.</p>
+          <span class="chip chip--purple">Toward rung 2</span>
+        </button>
+        <button class="card sprint spotlight" type="button" data-gate="join a Physical sprint">
+          <span class="sprint-ico" style="--c1:#34d399;--c2:#14b8a6"><i data-icon="box"></i></span>
+          <h3>Physical sprint</h3>
+          <p>Test a first sample of a hardware, food or consumer product.</p>
+          <span class="chip chip--teal">Toward rung 2</span>
+        </button>
+        <button class="card sprint spotlight" type="button" data-gate="join a Demand sprint">
+          <span class="sprint-ico" style="--c1:#fb923c;--c2:#f97316"><i data-icon="megaphone"></i></span>
+          <h3>Demand sprint</h3>
+          <p>Launch a landing page and hit a sign-up target you set in advance.</p>
+          <span class="chip chip--orange">Toward rung 3</span>
+        </button>
+        <button class="card sprint spotlight" type="button" data-gate="join a Build sprint">
+          <span class="sprint-ico" style="--c1:#f472b6;--c2:#ec4899"><i data-icon="code"></i></span>
+          <h3>Build sprint</h3>
+          <p>Ship one working feature to real users, with usage numbers.</p>
+          <span class="chip chip--gray">Toward rung 4</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== OPEN TO BUILD ===== -->
+    <section class="l-section l-wrap l-feature" aria-labelledby="openTitle">
+      <div data-reveal="left">
+        <h2 class="l-h2 grad-ink" id="openTitle">Let founders know you’re open to build</h2>
+        <p class="l-lead">Builders can show they’re open to join or co-found an early-stage venture. Founders can show the role they need. Intent-based matching makes the introduction.</p>
+        <button class="btn btn--pill btn--outline btn--lg" type="button" data-auth="join" data-role="builder">Join as a builder</button>
+      </div>
+      <div class="open-art" aria-hidden="true" data-reveal="right">
+        <div class="card open-card">
+          <span class="open-ring open-ring--lg"><span class="avatar" style="--size:96px;--a1:#fb923c;--a2:#f472b6">KT</span></span>
+          <h4>Kevin T.</h4>
+          <p class="meta">Data &amp; ML engineer · Toronto</p>
+          <span class="chip chip--emerald"><i class="live-dot"></i>Open to co-found remotely</span>
+          <div class="tags"><span class="badge badge--gray">Python</span><span class="badge badge--gray">ML</span><span class="badge badge--gray">dbt</span></div>
+          <div class="open-match"><span class="match-pulse"></span>3 founders are looking for ML skills</div>
+        </div>
+        <span class="orbit-tag ot--1"><b>Lina W.</b> needs a technical co-founder</span>
+        <span class="orbit-tag ot--2"><b>Nadia F.</b> needs a mobile developer</span>
+      </div>
+    </section>
+
+    <!-- ===== CONNECT ===== -->
+    <section class="l-section l-wrap l-feature l-feature--rev" aria-labelledby="connectTitle">
+      <div data-reveal="right">
+        <h2 class="l-h2 grad-ink" id="connectTitle">Connect with people who can help</h2>
+        <p class="l-lead">Get feedback from mentors, practise your pitch with people who have raised, and meet the investors, recruiters and partners looking for promising founders.</p>
+        <button class="btn btn--pill btn--outline btn--lg" type="button" data-gate="find mentors">Find mentors</button>
+      </div>
+      <div class="constellation" aria-hidden="true" data-reveal="left">
+        <svg class="const-lines" viewBox="0 0 400 340" preserveAspectRatio="none" data-draw>
+          <defs><linearGradient id="constLine" x1="0" x2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".6"/><stop offset="1" stop-color="#f97316" stop-opacity=".6"/></linearGradient></defs>
+          <path id="cl1" pathLength="1" d="M80 68 L200 170"/>
+          <path id="cl2" pathLength="1" d="M328 54 L200 170"/>
+          <path id="cl3" pathLength="1" d="M360 197 L200 170"/>
+          <path id="cl4" pathLength="1" d="M280 299 L200 170"/>
+          <path id="cl5" pathLength="1" d="M88 286 L200 170"/>
+          <path id="cl6" pathLength="1" d="M24 177 L200 170"/>
+          <circle r="3.2"><animateMotion dur="3.2s" repeatCount="indefinite"><mpath href="#cl1"/></animateMotion></circle>
+          <circle r="3.2"><animateMotion dur="4.2s" repeatCount="indefinite"><mpath href="#cl3"/></animateMotion></circle>
+          <circle r="3.2"><animateMotion dur="3.7s" repeatCount="indefinite"><mpath href="#cl5"/></animateMotion></circle>
+        </svg>
+        <span class="cnode cnode--you" style="--x:50%;--y:50%"><span class="cnode-core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg></span><em>You</em></span>
+        <span class="cnode" style="--x:20%;--y:20%;--d:-.5s"><span class="avatar" style="--size:46px;--a1:#818cf8;--a2:#22d3ee">SK</span><em>Mentor</em></span>
+        <span class="cnode" style="--x:82%;--y:16%;--d:-1.5s"><span class="avatar" style="--size:46px;--a1:#a78bfa;--a2:#f472b6">BH</span><em>Investor</em></span>
+        <span class="cnode" style="--x:90%;--y:58%;--d:-2.5s"><span class="avatar" style="--size:40px;--a1:#38bdf8;--a2:#34d399">FZ</span><em>Recruiter</em></span>
+        <span class="cnode" style="--x:70%;--y:88%;--d:-1s"><span class="avatar" style="--size:40px;--a1:#60a5fa;--a2:#818cf8">AS</span><em>Builder</em></span>
+        <span class="cnode" style="--x:22%;--y:84%;--d:-2s"><span class="avatar" style="--size:44px;--a1:#f59e0b;--a2:#f97316">MR</span><em>Legal mentor</em></span>
+        <span class="cnode" style="--x:6%;--y:52%;--d:-3s"><span class="avatar" style="--size:38px;--a1:#f472b6;--a2:#fb7185">LW</span><em>Founder</em></span>
+      </div>
+    </section>
+
+    <!-- ===== MILESTONE LADDER ===== -->
+    <section class="l-section l-wrap l-ladder" id="ladder" aria-labelledby="ladderTitle">
+      <div class="ladder-copy" data-reveal>
+        <h2 class="l-h2 grad-ink" id="ladderTitle">Climb the milestone ladder</h2>
+        <p class="l-lead">From a first idea to early traction, every rung has a clear proof: a document, a link, a prototype or real numbers. Builders and backers see real progress, not promises.</p>
+        <label class="ladder-select">
+          <span>Choose a stage to explore</span>
+          <select class="select" id="rungSelect">
+            <option value="0">Rung 0 · Idea declared</option>
+            <option value="1">Rung 1 · Problem understood</option>
+            <option value="2">Rung 2 · Solution tested</option>
+            <option value="3">Rung 3 · Demand shown</option>
+            <option value="4">Rung 4 · First version live</option>
+            <option value="5">Rung 5 · Early traction</option>
+          </select>
+        </label>
+        <div class="card rung-detail" id="rungDetail" aria-live="polite">
+          <h3>Rung 0 · Idea declared</h3>
+          <dl>
+            <dt>Proof</dt><dd>A one-page problem brief, the hours you have and the role you need.</dd>
+            <dt>Typical time</dt><dd>One evening</dd>
+            <dt>Toolkit</dt><dd>Problem brief template</dd>
+            <dt>Opens</dt><dd>A startup page in the MORI Network and a place in a sprint lobby.</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="ladder" id="ladder-viz" data-reveal="right">
+        <span class="ladder-track" aria-hidden="true"><span class="ladder-fill"></span></span>
+        <ol class="rungs" id="rungList">
+          <li><button class="rung" type="button" data-rung="5"><span class="rung-num">5</span><span class="rung-name">Early traction</span><span class="rung-time">Ongoing</span></button></li>
+          <li><button class="rung" type="button" data-rung="4"><span class="rung-num">4</span><span class="rung-name">First version live</span><span class="rung-time">2+ sprints</span></button></li>
+          <li><button class="rung" type="button" data-rung="3"><span class="rung-num">3</span><span class="rung-name">Demand shown</span><span class="rung-time">1–2 sprints</span></button></li>
+          <li><button class="rung" type="button" data-rung="2"><span class="rung-num">2</span><span class="rung-name">Solution tested</span><span class="rung-time">1–2 sprints</span></button></li>
+          <li><button class="rung" type="button" data-rung="1"><span class="rung-num">1</span><span class="rung-name">Problem understood</span><span class="rung-time">One sprint</span></button></li>
+          <li><button class="rung is-active" type="button" data-rung="0"><span class="rung-num">0</span><span class="rung-name">Idea declared</span><span class="rung-time">One evening</span></button></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== WHO IS IT FOR ===== -->
+    <section class="l-section l-wrap l-who" aria-labelledby="whoTitle">
+      <div data-reveal>
+        <h2 class="l-h2 grad-ink" id="whoTitle">Who is Sandbox for?</h2>
+        <p class="l-lead">Anyone ready to turn an idea into a venture.</p>
+      </div>
+      <div class="who-list" data-stagger="90">
+        <button class="who-row" type="button" data-auth="join" data-role="founder">
+          <span class="who-ico" style="--c1:#fb923c;--c2:#f97316"><i data-icon="rocket"></i></span>
+          <span class="who-copy"><b>Founders</b><span>Find a co-founder and build your idea</span></span>
+          <span class="who-arrow"><i data-icon="arrowRight"></i></span>
+        </button>
+        <button class="who-row" type="button" data-auth="join" data-role="builder">
+          <span class="who-ico" style="--c1:#60a5fa;--c2:#6366f1"><i data-icon="code"></i></span>
+          <span class="who-copy"><b>Builders</b><span>Join or co-found an early-stage venture</span></span>
+          <span class="who-arrow"><i data-icon="arrowRight"></i></span>
+        </button>
+        <button class="who-row" type="button" data-auth="join" data-role="mentor">
+          <span class="who-ico" style="--c1:#34d399;--c2:#14b8a6"><i data-icon="trend"></i></span>
+          <span class="who-copy"><b>Mentors &amp; backers</b><span>Discover promising founders and talent</span></span>
+          <span class="who-arrow"><i data-icon="arrowRight"></i></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== CLOSING CTA ===== -->
+    <section class="l-cta l-wrap" aria-labelledby="ctaTitle">
+      <div class="orbit" aria-hidden="true" data-reveal="scale">
+        <div class="orbit-ring" style="--inset:58px;--dur:46s">
+          <span class="orbit-slot" style="--a:0deg"><span class="avatar" style="--size:38px;--a1:#60a5fa;--a2:#818cf8">AS</span></span>
+          <span class="orbit-slot" style="--a:120deg"><span class="avatar" style="--size:38px;--a1:#34d399;--a2:#22d3ee">RP</span></span>
+          <span class="orbit-slot" style="--a:240deg"><span class="avatar" style="--size:38px;--a1:#f472b6;--a2:#fb7185">LW</span></span>
+        </div>
+        <div class="orbit-ring orbit-ring--2" style="--inset:6px;--dur:70s">
+          <span class="orbit-slot" style="--a:30deg"><span class="avatar" style="--size:42px;--a1:#a78bfa;--a2:#f472b6">BH</span></span>
+          <span class="orbit-slot" style="--a:102deg"><span class="avatar" style="--size:34px;--a1:#f59e0b;--a2:#f97316">MR</span></span>
+          <span class="orbit-slot" style="--a:174deg"><span class="avatar" style="--size:40px;--a1:#fb923c;--a2:#f472b6">KT</span></span>
+          <span class="orbit-slot" style="--a:246deg"><span class="avatar" style="--size:34px;--a1:#38bdf8;--a2:#34d399">DA</span></span>
+          <span class="orbit-slot" style="--a:318deg"><span class="avatar" style="--size:38px;--a1:#818cf8;--a2:#22d3ee">SK</span></span>
+        </div>
+        <div class="orbit-core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg></div>
+      </div>
+      <h2 class="l-h2 grad-ink" id="ctaTitle" data-reveal>Join Indonesia’s founders, builders and mentors on Sandbox.</h2>
+      <div data-reveal style="--reveal-delay:120ms">
+        <button class="btn btn--ink btn--pill btn--lg magnetic" type="button" data-auth="join">Get started <i data-icon="arrowRight"></i></button>
+      </div>
+    </section>
+  </main>
+
+  <div data-shell="footer"></div>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-root" id="authModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal modal--auth" role="dialog" aria-modal="true" aria-labelledby="authTitle" tabindex="-1">
+      <button class="icon-btn modal-x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button>
+
+      <div class="auth-view" data-view="choose">
+        <span class="auth-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg></span>
+        <h2 id="authTitle">Join Sandbox</h2>
+        <p class="auth-sub" id="authSub">Find your people, build your idea, earn the spotlight.</p>
+        <div class="auth-roles" id="authRoles">
+          <p class="kicker">I’m joining as</p>
+          <div class="filters">
+            <button type="button" class="fchip" data-pick-role="founder">Founder</button>
+            <button type="button" class="fchip" data-pick-role="builder">Builder</button>
+            <button type="button" class="fchip" data-pick-role="mentor">Mentor</button>
+            <button type="button" class="fchip" data-pick-role="investor">Investor</button>
+          </div>
+        </div>
+        <button class="btn-google" type="button" data-auth="google">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <span>Continue with Google</span>
+        </button>
+        <p class="legal">By clicking Continue to join or sign in, you agree to Sandbox’s <a href="#" data-soon="User Agreement">User Agreement</a>, <a href="#" data-soon="Privacy Policy">Privacy Policy</a>, and <a href="#" data-soon="Cookie Policy">Cookie Policy</a>.</p>
+        <p class="switch-line" id="authSwitch">Already on Sandbox? <button class="link-btn" type="button" data-auth-switch>Sign in</button></p>
+      </div>
+
+      <form class="auth-view" data-view="demo" id="demoForm" novalidate hidden>
+        <span class="demo-badge"><i data-icon="sparkle"></i>Demo mode</span>
+        <h2>Google sign-in isn’t connected yet</h2>
+        <p class="auth-sub">Add your OAuth Client ID to <code>assets/js/config.js</code> to turn on real Google sign-in. Until then, continue with a demo profile. Nothing leaves this browser.</p>
+        <label class="field"><span>Name</span><input class="input" name="name" value="Brayden" maxlength="60" autocomplete="name" required></label>
+        <label class="field"><span>Email <em class="hint">optional</em></span><input class="input" name="email" type="email" placeholder="you@example.com" maxlength="80" autocomplete="email"></label>
+        <button class="btn btn--ink btn--lg" type="submit">Continue to Sandbox <i data-icon="arrowRight"></i></button>
+        <button class="link-btn auth-back" type="button" data-view-back><i data-icon="chevronLeft"></i>Back</button>
+      </form>
+
+      <div class="auth-view" data-view="loading" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <h2>Connecting to Google…</h2>
+        <p class="auth-sub">Choose your account in the Google window to continue.</p>
+      </div>
+
+      <div class="auth-view" data-view="success" hidden>
+        <svg class="check-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="M20 33l8 8 16-17"/></svg>
+        <h2 id="successTitle">Welcome to Sandbox</h2>
+        <p class="auth-sub">Taking you to your Sandbox…</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

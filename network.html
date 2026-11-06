@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mori: Sandbox • Network</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/network.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/network.js"></script>
+</head>
+<body data-page="network">
+  <div class="aura" aria-hidden="true" data-parallax></div>
+  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <main class="wrap">
+    <header class="pagehead" role="banner">
+      <div>
+        <nav class="crumbs" aria-label="Breadcrumb" data-reveal="fade">
+          <a href="home.html">Home</a> <span class="sep">/</span> <span>Network</span>
+        </nav>
+        <h1 class="title">Network</h1>
+        <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders, builders and mentors across Indonesia and abroad.</p>
+      </div>
+      <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="userPlus"></i> Find a co-founder</button>
+    </header>
+
+    <!-- Sticky tab bar -->
+    <section class="subnav net-bar" aria-label="Network sections" data-reveal style="--reveal-delay:120ms">
+      <div class="net-tabs" role="tablist" aria-label="Network">
+        <span class="net-glider" aria-hidden="true"></span>
+        <a class="net-tab" role="tab" href="#explore" data-tab="explore"><i data-icon="compass"></i>Explore</a>
+        <a class="net-tab" role="tab" href="#requests" data-tab="requests"><i data-icon="inbox"></i>Requests<span class="drop-badge" data-badge="requests" hidden></span></a>
+        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages<span class="drop-badge" data-badge="messages" hidden></span></a>
+      </div>
+    </section>
+
+    <!-- ===== Explore ===== -->
+    <div class="net-pane" data-pane="explore" role="tabpanel" aria-label="Explore">
+      <section class="panel" aria-labelledby="peopleTitle">
+        <div class="explore-controls">
+          <label class="search" aria-label="Search people">
+            <i data-icon="search"></i>
+            <input type="search" id="peopleQ" placeholder="Search people, skills or cities…" autocomplete="off">
+          </label>
+          <div class="filters" id="roleChips" role="group" aria-label="Filter by role">
+            <button class="fchip" type="button" data-role-filter="all" data-active="true">All</button>
+            <button class="fchip" type="button" data-role-filter="founder" data-active="false">Founders</button>
+            <button class="fchip" type="button" data-role-filter="builder" data-active="false">Builders</button>
+            <button class="fchip" type="button" data-role-filter="mentor" data-active="false">Mentors</button>
+            <button class="fchip" type="button" data-role-filter="investor" data-active="false">Investors</button>
+            <button class="fchip" type="button" data-role-filter="recruiter" data-active="false">Recruiters</button>
+          </div>
+          <label class="switch"><input type="checkbox" id="openOnly"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-label">Open to build</span></label>
+        </div>
+        <div class="panel-head">
+          <h3 id="peopleTitle">People you may want to build with</h3>
+          <span class="meta" id="peopleCount"></span>
+        </div>
+        <div class="grid people-grid" id="peopleGrid"></div>
+        <div class="empty" id="peopleEmpty" hidden>
+          <span class="empty-ico"><i data-icon="search"></i></span>
+          <div>No one matches those filters yet.</div>
+          <div class="meta">Try another role or clear the search.</div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="roomsTitle">
+        <div class="panel-head">
+          <h3 id="roomsTitle">Active rooms</h3>
+          <span class="meta live-meta"><i class="live-dot"></i>Live now</span>
+        </div>
+        <div class="rooms" id="rooms"></div>
+      </section>
+    </div>
+
+    <!-- ===== Requests ===== -->
+    <div class="net-pane" data-pane="requests" role="tabpanel" aria-label="Requests" hidden>
+      <section class="panel" aria-labelledby="recvTitle">
+        <div class="panel-head"><h3 id="recvTitle">Received</h3><span class="meta" id="recvCount"></span></div>
+        <div class="req-list" id="recvList"></div>
+      </section>
+      <section class="panel" aria-labelledby="sentTitle">
+        <div class="panel-head"><h3 id="sentTitle">Sent</h3><span class="meta" id="sentCount"></span></div>
+        <div class="req-list" id="sentList"></div>
+      </section>
+    </div>
+
+    <!-- ===== Messages ===== -->
+    <div class="net-pane" data-pane="messages" role="tabpanel" aria-label="Messages" hidden>
+      <section class="panel chat" id="chat" aria-label="Conversations">
+        <aside class="chat-side">
+          <label class="search" aria-label="Search conversations">
+            <i data-icon="search"></i>
+            <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
+          </label>
+          <div class="chat-list" id="chatList" role="list"></div>
+        </aside>
+        <div class="chat-main" id="chatMain"></div>
+      </section>
+    </div>
+  </main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>

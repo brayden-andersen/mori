@@ -1,0 +1,48 @@
+/* ==========================================================================
+   Mori: Sandbox — homepage (signed in)
+   Layout and the pinned-project overrides are carried over from the draft.
+   ========================================================================== */
+:root{ --topOffset:150px; } /* ⟵ tweak this to push everything down */
+
+.wrap--home{ padding: calc(var(--navH) + 24px + var(--topOffset)) 18px 96px; }
+
+/* ===== Hero ===== */
+.hero{ display:grid; place-items:center; padding: 96px 10px 44px }
+.prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
+.sections{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; margin-top:28px; isolation:isolate; }
+.card-go{
+  position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  color:#fff; background: var(--ink); opacity:0; transform: translate(-8px, 8px) scale(.6);
+  transition: opacity .3s ease, transform .5s var(--ease-spring);
+}
+.card-go .ico{ width:15px; height:15px }
+.card:hover .card-go, .card:focus-visible .card-go{ opacity:1; transform:none }
+
+/* ===== Panels ===== */
+.panel-link .go .ico{ width:15px; height:15px }
+#insights{ scroll-margin-top: calc(var(--navH) + 90px) }
+
+/* Recent messages: unread pulse */
+.msg.is-unread h4{ display:flex; align-items:center; gap:8px }
+.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--progress-orange); animation: ping 2.2s ease-out infinite }
+
+/* ===== Pinned projects panel (one wide tile, 50% width) — from the draft ===== */
+.panel#pinnedPanel .pins{ display:flex; gap:24px; }
+.panel#pinnedPanel .pin{
+  flex: 0 0 50%;              /* half of the wrapping width */
+  display:flex; align-items:center; justify-content:space-between; gap:24px; padding:22px;
+}
+.panel#pinnedPanel .pin-left{ flex:1; min-width:0; }
+.panel#pinnedPanel .pin h4{ margin:0 0 6px; }
+.panel#pinnedPanel .chip{ background: rgba(249,115,22,.10); border:1px solid rgba(249,115,22,.28); color:#7c2d12; }
+.panel#pinnedPanel .caption{ margin-top:10px; font-size:13px; color:#475569; font-style:italic; }
+.panel#pinnedPanel .pin-separator{ width:1px; background:#e5e7eb; align-self:stretch; margin-left:16px; margin-right:8px; }
+.panel#pinnedPanel .pin:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
+@keyframes ring-pop{ 40%{ transform: scale(1.06) } }
+
+@media (max-width: 760px){ .panel#pinnedPanel .pin{ flex-basis:100% } }
+@media (max-width: 640px){
+  :root{ --topOffset: 24px; }
+  .sections{ grid-template-columns: 1fr }
+  .hero{ padding-top: 72px; }
+}
