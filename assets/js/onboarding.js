@@ -362,8 +362,11 @@
         }
       }
       // Starter headline and open-to-build type follow the answers until the member writes their own.
-      const defaultHeadlines = Object.values(D.profileDefaults).map((d) => d.headline);
-      if (!saved.headline || defaultHeadlines.includes(saved.headline)) patch.headline = `${D.roles[a.role].label} · ${patch.industries.join(", ")}`;
+      const starter = (role, industries) => (D.roles[role] ? `${D.roles[role].label} · ${(industries || []).join(", ")}` : "");
+      const OLD_DEFAULTS = ["Founder · building something new", "Specialist · ready to join an early-stage team"];
+      if (!saved.headline || OLD_DEFAULTS.includes(saved.headline) || saved.headline === starter(saved.role, saved.industries)) {
+        patch.headline = starter(a.role, patch.industries);
+      }
       if (a.role !== saved.role) patch.openType = a.role === "founder" ? "cofound" : "join";
 
       await S.saveProfile(patch, { onboarded: true });

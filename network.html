@@ -34,7 +34,7 @@
           <a href="home.html">Home</a> <span class="sep">/</span> <span>Network</span>
         </nav>
         <h1 class="title">Network</h1>
-        <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders and specialists across Indonesia and abroad.</p>
+        <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders and specialists who have joined Sandbox.</p>
       </div>
       <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="userPlus"></i> Find a co-founder</button>
     </header>
@@ -45,43 +45,68 @@
         <span class="net-glider" aria-hidden="true"></span>
         <a class="net-tab" role="tab" href="#explore" data-tab="explore"><i data-icon="compass"></i>Explore</a>
         <a class="net-tab" role="tab" href="#requests" data-tab="requests"><i data-icon="inbox"></i>Requests<span class="drop-badge" data-badge="requests" hidden></span></a>
-        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages<span class="drop-badge" data-badge="messages" hidden></span></a>
+        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages</a>
       </div>
     </section>
 
     <!-- ===== Explore ===== -->
     <div class="net-pane" data-pane="explore" role="tabpanel" aria-label="Explore">
-      <section class="panel" aria-labelledby="peopleTitle">
-        <div class="explore-controls">
-          <label class="search" aria-label="Search people">
+      <section class="panel explore" aria-labelledby="peopleTitle">
+        <div class="explore-top">
+          <label class="search" aria-label="Search members">
             <i data-icon="search"></i>
-            <input type="search" id="peopleQ" placeholder="Search people, skills or cities…" autocomplete="off">
+            <input type="search" id="peopleQ" placeholder="Search names, skills or regions…" autocomplete="off">
           </label>
-          <div class="filters" id="roleChips" role="group" aria-label="Filter by role">
-            <button class="fchip" type="button" data-role-filter="all" data-active="true">All</button>
-            <button class="fchip" type="button" data-role-filter="founder" data-active="false">Founders</button>
-            <button class="fchip" type="button" data-role-filter="specialist" data-active="false">Specialists</button>
-          </div>
-          <label class="switch"><input type="checkbox" id="openOnly"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-label">Open to build</span></label>
+          <select class="select" id="peopleSort" aria-label="Sort members">
+            <option value="newest">Newest members</option>
+            <option value="rating">Highest sprint rating</option>
+            <option value="experience">Most experience</option>
+            <option value="name">Name A–Z</option>
+          </select>
         </div>
+
+        <div class="explore-filters">
+          <div class="fgroup">
+            <span class="fgroup-label" id="roleLabel">Founder or specialist</span>
+            <div class="filters" id="roleChips" role="group" aria-labelledby="roleLabel">
+              <button class="fchip" type="button" data-role-filter="all" data-active="true">All</button>
+              <button class="fchip" type="button" data-role-filter="founder" data-active="false">Founders</button>
+              <button class="fchip" type="button" data-role-filter="specialist" data-active="false">Specialists</button>
+            </div>
+          </div>
+          <div class="fgroup">
+            <span class="fgroup-label" id="expLabel">Years of experience</span>
+            <div class="filters" id="expChips" role="group" aria-labelledby="expLabel"></div>
+          </div>
+          <div class="fgroup">
+            <label class="fgroup-label" for="ratingMin">Sprint rating</label>
+            <select class="select select--sm" id="ratingMin">
+              <option value="0">Any rating</option>
+              <option value="4.5">4.5 and up</option>
+              <option value="4">4.0 and up</option>
+              <option value="3">3.0 and up</option>
+            </select>
+          </div>
+          <div class="fgroup ind-filter" id="indFilter">
+            <span class="fgroup-label" id="indLabel">Industry</span>
+            <button class="select select--sm ind-toggle" type="button" id="indToggle" aria-expanded="false" aria-controls="indPanel" aria-describedby="indLabel">Any industry</button>
+            <div class="ind-panel" id="indPanel" role="group" aria-labelledby="indLabel" hidden>
+              <label class="search search--sm" aria-label="Search industries"><i data-icon="search"></i><input type="search" id="indQ" placeholder="Search industries" autocomplete="off"></label>
+              <ul class="ind-list" id="indList"></ul>
+            </div>
+          </div>
+          <div class="fgroup fgroup--switch">
+            <label class="switch"><input type="checkbox" id="openOnly"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-label">Open to build</span></label>
+          </div>
+        </div>
+        <div class="explore-active" id="activeFilters" hidden></div>
+
         <div class="panel-head">
-          <h3 id="peopleTitle">People you may want to build with</h3>
-          <span class="meta" id="peopleCount"></span>
+          <h3 id="peopleTitle">Members</h3>
+          <span class="meta" id="peopleCount" aria-live="polite"></span>
         </div>
         <div class="grid people-grid" id="peopleGrid"></div>
-        <div class="empty" id="peopleEmpty" hidden>
-          <span class="empty-ico"><i data-icon="search"></i></span>
-          <div>No one matches those filters yet.</div>
-          <div class="meta">Try another role or clear the search.</div>
-        </div>
-      </section>
-
-      <section class="panel" aria-labelledby="roomsTitle">
-        <div class="panel-head">
-          <h3 id="roomsTitle">Active rooms</h3>
-          <span class="meta live-meta"><i class="live-dot"></i>Live now</span>
-        </div>
-        <div class="rooms" id="rooms"></div>
+        <div class="empty" id="peopleEmpty" hidden></div>
       </section>
     </div>
 
@@ -97,13 +122,13 @@
       </section>
     </div>
 
-    <!-- ===== Messages ===== -->
+    <!-- ===== Messages (connections; messaging itself is coming soon) ===== -->
     <div class="net-pane" data-pane="messages" role="tabpanel" aria-label="Messages" hidden>
-      <section class="panel chat" id="chat" aria-label="Conversations">
+      <section class="panel chat" id="chat" aria-label="Your connections">
         <aside class="chat-side">
-          <label class="search" aria-label="Search conversations">
+          <label class="search" aria-label="Search your connections">
             <i data-icon="search"></i>
-            <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
+            <input type="search" id="chatQ" placeholder="Search your connections" autocomplete="off">
           </label>
           <div class="chat-list" id="chatList" role="list"></div>
         </aside>

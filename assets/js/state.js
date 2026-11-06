@@ -1,9 +1,12 @@
 /* ==========================================================================
    Mori: Sandbox — member state
    --------------------------------------------------------------------------
-   Merges the demo seed (data.js) with what the signed-in member has changed,
-   stored per member in localStorage. Every write dispatches a "mori:change"
-   event so the nav badges and open views can refresh.
+   What the member adds themselves (profile, projects, settings) is stored
+   per member in localStorage. For Google members the profile, the other
+   members and connection requests live in Supabase; the local copy keeps
+   pages rendering instantly and is refreshed in the background.
+   Every write dispatches a "mori:change" event so nav badges and open views
+   can refresh.
    ========================================================================== */
 (function () {
   "use strict";
@@ -14,30 +17,30 @@
   const get = (k, fallback) => Mori.store.read(Mori.store.userKey(k), fallback);
   const put = (k, v) => Mori.store.write(Mori.store.userKey(k), v);
   const set = (k, v) => { put(k, v); emit(k); };
-  const clone = (o) => JSON.parse(JSON.stringify(o));
-  const without = (arr, id) => arr.filter((x) => x !== id);
-
-  /* Seed timestamps are anchored to the member's first visit so "2m ago"
-     ages naturally into "1h ago", "Yesterday"… */
-  function seededAt() {
-    let t = get("seededAt", null);
-    if (!t) { t = Date.now(); put("seededAt", t); }
-    return t;
-  }
-  const agoToTs = (mins) => seededAt() - mins * 60000;
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   const session = () => Mori.auth.session() || { id: "guest", name: "Member", givenName: "Member" };
-  const person = (id) => D.people.find((p) => p.id === id) || null;
+
+  // Earlier versions of the concept seeded a sample network and chats: forget them.
+  if (get("dataVersion", 0) < 2) {
+    ["network", "threads", "seededAt"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
+    put("dataVersion", 2);
+  }
 
   /* ---------- Profile ----------
      Onboarding answers plus later edits. With Supabase the database is the
      source of truth and this local copy keeps rendering instant. */
-  const PROFILE_BLANK = { firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [], linkedin: "", cvPath: "", cvName: "", languages: [] };
+  const PROFILE_BLANK = {
+    firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [],
+    linkedin: "", cvPath: "", cvName: "", languages: [], headline: "", bio: "", skills: [], open: true, openType: "",
+    visibility: "everyone", rating: null, reviews: 0,
+  };
   const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
 
   function profile() {
-    const p = get("profile", {});
-    return Object.assign({}, PROFILE_BLANK, clone(D.profileDefaults[p.role] || D.profileDefaults.founder), p);
+    const p = Object.assign({}, PROFILE_BLANK, get("profile", {}));
+    if (!p.openType) p.openType = p.role === "specialist" ? "join" : "cofound";
+    return p;
   }
   /** Save locally, then to Supabase for Google members. Resolves once stored. */
   function saveProfile(patch, opts = {}) {
@@ -62,8 +65,7 @@
     motion: "system",            // system | full | reduced
     aura: true,                  // animated background
     startPage: "home.html",
-    visibility: "everyone",      // everyone | connections
-    showRecord: true,            // show milestone record on startup pages
+    showRecord: true,            // show milestone record on the profile
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
   };
   function settings() {
@@ -86,25 +88,10 @@
     else r.removeAttribute("data-aura");
   }
 
-  /* ---------- Notifications ---------- */
-  const NOTIFY_GROUP = { request: "requests", message: "messages", mention: "messages", project: "projects", ladder: "projects", sprint: "announcements", insight: "announcements", badge: "announcements" };
-  function notifications() {
-    const read = get("notifRead", {});
-    const on = settings().notify;
-    return D.notifications
-      .filter((n) => on[NOTIFY_GROUP[n.type]] !== false)
-      .map((n) => Object.assign({}, n, { at: agoToTs(n.ago), unread: n.unread && !read[n.id] }))
-      .sort((a, b) => b.at - a.at);
-  }
-  const unreadNotifications = () => notifications().filter((n) => n.unread).length;
-  function markNotificationRead(id) { const r = get("notifRead", {}); r[id] = true; set("notifRead", r); }
-  function markAllNotificationsRead() { const r = get("notifRead", {}); D.notifications.forEach((n) => { r[n.id] = true; }); set("notifRead", r); }
-
-  /* ---------- Projects ---------- */
+  /* ---------- Projects (declared by the member, kept in this browser) ---------- */
   function projects() {
-    const created = get("projectsCreated", []);
     const overrides = get("projectOverrides", {});
-    return created.concat(clone(D.projects)).map((p) => {
+    return get("projectsCreated", []).map((p) => {
       const o = overrides[p.id] || {};
       const milestones = p.milestones.map((m, i) => ({ text: m.text, done: o.done && typeof o.done[i] === "boolean" ? o.done[i] : !!m.done }));
       const touched = o.updatedAt || p.createdAt;
@@ -112,7 +99,8 @@
       return Object.assign({}, p, {
         milestones,
         doneCount,
-        updated_days: touched ? Math.floor((Date.now() - touched) / 864e5) : p.updated_days,
+        pinned: typeof o.pinned === "boolean" ? o.pinned : !!p.pinned,
+        updated_days: touched ? Math.floor((Date.now() - touched) / 864e5) : 0,
         progress: milestones.length ? Math.round((doneCount / milestones.length) * 100) : 0,
       });
     });
@@ -121,15 +109,22 @@
   const pinnedProjects = () => projects().filter((p) => p.pinned);
   const allTags = () => Array.from(new Set(projects().flatMap((p) => p.tags))).sort();
 
+  function override(pid, patch) {
+    const overrides = get("projectOverrides", {});
+    overrides[pid] = Object.assign({}, overrides[pid], patch);
+    set("projectOverrides", overrides);
+    return project(pid);
+  }
   function toggleMilestone(pid, index) {
     const p = project(pid);
     if (!p || !p.milestones[index]) return null;
-    const overrides = get("projectOverrides", {});
     const done = p.milestones.map((m) => m.done);
     done[index] = !done[index];
-    overrides[pid] = Object.assign({}, overrides[pid], { done, updatedAt: Date.now() });
-    set("projectOverrides", overrides);
-    return project(pid);
+    return override(pid, { done, updatedAt: Date.now() });
+  }
+  function togglePin(pid) {
+    const p = project(pid);
+    return p ? override(pid, { pinned: !p.pinned }) : null;
   }
 
   function createProject({ name, focus, tags, rung }) {
@@ -142,7 +137,7 @@
       focus: String(focus || "").trim() || `Working toward ${next.stage}`,
       rung: r,
       owner: true,
-      pinned: false,
+      pinned: pinnedProjects().length === 0, // the first project shows on the homepage
       createdAt: Date.now(),
       team: [],
       milestones: D.starterMilestones[r].map((text) => ({ text, done: false })),
@@ -153,107 +148,134 @@
     return p.id;
   }
 
-  /* ---------- Network ---------- */
-  function net() {
-    let n = get("network", null);
-    if (!n) { n = clone(D.networkSeed); put("network", n); }
-    return n;
-  }
+  /* ---------- Network: members who signed up, and connection requests ----------
+     Supabase is the source of truth (see member_directory and the connections
+     table). Each link is { id, from, to, status: pending|accepted|ignored, note, at }. */
+  let inflight = null;
+  let refreshedAt = 0;
+  const me = () => session().id;
+
   const network = {
-    status(id) {
-      const n = net();
-      if (n.connected.includes(id)) return "connected";
-      if (n.sent.includes(id)) return "pending";
-      if (n.incoming.includes(id)) return "incoming";
-      return "none";
-    },
-    connect(id) {
-      const n = net();
-      if (n.incoming.includes(id)) return network.accept(id);
-      if (!n.sent.includes(id) && !n.connected.includes(id)) n.sent.push(id);
-      set("network", n);
-    },
-    withdraw(id) { const n = net(); n.sent = without(n.sent, id); set("network", n); },
-    accept(id) {
-      const n = net();
-      n.incoming = without(n.incoming, id);
-      if (!n.connected.includes(id)) n.connected.push(id);
-      set("network", n);
-    },
-    ignore(id) { const n = net(); n.incoming = without(n.incoming, id); n.ignored.push(id); set("network", n); },
-    incoming() {
-      return net().incoming
-        .map((id) => {
-          const req = D.requests.find((r) => r.from === id) || { note: "", ago: 0 };
-          return { person: person(id), note: req.note, at: agoToTs(req.ago) };
+    /** Only Google members have a network; demo accounts stay on this device. */
+    available: remoteEnabled,
+    members: () => (remoteEnabled() ? get("members", []) : []),
+    member: (id) => network.members().find((m) => m.id === id) || null,
+    links: () => (remoteEnabled() ? get("links", []) : []),
+    refreshedAt: () => refreshedAt,
+
+    /** Load members and requests again. Calls in flight are shared; fresh data is reused unless forced. */
+    refresh(opts = {}) {
+      if (!remoteEnabled()) return Promise.resolve(false);
+      if (inflight) return inflight;
+      if (!opts.force && Date.now() - refreshedAt < 15000) return Promise.resolve(false);
+      inflight = Promise.all([Mori.db.members(), Mori.db.connections()])
+        .then(([members, links]) => {
+          put("members", members);
+          put("links", links);
+          refreshedAt = Date.now();
+          emit("network");
+          return true;
         })
+        .finally(() => { inflight = null; });
+      return inflight;
+    },
+
+    link(id) { return network.links().find((l) => (l.from === me() && l.to === id) || (l.to === me() && l.from === id)) || null; },
+    /** none · pending (you asked) · incoming (they asked) · connected */
+    status(id) {
+      const l = network.link(id);
+      if (!l) return "none";
+      if (l.status === "accepted") return "connected";
+      return l.from === me() ? "pending" : "incoming"; // an ignored request still looks pending to its sender
+    },
+    incoming() {
+      return network.links()
+        .filter((l) => l.to === me() && l.status === "pending")
+        .map((l) => ({ link: l, person: network.member(l.from), note: l.note, at: l.at }))
         .filter((x) => x.person);
     },
-    sent: () => net().sent.map(person).filter(Boolean),
-    connections: () => net().connected.map(person).filter(Boolean),
-    isJoined: (roomId) => net().rooms.includes(roomId),
-    toggleRoom(roomId) {
-      const n = net();
-      n.rooms = n.rooms.includes(roomId) ? without(n.rooms, roomId) : n.rooms.concat(roomId);
-      set("network", n);
-      return n.rooms.includes(roomId);
+    sent() {
+      return network.links()
+        .filter((l) => l.from === me() && l.status !== "accepted")
+        .map((l) => ({ link: l, person: network.member(l.to), note: l.note, at: l.at }))
+        .filter((x) => x.person);
     },
+    connections() {
+      return network.links()
+        .filter((l) => l.status === "accepted")
+        .map((l) => network.member(l.from === me() ? l.to : l.from))
+        .filter(Boolean);
+    },
+
+    async connect(id, note) {
+      if (network.status(id) === "incoming") return network.accept(id);
+      if (network.link(id)) return network.link(id);
+      try {
+        const link = await Mori.db.requestConnection(id, note);
+        set("links", network.links().concat(link));
+        return link;
+      } catch (err) {
+        if (err.code !== "23505") throw err;
+        // They sent you a request at the same moment: accept theirs instead.
+        await network.refresh({ force: true });
+        return network.status(id) === "incoming" ? network.accept(id) : network.link(id);
+      }
+    },
+    accept: (id) => answer(id, "accepted"),
+    ignore: (id) => answer(id, "ignored"),
+    withdraw: (id) => drop(id),
+    remove: (id) => drop(id),
   };
 
-  /* ---------- Message threads ---------- */
-  function threadState() {
-    let t = get("threads", null);
-    if (!t) {
-      t = {};
-      D.conversations.forEach((c) => {
-        t[c.with] = { unread: c.unread, messages: c.messages.map((m) => ({ from: m.from, text: m.text, at: agoToTs(m.ago) })) };
-      });
-      put("threads", t);
+  async function answer(id, status) {
+    const l = network.link(id);
+    if (!l) return null;
+    const link = await Mori.db.answerRequest(l.id, status);
+    if (!link) {
+      await network.refresh({ force: true });
+      throw new Error("That request was withdrawn.");
     }
-    return t;
+    set("links", network.links().map((x) => (x.id === l.id ? link : x)));
+    return link;
   }
-  const threads = {
-    list() {
-      const t = threadState();
-      return Object.keys(t)
-        .map((id) => {
-          const th = t[id];
-          const last = th.messages[th.messages.length - 1] || null;
-          return { id, person: person(id), last, unread: th.unread || 0, at: last ? last.at : th.createdAt || 0 };
-        })
-        .filter((x) => x.person)
-        .sort((a, b) => b.at - a.at);
-    },
-    get: (id) => threadState()[id] || { unread: 0, messages: [] },
-    /** Make sure a (possibly empty) conversation exists, e.g. from a "Message" button. */
-    ensure(id) {
-      const t = threadState();
-      if (!t[id] && person(id)) { t[id] = { unread: 0, messages: [], createdAt: Date.now() }; set("threads", t); }
-    },
-    /** Append a message. Pass { unread: true } for a reply that arrives while the chat isn't open. */
-    send(id, text, from = "me", opts = {}) {
-      const t = threadState();
-      t[id] = t[id] || { unread: 0, messages: [] };
-      t[id].messages.push({ from, text: String(text), at: Date.now() });
-      if (opts.unread) t[id].unread = (t[id].unread || 0) + 1;
-      set("threads", t);
-    },
-    markRead(id) {
-      const t = threadState();
-      if (t[id] && t[id].unread) { t[id].unread = 0; set("threads", t); }
-    },
-    unreadCount: () => Object.values(threadState()).filter((th) => th.unread > 0).length,
-  };
+  async function drop(id) {
+    const l = network.link(id);
+    if (!l) return;
+    await Mori.db.deleteConnection(l.id);
+    set("links", network.links().filter((x) => x.id !== l.id));
+  }
 
-  /** Clear everything this member changed and start again from the seed. */
+  /* ---------- Notifications: built from connection requests ---------- */
+  function notifications() {
+    if (settings().notify.requests === false) return [];
+    const read = get("notifRead", {});
+    const out = [];
+    network.links().forEach((l) => {
+      if (l.to === me() && l.status === "pending") {
+        const p = network.member(l.from);
+        if (p) out.push({ id: "req:" + l.id, type: "request", at: l.at, link: "network.html#requests",
+          text: `<b>${esc(p.name)}</b> wants to connect.${l.note ? ` “${esc(l.note)}”` : ""}` });
+      } else if (l.from === me() && l.status === "accepted") {
+        const p = network.member(l.to);
+        if (p) out.push({ id: "acc:" + l.id, type: "accepted", at: l.respondedAt || l.at, link: "network.html#explore/" + encodeURIComponent(p.id),
+          text: `<b>${esc(p.name)}</b> accepted your request. You’re now connected.` });
+      }
+    });
+    return out.map((n) => Object.assign(n, { unread: !read[n.id] })).sort((a, b) => b.at - a.at);
+  }
+  const unreadNotifications = () => notifications().filter((n) => n.unread).length;
+  function markNotificationRead(id) { const r = get("notifRead", {}); r[id] = true; set("notifRead", r); }
+  function markAllNotificationsRead() { const r = get("notifRead", {}); notifications().forEach((n) => { r[n.id] = true; }); set("notifRead", r); }
+
+  /** Clear everything stored in this browser for the member and start again. */
   function reset() { Mori.store.clearUser(); emit("reset"); }
 
   Mori.state = {
-    session, person, people: () => D.people.slice(), rooms: () => D.rooms.slice(), ladder: D.ladder,
+    session, ladder: D.ladder,
     profile, saveProfile, syncProfile,
     settings, saveSettings, applyPrefs,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
-    projects, project, pinnedProjects, allTags, toggleMilestone, createProject,
-    network, threads, reset,
+    projects, project, pinnedProjects, allTags, toggleMilestone, togglePin, createProject,
+    network, reset,
   };
 })();

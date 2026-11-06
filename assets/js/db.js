@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mori: Sandbox — Supabase (sign-in, profiles, CV storage)
+   Mori: Sandbox — Supabase (sign-in, profiles, CVs, members, connections)
    --------------------------------------------------------------------------
    The client library loads on demand and only when the site is served over
    http(s) with keys in config.js. Otherwise Mori.db.enabled is false and the
@@ -12,6 +12,8 @@
   const enabled = !!(cfg.supabaseUrl && cfg.supabaseKey) && /^https?:$/.test(location.protocol);
   const LIB = "assets/vendor/supabase-2.58.0.js";
   const ROLE_TO_DB = { founder: "Founder", specialist: "Specialist" };
+  const ROLE_FROM_DB = { Founder: "founder", Specialist: "specialist" };
+  const LINK_COLS = "id, requester_id, addressee_id, status, note, created_at, responded_at";
   let clientPromise = null;
 
   function client() {
@@ -29,7 +31,13 @@
     });
     return clientPromise;
   }
-  const fail = (error) => { if (error) throw new Error(error.message || String(error)); };
+  const fail = (error) => {
+    if (!error) return;
+    const e = new Error(error.message || String(error));
+    e.code = error.code; // e.g. "23505" when a request between two members already exists
+    throw e;
+  };
+  const https = (url) => (/^https:\/\//i.test(url || "") ? url : "");
 
   /** Id of the member Supabase has signed in; throws a "signed-out" error if the session is gone. */
   async function signedInId(c) {
@@ -46,7 +54,7 @@
   /* ---------- Row ↔ profile mapping ---------- */
   function fromRow(r) {
     if (!r) return null;
-    const role = r.profile_type === "Founder" ? "founder" : r.profile_type === "Specialist" ? "specialist" : null;
+    const role = ROLE_FROM_DB[r.profile_type] || null;
     return {
       firstName: r.first_name || "",
       lastName: r.last_name || "",
@@ -65,6 +73,9 @@
       skills: r.skills || [],
       open: r.open_to_build !== false,
       openType: r.open_type || (role === "founder" ? "cofound" : "join"),
+      visibility: r.profile_visibility === "connections" ? "connections" : "everyone",
+      rating: r.sprint_rating == null ? null : Number(r.sprint_rating),
+      reviews: r.sprint_reviews || 0,
       // Older rows predate the current questions: send those members through onboarding once.
       onboarded: !!(r.onboarding_completed && r.age != null && r.region),
     };
@@ -89,10 +100,48 @@
       skills: p.skills || [],
       open_to_build: p.open !== false,
       open_type: p.openType || null,
+      profile_visibility: p.visibility === "connections" ? "connections" : "everyone",
       onboarding_completed: !!p.onboarded,
       avatar_url: p.avatarUrl || null,
     };
   }
+
+  /** A member as the directory shares them (see public.member_directory). */
+  function memberFromRow(r) {
+    const name = [r.first_name, r.last_name].filter(Boolean).join(" ").trim() || "Member";
+    return {
+      id: r.id,
+      name,
+      picture: https(r.avatar_url),
+      role: ROLE_FROM_DB[r.profile_type] || null,
+      headline: r.headline || "",
+      bio: r.bio || "",
+      region: r.region || "",
+      experience: r.expertise_level || "",
+      employment: r.employment_status || "",
+      industries: r.business_sector || [],
+      languages: Array.isArray(r.languages) ? r.languages : [],
+      skills: r.skills || [],
+      open: r.open_to_build === true,
+      openType: r.open_type || "",
+      linkedin: https(r.linkedin_url),
+      cvPath: r.cv_path || "",
+      cvName: r.cv_name || "",
+      rating: r.sprint_rating == null ? null : Number(r.sprint_rating),
+      reviews: r.sprint_reviews || 0,
+      joinedAt: Date.parse(r.joined_at) || 0,
+      limited: !!r.limited, // shares the full profile with connections only
+    };
+  }
+  const linkFromRow = (r) => ({
+    id: r.id,
+    from: r.requester_id,
+    to: r.addressee_id,
+    status: r.status,
+    note: r.note || "",
+    at: Date.parse(r.created_at) || Date.now(),
+    respondedAt: Date.parse(r.responded_at) || 0,
+  });
 
   Mori.db = {
     enabled,
@@ -149,12 +198,56 @@
       return { path, name: file.name };
     },
 
-    /** Short-lived link to the member's own CV. */
+    /** Short-lived link to your CV, or a connection's. */
     async cvLink(path) {
       const c = await client();
       const { data, error } = await c.storage.from("cvs").createSignedUrl(path, 300);
       fail(error);
       return data.signedUrl;
+    },
+
+    /** Everyone who finished sign-up, except you. */
+    async members() {
+      const c = await client();
+      await signedInId(c);
+      const { data, error } = await c.rpc("member_directory");
+      fail(error);
+      return (data || []).map(memberFromRow);
+    },
+
+    /** Connection requests you sent or received, newest first. */
+    async connections() {
+      const c = await client();
+      await signedInId(c);
+      const { data, error } = await c.from("connections").select(LINK_COLS).order("created_at", { ascending: false });
+      fail(error);
+      return (data || []).map(linkFromRow);
+    },
+
+    async requestConnection(memberId, note) {
+      const c = await client();
+      await signedInId(c);
+      const body = { addressee_id: memberId, note: note ? String(note).trim().slice(0, 300) || null : null };
+      const { data, error } = await c.from("connections").insert(body).select(LINK_COLS).single();
+      fail(error);
+      return linkFromRow(data);
+    },
+
+    /** Accept or ignore a request sent to you. Resolves null if it was withdrawn meanwhile. */
+    async answerRequest(linkId, status) {
+      const c = await client();
+      await signedInId(c);
+      const { data, error } = await c.from("connections").update({ status }).eq("id", linkId).select(LINK_COLS).maybeSingle();
+      fail(error);
+      return data ? linkFromRow(data) : null;
+    },
+
+    /** Withdraw a request you sent, or remove a connection. */
+    async deleteConnection(linkId) {
+      const c = await client();
+      await signedInId(c);
+      const { error } = await c.from("connections").delete().eq("id", linkId);
+      fail(error);
     },
 
     async signOut() {

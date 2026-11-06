@@ -89,8 +89,15 @@
   }
 
   function render() {
-    const filtered = applyFilters(S.projects());
-    countMeta.textContent = `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`;
+    const all = S.projects();
+    const filtered = applyFilters(all);
+    countMeta.textContent = all.length
+      ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`
+      : "No projects yet";
+    $("#emptyTitle").textContent = all.length ? "No projects match your filters." : "Declare your first project";
+    $("#emptySub").textContent = all.length
+      ? "Try clearing filters or creating a new project."
+      : "Put your idea in a form a specialist can judge in two minutes, then track its sprint milestones here.";
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -160,7 +167,7 @@
   function drawerHTML(p) {
     const now = D.ladder[p.rung];
     const next = D.ladder[Math.min(p.rung + 1, 5)];
-    const team = (p.team || []).map(S.person).filter(Boolean);
+    const team = (p.team || []).map(S.network.member).filter(Boolean);
     const chips = p.tags.map((t, i) => `<span class="chip chip--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
     return `
       <button class="icon-btn modal-x" data-close aria-label="Close project">${icon("x")}</button>
@@ -201,12 +208,13 @@
       <section class="pd-sec">
         <h3>Team <span>${team.length ? `${team.length} member${team.length === 1 ? "" : "s"}` : "Just you"}</span></h3>
         ${team.length
-          ? `<div class="team">${team.map((t) => `<div class="team-row">${avatar(t, 36)}<div><b>${esc(t.name)}</b><span class="meta">${esc(t.title)}</span></div><a class="btn btn--sm btn--ghost" href="network.html#messages/${esc(t.id)}">${icon("message")} Message</a></div>`).join("")}</div>`
+          ? `<div class="team">${team.map((t) => `<div class="team-row">${avatar(t, 36)}<div><b>${esc(t.name)}</b><span class="meta">${esc(t.headline)}</span></div><a class="btn btn--sm btn--ghost" href="network.html#explore/${esc(t.id)}">${icon("user")} Profile</a></div>`).join("")}</div>`
           : `<p class="meta">Invite specialists from the Network to join this project.</p>`}
       </section>
 
       <div class="pd-actions">
         <a class="btn btn--ink" href="network.html#explore">${icon("userPlus")} Find specialists</a>
+        <button class="btn" type="button" data-pd-pin aria-pressed="${p.pinned}">${icon("pin")} <span>${p.pinned ? "Unpin from home" : "Pin to home"}</span></button>
         <button class="btn" type="button" data-pd-settings>${icon("sliders")} Project settings</button>
       </div>`;
   }
@@ -235,6 +243,15 @@
       })
     );
     $("[data-pd-settings]", panel).addEventListener("click", () => soon("Project settings"));
+    $("[data-pd-pin]", panel).addEventListener("click", (e) => {
+      const u = S.togglePin(p.id);
+      if (!u) return;
+      const btn = e.currentTarget;
+      btn.setAttribute("aria-pressed", String(u.pinned));
+      btn.querySelector("span").textContent = u.pinned ? "Unpin from home" : "Pin to home";
+      Mori.shell.mountNav(); // the Projects menu lists pinned projects
+      toast(u.pinned ? `“${u.name}” is pinned to your homepage` : `“${u.name}” unpinned`, { icon: "pin" });
+    });
     Mori.motion.refresh(panel);
 
     Mori.modal.open("projectDrawer", {
@@ -245,6 +262,9 @@
   }
 
   /* ---------- Declare a new project ---------- */
+  // Tags already in use, plus the member's own industries as suggestions.
+  const tagChoices = () => Array.from(new Set(S.allTags().concat(S.profile().industries || []))).sort((a, b) => a.localeCompare(b));
+
   function openNewProject(opener) {
     const root = createModal("newProjectModal", { label: "Declare a new project", panelCls: "modal--new" });
     const panel = $(".modal", root);
@@ -261,7 +281,7 @@
         <label class="field"><span>Current focus <em class="hint">optional</em></span><input class="input" name="focus" maxlength="80" placeholder="e.g. Interview 10 warung owners"></label>
         <div class="field">
           <span>Tags</span>
-          <div class="filters" id="npTags">${S.allTags().map((t) => `<button type="button" class="fchip" data-np-tag="${esc(t)}" data-active="false">${esc(t)}</button>`).join("")}</div>
+          <div class="filters" id="npTags">${tagChoices().map((t) => `<button type="button" class="fchip" data-np-tag="${esc(t)}" data-active="false">${esc(t)}</button>`).join("")}</div>
           <div class="np-addtag"><input class="input" id="npNewTag" maxlength="20" placeholder="Add your own tag and press Enter" aria-label="Add a tag"></div>
         </div>
         <div class="field">

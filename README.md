@@ -10,11 +10,21 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page. Sign in and join use Google. |
 | `onboarding.html` | **Sign-up questions** for new members: name, age and region · founder or specialist · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
-| `home.html` | **Homepage**: greeting, entry cards, pinned project ring, recent messages, insights. |
-| `projects.html` | **Projects**: search, tag filters, sort, pagination, project drawer, declare a new project. |
-| `network.html` | **Network**: Explore (people and rooms), Requests, Messages. |
+| `home.html` | **Homepage**: greeting, entry cards, your pinned project, recent messages, insights. |
+| `projects.html` | **Projects**: search, tag filters, sort, pagination, project drawer (pin to homepage), declare a new project. |
+| `network.html` | **Network**: Explore the members who signed up, connection Requests, and Messages (your connections; messaging is coming soon). |
 
-**Profile**, **Settings** and **Notifications** are modals in the Account menu. The profile shows the onboarding answers.
+**Profile**, **Settings** and **Notifications** are modals in the Account menu. The profile shows the onboarding answers. Notifications come from connection requests: someone asking to connect, or accepting your request.
+
+Apart from the homepage insights, nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
+
+### Network
+
+- **Explore** lists everyone who finished the sign-up questions, except you. Search covers names, headlines, skills, regions, industries and languages.
+- **Filters:** founder or specialist · years of experience · minimum sprint rating · industry (searchable checklist; industries members chose are listed first) · open to build. **Sort** by newest, sprint rating, experience or name.
+- **Connect** from a card, or from a member's profile with an optional note (300 characters). The other member sees it under **Requests**, in the nav badge and in Notifications, and can accept or ignore it. You can withdraw a request or remove a connection.
+- **Connections** can see each other's CV. A member who sets **Settings → Privacy → Profile visibility** to *Connections* shows only their name, photo, role and headline to everyone else.
+- **Sprint rating** is shown on cards and profiles. Members can't set it themselves; it stays empty ("No sprint rating yet") until sprint reviews exist.
 
 The sign-in flow works like this:
 1. "Continue with Google" shows a loading screen and goes to Google.
@@ -30,7 +40,7 @@ python3 -m http.server 4173
 
 Then open <http://localhost:4173>.
 
-## Supabase (sign-in, profiles, CVs)
+## Supabase (sign-in, profiles, CVs, network)
 
 The site uses the Supabase project **Sandbox**. The URL and anon key are in `assets/js/config.js`; the anon key is safe in browser code because row-level security protects the data.
 
@@ -41,8 +51,11 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
   - `business_sector` (up to 3 industries)
   - `linkedin_url`, `cv_path`, `cv_name`, `languages`
   - `headline`, `bio`, `skills`, `open_to_build`, `open_type`
-  - `onboarding_completed`
-- **Storage bucket `cvs`:** private, PDF or Word up to 10 MB. Each member can only read and write `cvs/<their user id>/…`.
+  - `profile_visibility` (everyone / connections), `onboarding_completed`
+  - `sprint_rating`, `sprint_reviews`: read-only for members (a trigger, `protect_profile_stats`, ignores their edits)
+- **`public.member_directory()`:** the list behind Explore, callable by signed-in members only. It returns the shareable fields of onboarded members. Age, birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
+- **`public.connections`:** one row per pair of members (`requester_id`, `addressee_id`, `status` pending / accepted / ignored, `note`). Members can only send requests as themselves, only the addressee can accept or ignore, and either side can withdraw or remove. Column privileges stop anything else from being edited.
+- **Storage bucket `cvs`:** private, PDF or Word up to 10 MB. Each member can read and write `cvs/<their user id>/…`; connections can read each other's CVs.
 
 The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's no CDN dependency. It loads only when needed.
 
@@ -60,15 +73,15 @@ assets/
   js/
     config.js       Supabase URL + anon key
     auth.js         storage (with parsed-value cache), session, route guards (loads in <head>)
-    db.js           Supabase: Google sign-in, profiles, CV upload / links
-    data.js         demo content + onboarding option lists (regions, industries, languages…)
-    state.js        per-member state; profile saved locally and to Supabase
+    db.js           Supabase: Google sign-in, profiles, CVs, member directory, connection requests
+    data.js         option lists (roles, regions, industries, languages…), milestone ladder, insights
+    state.js        per-member state: profile, settings, projects, network + notifications (cached locally)
     ui.js           helpers, icons, avatars, toasts, modals, sliding highlights, loading screen
     motion.js       reveal-on-scroll, spotlight, tilt, parallax, count-ups, rings, off-screen pausing
     shell.js        shared nav + footer, page prerendering, Profile / Settings / Notifications
     landing.js · onboarding.js · home.js · projects.js · network.js
   vendor/supabase-2.58.0.js
-  img/favicon.svg
+  img/favicon.svg   the MORI logo (森)
 ```
 
 ## Performance notes
@@ -93,4 +106,4 @@ Everything respects the device's reduced-motion setting and **Settings → Prefe
 
 ## Content sources
 
-Copy follows the SandBox Lean Canvas v2 report and the Milestone Ladder core-kit doc (November 2026). For now the app focuses on two roles, **founders** and **specialists**. Projects, people and numbers in the app are demo data.
+Copy follows the SandBox Lean Canvas v2 report and the Milestone Ladder core-kit doc (November 2026). For now the app focuses on two roles, **founders** and **specialists**. The homepage insights are sample content; the illustrations on the landing page are decorative.
