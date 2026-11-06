@@ -12,5 +12,5 @@
    clicked through. Nothing leaves the browser in demo mode.
    ========================================================================== */
 window.MORI_CONFIG = {
-  googleClientId: "40241154104-pafvjdgjedqls7po88qjd8q6p8ltdhml.apps.googleusercontent.com",
+  googleClientId: "907241396206-t0tdcp3kqc4481o7ppnei380oflqjq8j.apps.googleusercontent.com",
 };
