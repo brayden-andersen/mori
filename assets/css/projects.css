@@ -1,0 +1,86 @@
+/* ==========================================================================
+   Mori: Sandbox — Projects page
+   Subnav, grid and pager are carried over from the draft; the project
+   drawer and the "declare a new project" modal are new.
+   ========================================================================== */
+.subgrid{ display:grid; grid-template-columns: minmax(0,1fr) auto auto; gap:12px; align-items:center; }
+.subgrid .filters{ grid-column: 1 / -1; order:3 }
+.sort{ display:flex; gap:8px; align-items:center; }
+.subnav-actions{ display:flex; gap:8px; justify-content:flex-end }
+.grid-title{ margin:0 0 12px; font-size:16px; letter-spacing:.2px }
+.pagehead .btn .ico{ width:16px; height:16px }
+
+/* Project cards */
+.rung-row{ display:flex; align-items:center; gap:10px; margin-top:14px }
+.rung-row .ladder-bar{ flex:1 }
+.rung-row .meta{ font-size:12px; white-space:nowrap }
+.pcard.is-new{ animation: glow-new 2.6s var(--ease-out) }
+@keyframes glow-new{ 0%{ box-shadow: 0 0 0 0 rgba(59,130,246,.5), var(--panel-shadow) } 25%{ box-shadow: 0 0 0 7px rgba(59,130,246,.18), var(--lift-shadow) } 100%{ box-shadow: var(--panel-shadow) } }
+
+/* Pagination (draft) */
+.pager{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; gap:10px; }
+.pages{ display:flex; gap:6px; flex-wrap:wrap; }
+.pagebtn{ padding:8px 12px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; font-size:13px; transition: transform .25s var(--ease-spring), border-color .2s ease, background .2s ease }
+.pagebtn:hover{ transform: translateY(-1px) }
+.pagebtn[aria-current="page"]{ border-color: rgba(59,130,246,.28); background: rgba(59,130,246,.08); }
+
+/* ---------- Project drawer ---------- */
+.modal--drawer{ display:flex; flex-direction:column; padding-bottom:6px }
+.pd-head{ position:relative; padding:24px 22px 6px }
+.pd-head .chips{ margin-top:0; padding-right:44px }
+.pd-head h2{ margin:14px 0 4px; font-size:24px; letter-spacing:-.02em }
+.pd-sec{ margin:14px 22px 0; padding:16px; border-radius:16px; background:#fff; border:1px solid #e5e7eb; box-shadow: var(--panel-shadow) }
+.pd-sec h3{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
+.pd-sec h3 span{ font-weight:600; letter-spacing:0; text-transform:none; color:var(--ink-2) }
+.pd-progress{ display:flex; align-items:center; gap:18px }
+.pd-progress .progress-wrapper{ width:92px; height:92px }
+.pd-progress .progress-inner{ inset:12px }
+.pd-progress .progress-label{ font-size:16px }
+.pd-big{ display:block; font-size:20px; letter-spacing:-.01em }
+.pd-hint{ margin-top:6px; font-size:13px; color:#065f46 }
+.pd-ladder .ladder-bar i{ height:8px }
+.ladder-labels{ display:grid; grid-template-columns: repeat(6, 1fr); gap:4px; margin-top:6px; font-size:11px; text-align:center; color:var(--subtle) }
+.ladder-labels .is-now{ font-weight:700; color:var(--progress-orange) }
+.pd-now{ margin:12px 0 0; font-size:14px }
+.pd-next{ margin-top:10px; padding:12px 14px; border-radius:12px; font-size:13.5px; line-height:1.5; background: rgba(249,115,22,.06); border:1px dashed rgba(249,115,22,.38) }
+
+.ms-list{ list-style:none; margin:0; padding:0; display:grid; gap:4px }
+.ms{ position:relative; display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; cursor:pointer; transition: background .2s ease }
+.ms:hover{ background:#f8fafc }
+.ms input{ position:absolute; opacity:0; width:1px; height:1px }
+.ms-box{ width:22px; height:22px; flex:0 0 auto; display:grid; place-items:center; border-radius:7px; border:2px solid #cbd5e1; transition: background .25s ease, border-color .25s ease, transform .45s var(--ease-spring) }
+.ms-box .ico{ width:14px; height:14px; color:#fff; stroke-width:3; stroke-dasharray:24; stroke-dashoffset:24; transition: stroke-dashoffset .35s var(--ease-out) .05s }
+.ms input:checked + .ms-box{ background: linear-gradient(135deg, #34d399, #10b981); border-color:#10b981; transform: scale(1.06) }
+.ms input:checked + .ms-box .ico{ stroke-dashoffset:0 }
+.ms input:focus-visible + .ms-box{ box-shadow: 0 0 0 3px rgba(59,130,246,.3) }
+.ms-text{ font-size:14px; transition: color .25s ease }
+.ms input:checked ~ .ms-text{ color:var(--subtle); text-decoration: line-through; text-decoration-color: rgba(100,116,139,.5) }
+
+.team{ display:grid; gap:10px }
+.team-row{ display:flex; align-items:center; gap:12px }
+.team-row > div{ flex:1; min-width:0 }
+.team-row b{ display:block; font-size:14px }
+.team-row .meta{ font-size:12px }
+.pd-actions{ display:flex; flex-wrap:wrap; gap:10px; padding:18px 22px 22px }
+
+.confetti{ position:fixed; z-index:4000; width:8px; height:8px; border-radius:2px; pointer-events:none }
+
+/* ---------- Declare a new project ---------- */
+.modal--new{ width:min(560px, 100%) }
+.np-form{ display:grid; gap:16px }
+.np-form .filters{ margin-top:2px }
+.np-addtag{ margin-top:8px }
+.np-rungs{ display:grid; grid-template-columns: repeat(6, 1fr); gap:6px }
+.np-rung{ appearance:none; padding:10px 0; border-radius:12px; border:1px solid #e5e7eb; background:#fff; font-weight:700; color:var(--ink-2); cursor:pointer; transition: transform .35s var(--ease-spring), background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease }
+.np-rung:hover{ transform: translateY(-2px) }
+.np-rung[aria-checked="true"]{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #fb923c, #f97316); box-shadow: 0 10px 20px -10px rgba(249,115,22,.9) }
+.np-rung-desc{ margin:8px 0 0; min-height:2.8em; font-size:13px; font-weight:400; line-height:1.5; color:var(--muted) }
+.input.is-invalid{ border-color: rgba(239,68,68,.6); box-shadow: 0 0 0 4px rgba(239,68,68,.12); animation: shake .4s ease }
+@keyframes shake{ 25%{ translate:-4px 0 } 75%{ translate:4px 0 } }
+
+@media (max-width: 760px){ .subgrid{ grid-template-columns: minmax(0,1fr) auto; gap:10px } .subgrid .search{ grid-column: 1 / -1 } }
+@media (max-width: 640px){
+  .subnav{ position:static }
+  .pd-head, .pd-actions{ padding-left:16px; padding-right:16px }
+  .pd-sec{ margin-left:16px; margin-right:16px }
+}

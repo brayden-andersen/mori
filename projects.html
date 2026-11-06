@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mori: Sandbox • Projects</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/projects.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/projects.js"></script>
+</head>
+<body data-page="projects">
+  <div class="aura" aria-hidden="true" data-parallax></div>
+  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <main class="wrap">
+    <header class="pagehead" role="banner">
+      <div>
+        <nav class="crumbs" aria-label="Breadcrumb" data-reveal="fade">
+          <a href="home.html">Home</a> <span class="sep">/</span> <span>Projects</span>
+        </nav>
+        <h1 class="title" id="pageTitle">Projects</h1>
+        <p class="meta" id="countMeta" data-reveal="fade" style="--reveal-delay:200ms">Loading…</p>
+      </div>
+      <button class="btn magnetic" type="button" id="newProjectBtn" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="plus"></i> New Project</button>
+    </header>
+
+    <!-- Sticky subnav: search / filters / sort -->
+    <section class="subnav" aria-label="Project controls" data-reveal style="--reveal-delay:120ms">
+      <div class="subgrid">
+        <label class="search" aria-label="Search projects">
+          <i data-icon="search"></i>
+          <input type="search" id="q" placeholder="Search by name, focus, or tag…" autocomplete="off"/>
+        </label>
+
+        <div class="filters" id="filterChips" role="group" aria-label="Filter by tag"></div>
+
+        <div class="sort">
+          <select id="sortBy" class="select" aria-label="Sort projects">
+            <option value="updated_desc">Recently updated</option>
+            <option value="updated_asc">Least recently updated</option>
+            <option value="name_asc">Name A–Z</option>
+            <option value="name_desc">Name Z–A</option>
+          </select>
+        </div>
+
+        <div class="subnav-actions">
+          <button class="btn" type="button" id="clearFilters">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="panel" aria-labelledby="projectsTitle" data-reveal style="--reveal-delay:200ms">
+      <h3 id="projectsTitle" class="grid-title">All projects</h3>
+      <div class="grid" id="grid"></div>
+
+      <div id="empty" class="empty" hidden>
+        <span class="empty-ico"><i data-icon="search"></i></span>
+        <div>No projects match your filters.</div>
+        <div class="meta">Try clearing filters or creating a new project.</div>
+        <div><button class="btn" type="button" data-new-project>Create project</button></div>
+      </div>
+
+      <div class="pager" id="pager" aria-label="Pagination" hidden>
+        <button class="btn" type="button" id="prevPage">Prev</button>
+        <div class="pages" id="pages"></div>
+        <button class="btn" type="button" id="nextPage">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>
