@@ -214,7 +214,8 @@
     if (st.aura === false) root.setAttribute("data-aura", "still");
   }
   // Google is redirecting back: show the sign-in screen, not the landing page.
-  if (params.get("auth") === "callback") root.classList.add("is-signing-in");
+  // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
+  if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index.html")) root.classList.add("is-signing-in");
 
   const kind = root.getAttribute("data-auth");
   if (kind) Mori.auth.guard(kind);

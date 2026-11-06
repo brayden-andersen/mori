@@ -153,7 +153,7 @@
   });
 
   /* ---------- URL hints ---------- */
-  if (params.get("auth") === "callback") {
+  if (params.get("auth") === "callback" || params.has("code")) {
     if (db.enabled) finishRedirect();
     else loader.hide();
   } else {
