@@ -16,6 +16,7 @@
   <script defer src="assets/js/state.js"></script>
   <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/db.js"></script>
   <script defer src="assets/js/shell.js"></script>
   <script defer src="assets/js/home.js"></script>
 </head>
@@ -33,14 +34,14 @@
 
       <div class="sections" aria-label="Primary actions" data-stagger="120">
         <a href="projects.html" class="card spotlight tilt" data-tilt="4" id="toProjects">
-          <span class="card-go" aria-hidden="true"></span>
+          <span class="card-go" aria-hidden="true"><i data-icon="arrowRight"></i></span>
           <h2>Projects &amp; Companies</h2>
           <p>Review roadmaps, tasks, and milestones.</p>
         </a>
         <a href="network.html" class="card spotlight tilt" data-tilt="4" id="toNetworking">
-          <span class="card-go" aria-hidden="true"></span>
+          <span class="card-go" aria-hidden="true"><i data-icon="arrowRight"></i></span>
           <h2>Explore Networking Space</h2>
-          <p>Discover collaborators, mentors, and active rooms.</p>
+          <p>Discover collaborators, specialists, and active rooms.</p>
         </a>
       </div>
     </section>
@@ -49,7 +50,7 @@
     <section class="panel" aria-labelledby="pinnedTitle" id="pinnedPanel" data-reveal>
       <div class="panel-head">
         <h3 id="pinnedTitle">Pinned projects</h3>
-        <a class="panel-link" href="projects.html">All projects <span class="go"></span></a>
+        <a class="panel-link" href="projects.html">All projects <span class="go"><i data-icon="arrowRight"></i></span></a>
       </div>
       <div class="pins" id="pins"></div>
     </section>
@@ -57,7 +58,7 @@
     <section class="panel" aria-labelledby="msgsTitle" data-reveal>
       <div class="panel-head">
         <h3 id="msgsTitle">Recent messages</h3>
-        <a class="panel-link" href="network.html#messages">Open messages <span class="go"></span></a>
+        <a class="panel-link" href="network.html#messages">Open messages <span class="go"><i data-icon="arrowRight"></i></span></a>
       </div>
       <div class="pins" id="msgs"></div>
     </section>

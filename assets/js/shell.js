@@ -1,18 +1,19 @@
 /* ==========================================================================
    Mori: Sandbox — app shell
    --------------------------------------------------------------------------
-   Renders the shared nav and footer into [data-shell="nav"] / [data-shell="footer"]
-   placeholders, keeps the nav badges in sync, and owns the three account
-   modals: Profile, Settings and Notifications.
-   Any element with data-modal="profile|settings|notifications" opens a modal,
-   data-soon="Label" shows a "coming soon" toast, data-action="signout" signs out.
+   Renders the shared nav and footer into [data-shell="nav"] / [data-shell="footer"],
+   keeps nav badges in sync, prerenders linked pages for instant navigation,
+   and owns the account modals: Profile, Settings and Notifications.
+     data-modal="profile|settings|notifications"  opens a modal
+     data-soon="Label"                           "coming soon" toast
+     data-action="signout"                       signs out
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, brandStar, googleG, avatar, ago, toast, soon, createModal, seg } = Mori.ui;
+  const { $, $$, esc, icon, brandStar, googleG, avatar, ago, toast, soon, createModal, seg, placeGlider, roleChip, empty, loader } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const page = document.body.dataset.page || "";
@@ -20,34 +21,29 @@
   /* ---------- Nav ---------- */
   function navHTML() {
     const s = S.session();
-    const pinned = S.pinnedProjects();
     const sub = s.email || (s.provider === "demo" ? "Demo account" : "");
+    const link = (href, label, ic) => `<a class="drop-link" role="menuitem" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
     return `
     <nav class="nav app-nav" id="topNav" aria-label="Main">
       <div class="nav-inner">
-        <a href="home.html" class="brand" aria-label="Mori: Sandbox — go to your homepage">
-          ${brandStar()}
-          <div class="brand-name">Mori: Sandbox</div>
-        </a>
+        <a href="home.html" class="brand" aria-label="Mori: Sandbox — go to your homepage">${brandStar()}<div class="brand-name">Mori: Sandbox</div></a>
         <div class="menu" id="mainMenu">
           <span class="menu-glider" aria-hidden="true"></span>
+          <div class="item"><a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
           <div class="item">
-            <a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a>
-          </div>
-          <div class="item" id="projectsItem">
             <a class="nav-btn" href="projects.html" data-nav="projects" aria-haspopup="true">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
             <div class="dropdown" role="menu" aria-label="Projects">
               <div class="drop-label">Pinned</div>
-              ${pinned.map((p) => `<a class="drop-link" role="menuitem" href="projects.html?open=${esc(p.id)}">${esc(p.name)}</a>`).join("")}
+              ${S.pinnedProjects().map((p) => link(`projects.html?open=${esc(p.id)}`, esc(p.name))).join("")}
               <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="projects.html">All projects</a>
+              ${link("projects.html", "All projects")}
               <a class="drop-link" role="menuitem" href="#" data-soon="Project settings">Project Settings (new)</a>
             </div>
           </div>
           <div class="item">
             <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span></a>
             <div class="dropdown" role="menu" aria-label="Network">
-              <a class="drop-link" role="menuitem" href="network.html#explore">${icon("compass")} Explore</a>
+              ${link("network.html#explore", "Explore", "compass")}
               <a class="drop-link" role="menuitem" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
               <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
             </div>
@@ -81,37 +77,6 @@
     });
   }
 
-  function wireGlider(nav) {
-    const menu = $("#mainMenu", nav);
-    const glider = $(".menu-glider", menu);
-    const buttons = $$(".nav-btn", menu);
-    const active = buttons.find((b) => b.classList.contains("is-active"));
-    const move = (b) => {
-      if (!b) { glider.style.opacity = "0"; return; }
-      const mr = menu.getBoundingClientRect();
-      const br = b.getBoundingClientRect();
-      glider.style.width = br.width + "px";
-      glider.style.height = br.height + "px";
-      glider.style.transform = `translate(${br.left - mr.left}px, ${br.top - mr.top}px)`;
-      glider.style.opacity = "1";
-    };
-    const snap = () => {
-      glider.style.transition = "none";
-      move(active);
-      void glider.offsetWidth;
-      glider.style.transition = "";
-    };
-    buttons.forEach((b) => {
-      b.addEventListener("mouseenter", () => move(b));
-      b.addEventListener("focus", () => move(b));
-    });
-    menu.addEventListener("mouseleave", () => move(active));
-    menu.addEventListener("focusout", (e) => { if (!menu.contains(e.relatedTarget)) move(active); });
-    window.addEventListener("resize", snap);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(snap);
-    snap();
-  }
-
   function mountNav() {
     const slot = $('[data-shell="nav"]') || $("#topNav.app-nav");
     if (!slot) return;
@@ -120,8 +85,8 @@
     const nav = tpl.content.firstElementChild;
     slot.replaceWith(nav);
 
-    const current = $(`[data-nav="${page}"]`, nav);
-    if (current) { current.classList.add("is-active"); current.setAttribute("aria-current", "page"); }
+    const active = $(`[data-nav="${page}"]`, nav);
+    if (active) { active.classList.add("is-active"); active.setAttribute("aria-current", "page"); }
     $$(".dropdown", nav).forEach((d) => Array.from(d.children).forEach((c, i) => c.style.setProperty("--i", i)));
 
     const acct = $(".item.account", nav);
@@ -134,53 +99,57 @@
       toggle.setAttribute("aria-expanded", String(open));
     });
 
-    wireGlider(nav);
+    // Glass pill follows the hovered nav item and rests on the current page.
+    const menu = $("#mainMenu", nav);
+    const glider = $(".menu-glider", menu);
+    const rest = (snap) => placeGlider(glider, active, { snap, height: true });
+    $$(".nav-btn", menu).forEach((b) => {
+      const move = () => placeGlider(glider, b, { height: true });
+      b.addEventListener("mouseenter", move);
+      b.addEventListener("focus", move);
+    });
+    menu.addEventListener("mouseleave", () => rest());
+    menu.addEventListener("focusout", (e) => { if (!menu.contains(e.relatedTarget)) rest(); });
+    rest(true);
+
     updateBadges();
     Mori.ui.measureNav();
   }
+  window.addEventListener("resize", () => { const g = $(".menu-glider"); if (g) placeGlider(g, $(".nav-btn.is-active"), { snap: true, height: true }); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const g = $(".menu-glider"); if (g) placeGlider(g, $(".nav-btn.is-active"), { snap: true, height: true }); });
 
-  function setBadge(key, n) {
-    $$(`[data-badge="${key}"]`).forEach((b) => {
-      b.textContent = n > 9 ? "9+" : String(n);
-      b.hidden = !n;
-    });
-  }
   function updateBadges() {
     if (!$("#topNav.app-nav")) return;
-    const n = S.unreadNotifications();
-    setBadge("notifications", n);
-    setBadge("requests", S.network.incoming().length);
-    setBadge("messages", S.threads.unreadCount());
+    const counts = { notifications: S.unreadNotifications(), requests: S.network.incoming().length, messages: S.threads.unreadCount() };
+    Object.entries(counts).forEach(([key, n]) => $$(`[data-badge="${key}"]`).forEach((b) => { b.textContent = n > 9 ? "9+" : String(n); b.hidden = !n; }));
     const dot = $(".pfp-dot");
-    if (dot) dot.hidden = n === 0;
+    if (dot) dot.hidden = counts.notifications === 0;
+  }
+
+  /* ---------- Instant page changes: prerender linked app pages on hover (Chrome / Edge) ---------- */
+  function speculate() {
+    if (!(HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules"))) return;
+    const s = document.createElement("script");
+    s.type = "speculationrules";
+    s.textContent = JSON.stringify({
+      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="network.html"]' }, eagerness: "moderate" }],
+    });
+    document.head.appendChild(s);
   }
 
   /* ---------- Footer (same columns as the drafts) ---------- */
   function mountFooter() {
     const slot = $('[data-shell="footer"]');
     if (!slot) return;
+    const col = (id, title, items) =>
+      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map((t) => `<li><a href="#" data-soon="${t}">${t}</a></li>`).join("")}</ul></nav>`;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          <nav class="footer-col" aria-labelledby="assistTitle">
-            <h4 id="assistTitle">Assistance</h4>
-            <ul>
-              <li><a href="#" data-soon="Sandbox Guide">Sandbox Guide</a></li>
-              <li><a href="#" data-soon="About Sandbox">About Sandbox</a></li>
-              <li><a href="#" data-soon="Contact Us">Contact Us</a></li>
-              <li><a href="#" data-soon="Terms &amp; Policy">Terms &amp; Policy</a></li>
-            </ul>
-          </nav>
-          <nav class="footer-col" aria-labelledby="productsTitle">
-            <h4 id="productsTitle">Products</h4>
-            <ul>
-              <li><a href="#" data-soon="Toolkits">Toolkits</a></li>
-              <li><a href="#" data-soon="Subscription Pricing">Subscription Pricing</a></li>
-              <li><a href="#" data-soon="Cancellation">Cancellation</a></li>
-            </ul>
-          </nav>
+          ${col("assistTitle", "Assistance", ["Sandbox Guide", "About Sandbox", "Contact Us", "Terms &amp; Policy"])}
+          ${col("productsTitle", "Products", ["Toolkits", "Subscription Pricing", "Cancellation"])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -192,6 +161,7 @@
   const closeBtn = (label = "Close") => `<button class="icon-btn modal-x" data-close aria-label="${label}">${icon("x")}</button>`;
   const switchHTML = (attrs, on, label) =>
     `<label class="switch"><input type="checkbox" ${attrs} ${on ? "checked" : ""}><span class="switch-track"><span class="switch-knob"></span></span>${label ? `<span class="switch-label">${label}</span>` : ""}</label>`;
+  const fullName = (p, s) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;
 
   /** Rung 0–5 bar used in the profile and project views */
   function ladderBar(rung) {
@@ -204,107 +174,120 @@
   function profileViewHTML() {
     const s = S.session();
     const p = S.profile();
-    const st = S.settings();
     const owned = S.projects().filter((x) => x.owner);
     const lead = owned[0];
-    const roles = (p.roles || []).filter((r) => D.roles[r]).map((r) => `<span class="chip chip--${D.roles[r].hue}">${D.roles[r].label}</span>`).join("");
-    const openChip = p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : "";
-    const skills = (p.skills || []).length
-      ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("")
-      : `<span class="meta">Add skills so builders and founders can find you.</span>`;
-    const record = !st.showRecord
+    const fact = (label, value) => (value ? `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>` : "");
+    const record = !S.settings().showRecord
       ? `<p class="meta">Your milestone record is hidden. Turn it back on in Settings → Privacy.</p>`
       : lead
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
+    const where = [p.region, p.age ? `${p.age} years old` : "", s.email].filter(Boolean).map(esc).join(" · ");
+    const docs = [
+      p.linkedin ? `<a class="btn btn--sm" href="${esc(p.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>` : "",
+      p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "",
+    ].join("");
 
     return `
       <div class="pf-cover" aria-hidden="true"><span></span><span></span><span></span></div>
       ${closeBtn("Close profile")}
       <div class="pf-head">
-        ${avatar(s, 88, { ring: p.open })}
+        ${avatar({ id: s.id, name: fullName(p, s), picture: s.picture }, 88, { ring: p.open })}
         <button class="btn btn--sm" data-pf-edit>${icon("edit")} Edit profile</button>
       </div>
       <div class="pf-body">
-        <h2 class="pf-name" id="pfTitle">${esc(s.name)}</h2>
+        <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}</h2>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
-        <p class="meta pf-meta">${icon("pin")} ${esc(p.location || "Add your city")}${s.email ? ` · ${esc(s.email)}` : ""}</p>
-        <div class="chips">${roles}${openChip}</div>
+        <p class="meta pf-meta">${icon("pin")} ${where || "Add your region"}</p>
+        <div class="chips">${roleChip(p.role)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
         <div class="pf-stats">
           <div class="pf-stat"><b data-count="${S.network.connections().length}">0</b><span>Connections</span></div>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
           <div class="pf-stat"><b data-count="${p.badges || 0}">0</b><span>Sprint badges</span></div>
         </div>
-        <section class="pf-sec"><h3>About</h3><p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so builders know what you’re working on.</span>'}</p></section>
-        <section class="pf-sec"><h3>Skills</h3><div class="tags">${skills}</div></section>
+        <section class="pf-sec"><h3>About</h3><p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re working on.</span>'}</p></section>
+        <section class="pf-sec"><h3>Details</h3>
+          <dl class="pf-facts">${fact("Experience", (p.experience || "").replace(/(\d)-(\d)/, "$1–$2"))}${fact("Employment", p.employment)}${fact("Region", p.region)}${fact("Age", p.age ? String(p.age) : "")}</dl>
+        </section>
+        <section class="pf-sec"><h3>Industry niche</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
+        <section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>
+        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page or upload a CV.</span>'}</div></section>
+        <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
         <section class="pf-sec"><h3>Milestone record</h3>${record}
           ${p.badges ? `<div class="pf-badge">${icon("award")}<div><b>Sprint badge</b><span class="meta">3 sprints · 92% would work with you again</span></div></div>` : ""}
         </section>
+        <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }
 
   function profileEditHTML() {
-    const s = S.session();
     const p = S.profile();
-    const roleChips = Object.entries(D.roles)
-      .map(([k, r]) => `<button type="button" class="fchip" data-role="${k}" data-active="${(p.roles || []).includes(k)}">${r.label}</button>`)
-      .join("");
     const openOpts = Object.entries(D.openTypes).map(([k, v]) => `<option value="${k}" ${p.openType === k ? "selected" : ""}>${esc(v)}</option>`).join("");
     return `
       <div class="modal-head"><h2 id="pfTitle">Edit profile</h2>${closeBtn()}</div>
       <form class="modal-body form-grid" id="pfForm" novalidate>
-        <label class="field"><span>Name</span><input class="input" name="name" value="${esc(s.name)}" maxlength="60" required autofocus></label>
-        <label class="field"><span>Location</span><input class="input" name="location" value="${esc(p.location)}" maxlength="60"></label>
-        <label class="field field--full"><span>Headline</span><input class="input" name="headline" value="${esc(p.headline)}" maxlength="100"></label>
+        <label class="field field--full"><span>Headline</span><input class="input" name="headline" value="${esc(p.headline)}" maxlength="100" autofocus></label>
         <label class="field field--full"><span>About</span><textarea class="textarea" name="bio" maxlength="400">${esc(p.bio)}</textarea></label>
-        <div class="field field--full"><span>Roles</span><div class="filters" data-roles>${roleChips}</div></div>
         <label class="field field--full"><span>Skills <em class="hint">comma separated</em></span><input class="input" name="skills" value="${esc((p.skills || []).join(", "))}"></label>
         <div class="field field--full field--inline">
           ${switchHTML('name="open"', p.open, "Show that I’m open to build")}
           <select class="select" name="openType" aria-label="What are you open to?">${openOpts}</select>
         </div>
+        <p class="field--full meta pf-edit-note">Name, age, region, role, industries, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
       </form>
       <div class="modal-foot"><button class="btn" type="button" data-pf-cancel>Cancel</button><button class="btn btn--ink" type="button" data-pf-save>${icon("check")} Save profile</button></div>`;
   }
 
+  async function openCv() {
+    const p = S.profile();
+    if (!p.cvPath || !Mori.db || !Mori.db.enabled) { toast("In demo mode the CV stays on your device, so there’s nothing to open here."); return; }
+    const win = window.open("", "_blank"); // opened now so the browser doesn't block it
+    try {
+      const url = await Mori.db.cvLink(p.cvPath);
+      if (win) win.location = url; else location.href = url;
+    } catch (err) {
+      if (win) win.close();
+      toast(err.message || "Couldn’t open your CV.", { icon: "x" });
+    }
+  }
+
   function renderProfile(mode = "view") {
-    const root = createModal("modal-profile", { label: "Profile", panelCls: "modal--profile" });
-    const panel = $(".modal", root);
+    const el = createModal("modal-profile", { label: "Profile", panelCls: "modal--profile" });
+    const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "pfTitle");
     panel.innerHTML = mode === "edit" ? profileEditHTML() : profileViewHTML();
     panel.scrollTop = 0;
-    if (mode === "edit") {
-      const form = $("#pfForm", panel);
-      $$("[data-role]", form).forEach((b) => b.addEventListener("click", () => { b.dataset.active = b.dataset.active === "true" ? "false" : "true"; }));
-      $("[data-pf-cancel]", panel).addEventListener("click", () => renderProfile("view"));
-      const save = () => {
-        const f = new FormData(form);
-        const name = String(f.get("name") || "").trim();
-        if (!name) { form.elements.name.focus(); toast("Please add your name", { icon: "edit" }); return; }
-        const roles = $$('[data-role][data-active="true"]', form).map((b) => b.dataset.role);
-        S.saveProfile({
+    if (mode === "view") {
+      $("[data-pf-edit]", panel).addEventListener("click", () => renderProfile("edit"));
+      const cv = $("[data-pf-cv]", panel);
+      if (cv) cv.addEventListener("click", openCv);
+      Mori.motion.refresh(panel);
+      return el;
+    }
+    const form = $("#pfForm", panel);
+    const save = async () => {
+      const f = new FormData(form);
+      const btn = $("[data-pf-save]", panel);
+      btn.disabled = true;
+      try {
+        await S.saveProfile({
           headline: String(f.get("headline") || "").trim(),
-          location: String(f.get("location") || "").trim(),
           bio: String(f.get("bio") || "").trim(),
-          roles: roles.length ? roles : ["founder"],
           skills: String(f.get("skills") || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 12),
           open: !!form.elements.open.checked,
           openType: String(f.get("openType") || "cofound"),
         });
-        Mori.auth.updateSession({ name, givenName: name.split(/\s+/)[0] });
-        mountNav();
-        renderProfile("view");
         toast("Profile updated", { icon: "check" });
-        document.dispatchEvent(new CustomEvent("mori:change", { detail: { key: "session" } }));
-      };
-      $("[data-pf-save]", panel).addEventListener("click", save);
-      form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
-      setTimeout(() => form.elements.name && form.elements.name.focus(), 80);
-    } else {
-      $("[data-pf-edit]", panel).addEventListener("click", () => renderProfile("edit"));
-      Mori.motion.refresh(panel);
-    }
-    return root;
+      } catch (err) {
+        toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 });
+      }
+      renderProfile("view");
+    };
+    $("[data-pf-cancel]", panel).addEventListener("click", () => renderProfile("view"));
+    $("[data-pf-save]", panel).addEventListener("click", save);
+    form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
+    setTimeout(() => form.elements.headline.focus(), 80);
+    return el;
   }
 
   /* ---------- Settings modal ---------- */
@@ -323,6 +306,7 @@
       `<div class="st-row ${cls}"><div class="st-copy"><h4>${title}</h4><p>${desc}</p></div><div class="st-control">${control}</div></div>`;
     const notifyRow = (key, title, desc) => row(title, desc, switchHTML(`data-notify="${key}" aria-label="${esc(title)}"`, st.notify[key]));
     const pane = (id, html) => `<section class="st-pane" data-pane="${id}" role="tabpanel" aria-label="${id}" ${id === tab ? "" : "hidden"}>${html}</section>`;
+    const segHTML = (key, value, options) => `<div class="seg" data-setting="${key}" data-value="${value}">${options.map(([v, l]) => `<button data-value="${v}">${l}</button>`).join("")}</div>`;
 
     return `
       <div class="modal-head">
@@ -341,13 +325,12 @@
               <div class="st-card-copy"><b>${esc(s.name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
               <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + "Demo"}</span>
             </div>
-            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account." : "Demo mode. Add a Google Client ID in <code>assets/js/config.js</code> to turn on Google sign-in.", "")}
+            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile and CV are stored in your Sandbox account." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
             ${row("Sign out", "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} Sign out</button>`)}
             ${row("Reset demo data", "Clears the projects, messages and settings you changed in this concept.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
-            ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.",
-              `<div class="seg" data-setting="motion" data-value="${st.motion}"><button data-value="system">System</button><button data-value="full">Full</button><button data-value="reduced">Reduced</button></div>`)}
+            ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
             ${row("Animated background", "The drifting blue and orange aura behind every page.", switchHTML('data-setting="aura" aria-label="Animated background"', st.aura !== false))}
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
@@ -355,15 +338,14 @@
           `)}
           ${pane("notifications", `
             ${notifyRow("messages", "Messages and mentions", "When someone messages you or mentions you in notes.")}
-            ${notifyRow("requests", "Connection requests", "When founders, builders or mentors want to connect.")}
+            ${notifyRow("requests", "Connection requests", "When founders or specialists want to connect.")}
             ${notifyRow("projects", "Projects and milestones", "Sprint progress and rungs reached on your projects.")}
             ${notifyRow("announcements", "Sprints, rooms and insights", "Sprint lobbies, room events, badges and new insights.")}
             ${notifyRow("digest", "Weekly email digest", "A Sunday summary by email. Arrives with the Sandbox backend.")}
           `)}
           ${pane("privacy", `
-            ${row("Profile visibility", "Who can see your full profile.",
-              `<div class="seg" data-setting="visibility" data-value="${st.visibility}"><button data-value="everyone">Everyone</button><button data-value="connections">Connections</button></div>`)}
-            ${row("Show my milestone record", "Builders and backers see the rungs you’ve reached. You can hide the whole record, but not single rungs.", switchHTML('data-setting="showRecord" aria-label="Show my milestone record"', st.showRecord))}
+            ${row("Profile visibility", "Who can see your full profile.", segHTML("visibility", st.visibility, [["everyone", "Everyone"], ["connections", "Connections"]]))}
+            ${row("Show my milestone record", "Specialists and founders see the rungs you’ve reached. You can hide the whole record, but not single rungs.", switchHTML('data-setting="showRecord" aria-label="Show my milestone record"', st.showRecord))}
             ${row("Show “Open to build”", "Adds the open-to-build ring and tag to your profile.", switchHTML('data-profile="open" aria-label="Show open to build"', p.open))}
           `)}
         </div>
@@ -371,8 +353,8 @@
   }
 
   function renderSettings(tab = "account") {
-    const root = createModal("modal-settings", { label: "Settings", panelCls: "modal--settings" });
-    const panel = $(".modal", root);
+    const el = createModal("modal-settings", { label: "Settings", panelCls: "modal--settings" });
+    const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "stTitle");
     panel.innerHTML = settingsHTML(tab);
 
@@ -385,19 +367,17 @@
       clearTimeout(pillTimer);
       pillTimer = setTimeout(() => pill.classList.remove("is-on"), 1600);
     };
-    const segs = [];
+    const segs = $$(".seg[data-setting]", panel).map((s) => seg(s, (v) => { S.saveSettings({ [s.dataset.setting]: v }); saved(); }));
     const showTab = (id) => {
       $$(".st-tab", panel).forEach((t) => { const on = t.dataset.tab === id; t.classList.toggle("is-on", on); t.setAttribute("aria-selected", String(on)); });
       $$(".st-pane", panel).forEach((p) => { p.hidden = p.dataset.pane !== id; if (!p.hidden) Mori.motion.enter(p, ".st-row, .st-card"); });
       segs.forEach((sg) => sg.refresh());
     };
     $$(".st-tab", panel).forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
-
-    $$(".seg[data-setting]", panel).forEach((el) => segs.push(seg(el, (v) => { S.saveSettings({ [el.dataset.setting]: v }); saved(); })));
-    $$('input[data-setting]', panel).forEach((el) => el.addEventListener("change", () => { S.saveSettings({ [el.dataset.setting]: el.checked }); saved(); }));
-    $$('select[data-setting]', panel).forEach((el) => el.addEventListener("change", () => { S.saveSettings({ [el.dataset.setting]: el.value }); saved(); }));
-    $$("input[data-notify]", panel).forEach((el) => el.addEventListener("change", () => { S.saveSettings({ notify: { [el.dataset.notify]: el.checked } }); saved(); updateBadges(); }));
-    $$("input[data-profile]", panel).forEach((el) => el.addEventListener("change", () => { S.saveProfile({ [el.dataset.profile]: el.checked }); saved(); }));
+    $$("input[data-setting], select[data-setting]", panel).forEach((input) =>
+      input.addEventListener("change", () => { S.saveSettings({ [input.dataset.setting]: input.type === "checkbox" ? input.checked : input.value }); saved(); }));
+    $$("input[data-notify]", panel).forEach((input) => input.addEventListener("change", () => { S.saveSettings({ notify: { [input.dataset.notify]: input.checked } }); saved(); updateBadges(); }));
+    $$("input[data-profile]", panel).forEach((input) => input.addEventListener("change", () => { S.saveProfile({ [input.dataset.profile]: input.checked }).catch(() => {}); saved(); }));
 
     const reset = $("[data-reset]", panel);
     let armed = false;
@@ -408,12 +388,14 @@
         setTimeout(() => { armed = false; reset.innerHTML = `${icon("refresh")} Reset`; }, 3500);
         return;
       }
+      const keep = S.profile(); // sign-up answers survive a demo reset
       S.reset();
+      S.saveProfile(keep, { remote: false });
       toast("Demo data reset", { icon: "refresh" });
       setTimeout(() => location.reload(), 700);
     });
     showTab(tab);
-    return root;
+    return el;
   }
 
   /* ---------- Notifications modal ---------- */
@@ -449,14 +431,14 @@
       </div>
       <div class="nt-toolbar"><div class="seg seg--sm" data-value="${ntFilter}"><button data-value="all">All</button><button data-value="unread">Unread${unread ? ` (${unread})` : ""}</button></div></div>
       <div class="nt-list" role="list">
-        ${items.length ? items.map(item).join("") : `<div class="empty nt-empty"><span class="empty-ico">${icon("check")}</span><div>You’re all caught up.</div><div class="meta">New requests, messages and milestones will show up here.</div></div>`}
+        ${items.length ? items.map(item).join("") : empty("check", "You’re all caught up.", "New requests, messages and milestones will show up here.", "nt-empty")}
       </div>
       <div class="modal-foot modal-foot--start"><button class="btn btn--sm btn--ghost" data-nt-settings>${icon("sliders")} Notification settings</button></div>`;
   }
 
   function renderNotifications() {
-    const root = createModal("modal-notifications", { label: "Notifications", panelCls: "modal--notifications" });
-    const panel = $(".modal", root);
+    const el = createModal("modal-notifications", { label: "Notifications", panelCls: "modal--notifications" });
+    const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "ntTitle");
     panel.innerHTML = notificationsHTML();
     Mori.motion.enter($(".nt-list", panel), ".nt");
@@ -464,9 +446,9 @@
     seg($(".seg", panel), (v) => { ntFilter = v; renderNotifications(); });
     $("[data-nt-readall]", panel).addEventListener("click", () => { S.markAllNotificationsRead(); renderNotifications(); toast("All caught up", { icon: "check" }); });
     $("[data-nt-settings]", panel).addEventListener("click", () => openAccountModal("settings", null, "notifications"));
-    $$("[data-nt]", panel).forEach((el) =>
-      el.addEventListener("click", () => {
-        const n = D.notifications.find((x) => x.id === el.dataset.nt);
+    $$("[data-nt]", panel).forEach((b) =>
+      b.addEventListener("click", () => {
+        const n = D.notifications.find((x) => x.id === b.dataset.nt);
         if (!n) return;
         S.markNotificationRead(n.id);
         if (n.action === "profile") { openAccountModal("profile"); return; }
@@ -480,31 +462,24 @@
         }
       })
     );
-    return root;
+    return el;
   }
 
   /* ---------- Opening modals ---------- */
+  const RENDER = { profile: () => renderProfile("view"), settings: (tab) => renderSettings(tab), notifications: () => renderNotifications() };
   function openAccountModal(which, opener, tab) {
+    if (!RENDER[which]) return;
     closeMenus();
-    let id = "";
-    if (which === "profile") { renderProfile("view"); id = "modal-profile"; }
-    else if (which === "settings") { renderSettings(tab || "account"); id = "modal-settings"; }
-    else if (which === "notifications") { renderNotifications(); id = "modal-notifications"; }
-    if (!id) return;
-    Mori.modal.open(id, { opener: opener || undefined });
-    // Segmented-control gliders can only be measured once the panel is visible.
-    requestAnimationFrame(() => $$(`#${id} .seg`).forEach((el) => {
-      const on = el.querySelector("button.is-on");
-      const g = el.querySelector(".seg-glider");
-      if (on && g) { g.style.width = on.offsetWidth + "px"; g.style.transform = `translateX(${on.offsetLeft}px)`; }
-    }));
+    RENDER[which](tab || "account");
+    Mori.modal.open("modal-" + which, { opener: opener || undefined });
   }
 
-  function leave(url) {
-    let veil = $(".page-veil");
-    if (!veil) { veil = document.createElement("div"); veil.className = "page-veil"; document.body.appendChild(veil); }
-    requestAnimationFrame(() => veil.classList.add("is-on"));
-    setTimeout(() => { location.href = url; }, Mori.motion && Mori.motion.reduced() ? 0 : 320);
+  async function signOut() {
+    Mori.modal.close({ restoreFocus: false });
+    loader.show("Signing out", "See you soon…");
+    await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
+    Mori.auth.clearSession();
+    location.replace("index.html?signedout=1");
   }
 
   /* ---------- Global delegation ---------- */
@@ -517,12 +492,7 @@
     const later = e.target.closest("[data-soon]");
     if (later) { e.preventDefault(); closeMenus(); soon(later.dataset.soon); return; }
 
-    if (e.target.closest('[data-action="signout"]')) {
-      e.preventDefault();
-      Mori.modal.close({ restoreFocus: false });
-      Mori.auth.signOut({ redirect: false });
-      leave("index.html?signedout=1");
-    }
+    if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
   });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
   document.addEventListener("mori:change", updateBadges);
@@ -530,6 +500,16 @@
 
   mountNav();
   mountFooter();
+  if ($("#topNav.app-nav")) {
+    speculate();
+    // Keep the local profile in step with the database (signed-in Google members).
+    S.syncProfile().then((changed) => {
+      if (!changed) return;
+      const name = fullName(S.profile(), S.session());
+      if (name && name !== S.session().name) { Mori.auth.updateSession({ name, givenName: name.split(/\s+/)[0] }); mountNav(); }
+      if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
+    }).catch(() => { /* offline: keep the local copy */ });
+  }
 
-  Mori.shell = { openModal: openAccountModal, updateBadges, mountNav, ladderBar, switchHTML, leave, closeMenus };
+  Mori.shell = { openModal: openAccountModal, updateBadges, mountNav, ladderBar, switchHTML, closeMenus, signOut };
 })();

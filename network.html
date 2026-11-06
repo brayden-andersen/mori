@@ -16,6 +16,7 @@
   <script defer src="assets/js/state.js"></script>
   <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/db.js"></script>
   <script defer src="assets/js/shell.js"></script>
   <script defer src="assets/js/network.js"></script>
 </head>
@@ -33,7 +34,7 @@
           <a href="home.html">Home</a> <span class="sep">/</span> <span>Network</span>
         </nav>
         <h1 class="title">Network</h1>
-        <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders, builders and mentors across Indonesia and abroad.</p>
+        <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders and specialists across Indonesia and abroad.</p>
       </div>
       <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="userPlus"></i> Find a co-founder</button>
     </header>
@@ -59,10 +60,7 @@
           <div class="filters" id="roleChips" role="group" aria-label="Filter by role">
             <button class="fchip" type="button" data-role-filter="all" data-active="true">All</button>
             <button class="fchip" type="button" data-role-filter="founder" data-active="false">Founders</button>
-            <button class="fchip" type="button" data-role-filter="builder" data-active="false">Builders</button>
-            <button class="fchip" type="button" data-role-filter="mentor" data-active="false">Mentors</button>
-            <button class="fchip" type="button" data-role-filter="investor" data-active="false">Investors</button>
-            <button class="fchip" type="button" data-role-filter="recruiter" data-active="false">Recruiters</button>
+            <button class="fchip" type="button" data-role-filter="specialist" data-active="false">Specialists</button>
           </div>
           <label class="switch"><input type="checkbox" id="openOnly"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-label">Open to build</span></label>
         </div>

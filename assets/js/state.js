@@ -26,16 +26,36 @@
   }
   const agoToTs = (mins) => seededAt() - mins * 60000;
 
-  const session = () => Mori.auth.session() || { id: "guest", name: "Member", givenName: "Member", role: null };
+  const session = () => Mori.auth.session() || { id: "guest", name: "Member", givenName: "Member" };
   const person = (id) => D.people.find((p) => p.id === id) || null;
 
-  /* ---------- Profile ---------- */
+  /* ---------- Profile ----------
+     Onboarding answers plus later edits. With Supabase the database is the
+     source of truth and this local copy keeps rendering instant. */
+  const PROFILE_BLANK = { firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [], linkedin: "", cvPath: "", cvName: "", languages: [] };
+  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google");
+
   function profile() {
-    const s = session();
-    const role = D.profileDefaults[s.role] ? s.role : "founder";
-    return Object.assign({ roles: [role] }, clone(D.profileDefaults[role]), get("profile", {}));
+    const p = get("profile", {});
+    return Object.assign({}, PROFILE_BLANK, clone(D.profileDefaults[p.role] || D.profileDefaults.founder), p);
   }
-  function saveProfile(patch) { set("profile", Object.assign(get("profile", {}), patch)); }
+  /** Save locally, then to Supabase for Google members. Resolves once stored. */
+  function saveProfile(patch, opts = {}) {
+    set("profile", Object.assign({}, get("profile", {}), patch));
+    if (opts.remote === false || !remoteEnabled()) return Promise.resolve();
+    const s = session();
+    const onboarded = typeof opts.onboarded === "boolean" ? opts.onboarded : !!s.onboarded;
+    return Mori.db.saveProfile(s.id, Object.assign(profile(), { onboarded, avatarUrl: s.picture }));
+  }
+  /** Refresh the local copy from Supabase (app pages call this in the background). */
+  async function syncProfile() {
+    if (!remoteEnabled()) return false;
+    const remote = await Mori.db.fetchProfile(session().id);
+    if (!remote) return false;
+    delete remote.onboarded;
+    set("profile", Object.assign({}, get("profile", {}), remote));
+    return true;
+  }
 
   /* ---------- Settings ---------- */
   const SETTINGS_DEFAULTS = {
@@ -230,7 +250,7 @@
 
   Mori.state = {
     session, person, people: () => D.people.slice(), rooms: () => D.rooms.slice(), ladder: D.ladder,
-    profile, saveProfile,
+    profile, saveProfile, syncProfile,
     settings, saveSettings, applyPrefs,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, toggleMilestone, createProject,

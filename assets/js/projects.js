@@ -17,8 +17,6 @@
   const HUES = ["orange", "blue", "emerald", "teal", "purple", "gray"];
   const PAGE_SIZE = 6;
 
-  $$("i[data-icon]").forEach((el) => { el.outerHTML = icon(el.dataset.icon); });
-
   const grid = $("#grid");
   const empty = $("#empty");
   const pager = $("#pager");
@@ -204,11 +202,11 @@
         <h3>Team <span>${team.length ? `${team.length} member${team.length === 1 ? "" : "s"}` : "Just you"}</span></h3>
         ${team.length
           ? `<div class="team">${team.map((t) => `<div class="team-row">${avatar(t, 36)}<div><b>${esc(t.name)}</b><span class="meta">${esc(t.title)}</span></div><a class="btn btn--sm btn--ghost" href="network.html#messages/${esc(t.id)}">${icon("message")} Message</a></div>`).join("")}</div>`
-          : `<p class="meta">Invite builders from the Network to join this project.</p>`}
+          : `<p class="meta">Invite specialists from the Network to join this project.</p>`}
       </section>
 
       <div class="pd-actions">
-        <a class="btn btn--ink" href="network.html#explore">${icon("userPlus")} Find builders</a>
+        <a class="btn btn--ink" href="network.html#explore">${icon("userPlus")} Find specialists</a>
         <button class="btn" type="button" data-pd-settings>${icon("sliders")} Project settings</button>
       </div>`;
   }
@@ -255,7 +253,7 @@
     panel.setAttribute("aria-labelledby", "npTitle");
     panel.innerHTML = `
       <div class="modal-head">
-        <div><h2 id="npTitle">Declare a new project</h2><p class="meta">Put your idea in a form a builder can judge in two minutes.</p></div>
+        <div><h2 id="npTitle">Declare a new project</h2><p class="meta">Put your idea in a form a specialist can judge in two minutes.</p></div>
         <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
       </div>
       <form class="modal-body np-form" id="npForm" novalidate>

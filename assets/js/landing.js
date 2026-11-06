@@ -2,29 +2,40 @@
    Mori: Sandbox — landing page
    --------------------------------------------------------------------------
    • "Join now" / "Sign in" / any [data-gate] open the auth modal
-   • "Continue with Google" runs Google sign-in (or the demo sheet when no
-     Client ID is configured) and then moves to the member's start page
-   • Signed-in visitors see "Continue as …" instead of the sign-in buttons
+   • "Continue with Google" signs in through Supabase (or the demo sheet when
+     Supabase isn't available) behind a full-screen loading screen
+   • New members go to onboarding.html; returning members to their start page
    • Interactive milestone ladder, live message card, section scroll-spy
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
-  const { $, $$, esc, icon, avatar, toast, googleG } = Mori.ui;
+  const { $, $$, esc, icon, avatar, toast, googleG, loader } = Mori.ui;
   const D = Mori.data;
+  const db = Mori.db;
+  const params = new URLSearchParams(location.search);
 
-  /* ---------- Icons + marquee ---------- */
-  $$("i[data-icon]").forEach((el) => { el.outerHTML = icon(el.dataset.icon); });
   const track = $("#marqueeTrack");
   if (track) track.innerHTML += track.innerHTML; // second copy for a seamless loop
 
-  const destination = (s) => Mori.auth.nextUrl(Mori.auth.startPage(s));
+  /** Go to onboarding (new) or the start page (returning), behind the loading screen. */
+  function enter(session) {
+    loader.show(
+      session.onboarded ? `Welcome back, ${session.givenName}` : `Welcome, ${session.givenName}`,
+      session.onboarded ? "Opening your Sandbox…" : "Let’s set up your profile…"
+    );
+    location.replace(Mori.auth.landingUrl(session));
+  }
+  const rememberRole = (role) => {
+    try { role ? sessionStorage.setItem("mori.joinRole", role) : sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
+  };
 
   /* ---------- Signed-in visitors ---------- */
   function renderSignedIn(s) {
-    $("#navActions").innerHTML = `<a class="btn btn--pill btn--ink" href="${esc(destination(s))}">${avatar(s, 22)}Go to Sandbox</a>`;
+    const href = esc(Mori.auth.landingUrl(s));
+    $("#navActions").innerHTML = `<a class="btn btn--pill btn--ink" href="${href}">${avatar(s, 22)}Go to Sandbox</a>`;
     $("#heroAuth").innerHTML = `
-      <a class="btn-google btn-google--me magnetic" href="${esc(destination(s))}">
+      <a class="btn-google btn-google--me magnetic" href="${href}">
         ${avatar(s, 38)}
         <span class="me-copy">Continue as ${esc(s.givenName || s.name)}<small>${esc(s.email || "Demo account")}</small></span>
         ${s.provider === "google" ? googleG() : icon("arrowRight")}
@@ -34,10 +45,8 @@
   if (Mori.auth.isSignedIn()) renderSignedIn(Mori.auth.session());
 
   /* ---------- Auth modal ---------- */
-  const modal = $("#authModal");
-  const views = $$(".auth-view", modal);
+  const views = $$("#authModal .auth-view");
   let mode = "join";
-  let role = null;
   let gate = "";
 
   function showView(name) {
@@ -47,20 +56,15 @@
       if (on) { v.style.animation = "none"; void v.offsetWidth; v.style.animation = ""; }
     });
   }
-  function paintRoles() {
-    $$("[data-pick-role]", modal).forEach((b) => { b.dataset.active = String(b.dataset.pickRole === role); });
-  }
   function setMode(m) {
     mode = m;
     $("#authTitle").textContent = m === "join" ? "Join Sandbox" : "Welcome back";
     $("#authSub").textContent = gate
       ? `${m === "join" ? "Join" : "Sign in"} to ${gate}.`
       : m === "join" ? "Find your people, build your idea, earn the spotlight." : "Sign in to pick up where you left off.";
-    $("#authRoles").hidden = m !== "join";
     $("#authSwitch").innerHTML = m === "join"
       ? 'Already on Sandbox? <button class="link-btn" type="button" data-auth-switch>Sign in</button>'
       : 'New to Sandbox? <button class="link-btn" type="button" data-auth-switch>Join now</button>';
-    paintRoles();
   }
   function openAuth(m, opts = {}) {
     gate = opts.gate || "";
@@ -69,32 +73,51 @@
     Mori.modal.open("authModal", { opener: opts.opener });
   }
 
-  function finish(session) {
-    $("#successTitle").textContent = session.isNew ? `Welcome to Sandbox, ${session.givenName}` : `Welcome back, ${session.givenName}`;
-    if (Mori.modal.isOpen("authModal")) showView("success");
-    else openAuth(mode, { view: "success" });
-    setTimeout(() => Mori.shell.leave(destination(session)), Mori.motion.reduced() ? 250 : 1300);
-  }
-
   async function continueWithGoogle(fromEl) {
-    const inModal = Mori.modal.isOpen("authModal");
-    const servedOverHttp = location.protocol === "http:" || location.protocol === "https:";
-    if (!Mori.auth.googleEnabled() || !servedOverHttp) {
-      if (Mori.auth.googleEnabled()) toast("Google sign-in needs the site served over http(s). Using demo mode.", { duration: 3600 });
-      if (inModal) showView("demo");
+    if (!db.enabled) {
+      // Demo mode (opened from disk, or Supabase not configured)
+      if (Mori.modal.isOpen("authModal")) showView("demo");
       else openAuth(mode, { view: "demo", opener: fromEl });
       setTimeout(() => { const f = $('#demoForm input[name="name"]'); if (f) { f.focus(); f.select(); } }, 90);
       return;
     }
-    // Open the loading view and start Google in the same click so the pop-up isn't blocked.
-    if (inModal) showView("loading");
-    else openAuth(mode, { view: "loading", opener: fromEl });
+    Mori.modal.close({ restoreFocus: false });
+    loader.show("Signing you in", "Connecting to Google…");
     try {
-      const info = await Mori.auth.google.signIn();
-      finish(Mori.auth.completeSignIn(info, { role }));
+      await db.signInWithGoogle(params.get("next")); // the browser now leaves for Google
     } catch (err) {
-      showView("choose");
+      loader.hide();
       toast(err.message || "Google sign-in failed.", { icon: "x", duration: 4000 });
+    }
+  }
+
+  /** Google sent the member back here (index.html?auth=callback&code=…). */
+  async function finishRedirect() {
+    const problem = params.get("error_description") || params.get("error");
+    if (problem) {
+      loader.hide();
+      history.replaceState(null, "", location.pathname);
+      toast(problem.replace(/\+/g, " "), { icon: "x", duration: 4500 });
+      return;
+    }
+    loader.show("Signing you in", "Checking your Google account…");
+    try {
+      const user = await db.user();
+      if (!user) throw new Error("Google sign-in didn’t finish. Please try again.");
+      loader.status("Loading your profile…");
+      const remote = await db.fetchProfile(user.id);
+      const session = Mori.auth.completeSignIn(user, { onboarded: !!(remote && remote.onboarded) });
+      if (remote) {
+        delete remote.onboarded;
+        Mori.state.saveProfile(remote, { remote: false });
+        const name = [remote.firstName, remote.lastName].filter(Boolean).join(" ");
+        if (name) Object.assign(session, Mori.auth.updateSession({ name, givenName: name.split(/\s+/)[0] }));
+      }
+      enter(session);
+    } catch (err) {
+      loader.hide();
+      history.replaceState(null, "", location.pathname);
+      toast(err.message || "Sign-in failed.", { icon: "x", duration: 4500 });
     }
   }
 
@@ -103,36 +126,43 @@
     const form = e.currentTarget;
     const name = String(form.elements.name.value || "").trim();
     if (!name) { form.elements.name.focus(); toast("Add a name to continue", { icon: "edit" }); return; }
-    finish(Mori.auth.completeSignIn({ provider: "demo", name, email: String(form.elements.email.value || "").trim() }, { role }));
+    Mori.modal.close({ restoreFocus: false });
+    enter(Mori.auth.completeSignIn({ provider: "demo", name, email: String(form.elements.email.value || "").trim() }));
   });
 
   document.addEventListener("click", (e) => {
-    const el = e.target.closest("[data-auth], [data-gate], [data-auth-switch], [data-view-back], [data-pick-role], [data-signout]");
+    const el = e.target.closest("[data-auth], [data-gate], [data-auth-switch], [data-view-back], [data-signout]");
     if (!el) return;
 
-    if (el.matches("[data-signout]")) { Mori.auth.signOut({ redirect: false }); Mori.shell.leave("index.html?signedout=1"); return; }
-    if (el.matches("[data-pick-role]")) { role = role === el.dataset.pickRole ? null : el.dataset.pickRole; paintRoles(); return; }
+    if (el.matches("[data-signout]")) {
+      loader.show("Signing out", "See you soon…");
+      Promise.race([db.signOut(), new Promise((r) => setTimeout(r, 1500))]).then(() => {
+        Mori.auth.clearSession();
+        location.replace("index.html?signedout=1");
+      });
+      return;
+    }
     if (el.matches("[data-auth-switch]")) { setMode(mode === "join" ? "signin" : "join"); return; }
     if (el.matches("[data-view-back]")) { showView("choose"); return; }
 
     e.preventDefault();
+    if (el.dataset.role) rememberRole(el.dataset.role);
     if (el.dataset.auth === "google") { continueWithGoogle(el); return; }
-    if (Mori.auth.isSignedIn()) { Mori.shell.leave(destination()); return; }
-    role = el.dataset.role || null;
+    if (Mori.auth.isSignedIn()) { enter(Mori.auth.session()); return; }
     openAuth(el.dataset.auth === "signin" ? "signin" : "join", { gate: el.dataset.gate || "", opener: el });
   });
 
   /* ---------- URL hints ---------- */
-  const params = new URLSearchParams(location.search);
-  if (params.has("signedout")) {
-    toast("You’ve signed out. See you soon!", { icon: "logout" });
-    history.replaceState(null, "", location.pathname + location.hash);
-  }
-  if (params.has("next") && !Mori.auth.isSignedIn()) {
-    setTimeout(() => openAuth("signin", { gate: "continue to your Sandbox" }), 500);
-  }
-  if (Mori.auth.googleEnabled() && /^https?:$/.test(location.protocol)) {
-    Mori.auth.google.prepare().catch(() => { /* surfaced on click */ });
+  if (params.get("auth") === "callback") {
+    if (db.enabled) finishRedirect();
+    else loader.hide();
+  } else {
+    db.preload(); // so "Continue with Google" responds instantly
+    if (params.has("signedout")) {
+      toast("You’ve signed out. See you soon!", { icon: "logout" });
+      history.replaceState(null, "", location.pathname + location.hash);
+    }
+    if (params.has("next") && !Mori.auth.isSignedIn()) setTimeout(() => openAuth("signin", { gate: "continue to your Sandbox" }), 500);
   }
 
   /* ---------- Milestone ladder ---------- */
@@ -147,12 +177,10 @@
 
   function placeFill() {
     const btn = $(`.rung[data-rung="${current}"]`, list);
-    if (!btn || !ladderTrack) return;
     const tr = ladderTrack.getBoundingClientRect();
+    if (!btn || !tr.height) return;
     const br = btn.getBoundingClientRect();
-    if (!tr.height) return;
-    const fromBottom = tr.bottom - (br.top + br.height / 2);
-    fill.style.setProperty("--fill", Math.max(6, Math.min(100, (fromBottom / tr.height) * 100)).toFixed(1) + "%");
+    fill.style.setProperty("--fill", Math.max(6, Math.min(100, ((tr.bottom - (br.top + br.height / 2)) / tr.height) * 100)).toFixed(1) + "%");
   }
   function setRung(n, byUser) {
     current = n;
@@ -185,15 +213,15 @@
 
   /* ---------- Hero: live message card ---------- */
   const MSGS = [
-    { name: "Rahul P.", role: "Builder", initials: "RP", a1: "#34d399", a2: "#22d3ee", text: "Shared notes on the pitch deck v3 — take a look!" },
-    { name: "Anna S.", role: "Builder", initials: "AS", a1: "#60a5fa", a2: "#818cf8", text: "Free later for a 15-min sync about the mentor pool?" },
-    { name: "Sari K.", role: "Mentor", initials: "SK", a1: "#818cf8", a2: "#22d3ee", text: "Your pricing page is close. Try anchoring on the annual plan." },
-    { name: "Lina W.", role: "Founder", initials: "LW", a1: "#f472b6", a2: "#fb7185", text: "Can you intro me to the Jakarta Angels room?" },
+    { name: "Rahul P.", role: "Specialist", initials: "RP", a1: "#34d399", a2: "#22d3ee", text: "Shared notes on the pitch deck v3 — take a look!" },
+    { name: "Anna S.", role: "Specialist", initials: "AS", a1: "#60a5fa", a2: "#818cf8", text: "Free later for a 15-min sync about the specialist pool?" },
+    { name: "Sari K.", role: "Specialist", initials: "SK", a1: "#818cf8", a2: "#22d3ee", text: "Your pricing page is close. Try anchoring on the annual plan." },
+    { name: "Lina W.", role: "Founder", initials: "LW", a1: "#f472b6", a2: "#fb7185", text: "Can you intro me to the Jakarta founders circle?" },
   ];
   let msgIndex = 0;
   function cycleMessage() {
     const card = $("#heroMsg");
-    if (!card || document.hidden) return;
+    if (!card || document.hidden || card.closest(".is-offscreen")) return;
     const bubble = $(".bubble", card);
     const typing = $(".typing", card);
     bubble.classList.add("is-out");
@@ -228,8 +256,7 @@
     const spy = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         if (!en.isIntersecting) return;
-        const id = en.target.id;
-        spyLinks.forEach((a) => a.classList.toggle("is-active", !!id && a.getAttribute("href") === "#" + id));
+        spyLinks.forEach((a) => a.classList.toggle("is-active", !!en.target.id && a.getAttribute("href") === "#" + en.target.id));
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
     $$("main > section").forEach((s) => spy.observe(s));

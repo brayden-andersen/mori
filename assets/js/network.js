@@ -9,31 +9,20 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, avatarStack, ago, toast } = Mori.ui;
+  const { $, $$, esc, icon, avatar, avatarStack, ago, toast, roleChip, empty, placeGlider } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const TABS = ["explore", "requests", "messages"];
-  const hue = (role) => (D.roles[role] || {}).hue || "gray";
-  const label = (role) => (D.roles[role] || {}).label || "Member";
   const first = (name) => String(name).split(/\s+/)[0];
   const isNarrow = () => window.matchMedia("(max-width: 760px)").matches;
   const smooth = () => (Mori.motion.reduced() ? "instant" : "smooth");
-
-  $$("i[data-icon]").forEach((el) => { el.outerHTML = icon(el.dataset.icon); });
 
   /* ---------- Tabs ---------- */
   const tabs = $$(".net-tab");
   const glider = $(".net-glider");
   let activeTab = null;
 
-  function placeGlider(snap) {
-    const on = tabs.find((t) => t.dataset.tab === activeTab);
-    if (!on || !on.offsetWidth) return;
-    if (snap) glider.style.transition = "none";
-    glider.style.width = on.offsetWidth + "px";
-    glider.style.transform = `translateX(${on.offsetLeft}px)`;
-    if (snap) { void glider.offsetWidth; glider.style.transition = ""; }
-  }
+  const moveGlider = (snap) => placeGlider(glider, tabs.find((t) => t.dataset.tab === activeTab), { snap });
 
   function showTab(tab) {
     if (tab === activeTab) return;
@@ -49,7 +38,7 @@
       p.hidden = !on;
       if (on && !initial) { p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); }
     });
-    placeGlider(initial);
+    moveGlider(initial);
     if (tab === "explore") { renderPeople(); renderRooms(); }
     if (tab === "requests") renderRequests();
     if (tab === "messages") { renderChatList(); requestAnimationFrame(() => fitChat(true)); }
@@ -68,8 +57,8 @@
     else closeThread();
   }
   window.addEventListener("hashchange", route);
-  window.addEventListener("resize", () => placeGlider(true));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => placeGlider(true));
+  window.addEventListener("resize", () => moveGlider(true));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => moveGlider(true));
 
   /* ---------- Explore: people ---------- */
   const peopleQ = $("#peopleQ");
@@ -91,7 +80,7 @@
           ${avatar(p, 52, { ring: p.open })}
           <div class="person-id"><h4>${esc(p.name)}</h4><div class="meta">${esc(p.title)} · ${esc(p.city)}</div></div>
         </div>
-        <span class="chip chip--${hue(p.role)}">${label(p.role)}</span>
+        ${roleChip(p.role)}
         <p class="person-head">${esc(p.headline)}</p>
         <p class="intent">${icon("target")}${esc(p.intent)}</p>
         <div class="tags">${p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("")}</div>
@@ -136,14 +125,14 @@
   openOnly.addEventListener("change", renderPeople);
 
   $("#findCofounder").addEventListener("click", () => {
-    roleFilter = "builder";
-    $$("[data-role-filter]").forEach((c) => { c.dataset.active = String(c.dataset.roleFilter === "builder"); });
+    roleFilter = "specialist";
+    $$("[data-role-filter]").forEach((c) => { c.dataset.active = String(c.dataset.roleFilter === "specialist"); });
     openOnly.checked = true;
     peopleQ.value = "";
     if (activeTab !== "explore") location.hash = "explore";
     else renderPeople();
     setTimeout(() => $("#peopleGrid").scrollIntoView({ behavior: smooth(), block: "start" }), 90);
-    toast("Showing builders who are open to build", { icon: "userPlus" });
+    toast("Showing specialists who are open to build", { icon: "userPlus" });
   });
 
   /* ---------- Explore: rooms (live counts tick) ---------- */
@@ -181,7 +170,6 @@
   }, 2600);
 
   /* ---------- Requests ---------- */
-  const emptyBlock = (ic, title, sub) => `<div class="empty req-empty"><span class="empty-ico">${icon(ic)}</span><div>${title}</div><div class="meta">${sub}</div></div>`;
 
   function receivedRow(x) {
     const p = x.person;
@@ -189,7 +177,7 @@
       <article class="req" data-req="${esc(p.id)}">
         ${avatar(p, 48, { ring: p.open })}
         <div class="req-main">
-          <div class="req-title"><b>${esc(p.name)}</b><span class="chip chip--${hue(p.role)}">${label(p.role)}</span></div>
+          <div class="req-title"><b>${esc(p.name)}</b>${roleChip(p.role)}</div>
           <span class="meta">${esc(p.title)} · ${esc(p.city)} · ${p.mutual} mutual</span>
           ${x.note ? `<p class="req-note">“${esc(x.note)}”</p>` : ""}
           <span class="meta">${esc(ago(x.at))}</span>
@@ -205,7 +193,7 @@
       <article class="req" data-req="${esc(p.id)}">
         ${avatar(p, 44)}
         <div class="req-main">
-          <div class="req-title"><b>${esc(p.name)}</b><span class="chip chip--${hue(p.role)}">${label(p.role)}</span></div>
+          <div class="req-title"><b>${esc(p.name)}</b>${roleChip(p.role)}</div>
           <span class="meta">${esc(p.title)} · ${esc(p.city)}</span>
         </div>
         <div class="req-actions"><span class="chip chip--blue">Pending</span><button class="btn btn--sm" type="button" data-withdraw="${esc(p.id)}">Withdraw</button></div>
@@ -216,8 +204,8 @@
     const sent = S.network.sent();
     $("#recvCount").textContent = incoming.length ? `${incoming.length} waiting` : "";
     $("#sentCount").textContent = sent.length ? `${sent.length} pending` : "";
-    $("#recvList").innerHTML = incoming.length ? incoming.map(receivedRow).join("") : emptyBlock("inbox", "No requests waiting.", "When founders, builders or mentors want to connect, they’ll show up here.");
-    $("#sentList").innerHTML = sent.length ? sent.map(sentRow).join("") : emptyBlock("userPlus", "No pending requests.", "Find people in Explore and hit Connect.");
+    $("#recvList").innerHTML = incoming.length ? incoming.map(receivedRow).join("") : empty("inbox", "No requests waiting.", "When founders or specialists want to connect, they’ll show up here.", "req-empty");
+    $("#sentList").innerHTML = sent.length ? sent.map(sentRow).join("") : empty("userPlus", "No pending requests.", "Find people in Explore and hit Connect.", "req-empty");
     Mori.motion.enter($("#recvList"));
     Mori.motion.enter($("#sentList"));
   }
@@ -282,7 +270,7 @@
         <button class="icon-btn chat-back" type="button" data-chat-back aria-label="Back to conversations">${icon("chevronLeft")}</button>
         ${avatar(p, 40, { ring: p.open })}
         <div class="who"><b>${esc(p.name)}</b><span class="meta">${esc(p.title)} · ${esc(p.city)}</span></div>
-        <span class="chip chip--${hue(p.role)}">${label(p.role)}</span>
+        ${roleChip(p.role)}
       </header>
       <div class="chat-scroll" id="chatScroll" aria-live="polite">
         <span class="chat-note">${th.messages.length ? `Conversation with ${esc(p.name)}` : `Say hello to ${esc(first(p.name))}. ${esc(p.intent)}.`}</span>

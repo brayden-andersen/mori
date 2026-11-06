@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="onboarding">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mori: Sandbox • Set up your profile</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/onboarding.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/db.js"></script>
+  <script defer src="assets/js/onboarding.js"></script>
+</head>
+<body class="onboarding" data-page="onboarding">
+  <div class="aura" aria-hidden="true" data-parallax></div>
+  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+
+  <nav class="nav" id="topNav" aria-label="Main">
+    <div class="nav-inner">
+      <span class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>
+        <span class="brand-name">Mori: Sandbox</span>
+      </span>
+      <div class="ob-top-right">
+        <span id="obCount" aria-live="polite">Step 1 of 6</span>
+        <button class="btn btn--sm btn--ghost" type="button" id="obSignOut"><i data-icon="logout"></i> Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="ob-wrap">
+    <div class="ob-progress" aria-hidden="true"><span id="obBar"></span></div>
+    <ol class="ob-steps" id="obSteps" aria-label="Steps"></ol>
+
+    <form class="ob-card" id="obForm" novalidate>
+      <div id="obBody"></div>
+      <p class="ob-error" id="obError" role="alert"></p>
+      <div class="ob-actions">
+        <button class="btn" type="button" id="obBack"><i data-icon="chevronLeft"></i> Back</button>
+        <button class="btn btn--ink btn--lg magnetic" type="submit" id="obNext">Continue</button>
+      </div>
+    </form>
+    <p class="ob-note meta">Your answers appear on your profile. You can update them any time from Profile → Update your sign-up answers.</p>
+  </main>
+</body>
+</html>

@@ -8,7 +8,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, esc, icon, ago, soon, splitWords } = Mori.ui;
+  const { $, esc, ago, soon, splitWords } = Mori.ui;
   const S = Mori.state;
   const CHIP_HUES = ["orange", "blue", "emerald", "teal", "purple", "gray"];
 
@@ -18,8 +18,6 @@
   hello.innerHTML = `${s.isNew ? "Welcome" : "Welcome back"}, <span id="username">${esc(s.givenName || s.name)}</span>`;
   splitWords(hello);
   if (s.isNew) Mori.auth.updateSession({ isNew: false });
-
-  document.querySelectorAll(".card-go, .panel-link .go").forEach((el) => { el.innerHTML = icon("arrowRight"); });
 
   /* Pinned project — one wide tile, single tag, caption + ring (draft spec) */
   function renderPinned() {
@@ -86,10 +84,5 @@
     const msg = e.target.closest(".msg[data-chat]");
     if (msg) { location.href = "network.html#messages/" + encodeURIComponent(msg.dataset.chat); return; }
     if (e.target.closest(".news[data-insight]")) soon("Insights reader");
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const el = e.target.closest('[role="button"][tabindex]');
-    if (el && e.target === el) { e.preventDefault(); el.click(); }
   });
 })();

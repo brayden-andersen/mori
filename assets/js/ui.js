@@ -1,12 +1,14 @@
 /* ==========================================================================
    Mori: Sandbox — UI helpers
    --------------------------------------------------------------------------
-   DOM helpers, icon set, avatars, time labels, toasts, the modal/drawer
-   manager and the segmented control. Exposed as Mori.ui and Mori.modal.
+   DOM helpers, icons, avatars, time labels, toasts, the modal/drawer manager,
+   sliding highlights (nav, tabs, segmented controls), the full-screen
+   loading screen and small shared fragments. Exposed as Mori.ui / Mori.modal.
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
+  const root = document.documentElement;
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -54,13 +56,21 @@
     code: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',
     star: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/>',
     refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+    globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
   };
   const icon = (name, cls = "ico") =>
     `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg>`;
+  /** Replace <i data-icon="name"> placeholders with SVGs. */
+  const hydrateIcons = (scope = document) => $$("i[data-icon]", scope).forEach((el) => { el.outerHTML = icon(el.dataset.icon); });
 
   /* Brand star (same path as the drafts) */
   const brandStar = () =>
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>';
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS.star + "</svg>";
 
   /* Google "G" mark for sign-in buttons */
   const googleG = () =>
@@ -84,6 +94,14 @@
   }
   const avatarStack = (people, size = 26) => `<span class="av-stack">${people.map((p) => avatar(p, size)).join("")}</span>`;
 
+  /* ---------- Shared fragments ---------- */
+  const roleChip = (role) => {
+    const r = Mori.data && Mori.data.roles[role];
+    return r ? `<span class="chip chip--${r.hue}">${r.label}</span>` : "";
+  };
+  const empty = (ic, title, sub, cls = "") =>
+    `<div class="empty ${cls}"><span class="empty-ico">${icon(ic)}</span><div>${title}</div>${sub ? `<div class="meta">${sub}</div>` : ""}</div>`;
+
   /* ---------- Time labels ---------- */
   function ago(ts) {
     const m = Math.max(0, Math.round((Date.now() - ts) / 60000));
@@ -96,12 +114,7 @@
     if (d < 7) return `${d}d ago`;
     return `${Math.floor(d / 7)}w ago`;
   }
-  function humanizeDays(d) {
-    if (d === 0) return "Today";
-    if (d === 1) return "Yesterday";
-    if (d < 7) return `${d}d ago`;
-    return `${Math.floor(d / 7)}w ago`;
-  }
+  const humanizeDays = (d) => (d === 0 ? "Today" : d === 1 ? "Yesterday" : d < 7 ? `${d}d ago` : `${Math.floor(d / 7)}w ago`);
 
   /* ---------- Toasts ---------- */
   function toast(msg, opts = {}) {
@@ -114,7 +127,7 @@
       document.body.appendChild(box);
     }
     const n = document.createElement("div");
-    n.className = "toast" + (opts.tone ? " toast--" + opts.tone : "");
+    n.className = "toast";
     n.setAttribute("role", "status");
     n.innerHTML = icon(opts.icon || "sparkle") + `<span>${esc(msg)}</span>`;
     box.appendChild(n);
@@ -126,43 +139,76 @@
   }
   const soon = (what) => toast(`${what} — coming soon`, { icon: "sparkle" });
 
+  /* ---------- Full-screen loading screen (sign-in, onboarding, sign-out) ---------- */
+  const loader = {
+    el() {
+      let el = document.getElementById("moriLoader");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "moriLoader";
+        el.className = "loader";
+        el.setAttribute("role", "status");
+        el.setAttribute("aria-live", "polite");
+        el.innerHTML = `<div class="loader-card"><span class="loader-mark">${brandStar()}</span><p class="loader-title"></p><p class="loader-sub"></p><span class="loader-bar"><i></i></span></div>`;
+        document.body.appendChild(el);
+      }
+      return el;
+    },
+    show(title, sub) {
+      const el = loader.el();
+      if (title) $(".loader-title", el).textContent = title;
+      loader.status(sub);
+      void el.offsetWidth;
+      el.classList.add("is-on");
+    },
+    status(sub) { if (sub != null) $(".loader-sub", loader.el()).textContent = sub; },
+    hide() {
+      const el = document.getElementById("moriLoader");
+      if (el) el.classList.remove("is-on");
+      root.classList.remove("is-signing-in");
+    },
+  };
+  /** Show the loading screen, then go to `url`. */
+  function go(url, title, sub) {
+    loader.show(title, sub);
+    location.href = url;
+  }
+
   /* ---------- Modal / drawer manager ---------- */
   const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
   const visible = (el) => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
 
   /** Create (once) a modal root: <div.modal-root><div.modal-backdrop/><div.modal role=dialog/></div> */
   function createModal(id, { label = "", cls = "", panelCls = "" } = {}) {
-    let root = document.getElementById(id);
-    if (root) return root;
-    root = document.createElement("div");
-    root.id = id;
-    root.className = "modal-root " + cls;
-    root.hidden = true;
-    root.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal ${panelCls}" role="dialog" aria-modal="true" aria-label="${esc(label)}" tabindex="-1"></div>`;
-    document.body.appendChild(root);
-    return root;
+    let el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement("div");
+    el.id = id;
+    el.className = "modal-root " + cls;
+    el.hidden = true;
+    el.innerHTML = `<div class="modal-backdrop" data-close></div><div class="modal ${panelCls}" role="dialog" aria-modal="true" aria-label="${esc(label)}" tabindex="-1"></div>`;
+    document.body.appendChild(el);
+    return el;
   }
 
   const Modal = {
     current: null,
     open(id, opts = {}) {
-      const root = document.getElementById(id);
-      if (!root) return;
-      if (this.current && this.current.root === root) return;
+      const el = document.getElementById(id);
+      if (!el || (this.current && this.current.root === el)) return;
       const opener = opts.opener || (this.current ? this.current.opener : document.activeElement);
       if (this.current) this.close({ restoreFocus: false });
-      root.hidden = false;
-      void root.offsetWidth; // flush styles so the opening transition runs
-      root.classList.add("is-open");
+      el.hidden = false;
+      void el.offsetWidth; // flush styles so the opening transition runs
+      el.classList.add("is-open");
       document.body.classList.add("is-locked");
-      this.current = { root, opener, onClose: opts.onClose };
-      const panel = root.querySelector(".modal");
+      this.current = { root: el, opener, onClose: opts.onClose };
       setTimeout(() => {
-        if (!root.classList.contains("is-open")) return;
-        const target = root.querySelector("[autofocus]") || panel;
-        target && target.focus({ preventScroll: true });
+        if (!el.classList.contains("is-open")) return;
+        const target = el.querySelector("[autofocus]") || el.querySelector(".modal");
+        if (target) target.focus({ preventScroll: true });
       }, 60);
-      if (opts.onOpen) opts.onOpen(root);
+      $$(".seg", el).forEach((s) => s._seg && requestAnimationFrame(s._seg.refresh));
       document.dispatchEvent(new CustomEvent("mori:modal", { detail: { id, open: true } }));
     },
     close({ restoreFocus = true } = {}) {
@@ -185,6 +231,12 @@
     if (closer && Modal.current.root.contains(closer)) { e.preventDefault(); Modal.close(); }
   });
   document.addEventListener("keydown", (e) => {
+    // Enter / Space on custom buttons (cards with role="button")
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][tabindex]')) {
+      e.preventDefault();
+      e.target.click();
+      return;
+    }
     if (!Modal.current) return;
     if (e.key === "Escape") { e.preventDefault(); Modal.close(); return; }
     if (e.key !== "Tab") return;
@@ -196,11 +248,27 @@
     else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
   });
 
-  /* ---------- Segmented control with a sliding glider ----------
-     <div class="seg" data-value="a"><button data-value="a">A</button>…</div> */
+  /* ---------- Sliding highlight (nav glider, tab glider, segmented control) ---------- */
+  function placeGlider(glider, target, { snap = false, height = false } = {}) {
+    if (!glider) return;
+    if (!target || !target.offsetWidth) { glider.style.opacity = "0"; return; }
+    const box = glider.offsetParent || glider.parentElement;
+    const b = box.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const x = t.left - b.left - box.clientLeft + box.scrollLeft;
+    const y = t.top - b.top - box.clientTop;
+    if (snap) glider.style.transition = "none";
+    glider.style.width = t.width + "px";
+    if (height) glider.style.height = t.height + "px";
+    glider.style.transform = height ? `translate(${x}px, ${y}px)` : `translateX(${x}px)`;
+    glider.style.opacity = "1";
+    if (snap) { void glider.offsetWidth; glider.style.transition = ""; }
+  }
+
+  /* Segmented control: <div class="seg" data-value="a"><button data-value="a">A</button>…</div> */
   function seg(el, onChange) {
-    if (!el) return;
-    let glider = el.querySelector(".seg-glider");
+    if (!el) return null;
+    let glider = $(".seg-glider", el);
     if (!glider) {
       glider = document.createElement("span");
       glider.className = "seg-glider";
@@ -209,36 +277,34 @@
     }
     const buttons = $$("button[data-value]", el);
     el.setAttribute("role", "radiogroup");
-    const place = () => {
-      const on = buttons.find((b) => b.dataset.value === el.dataset.value) || buttons[0];
+    const refresh = () => {
+      const on = buttons.find((b) => b.dataset.value === el.dataset.value);
       buttons.forEach((b) => {
+        b.type = "button";
         b.setAttribute("role", "radio");
-        b.setAttribute("aria-checked", b === on ? "true" : "false");
+        b.setAttribute("aria-checked", String(b === on));
         b.classList.toggle("is-on", b === on);
       });
-      if (on && on.offsetWidth) {
-        glider.style.width = on.offsetWidth + "px";
-        glider.style.transform = `translateX(${on.offsetLeft}px)`;
-      }
+      placeGlider(glider, on);
     };
     buttons.forEach((b) =>
       b.addEventListener("click", () => {
         if (el.dataset.value === b.dataset.value) return;
         el.dataset.value = b.dataset.value;
-        place();
+        refresh();
         if (onChange) onChange(b.dataset.value);
       })
     );
-    place();
-    requestAnimationFrame(place); // after fonts/layout settle
-    return { refresh: place };
+    refresh();
+    requestAnimationFrame(refresh); // after fonts/layout settle
+    el._seg = { refresh };
+    return el._seg;
   }
 
   /* Measure the fixed nav so content and sticky bars sit below it */
   function measureNav() {
     const nav = document.getElementById("topNav");
-    if (!nav) return;
-    document.documentElement.style.setProperty("--navH", Math.ceil(nav.getBoundingClientRect().height) + "px");
+    if (nav) root.style.setProperty("--navH", Math.ceil(nav.getBoundingClientRect().height) + "px");
   }
   window.addEventListener("resize", measureNav);
   document.addEventListener("DOMContentLoaded", measureNav);
@@ -247,12 +313,14 @@
   /** Split text into .word spans for the staggered heading entrance. */
   function splitWords(el) {
     if (!el) return;
-    const words = el.textContent.trim().split(/\s+/);
-    el.setAttribute("aria-label", el.textContent.trim());
-    el.innerHTML = words.map((w, i) => `<span class="word" style="--i:${i}" aria-hidden="true">${esc(w)}</span>`).join(" ");
+    const text = el.textContent.trim();
+    el.setAttribute("aria-label", text);
+    el.innerHTML = text.split(/\s+/).map((w, i) => `<span class="word" style="--i:${i}" aria-hidden="true">${esc(w)}</span>`).join(" ");
     el.classList.add("split-words");
   }
 
-  Mori.ui = { $, $$, esc, icon, brandStar, googleG, avatar, avatarStack, initials, ago, humanizeDays, toast, soon, createModal, seg, measureNav, splitWords };
+  hydrateIcons();
+
+  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandStar, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, soon, loader, go, createModal, seg, placeGlider, measureNav, splitWords };
   Mori.modal = Modal;
 })();

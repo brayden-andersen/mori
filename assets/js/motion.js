@@ -241,9 +241,20 @@
     observeOnce(scope);
   }
 
+  /* ---------- Pause decorative loops while they're off-screen ---------- */
+  function pauseOffscreen() {
+    const els = document.querySelectorAll("[data-pause-offscreen]");
+    if (!els.length || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => en.target.classList.toggle("is-offscreen", !en.isIntersecting));
+    }, { rootMargin: "120px 0px" });
+    els.forEach((el) => io.observe(el));
+  }
+
   function init() {
     parallaxLayers = Array.from(document.querySelectorAll("[data-parallax]"));
     refresh(document);
+    pauseOffscreen();
     onScroll();
     root.classList.add("motion-ready");
   }
