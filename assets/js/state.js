@@ -36,12 +36,16 @@
     firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [],
     linkedin: "", links: [], photo: "", cvPath: "", cvName: "", languages: [], headline: "", bio: "", skills: [],
     open: true, openType: "", visibility: "everyone", rating: null, reviews: 0,
+    // What the profile shows (age starts hidden, the rest shown)
+    show: { age: false, region: true, employment: true, languages: true },
   };
+  const SHOW_DEFAULT = PROFILE_BLANK.show;
   const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
 
   function profile() {
     const p = Object.assign({}, PROFILE_BLANK, get("profile", {}));
     if (!p.openType) p.openType = p.role === "specialist" ? "join" : "cofound";
+    p.show = Object.assign({}, SHOW_DEFAULT, p.show);
     return p;
   }
   const fullName = (p = profile(), s = session()) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;

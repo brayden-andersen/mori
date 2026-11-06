@@ -187,18 +187,28 @@
   }
 
   /* ---------- Profile modal ---------- */
+  // Details a member chooses to show. Years of experience is never shown: it's for sorting.
+  const SHOW_LABELS = { age: "Age", region: "Region", employment: "Employment", languages: "Languages" };
+  const hasDetail = (p, k) => (k === "languages" ? (p.languages || []).length > 0 : !!p[k]);
+  /** Your profile as other members see it. */
+  const shownAs = (p) => Object.assign({}, p, {
+    age: p.show.age ? p.age : null,
+    region: p.show.region ? p.region : "",
+    employment: p.show.employment ? p.employment : "",
+  });
   function profileViewHTML() {
     const s = S.session();
     const p = S.profile();
     const owned = S.projects().filter((x) => x.owner);
     const lead = owned[0];
-    const fact = (label, value) => (value ? `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>` : "");
     const record = !S.settings().showRecord
       ? `<p class="meta">Your milestone record is hidden. Turn it back on in Settings → Privacy.</p>`
       : lead
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
-    const where = [p.region, p.age ? `${p.age} years old` : "", s.email].filter(Boolean).map(esc).join(" · ");
+    const seen = shownAs(p);
+    const where = Mori.people.whereLine(seen).concat(s.email || []).map(esc).join(" · ");
+    const hidden = Object.keys(SHOW_LABELS).filter((k) => !p.show[k] && hasDetail(p, k)).map((k) => SHOW_LABELS[k].toLowerCase());
     const docs = Mori.people.linkButtons(p) + (p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "");
     const google = s.provider === "google" && /^https:/.test(s.picture || "") && s.picture !== p.photo ? s.picture : "";
     const photoMenu = [
@@ -222,19 +232,17 @@
       <div class="pf-body">
         <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}</h2>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
-        <p class="meta pf-meta">${icon("pin")} ${where || "Add your region"}</p>
+        <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
         <div class="chips">${roleChip(p.role)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
-        <div class="pf-stats">
+        ${Mori.people.factPills(seen)}
+        ${hidden.length ? `<p class="meta pf-hidden">${icon("shield")} Hidden from your profile: ${esc(hidden.join(", "))}. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
+        <div class="pf-stats pf-stats--2">
           <button class="pf-stat pf-stat--link" type="button" data-connections aria-label="See your connections"><b data-count="${S.network.connections().length}">0</b><span>Connections ${icon("arrowRight")}</span></button>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
-          <div class="pf-stat"><b>${p.rating != null ? Number(p.rating).toFixed(1) : "–"}</b><span>${p.rating != null ? `Sprint rating · ${p.reviews} review${p.reviews === 1 ? "" : "s"}` : "Sprint rating"}</span></div>
         </div>
         <section class="pf-sec"><h3>About</h3><p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re working on.</span>'}</p></section>
-        <section class="pf-sec"><h3>Details</h3>
-          <dl class="pf-facts">${fact("Experience", (p.experience || "").replace(/(\d)-(\d)/, "$1–$2"))}${fact("Employment", p.employment)}${fact("Region", p.region)}${fact("Age", p.age ? String(p.age) : "")}</dl>
-        </section>
-        <section class="pf-sec"><h3>Industry niche</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
-        <section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>
+        <section class="pf-sec"><h3>Industry</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
+        ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
         <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
         <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
         <section class="pf-sec"><h3>Milestone record</h3>${record}</section>
@@ -255,6 +263,10 @@
           ${switchHTML('name="open"', p.open, "Show that I’m open to build")}
           <select class="select" name="openType" aria-label="What are you open to?">${openOpts}</select>
         </div>
+        <fieldset class="field field--full pf-show" id="pfShow">
+          <legend>Show on your profile</legend>
+          <div class="pf-show-grid">${Object.entries(SHOW_LABELS).map(([k, label]) => switchHTML(`name="show_${k}"`, p.show[k], label)).join("")}</div>
+        </fieldset>
         <fieldset class="field field--full pf-links" id="pfLinks">
           <legend>Links <em class="hint">GitHub, portfolio, socials · up to 8</em></legend>
           <div class="pf-link-rows">${(p.links || []).map(linkRowHTML).join("")}</div>
@@ -336,7 +348,7 @@
     panel.innerHTML = mode === "edit" ? profileEditHTML() : profileViewHTML();
     panel.scrollTop = 0;
     if (mode === "view") {
-      $("[data-pf-edit]", panel).addEventListener("click", () => renderProfile("edit"));
+      $$("[data-pf-edit]", panel).forEach((b) => b.addEventListener("click", () => renderProfile("edit")));
       $("[data-pf-links]", panel).addEventListener("click", () => renderProfile("edit", { links: true }));
       const cv = $("[data-pf-cv]", panel);
       if (cv) cv.addEventListener("click", openCv);
@@ -398,6 +410,7 @@
           open: !!form.elements.open.checked,
           openType: String(f.get("openType") || "cofound"),
           links,
+          show: Object.fromEntries(Object.keys(SHOW_LABELS).map((k) => [k, !!form.elements["show_" + k].checked])),
         });
         toast("Profile updated", { icon: "check" });
       } catch (err) {

@@ -93,6 +93,8 @@
       visibility: r.profile_visibility === "connections" ? "connections" : "everyone",
       rating: r.sprint_rating == null ? null : Number(r.sprint_rating),
       reviews: r.sprint_reviews || 0,
+      joinedAt: Date.parse(r.created_at) || 0,
+      show: { age: r.show_age === true, region: r.show_region !== false, employment: r.show_employment !== false, languages: r.show_languages !== false },
       // Older rows predate the current questions: send those members through onboarding once.
       onboarded: !!(r.onboarding_completed && r.age != null && r.region),
     };
@@ -120,6 +122,10 @@
       open_to_build: p.open !== false,
       open_type: p.openType || null,
       profile_visibility: p.visibility === "connections" ? "connections" : "everyone",
+      show_age: !!(p.show && p.show.age),
+      show_region: !p.show || p.show.region !== false,
+      show_employment: !p.show || p.show.employment !== false,
+      show_languages: !p.show || p.show.languages !== false,
       onboarding_completed: !!p.onboarded,
     };
   }
@@ -134,6 +140,7 @@
       role: ROLE_FROM_DB[r.profile_type] || null,
       headline: r.headline || "",
       bio: r.bio || "",
+      age: r.age == null ? null : Number(r.age), // only when they show it
       region: r.region || "",
       experience: r.expertise_level || "",
       employment: r.employment_status || "",

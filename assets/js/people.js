@@ -40,6 +40,20 @@
     return out.join("");
   }
 
+  /** Region and age, for the small print under the headline (only what the member shows). */
+  const whereLine = (p) => [p.region, p.age ? `${p.age} years old` : ""].filter(Boolean);
+  /** Bubbles under the actions: sprint rating, employment (if shown), and when they joined. */
+  function factPills(p) {
+    const rating = p.rating != null
+      ? `${Number(p.rating).toFixed(1)} sprint rating · ${p.reviews} review${p.reviews === 1 ? "" : "s"}`
+      : "No sprint rating yet";
+    return `<div class="fact-pills">
+      <span class="fact-pill">${icon("star")}${esc(rating)}</span>
+      ${p.employment ? `<span class="fact-pill">${icon("briefcase")}${esc(p.employment)}</span>` : ""}
+      ${p.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined ${esc(joined(p.joinedAt))}</span>` : ""}
+    </div>`;
+  }
+
   /* ---------- Feedback helpers (also used by network.js) ---------- */
   function signInAgain(message) {
     loader.show("Please sign in again", message || "Your sign-in has expired.");
@@ -85,20 +99,17 @@
     const st = N.status(m.id);
     const link = N.link(m.id);
     const id = esc(m.id);
-    const fact = (label, value) => (value ? `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>` : "");
     const list = (items, cls) => items.map((x, i) => `<span class="badge badge--${cls ? cls(i) : "gray"}">${esc(x)}</span>`).join("");
     const open = openLabel(m);
 
     let action;
     if (st === "connected") {
       action = `
-        <div class="mp-status mp-status--connected">
+        <div class="mp-status">
           <span class="chip chip--emerald">${icon("check")} Connected</span>
-          <div class="mp-buttons">
-            <button class="btn btn--ink" type="button" data-message="${id}">${icon("message")} Message</button>
-            <button class="btn btn--sm btn--ghost" type="button" data-remove="${id}">Remove connection</button>
-          </div>
-        </div>`;
+          <button class="btn btn--sm btn--ghost mp-remove" type="button" data-remove="${id}">Remove connection</button>
+        </div>
+        <button class="btn btn--ink mp-message" type="button" data-message="${id}">${icon("message")} Message</button>`;
     } else if (st === "pending") {
       action = `<div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div>`;
     } else if (st === "incoming") {
@@ -119,18 +130,11 @@
       : `<span class="meta">CVs are shared with connections.</span>`;
 
     const details = m.limited
-      ? `<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their experience, industries and links.</p></section>`
+      ? `${factPills(m)}<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their industries, languages and links.</p></section>`
       : `
-        <div class="pf-stats">
-          <div class="pf-stat"><b>${m.rating != null ? m.rating.toFixed(1) : "–"}</b><span>${m.rating != null ? `Sprint rating · ${m.reviews} review${m.reviews === 1 ? "" : "s"}` : "No sprint rating yet"}</span></div>
-          <div class="pf-stat"><b>${m.experience ? esc(dash(m.experience).replace(" years", "")) : "–"}</b><span>Years of experience</span></div>
-          <div class="pf-stat"><b>${esc(joined(m.joinedAt)) || "–"}</b><span>Joined Sandbox</span></div>
-        </div>
+        ${factPills(m)}
         ${m.bio ? `<section class="pf-sec"><h3>About</h3><p>${esc(m.bio)}</p></section>` : ""}
-        <section class="pf-sec"><h3>Details</h3>
-          <dl class="pf-facts">${fact("Employment", m.employment)}${fact("Region", m.region)}</dl>
-        </section>
-        ${m.industries.length ? `<section class="pf-sec"><h3>Industry niche</h3><div class="tags">${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
+        ${m.industries.length ? `<section class="pf-sec"><h3>Industry</h3><div class="tags">${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
         ${m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : ""}
         ${m.skills.length ? `<section class="pf-sec"><h3>Skills</h3><div class="tags">${list(m.skills)}</div></section>` : ""}
         <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`;
@@ -142,7 +146,7 @@
       <div class="pf-body">
         <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
         ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
-        ${m.region ? `<p class="meta pf-meta">${icon("pin")} ${esc(m.region)}</p>` : ""}
+        ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
         <div class="chips">${roleChip(m.role)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         <div class="mp-action">${action}</div>
         ${details}
@@ -304,5 +308,5 @@
     if (Mori.modal.isOpen("connectionsModal")) renderConnections();
   });
 
-  Mori.people = { openMember, openConnections, message, linkButtons, busy, fail, confirmTap, signInAgain };
+  Mori.people = { openMember, openConnections, message, linkButtons, factPills, whereLine, busy, fail, confirmTap, signInAgain };
 })();

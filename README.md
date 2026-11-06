@@ -21,6 +21,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 ### Profile photo and links
 
 - **Photo:** everyone starts with the default icon (a gray person on white). The camera button on your profile lets you upload a photo (JPEG, PNG or WebP up to 15 MB; it's cropped to a 512 px square JPEG before upload), use your Google account photo, or go back to the default icon.
+- **What your profile shows:** Edit profile → *Show on your profile* has switches for age, region, employment and languages. Age starts hidden; the others start shown. Region and age appear in the small print under your headline, employment as a bubble next to your sprint rating and join date, and languages in their own section. Years of experience is never shown: it's only used to sort and filter members.
 - **Links:** next to the CV and LinkedIn you can add up to 8 links: GitHub, website, portfolio, X, Instagram, TikTok, YouTube, Behance, Dribbble, Medium or other. Addresses are saved as `https://` links; anything else is refused. Links are shared like LinkedIn: with everyone, or only with connections if your profile is set to *Connections*.
 
 ### Network
@@ -64,8 +65,9 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
   - `headline`, `bio`, `skills`, `open_to_build`, `open_type`
   - `profile_visibility` (everyone / connections), `onboarding_completed`
   - `avatar_url` (the photo the member chose; empty means the default icon), `links` (up to 8 `{type, url}` links)
+  - `show_age`, `show_region`, `show_employment`, `show_languages`: what the profile shows other members
   - `sprint_rating`, `sprint_reviews`: read-only for members (a trigger, `protect_profile_stats`, ignores their edits)
-- **`public.member_directory()`:** the list behind Explore, callable by signed-in members only. It returns the shareable fields of onboarded members. Age, birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
+- **`public.member_directory()`:** the list behind Explore, callable by signed-in members only. It returns the shareable fields of onboarded members. Age only when the member shows it, region, employment and languages only when they show them; birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
 - **`public.connections`:** one row per pair of members (`requester_id`, `addressee_id`, `status` pending / accepted / ignored, `note`). Members can only send requests as themselves, only the addressee can accept or ignore, and either side can withdraw or remove. Column privileges stop anything else from being edited.
 - **`public.messages`:** direct messages (`sender_id`, `recipient_id`, `body` up to 2,000 characters, `read_at`). Only the two members can read a message, members can only message accepted connections, the sender and time are set by the database, and only the recipient can mark it read.
 - **`public.projects`** and **`public.project_members`:** projects (`owner_id`, `name`, `focus`, `tags`, `rung`, `milestones`) and their co-founders. The owner and co-founders can see and update a project; only the owner can delete it. Only a founder who owns the project can add co-founders, and only from their accepted connections. Owners can remove co-founders, and co-founders can leave. The policy checks live in a `private` schema that the API doesn't expose.
@@ -84,6 +86,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261106210821_profile_photos_and_links.sql`: the `avatars` bucket, the `links` column and the updated member directory. It also cleared the Google photos that earlier sign-ins copied in automatically, so everyone starts from the default icon.
 - `20261106210844_projects_and_cofounders.sql` and `20261106211239_…`: projects shared with co-founders.
 - `20261106210856_messages_and_realtime.sql`: messages and the Realtime publication.
+- `20261106222340_profile_display_choices.sql`: the *Show on your profile* switches, applied in the member directory.
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 

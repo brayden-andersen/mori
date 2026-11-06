@@ -661,9 +661,30 @@ html[data-motion="reduced"] .loader-mark::before{ animation-duration:1.8s !impor
 .pf-link-row{ display:grid; grid-template-columns: 150px minmax(0,1fr) 36px; gap:8px; align-items:center; animation: fade-up .3s var(--ease-out) both }
 .pf-link-row .select{ width:100% }
 .pf-links > .btn{ width:max-content }
-/* Member profile: Message under "Connected" */
-.mp-status--connected{ flex-direction:column; align-items:flex-start; gap:12px }
-.mp-buttons{ display:flex; flex-wrap:wrap; align-items:center; gap:8px }
+/* Member profile (opens on every signed-in page) */
+.modal--member .pf-head{ justify-content:flex-start }
+.mp-action{ display:flex; flex-direction:column; align-items:flex-start; gap:12px; margin-top:16px; text-align:left }
+.mp-status{ display:flex; flex-wrap:wrap; align-items:center; gap:10px }
+.mp-status .chip{ margin:0 }
+.mp-status .chip .ico{ width:14px; height:14px }
+.mp-action .req-note{ margin:0 }
+.mp-remove{ color:var(--subtle); font-weight:500 }
+.mp-remove:hover{ color:#b91c1c }
+.mp-connect{ display:grid; gap:10px; width:100%; padding:14px; border-radius:16px; background:#fff; border:1px solid #e5e7eb }
+.mp-connect .textarea{ min-height:76px }
+.mp-connect .btn{ justify-self:start }
+/* Sprint rating, employment and joined date as bubbles */
+.fact-pills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px }
+.fact-pill{ display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; background:#fff; border:1px solid #e5e7eb; font-size:13px; font-weight:500; color:var(--ink-2) }
+.fact-pill .ico{ width:14px; height:14px; color:var(--subtle) }
+.pf-hidden{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 0; font-size:13px }
+.pf-hidden .ico{ width:14px; height:14px }
+.pf-stats--2{ grid-template-columns: repeat(2, 1fr) }
+/* Edit profile: what the profile shows */
+.pf-show{ border:0; margin:0; padding:0; min-width:0 }
+.pf-show legend{ padding:0; margin-bottom:8px; font-size:13px; font-weight:500; color:var(--ink-2) }
+.pf-show-grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px 16px }
+@media (max-width: 520px){ .pf-show-grid{ grid-template-columns: 1fr } }
 /* Connections window */
 .modal--connections{ width:min(560px,100%) }
 .cn-search{ margin-bottom:12px }

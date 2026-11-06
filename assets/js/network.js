@@ -253,7 +253,7 @@
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
         ${m.limited
           ? `<p class="person-note">${icon("shield")}${esc(first(m.name))} shares their full profile with connections.</p>`
-          : `<div class="person-facts">${m.experience ? `<span>${icon("briefcase")}${esc(dash(m.experience))} of experience</span>` : ""}${ratingFact(m)}</div>
+          : `<div class="person-facts">${ratingFact(m)}</div>
              ${m.industries.length ? `<div class="tags">${m.industries.map((x, i) => `<span class="badge badge--${HUES[i % HUES.length]}">${esc(x)}</span>`).join("")}</div>` : ""}`}
         <div class="pcard-actions">
           ${connectButton(m)}

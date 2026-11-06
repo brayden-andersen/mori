@@ -79,17 +79,6 @@ span.btn.is-done{ cursor:default; transform:none }
 .sk-btn{ flex:1; height:40px; border-radius:12px }
 @keyframes sk-shine{ from{ background-position: 100% 0 } to{ background-position: -100% 0 } }
 
-/* ---------- Member profile (modal) ---------- */
-.modal--member .pf-head{ justify-content:flex-start }
-.mp-action{ margin-top:16px }
-.mp-status{ display:flex; flex-wrap:wrap; align-items:center; gap:10px }
-.mp-status .chip{ margin:0 }
-.mp-status .chip .ico{ width:14px; height:14px }
-.mp-action .req-note{ margin:0 0 10px }
-.mp-connect{ display:grid; gap:10px; padding:14px; border-radius:16px; background:#fff; border:1px solid #e5e7eb }
-.mp-connect .textarea{ min-height:76px }
-.mp-connect .btn{ justify-self:start }
-
 /* ---------- Requests ---------- */
 .req-list{ display:grid; gap:10px }
 .req{ display:grid; grid-template-columns: auto minmax(0,1fr) auto; align-items:start; gap:14px; padding:16px; border-radius:16px; background:#fff; border:1px solid #e5e7eb; box-shadow: var(--panel-shadow); overflow:hidden;
