@@ -59,6 +59,17 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
 
 The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's no CDN dependency. It loads only when needed.
 
+### Database changes live in `supabase/`
+
+`supabase/migrations/` holds every database change in order. The file versions match the project's migration history in Supabase, so changes that are already live are never applied twice. Starting from an empty database, the three files rebuild the live schema exactly.
+
+- `20261106000000_initial_profiles.sql`: the `profiles` table as it was before changes were tracked. It does nothing on the live project, where the table already exists.
+- `20261106150912_…` and `20261106172453_…`: the onboarding and network changes, exactly as they were applied.
+
+To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
+
+**The "Supabase Preview" check on GitHub** comes from Supabase Branching, which creates a temporary copy of the database for each pull request. It needs the Pro plan, and the organization is on the free plan, so the check shows *Skipped*. That is expected. The live site doesn't use it: it talks to the Sandbox project directly through `config.js`.
+
 **Demo mode:** when the site is opened straight from disk (`file://`), "Continue with Google" opens a demo sign-in instead. Onboarding and everything else work with data kept in the browser; CVs keep their file name only.
 
 ## Project structure
@@ -82,6 +93,9 @@ assets/
     landing.js · onboarding.js · home.js · projects.js · network.js
   vendor/supabase-2.58.0.js
   img/favicon.svg   the MORI logo (森)
+supabase/
+  config.toml       read by Supabase's GitHub integration and the Supabase CLI
+  migrations/       every database change, in order
 ```
 
 ## Performance notes
