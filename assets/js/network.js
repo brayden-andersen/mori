@@ -23,7 +23,6 @@
   const C = S.chat;
   const TABS = ["explore", "requests", "sent", "messages"];
   const HUES = ["orange", "blue", "purple"];
-  const EXP_RANK = { "0-2 years": 1, "3-5 years": 2, "6-10 years": 3, "10+ years": 4 };
 
   const first = (name) => String(name || "").split(/\s+/)[0];
   const dash = (s) => String(s || "").replace(/(\d)-(\d)/, "$1–$2");
@@ -99,7 +98,6 @@
   /* ---------- Discover: filters (dropdowns) ---------- */
   const filters = { q: "", role: "all", exp: "", region: "", rating: 0, industries: new Set() };
   const peopleQ = $("#peopleQ");
-  const sortSel = $("#peopleSort");
   const ratingSel = $("#ratingMin");
   const roleSel = $("#roleSel");
   const expSel = $("#expSel");
@@ -111,7 +109,7 @@
   /** Role: all, founders, specialists, or a specialist role (those members picked come first). */
   function renderRoleOptions() {
     const used = {};
-    N.members().forEach((m) => { if (m.role === "specialist" && m.specialty) used[m.specialty] = (used[m.specialty] || 0) + 1; });
+    discoverable().forEach((m) => { if (m.role === "specialist" && m.specialty) used[m.specialty] = (used[m.specialty] || 0) + 1; });
     const all = Array.from(new Set(Object.keys(used).concat(D.specialties)));
     const named = all.filter((x) => used[x]).sort((a, b) => used[b] - used[a] || a.localeCompare(b));
     const rest = all.filter((x) => !used[x]).sort((a, b) => a.localeCompare(b));
@@ -125,7 +123,7 @@
   /** Region: the regions members are in first, then every region. */
   function renderRegionOptions() {
     const used = {};
-    N.members().forEach((m) => { if (m.region) used[m.region] = (used[m.region] || 0) + 1; });
+    discoverable().forEach((m) => { if (m.region) used[m.region] = (used[m.region] || 0) + 1; });
     const named = Object.keys(used).sort((a, b) => used[b] - used[a] || a.localeCompare(b));
     const opt = (x) => `<option value="${esc(x)}">${esc(x)}${used[x] ? ` (${used[x]})` : ""}</option>`;
     regionSel.innerHTML = `<option value="">Any region</option>`
@@ -148,12 +146,9 @@
     }
     return true;
   }
-  const SORTS = {
-    newest: (a, b) => b.joinedAt - a.joinedAt,
-    rating: (a, b) => (b.rating == null ? -1 : b.rating) - (a.rating == null ? -1 : a.rating) || b.reviews - a.reviews || b.joinedAt - a.joinedAt,
-    experience: (a, b) => (EXP_RANK[b.experience] || 0) - (EXP_RANK[a.experience] || 0) || b.joinedAt - a.joinedAt,
-    name: (a, b) => a.name.localeCompare(b.name),
-  };
+  const newestFirst = (a, b) => b.joinedAt - a.joinedAt;
+  /** Discover is for meeting people: members you're already connected with live under Connections. */
+  const discoverable = () => N.members().filter((m) => N.status(m.id) !== "connected");
 
   function syncControls() {
     peopleQ.value = filters.q;
@@ -172,7 +167,6 @@
   }
 
   peopleQ.addEventListener("input", () => { filters.q = peopleQ.value.trim().toLowerCase(); renderPeople(); });
-  sortSel.addEventListener("change", renderPeople);
   const onSelect = (sel, key, cast = (v) => v) => sel.addEventListener("change", () => { filters[key] = cast(sel.value); syncControls(); renderPeople(); });
   onSelect(roleSel, "role");
   onSelect(expSel, "exp");
@@ -188,7 +182,7 @@
 
   function industryCounts() {
     const counts = {};
-    N.members().forEach((m) => m.industries.forEach((x) => { counts[x] = (counts[x] || 0) + 1; }));
+    discoverable().forEach((m) => m.industries.forEach((x) => { counts[x] = (counts[x] || 0) + 1; }));
     return counts;
   }
   function renderIndustryList() {
@@ -301,7 +295,8 @@
   function renderPeople() {
     const grid = $("#peopleGrid");
     renderActiveFilters();
-    if (optionsFor !== N.members()) { optionsFor = N.members(); renderRoleOptions(); renderRegionOptions(); }
+    const optionsKey = discoverable().map((m) => m.id).join(",");
+    if (optionsFor !== optionsKey) { optionsFor = optionsKey; renderRoleOptions(); renderRegionOptions(); }
     const all = N.members();
 
     if (loadState === "off") {
@@ -323,7 +318,8 @@
       return;
     }
 
-    const list = all.filter(matches).sort(SORTS[sortSel.value] || SORTS.newest);
+    const pool = discoverable();
+    const list = pool.filter(matches).sort(newestFirst);
     grid.innerHTML = list.map(personCard).join("");
     const ids = list.map((m) => m.id).join(",");
     if (ids !== shownIds) Mori.motion.enter(grid);
@@ -331,6 +327,8 @@
 
     if (!all.length) {
       showPeopleEmpty(`<span class="empty-ico">${icon("userPlus")}</span><div>You’re one of the first members</div><div class="meta">Founders and specialists appear here as soon as they finish signing up.</div>`);
+    } else if (!pool.length) {
+      showPeopleEmpty(`<span class="empty-ico">${icon("network")}</span><div>You’re connected with everyone so far</div><div class="meta">New founders and specialists appear here as they join. Your connections are under Manage my network.</div><button class="btn" type="button" data-connections>${icon("network")} See your connections</button>`);
     } else if (!list.length) {
       const noRatings = filters.rating && !all.some((m) => m.rating != null);
       showPeopleEmpty(`<span class="empty-ico">${icon("search")}</span><div>No one matches those filters</div><div class="meta">${noRatings ? "No one has a sprint rating yet. Ratings appear once members finish sprints." : "Try fewer filters or a different search."}</div><button class="btn" type="button" data-clear-filters>Clear filters</button>`);

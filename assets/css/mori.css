@@ -753,5 +753,5 @@ html[data-theme="dark"] .theme-toggle .ico + .ico{ display:block }
 .theme-toggle:hover .ico{ transform: rotate(-18deg) scale(1.08) }
 .menu > .item--theme{ display:flex; align-items:center; margin-left:4px }
 .landing-nav .theme-toggle{ margin-left:10px }
-html.theme-switching, html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after{
-  transition: background-color .35s ease, color .35s ease, border-color .35s ease, fill .35s ease !important }
+/* Switching themes: nothing fades on its own, so every colour changes in the same frame */
+html.theme-instant *, html.theme-instant *::before, html.theme-instant *::after{ transition:none !important }

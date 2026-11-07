@@ -157,16 +157,26 @@ def rule_to_dark(sel, body):
         or any(v in d for v in ("var(--a1", "var(--c1", "var(--accent", "var(--progress-orange", "var(--mori-red", "var(--brand-grad", "var(--c)"))
         for d in split_decls(body) if ":" in d
     )
+    shorthands = []  # shorthands rewritten so far in this rule
     for d in split_decls(body):
         if ":" not in d:
             continue
         prop, val = d.split(":", 1)
         prop = prop.strip()
+        base = prop.lower()
+        # Masks only use colour for transparency, and re-declaring the shorthand
+        # would reset mask-composite (the spotlight ring would fill the card).
+        if "mask" in base:
+            continue
+        # A longhand after a rewritten shorthand (background-size after
+        # background…) must be repeated, or the shorthand resets it.
+        follows = any(base.startswith(s + "-") or (s == "background" and base.startswith("-webkit-background-")) for s in shorthands) and not base.endswith("-radius")
         if prop.startswith("--") and not COLOR.search(val):
             continue
-        if not COLOR.search(val) or "url(" in val:
+        if (not COLOR.search(val) or "url(" in val) and not follows:
             continue
-        base = prop.lower()
+        if base in ("background", "border", "border-top", "border-right", "border-bottom", "border-left", "outline", "text-decoration"):
+            shorthands.append(base)
         ctx = "box-shadow" if base.startswith("--") and "shadow" in base else base
         if base.startswith("--") and not ctx.endswith("shadow"):
             ctx = "color" if base in ("--ink", "--ink-2", "--muted", "--subtle", "--accent") else "background"

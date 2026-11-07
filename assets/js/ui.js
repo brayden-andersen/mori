@@ -249,13 +249,18 @@
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = dark ? "#111113" : "#efeff0";
   }
+  /**
+   * Switch light / dark in one frame: element transitions are paused for the
+   * switch, so text, surfaces and borders all change together, straight away,
+   * instead of each fading on its own (which was slow on busy pages).
+   */
   function setTheme(theme) {
     const root = document.documentElement;
-    root.classList.add("theme-switching");
-    if (theme === "dark") root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
     Mori.store.write("mori.theme", theme);
+    root.classList.add("theme-instant");
+    if (theme === "dark") root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
     syncThemeToggles();
-    setTimeout(() => root.classList.remove("theme-switching"), 450);
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-instant")));
   }
   document.addEventListener("click", (e) => {
     if (!e.target.closest("[data-theme-toggle]")) return;

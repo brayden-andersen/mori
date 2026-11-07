@@ -209,11 +209,15 @@
   /* ---------- Before first paint ---------- */
   // Light or dark, as chosen with the nav toggle (this browser, every account).
   const applyTheme = () => {
-    if (Mori.store.read("mori.theme", "light") === "dark") root.setAttribute("data-theme", "dark");
-    else root.removeAttribute("data-theme");
+    const dark = Mori.store.read("mori.theme", "light") === "dark";
+    if (dark === (root.getAttribute("data-theme") === "dark")) return;
+    // Changed elsewhere (another tab, a page restored from history): switch in one frame.
+    root.classList.add("theme-instant");
+    if (dark) root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-instant")));
   };
   applyTheme();
-  window.addEventListener("storage", (e) => { if (e.key === "mori.theme") applyTheme(); });
+  window.addEventListener("storage", (e) => { if (e.key === "mori.theme") applyTheme(); }); // the store has already dropped its cached copy
   window.addEventListener("pageshow", applyTheme);
   document.addEventListener("prerenderingchange", applyTheme);
   const s = Mori.auth.session();

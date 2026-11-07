@@ -15,7 +15,8 @@
 .ob-steps li[role="button"]:hover{ color:var(--ink) }
 
 /* Card + steps */
-.ob-card{ position:relative; border-radius:24px; padding:30px 32px 22px; background: var(--glass); border:1px solid rgba(39,39,42,.30); box-shadow: 0 20px 44px rgba(26,28,31,.08), var(--panel-shadow) }
+/* The questions sit straight on the page background, like the rest of the site's pages */
+.ob-card{ position:relative; border-radius:24px; padding:30px 32px 22px; background: transparent; border:0; box-shadow:none }
 .ob-step{ position:relative; z-index:2; animation: ob-in .5s var(--ease-out) both } /* above the actions so the industry list overlays them */
 .ob-step.is-back{ animation-name: ob-in-back }
 @keyframes ob-in{ from{ opacity:0; translate: 26px 0 } }

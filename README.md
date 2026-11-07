@@ -12,7 +12,7 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
 | `home.html` | **Homepage**: greeting, entry cards, your pinned project, your latest conversations, insights. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, project drawer (pin to homepage), declare a new project and add co-founders. |
-| `network.html` | **Network**, laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
+| `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
@@ -20,7 +20,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 
 ### Light and dark mode
 
-- The sun/moon button on the right of every nav bar switches between light and dark. The choice is remembered in the browser and applied before the page first paints.
+- The sun/moon button on the right of every nav bar switches between light and dark instantly: element transitions are paused for the switch, so all text and surfaces change in the same frame. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo stays black and red.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
@@ -40,8 +40,8 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 
 ### Network
 
-- **Discover** lists everyone who finished the sign-up questions, except you. The **Requests** you received sit above it (the first three, then *Show all*), with Ignore and Accept. Search covers names, headlines, skills, regions, industries and languages.
-- **Filters** (dropdowns): **Role** (All, Founders, Specialists, or a specialist role) · years of experience · **region** (regions members are in come first) · minimum sprint rating · industry (searchable checklist; industries members chose are listed first). **Sort** by newest, sprint rating, experience or name.
+- **Discover** lists everyone who finished the sign-up questions, except you and the people you're already connected with (they're under *Manage my network → Connections*), newest members first. The **Requests** you received sit above it (the first three, then *Show all*), with Ignore and Accept. Search covers names, headlines, skills, regions, industries and languages.
+- **Filters** (dropdowns): **Role** (All, Founders, Specialists, or a specialist role) · years of experience · **region** (regions members are in come first) · minimum sprint rating · industry (searchable checklist; industries members chose are listed first).
 - **Connect** from a card, or from a member's profile with an optional note (300 characters). The other member sees it under **Requests**, in the nav badge and in Notifications, and can accept or ignore it. You can withdraw a request or remove a connection.
 - **Connections** can see each other's CV. A member who sets **Settings → Privacy → Profile visibility** to *Connections* shows only their name, photo, role and headline to everyone else.
 - **Live updates:** requests, accepted requests and removed connections reach the other member straight away, with a pop-up and updated badges, on whichever page they have open. No reload needed.

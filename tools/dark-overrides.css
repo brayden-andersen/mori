@@ -20,6 +20,9 @@ html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(1
 /* The nav floats over the aura */
 html[data-theme="dark"] .nav{ background: rgba(17,17,19,.4) }
 html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
+/* The cursor highlight on cards: a faint light glow on dark surfaces */
+html[data-theme="dark"] .spotlight{ --spot: rgba(255,255,255,.06) }
+html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot: rgba(120,160,230,.10) }
 /* Photos and illustrations aren't recoloured */
 html[data-theme="dark"] img{ color-scheme: normal }
 /* The default avatar: a grey person on dark grey */
