@@ -36,6 +36,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 - **Photo:** everyone starts with the default icon (a gray person on white). The camera button on your profile lets you upload a photo (JPEG, PNG or WebP up to 15 MB), then drag and zoom to frame it before it's saved as a 512 px square. *Adjust or resize* reopens the current photo in the same editor, use your Google account photo, or go back to the default icon.
 - **Banner:** the banner behind your photo is dark by default. *Add a banner* (bottom right of the banner) uploads your own image, framed in the same editor at 3:1; you can adjust it later or go back to the default.
 - **What your profile shows:** Edit profile → *Show on your profile* has switches for age, region, employment and languages. Age starts hidden; the others start shown. Region and age appear in the small print under your headline, employment as a bubble next to your sprint rating and join date, and languages in their own section. Years of experience is never shown: it's only used to sort and filter members.
+- **Invisible:** Edit profile → *Invisible* hides you from the MORI Network. You don't appear in Discover, and nobody can send you a request (the database refuses it). Someone who searches your exact full name in Discover still finds you, but sees only your name and when you joined, with the default photo. Your connections, and anyone you've sent a request to, still see your profile as before.
 - **Links:** next to the CV and LinkedIn you can add up to 8 links: GitHub, website, portfolio, X, Instagram, TikTok, YouTube, Behance, Dribbble, Medium or other. Addresses are saved as `https://` links; anything else is refused. Links are shared like LinkedIn: with everyone, or only with connections if your profile is set to *Connections*.
 
 ### Network
@@ -80,9 +81,11 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
   - `profile_visibility` (everyone / connections), `onboarding_completed`
   - `avatar_url` (the photo the member chose; empty means the default icon), `links` (up to 8 `{type, url}` links)
   - `show_age`, `show_region`, `show_employment`, `show_languages`: what the profile shows other members
+  - `invisible`: hidden from the MORI Network (see *Invisible* above)
   - `birth_date` (private: never in the member directory), `specialty` (a specialist's role), `cover_url` (the profile banner)
   - `sprint_rating`, `sprint_reviews`: read-only for members (a trigger, `protect_profile_stats`, ignores their edits)
 - **`public.member_directory()`:** the list behind Discover, callable by signed-in members only. It returns the shareable fields of onboarded members. Age (worked out from the date of birth) only when the member shows it, region, employment and languages only when they show them; birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
+- **`public.find_member(full_name)`:** finds invisible members by their exact full name (case and spacing don't matter) and returns only their name and join date. Signed-in members only.
 - **`public.connections`:** one row per pair of members (`requester_id`, `addressee_id`, `status` pending / accepted / ignored, `note`). Members can only send requests as themselves, only the addressee can accept or ignore, and either side can withdraw or remove. Column privileges stop anything else from being edited.
 - **`public.messages`:** direct messages (`sender_id`, `recipient_id`, `body` up to 2,000 characters, `read_at`). Only the two members can read a message, members can only message accepted connections, the sender and time are set by the database, and only the recipient can mark it read.
 - **`public.projects`** and **`public.project_members`:** projects (`owner_id`, `name`, `focus`, `tags`, `rung`, `milestones`) and their co-founders. The owner and co-founders can see and update a project; only the owner can delete it. Only a founder who owns the project can add co-founders, and only from their accepted connections. Owners can remove co-founders, and co-founders can leave. The policy checks live in a `private` schema that the API doesn't expose.
@@ -103,6 +106,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261106210856_messages_and_realtime.sql`: messages and the Realtime publication.
 - `20261106222340_profile_display_choices.sql`: the *Show on your profile* switches, applied in the member directory.
 - `20261107010827_birth_date_specialty_cover.sql`: date of birth, a specialist's role and the profile banner.
+- `20261107155209_invisible_members.sql`: Invisible mode (the column, the directory and name-search rules, and the policy that refuses requests to invisible members).
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 

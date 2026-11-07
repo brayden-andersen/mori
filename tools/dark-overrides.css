@@ -3,11 +3,11 @@ html[data-theme="dark"]{
   --bg:#111113;                          /* a deep, dark grey base */
   --aura-top: rgba(236,236,242,0.055);   /* a really faint light grey at the top */
   --aura-top-2: rgba(236,236,242,0.04);
-  --aura-red: rgba(200,0,0,0.20);        /* the MORI red, stronger than in light mode */
-  --aura-red-2: rgba(200,0,0,0.15);
-  --aura-red-soft: rgba(184,0,0,0.09);
+  --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
+  --aura-red-2: rgba(200,0,0,0.13);
+  --aura-red-soft: rgba(184,0,0,0.075);
   --orb-top: rgba(236,236,242,.03);
-  --orb-red: rgba(200,0,0,.10);
+  --orb-red: rgba(200,0,0,.085);
   --orb-mid: rgba(110,40,150,.08);
 }
 html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }

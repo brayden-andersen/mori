@@ -95,7 +95,25 @@
   /* ---------- Member profile ---------- */
   let shownMember = null; // { id, key } of the profile in the window
 
+  /** An invisible member's profile: name and when they joined, with the default photo. */
+  function invisibleHTML(m) {
+    const st = N.status(m.id);
+    const link = N.link(m.id);
+    const id = esc(m.id);
+    return `
+      ${Mori.ui.coverHTML("")}
+      <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
+      <div class="pf-head">${avatar({ id: m.id, name: m.name }, 88)}</div>
+      <div class="pf-body">
+        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
+        <div class="fact-pills">${m.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined SandBox ${esc(joined(m.joinedAt))}</span>` : ""}</div>
+        ${st === "pending" ? `<div class="mp-action"><div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div></div>` : ""}
+        <section class="pf-sec"><p class="meta pf-invisible-note">${icon("shield")} ${esc(first(m.name))} is invisible on the MORI Network, so you can’t connect or see more of their profile.</p></section>
+      </div>`;
+  }
+
   function memberHTML(m) {
+    if (m.invisible) return invisibleHTML(m);
     const st = N.status(m.id);
     const link = N.link(m.id);
     const id = esc(m.id);

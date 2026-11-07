@@ -755,3 +755,9 @@ html[data-theme="dark"] .theme-toggle .ico + .ico{ display:block }
 .landing-nav .theme-toggle{ margin-left:10px }
 /* Switching themes: nothing fades on its own, so every colour changes in the same frame */
 html.theme-instant *, html.theme-instant *::before, html.theme-instant *::after{ transition:none !important }
+
+/* Invisible mode */
+.pf-invisible{ padding-top:14px; border-top:1px solid rgba(39,39,42,.12) }
+.pf-invisible .meta{ margin:8px 0 0; line-height:1.5 }
+.pf-invisible-note{ display:flex; align-items:flex-start; gap:8px }
+.pf-invisible-note .ico{ width:16px; height:16px; margin-top:2px; flex:0 0 auto }

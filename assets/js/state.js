@@ -38,6 +38,7 @@
     open: true, openType: "", visibility: "everyone", rating: null, reviews: 0,
     // What the profile shows (age starts hidden, the rest shown)
     show: { age: false, region: true, employment: true, languages: true },
+    invisible: false,               // hidden from the MORI Network
   };
   const SHOW_DEFAULT = PROFILE_BLANK.show;
   const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
@@ -158,11 +159,15 @@
 
   /* ---------- Network: members who signed up, and connection requests ----------
      Each link is { id, from, to, status: pending|accepted|ignored, note, at }. */
+  const foundMembers = new Map(); // invisible members found by full name
   const network = {
     /** Only Google members have a network; demo accounts stay on this device. */
     available: remoteEnabled,
     members: () => (remoteEnabled() ? get("members", []) : []),
-    member: (id) => network.members().find((m) => m.id === id) || null,
+    member: (id) => network.members().find((m) => m.id === id) || foundMembers.get(id) || null,
+    /** Invisible members someone looked up by full name (kept for this page only). */
+    remember(list) { (list || []).forEach((m) => foundMembers.set(m.id, m)); },
+    found: () => Array.from(foundMembers.values()),
     links: () => (remoteEnabled() ? get("links", []) : []),
     refresh: refresher(async () => {
       const [members, links] = await Promise.all([Mori.db.members(), Mori.db.connections()]);
@@ -203,11 +208,15 @@
     async connect(id, note) {
       if (network.status(id) === "incoming") return network.accept(id);
       if (network.link(id)) return network.link(id);
+      const who = network.member(id);
+      const invisibleError = () => new Error(`${who ? who.name : "This member"} is invisible on the MORI Network, so you can’t connect.`);
+      if (who && who.invisible) throw invisibleError();
       try {
         const link = await Mori.db.requestConnection(id, note);
         set("links", network.links().concat(link));
         return link;
       } catch (err) {
+        if (err.code === "42501") throw invisibleError(); // turned invisible since this page loaded
         if (err.code !== "23505") throw err;
         // They sent you a request at the same moment: accept theirs instead.
         await network.refresh({ force: true });

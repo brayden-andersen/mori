@@ -247,6 +247,7 @@
         <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
         ${Mori.people.factPills(seen)}
         ${hidden.length ? `<p class="meta pf-hidden">${icon("shield")} Hidden from your profile: ${esc(hidden.join(", "))}. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
+        ${p.invisible ? `<p class="meta pf-hidden pf-invisible-on">${icon("shield")} You’re invisible on the MORI Network: only people who search your full name can find you, and they see just your name and join date. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         <div class="pf-stats pf-stats--2">
           <button class="pf-stat pf-stat--link" type="button" data-connections aria-label="See your connections"><b data-count="${S.network.connections().length}">0</b><span>Connections ${icon("arrowRight")}</span></button>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
@@ -278,6 +279,10 @@
           <legend>Show on your profile</legend>
           <div class="pf-show-grid">${Object.entries(SHOW_LABELS).map(([k, label]) => switchHTML(`name="show_${k}"`, p.show[k], label)).join("")}</div>
         </fieldset>
+        <div class="field field--full pf-invisible">
+          ${switchHTML('name="invisible"', !!p.invisible, "Invisible")}
+          <p class="meta">Hide me from the MORI Network. People who search your full name can still find you, but they’ll only see your name and when you joined, with the default photo, and they can’t send you a request. Your connections still see your full profile.</p>
+        </div>
         <fieldset class="field field--full pf-links" id="pfLinks">
           <legend>Links <em class="hint">GitHub, portfolio, socials · up to 8</em></legend>
           <div class="pf-link-rows">${(p.links || []).map(linkRowHTML).join("")}</div>
@@ -475,6 +480,7 @@
       if (t) e.target.closest(".pf-link-row").querySelector("[data-link-url]").placeholder = t.hint;
     });
     syncAdd();
+    const wasInvisible = !!S.profile().invisible;
     const save = async () => {
       const f = new FormData(form);
       const btn = $("[data-pf-save]", panel);
@@ -494,8 +500,10 @@
           openType: String(f.get("openType") || "cofound"),
           links,
           show: Object.fromEntries(Object.keys(SHOW_LABELS).map((k) => [k, !!form.elements["show_" + k].checked])),
+          invisible: !!form.elements.invisible.checked,
         });
-        toast("Profile updated", { icon: "check" });
+        const nowInvisible = !!form.elements.invisible.checked;
+        toast(nowInvisible !== wasInvisible ? (nowInvisible ? "You’re invisible on the MORI Network" : "You’re visible on the MORI Network again") : "Profile updated", { icon: "check" });
       } catch (err) {
         toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 });
       }

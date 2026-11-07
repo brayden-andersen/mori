@@ -166,7 +166,20 @@
     if (!silent) renderPeople();
   }
 
-  peopleQ.addEventListener("input", () => { filters.q = peopleQ.value.trim().toLowerCase(); renderPeople(); });
+  /* Invisible members can only be found by their exact full name. */
+  const normName = (s) => String(s || "").trim().replace(/\s+/g, " ").toLowerCase();
+  let lookupTimer = 0;
+  let lookedUp = "";
+  function lookUpByName() {
+    clearTimeout(lookupTimer);
+    const q = normName(peopleQ.value);
+    if (!N.available() || q.length < 3 || !q.includes(" ") || q === lookedUp) return;
+    lookupTimer = setTimeout(() => {
+      lookedUp = q;
+      Mori.db.findMember(q).then((list) => { if (list.length) { N.remember(list); renderPeople(); } }).catch(() => { lookedUp = ""; });
+    }, 350);
+  }
+  peopleQ.addEventListener("input", () => { filters.q = peopleQ.value.trim().toLowerCase(); renderPeople(); lookUpByName(); });
   const onSelect = (sel, key, cast = (v) => v) => sel.addEventListener("change", () => { filters[key] = cast(sel.value); syncControls(); renderPeople(); });
   onSelect(roleSel, "role");
   onSelect(expSel, "exp");
@@ -257,6 +270,7 @@
       : `<span class="is-muted">${icon("star")}No sprint rating yet</span>`;
   }
   function personCard(m) {
+    if (m.invisible) return invisibleCard(m);
     const where = [m.region, m.employment].filter(Boolean).map(esc).join(" · ");
     const open = openLabel(m);
     const connected = N.status(m.id) === "connected";
@@ -275,6 +289,23 @@
         <div class="pcard-actions">
           ${connectButton(m)}
           <button class="btn" type="button" data-view="${esc(m.id)}">View profile</button>
+        </div>
+      </article>`;
+  }
+  /** An invisible member: name, when they joined and the default photo. No connecting. */
+  function invisibleCard(m) {
+    const id = esc(m.id);
+    const pending = N.status(m.id) === "pending";
+    return `
+      <article class="pcard person is-invisible" data-person="${id}">
+        <button class="person-top" type="button" data-view="${id}" aria-label="View ${esc(m.name)}’s profile">
+          ${avatar({ id: m.id, name: m.name }, 52)}
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
+        </button>
+        <p class="person-note">${icon("shield")}Invisible on the MORI Network. You can’t connect with them.</p>
+        <div class="pcard-actions">
+          ${pending ? `<button class="btn is-pending" type="button" data-withdraw="${id}" title="Withdraw your request">${icon("check")} Pending</button>` : ""}
+          <button class="btn" type="button" data-view="${id}">View profile</button>
         </div>
       </article>`;
   }
@@ -319,7 +350,10 @@
     }
 
     const pool = discoverable();
-    const list = pool.filter(matches).sort(newestFirst);
+    // Someone searched an invisible member's exact full name: show them first, whatever the filters.
+    const q = normName(peopleQ.value);
+    const found = q ? N.found().filter((m) => normName(m.name) === q && !pool.some((p) => p.id === m.id)) : [];
+    const list = found.concat(pool.filter(matches).sort(newestFirst));
     grid.innerHTML = list.map(personCard).join("");
     const ids = list.map((m) => m.id).join(",");
     if (ids !== shownIds) Mori.motion.enter(grid);

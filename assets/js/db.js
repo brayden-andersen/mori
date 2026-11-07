@@ -94,6 +94,7 @@
       open: r.open_to_build !== false,
       openType: r.open_type || (role === "founder" ? "cofound" : "join"),
       visibility: r.profile_visibility === "connections" ? "connections" : "everyone",
+      invisible: r.invisible === true,
       rating: r.sprint_rating == null ? null : Number(r.sprint_rating),
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.created_at) || 0,
@@ -129,6 +130,7 @@
       open_to_build: p.open !== false,
       open_type: p.openType || null,
       profile_visibility: p.visibility === "connections" ? "connections" : "everyone",
+      invisible: !!p.invisible,
       show_age: !!(p.show && p.show.age),
       show_region: !p.show || p.show.region !== false,
       show_employment: !p.show || p.show.employment !== false,
@@ -166,6 +168,7 @@
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.joined_at) || 0,
       limited: !!r.limited, // shares the full profile with connections only
+      invisible: !!r.invisible, // invisible on the MORI Network: name and join date only
     };
   }
   const linkFromRow = (r) => ({
@@ -292,6 +295,14 @@
       const { data, error } = await c.from("connections").select(LINK_COLS).order("created_at", { ascending: false });
       fail(error);
       return (data || []).map(linkFromRow);
+    },
+
+    /** Invisible members, found only by their exact full name (name and join date only). */
+    async findMember(fullName) {
+      const { c } = await signedIn();
+      const { data, error } = await c.rpc("find_member", { full_name: String(fullName || "").trim() });
+      fail(error);
+      return (data || []).map(memberFromRow);
     },
 
     async requestConnection(memberId, note) {
