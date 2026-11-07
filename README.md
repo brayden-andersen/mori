@@ -1,33 +1,47 @@
-# Mori: Sandbox — concept site
+# SandBox by MORI — concept site
 
 The clickable concept for **SandBox by MORI Group**: an open-access place where Indonesia's aspiring founders and specialists *find their people, build their idea and earn the spotlight*.
 
-Plain HTML, CSS and JavaScript. There is no build step. It uses the design language of the original Sandbox drafts: aura background, glass panels, Inter, and the blue and orange accents.
+Plain HTML, CSS and JavaScript. There is no build step. It uses the design language of the original Sandbox drafts: aura background, glass panels and Inter, with the MORI logo in black and red (#B80000). There's a light and a dark mode (the toggle on the right of every nav bar).
 
 ## Pages and flow
 
 | Page | What it is |
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page. Sign in and join use Google. |
-| `onboarding.html` | **Sign-up questions** for new members: name, age and region · founder or specialist · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
+| `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
 | `home.html` | **Homepage**: greeting, entry cards, your pinned project, your latest conversations, insights. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, project drawer (pin to homepage), declare a new project and add co-founders. |
-| `network.html` | **Network**: Explore the members who signed up, connection Requests, and real-time Messages with your connections. |
+| `network.html` | **Network**, laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
 Apart from the homepage insights, nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
 
-### Profile photo and links
+### Light and dark mode
 
-- **Photo:** everyone starts with the default icon (a gray person on white). The camera button on your profile lets you upload a photo (JPEG, PNG or WebP up to 15 MB; it's cropped to a 512 px square JPEG before upload), use your Google account photo, or go back to the default icon.
+- The sun/moon button on the right of every nav bar switches between light and dark. The choice is remembered in the browser and applied before the page first paints.
+- **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
+- **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo stays black and red.
+- Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
+
+### Sign-up questions
+
+- **Date of birth** replaces age. It stays private: other members only ever see the age it works out to, and only if the member shows their age. On their birthday, the homepage says *Happy birthday*.
+- **Specialists** name their role on the next step (software engineer, UI/UX designer, graphic designer, product manager… or their own). It shows next to "Specialist" on their profile and card, and Discover can filter by it.
+- **Members who signed up before these questions** are sent through onboarding once, with their earlier answers filled in, the next time they open the site.
+
+### Profile photo, banner and links
+
+- **Photo:** everyone starts with the default icon (a gray person on white). The camera button on your profile lets you upload a photo (JPEG, PNG or WebP up to 15 MB), then drag and zoom to frame it before it's saved as a 512 px square. *Adjust or resize* reopens the current photo in the same editor, use your Google account photo, or go back to the default icon.
+- **Banner:** the banner behind your photo is dark by default. *Add a banner* (bottom right of the banner) uploads your own image, framed in the same editor at 3:1; you can adjust it later or go back to the default.
 - **What your profile shows:** Edit profile → *Show on your profile* has switches for age, region, employment and languages. Age starts hidden; the others start shown. Region and age appear in the small print under your headline, employment as a bubble next to your sprint rating and join date, and languages in their own section. Years of experience is never shown: it's only used to sort and filter members.
 - **Links:** next to the CV and LinkedIn you can add up to 8 links: GitHub, website, portfolio, X, Instagram, TikTok, YouTube, Behance, Dribbble, Medium or other. Addresses are saved as `https://` links; anything else is refused. Links are shared like LinkedIn: with everyone, or only with connections if your profile is set to *Connections*.
 
 ### Network
 
-- **Explore** lists everyone who finished the sign-up questions, except you. Search covers names, headlines, skills, regions, industries and languages.
-- **Filters:** founder or specialist · years of experience · minimum sprint rating · industry (searchable checklist; industries members chose are listed first) · open to build. **Sort** by newest, sprint rating, experience or name.
+- **Discover** lists everyone who finished the sign-up questions, except you. The **Requests** you received sit above it (the first three, then *Show all*), with Ignore and Accept. Search covers names, headlines, skills, regions, industries and languages.
+- **Filters** (dropdowns): **Role** (All, Founders, Specialists, or a specialist role) · years of experience · **region** (regions members are in come first) · minimum sprint rating · industry (searchable checklist; industries members chose are listed first). **Sort** by newest, sprint rating, experience or name.
 - **Connect** from a card, or from a member's profile with an optional note (300 characters). The other member sees it under **Requests**, in the nav badge and in Notifications, and can accept or ignore it. You can withdraw a request or remove a connection.
 - **Connections** can see each other's CV. A member who sets **Settings → Privacy → Profile visibility** to *Connections* shows only their name, photo, role and headline to everyone else.
 - **Live updates:** requests, accepted requests and removed connections reach the other member straight away, with a pop-up and updated badges, on whichever page they have open. No reload needed.
@@ -66,14 +80,15 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
   - `profile_visibility` (everyone / connections), `onboarding_completed`
   - `avatar_url` (the photo the member chose; empty means the default icon), `links` (up to 8 `{type, url}` links)
   - `show_age`, `show_region`, `show_employment`, `show_languages`: what the profile shows other members
+  - `birth_date` (private: never in the member directory), `specialty` (a specialist's role), `cover_url` (the profile banner)
   - `sprint_rating`, `sprint_reviews`: read-only for members (a trigger, `protect_profile_stats`, ignores their edits)
-- **`public.member_directory()`:** the list behind Explore, callable by signed-in members only. It returns the shareable fields of onboarded members. Age only when the member shows it, region, employment and languages only when they show them; birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
+- **`public.member_directory()`:** the list behind Discover, callable by signed-in members only. It returns the shareable fields of onboarded members. Age (worked out from the date of birth) only when the member shows it, region, employment and languages only when they show them; birthday and phone are never included, CV paths only for connections, and only name, photo, role and headline for members who share with connections only.
 - **`public.connections`:** one row per pair of members (`requester_id`, `addressee_id`, `status` pending / accepted / ignored, `note`). Members can only send requests as themselves, only the addressee can accept or ignore, and either side can withdraw or remove. Column privileges stop anything else from being edited.
 - **`public.messages`:** direct messages (`sender_id`, `recipient_id`, `body` up to 2,000 characters, `read_at`). Only the two members can read a message, members can only message accepted connections, the sender and time are set by the database, and only the recipient can mark it read.
 - **`public.projects`** and **`public.project_members`:** projects (`owner_id`, `name`, `focus`, `tags`, `rung`, `milestones`) and their co-founders. The owner and co-founders can see and update a project; only the owner can delete it. Only a founder who owns the project can add co-founders, and only from their accepted connections. Owners can remove co-founders, and co-founders can leave. The policy checks live in a `private` schema that the API doesn't expose.
 - **Realtime:** `connections` and `messages` are in the `supabase_realtime` publication. Each signed-in page listens for changes to the member's own requests and messages; Realtime only delivers rows the member is allowed to read.
 - **Storage bucket `cvs`:** private, PDF or Word up to 10 MB. Each member can read and write `cvs/<their user id>/…`; connections can read each other's CVs.
-- **Storage bucket `avatars`:** public profile photos, JPEG, PNG or WebP up to 2 MB. Each member can only write `avatars/<their user id>/…`.
+- **Storage bucket `avatars`:** public profile photos and banners, JPEG, PNG or WebP up to 2 MB. Each member can only write `avatars/<their user id>/…`.
 
 The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's no CDN dependency. It loads only when needed.
 
@@ -87,6 +102,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261106210844_projects_and_cofounders.sql` and `20261106211239_…`: projects shared with co-founders.
 - `20261106210856_messages_and_realtime.sql`: messages and the Realtime publication.
 - `20261106222340_profile_display_choices.sql`: the *Show on your profile* switches, applied in the member directory.
+- `20261107010827_birth_date_specialty_cover.sql`: date of birth, a specialist's role and the profile banner.
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
@@ -103,6 +119,7 @@ assets/
     mori.css        design system: tokens, aura, nav, glass, chips, buttons, forms,
                     modals, toasts, loading screen, account modals, motion
     landing.css · onboarding.css · home.css · projects.css · network.css
+    dark.css        dark mode, generated by tools/make_dark_css.py (don't edit by hand)
   js/
     config.js       Supabase URL + anon key
     auth.js         storage (with parsed-value cache), session, route guards (loads in <head>)
@@ -118,6 +135,9 @@ assets/
     landing.js · onboarding.js · home.js · projects.js · network.js
   vendor/supabase-2.58.0.js
   img/favicon.svg   the MORI logo (森)
+tools/
+  make_dark_css.py  builds assets/css/dark.css from the light stylesheets
+  dark-overrides.css hand-tuned dark values (aura, base colour, logo)
 supabase/
   config.toml       read by Supabase's GitHub integration and the Supabase CLI
   migrations/       every database change, in order

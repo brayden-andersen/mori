@@ -1,26 +1,27 @@
 /* ==========================================================================
    Mori: Sandbox — Network page
    --------------------------------------------------------------------------
-   Explore lists everyone who has finished signing up (from Supabase), with a
-   search, filters (founder or specialist, years of experience, sprint rating,
-   industry, open to build) and sorting. Requests holds the connection
-   requests you received and sent. Messages is a live chat with your
-   connections. Profiles and the connect / accept / remove actions come from
-   people.js. Tabs are routed by the hash so links can deep-link:
-     #explore · #explore/<member id> · #requests · #messages · #messages/<member id>
+   Laid out like LinkedIn's "My network": "Manage my network" on the left;
+   on the right, the requests you received sit on top of Discover, which
+   lists everyone who has finished signing up, with a search, dropdown
+   filters (role, years of experience, region, sprint rating, industry) and
+   sorting. Sent requests and Messages (a live chat with your connections)
+   open from the left. Profiles and the connect / accept / remove actions
+   come from people.js. Views are routed by the hash so links can deep-link:
+     #explore · #explore/<member id> · #requests · #sent · #messages · #messages/<member id>
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, ago, toast, roleChip, placeGlider } = Mori.ui;
+  const { $, $$, esc, icon, avatar, ago, toast, roleChip } = Mori.ui;
   const { busy, fail } = Mori.people;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
   const C = S.chat;
-  const TABS = ["explore", "requests", "messages"];
+  const TABS = ["explore", "requests", "sent", "messages"];
   const HUES = ["orange", "blue", "purple"];
   const EXP_RANK = { "0-2 years": 1, "3-5 years": 2, "6-10 years": 3, "10+ years": 4 };
 
@@ -39,34 +40,41 @@
   let loadState = !N.available() ? "off" : N.members().length ? "ready" : "loading";
   let loadError = null;
 
-  /* ---------- Tabs ---------- */
-  const tabs = $$(".net-tab");
-  const glider = $(".net-glider");
-  let activeTab = null;
-  const moveGlider = (snap) => placeGlider(glider, tabs.find((t) => t.dataset.tab === activeTab), { snap });
+  /* ---------- Views: picked in "Manage my network" ---------- */
+  const manageItems = $$(".manage-item[data-tab]");
+  let activeTab = null; // the pane on screen: explore · sent · messages
 
   function showTab(tab) {
-    if (tab === activeTab) return;
-    const initial = activeTab === null;
-    activeTab = tab;
-    tabs.forEach((t) => {
+    const pane = tab === "requests" ? "explore" : tab; // requests sit on top of Discover
+    manageItems.forEach((t) => {
       const on = t.dataset.tab === tab;
       t.classList.toggle("is-on", on);
-      t.setAttribute("aria-selected", String(on));
+      if (on) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
     });
-    $$(".net-pane").forEach((p) => {
-      const on = p.dataset.pane === tab;
-      p.hidden = !on;
-      if (on && !initial) { p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); }
-    });
-    moveGlider(initial);
-    if (tab !== "messages") setViewing(null);
-    renderTab();
-    if (tab === "messages") requestAnimationFrame(() => fitChat(true));
+    if (pane !== activeTab) {
+      const initial = activeTab === null;
+      activeTab = pane;
+      $$(".net-pane").forEach((p) => {
+        const on = p.dataset.pane === pane;
+        p.hidden = !on;
+        if (on && !initial) { p.classList.remove("pane-in"); void p.offsetWidth; p.classList.add("pane-in"); }
+      });
+      if (pane !== "messages") setViewing(null);
+      renderTab();
+      if (pane === "messages") requestAnimationFrame(() => fitChat(true));
+    }
+    if (tab === "requests") requestAnimationFrame(() => $("#requestsBox").scrollIntoView({ behavior: smooth(), block: "start" }));
+  }
+  function renderManage() {
+    const on = N.available();
+    $("#mConnections").textContent = on ? String(N.connections().length) : "";
+    const sent = on ? N.sent().length : 0;
+    $("#mSent").textContent = sent ? String(sent) : "";
   }
   function renderTab() {
-    if (activeTab === "explore") renderPeople();
-    else if (activeTab === "requests") renderRequests();
+    renderManage();
+    if (activeTab === "explore") { renderRequests(); renderPeople(); }
+    else if (activeTab === "sent") renderSent();
     else if (activeTab === "messages") { renderChatList(); renderThread(); }
   }
 
@@ -87,27 +95,54 @@
     else closeChat();
   }
   window.addEventListener("hashchange", route);
-  window.addEventListener("resize", () => moveGlider(true));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => moveGlider(true));
 
-  /* ---------- Explore: filters ---------- */
-  const filters = { q: "", role: "all", exp: new Set(), rating: 0, industries: new Set(), open: false };
+  /* ---------- Discover: filters (dropdowns) ---------- */
+  const filters = { q: "", role: "all", exp: "", region: "", rating: 0, industries: new Set() };
   const peopleQ = $("#peopleQ");
   const sortSel = $("#peopleSort");
   const ratingSel = $("#ratingMin");
-  const openOnly = $("#openOnly");
-  const filtersOn = () => !!(filters.q || filters.role !== "all" || filters.exp.size || filters.rating || filters.industries.size || filters.open);
+  const roleSel = $("#roleSel");
+  const expSel = $("#expSel");
+  const regionSel = $("#regionSel");
+  const filtersOn = () => !!(filters.q || filters.role !== "all" || filters.exp || filters.region || filters.rating || filters.industries.size);
 
-  $("#expChips").innerHTML = D.experience.map((x) => `<button class="fchip" type="button" data-exp="${esc(x)}" data-active="false">${esc(dash(x))}</button>`).join("");
+  expSel.innerHTML = `<option value="">Any experience</option>` + D.experience.map((x) => `<option value="${esc(x)}">${esc(dash(x))}</option>`).join("");
+
+  /** Role: all, founders, specialists, or a specialist role (those members picked come first). */
+  function renderRoleOptions() {
+    const used = {};
+    N.members().forEach((m) => { if (m.role === "specialist" && m.specialty) used[m.specialty] = (used[m.specialty] || 0) + 1; });
+    const all = Array.from(new Set(Object.keys(used).concat(D.specialties)));
+    const named = all.filter((x) => used[x]).sort((a, b) => used[b] - used[a] || a.localeCompare(b));
+    const rest = all.filter((x) => !used[x]).sort((a, b) => a.localeCompare(b));
+    const opt = (x) => `<option value="spec:${esc(x)}">${esc(x)}${used[x] ? ` (${used[x]})` : ""}</option>`;
+    roleSel.innerHTML = `<option value="all">All</option><option value="founder">Founders</option><option value="specialist">Specialists</option>`
+      + (named.length ? `<optgroup label="Specialists on Sandbox">${named.map(opt).join("")}</optgroup>` : "")
+      + `<optgroup label="Specialist roles">${rest.map(opt).join("")}</optgroup>`;
+    roleSel.value = filters.role;
+    if (roleSel.value !== filters.role) roleSel.value = "all";
+  }
+  /** Region: the regions members are in first, then every region. */
+  function renderRegionOptions() {
+    const used = {};
+    N.members().forEach((m) => { if (m.region) used[m.region] = (used[m.region] || 0) + 1; });
+    const named = Object.keys(used).sort((a, b) => used[b] - used[a] || a.localeCompare(b));
+    const opt = (x) => `<option value="${esc(x)}">${esc(x)}${used[x] ? ` (${used[x]})` : ""}</option>`;
+    regionSel.innerHTML = `<option value="">Any region</option>`
+      + (named.length ? `<optgroup label="Where members are">${named.map(opt).join("")}</optgroup>` : "")
+      + D.regions.map((g) => `<optgroup label="${esc(g.group)}">${g.items.filter((x) => !used[x]).map(opt).join("")}</optgroup>`).join("");
+    regionSel.value = filters.region;
+  }
 
   function matches(m) {
-    if (filters.role !== "all" && m.role !== filters.role) return false;
-    if (filters.exp.size && !filters.exp.has(m.experience)) return false;
+    if (filters.role.startsWith("spec:")) { if (m.role !== "specialist" || m.specialty !== filters.role.slice(5)) return false; }
+    else if (filters.role !== "all" && m.role !== filters.role) return false;
+    if (filters.exp && m.experience !== filters.exp) return false;
+    if (filters.region && m.region !== filters.region) return false;
     if (filters.rating && !(m.rating != null && m.rating >= filters.rating)) return false;
     if (filters.industries.size && !m.industries.some((x) => filters.industries.has(x))) return false;
-    if (filters.open && !m.open) return false;
     if (filters.q) {
-      const hay = [m.name, m.headline, m.bio, m.region, m.employment, roleLabel(m.role), openLabel(m), ...m.industries, ...m.skills, ...m.languages.map((l) => l.name)]
+      const hay = [m.name, m.headline, m.bio, m.region, m.employment, m.specialty, roleLabel(m.role), openLabel(m), ...m.industries, ...m.skills, ...m.languages.map((l) => l.name)]
         .join(" ").toLowerCase();
       if (!filters.q.split(/\s+/).every((w) => hay.includes(w))) return false;
     }
@@ -122,15 +157,15 @@
 
   function syncControls() {
     peopleQ.value = filters.q;
-    $$("[data-role-filter]").forEach((c) => { c.dataset.active = String(c.dataset.roleFilter === filters.role); });
-    $$("[data-exp]").forEach((c) => { c.dataset.active = String(filters.exp.has(c.dataset.exp)); });
+    renderRoleOptions();
+    renderRegionOptions();
+    expSel.value = filters.exp;
     ratingSel.value = String(filters.rating);
-    openOnly.checked = filters.open;
     setIndustryToggle();
+    [roleSel, expSel, regionSel, ratingSel].forEach((s) => s.classList.toggle("is-set", s.value !== "all" && s.value !== "" && s.value !== "0"));
   }
   function clearFilters(silent) {
-    Object.assign(filters, { q: "", role: "all", rating: 0, open: false });
-    filters.exp.clear();
+    Object.assign(filters, { q: "", role: "all", exp: "", region: "", rating: 0 });
     filters.industries.clear();
     syncControls();
     if (!silent) renderPeople();
@@ -138,23 +173,11 @@
 
   peopleQ.addEventListener("input", () => { filters.q = peopleQ.value.trim().toLowerCase(); renderPeople(); });
   sortSel.addEventListener("change", renderPeople);
-  ratingSel.addEventListener("change", () => { filters.rating = Number(ratingSel.value) || 0; renderPeople(); });
-  openOnly.addEventListener("change", () => { filters.open = openOnly.checked; renderPeople(); });
-  $("#roleChips").addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-role-filter]");
-    if (!chip) return;
-    filters.role = chip.dataset.roleFilter;
-    syncControls();
-    renderPeople();
-  });
-  $("#expChips").addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-exp]");
-    if (!chip) return;
-    const x = chip.dataset.exp;
-    if (filters.exp.has(x)) filters.exp.delete(x); else filters.exp.add(x);
-    syncControls();
-    renderPeople();
-  });
+  const onSelect = (sel, key, cast = (v) => v) => sel.addEventListener("change", () => { filters[key] = cast(sel.value); syncControls(); renderPeople(); });
+  onSelect(roleSel, "role");
+  onSelect(expSel, "exp");
+  onSelect(regionSel, "region");
+  onSelect(ratingSel, "rating", (v) => Number(v) || 0);
 
   /* Industry: a searchable checklist. Industries members have chosen come first. */
   const indFilter = $("#indFilter");
@@ -249,7 +272,7 @@
           ${avatar(m, 52, { ring: m.open })}
           <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
         </button>
-        <div class="chips">${roleChip(m.role)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
+        <div class="chips">${roleChip(m.role, m.specialty)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
         ${m.limited
           ? `<p class="person-note">${icon("shield")}${esc(first(m.name))} shares their full profile with connections.</p>`
@@ -274,29 +297,27 @@
     el.innerHTML = html;
     el.hidden = !html;
   }
+  let optionsFor = null; // the member list the role and region menus were built from
   function renderPeople() {
     const grid = $("#peopleGrid");
-    const count = $("#peopleCount");
     renderActiveFilters();
+    if (optionsFor !== N.members()) { optionsFor = N.members(); renderRoleOptions(); renderRegionOptions(); }
     const all = N.members();
 
     if (loadState === "off") {
       grid.innerHTML = "";
-      count.textContent = "";
       shownIds = null;
       showPeopleEmpty(`<span class="empty-ico">${icon("network")}</span><div>Sign in with Google to meet members</div><div class="meta">Demo accounts stay on this device, so there’s no one else here.</div>`);
       return;
     }
     if (!all.length && loadState === "loading") {
       grid.innerHTML = skeleton() + skeleton() + skeleton();
-      count.textContent = "Loading members…";
       shownIds = null;
       showPeopleEmpty("");
       return;
     }
     if (!all.length && loadState === "error") {
       grid.innerHTML = "";
-      count.textContent = "";
       shownIds = null;
       showPeopleEmpty(`<span class="empty-ico">${icon("refresh")}</span><div>Couldn’t load members</div><div class="meta">${esc((loadError && loadError.message) || "Check your connection and try again.")}</div><button class="btn" type="button" data-retry>${icon("refresh")} Try again</button>`);
       return;
@@ -304,7 +325,6 @@
 
     const list = all.filter(matches).sort(SORTS[sortSel.value] || SORTS.newest);
     grid.innerHTML = list.map(personCard).join("");
-    count.textContent = !all.length ? "" : filtersOn() ? `${list.length} of ${all.length} member${all.length === 1 ? "" : "s"}` : `${all.length} member${all.length === 1 ? "" : "s"}`;
     const ids = list.map((m) => m.id).join(",");
     if (ids !== shownIds) Mori.motion.enter(grid);
     shownIds = ids;
@@ -323,12 +343,11 @@
     const want = S.profile().role === "specialist" ? "founder" : "specialist";
     clearFilters(true);
     filters.role = want;
-    filters.open = true;
     syncControls();
     if (activeTab !== "explore") location.hash = "explore";
     else renderPeople();
-    setTimeout(() => $("#peopleGrid").scrollIntoView({ behavior: smooth(), block: "start" }), 90);
-    toast(`Showing ${want === "founder" ? "founders" : "specialists"} who are open to build`, { icon: "userPlus" });
+    setTimeout(() => $(".explore").scrollIntoView({ behavior: smooth(), block: "start" }), 90);
+    toast(`Showing ${want === "founder" ? "founders" : "specialists"}`, { icon: "userPlus" });
   });
 
   /* ---------- Requests ---------- */
@@ -342,7 +361,7 @@
       <article class="req" data-req="${id}">
         <button class="req-av" type="button" data-view="${id}" aria-label="View ${esc(p.name)}’s profile">${avatar(p, 48, { ring: p.open })}</button>
         <div class="req-main">
-          <div class="req-title"><button class="req-name" type="button" data-view="${id}">${esc(p.name)}</button>${roleChip(p.role)}</div>
+          <div class="req-title"><button class="req-name" type="button" data-view="${id}">${esc(p.name)}</button>${roleChip(p.role, p.specialty)}</div>
           <span class="meta">${esc(p.headline || [p.region, dash(p.experience)].filter(Boolean).join(" · "))}</span>
           ${x.note ? `<p class="req-note">“${esc(x.note)}”</p>` : ""}
           <span class="meta">${esc(ago(x.at))}</span>
@@ -360,38 +379,57 @@
       <article class="req" data-req="${id}">
         <button class="req-av" type="button" data-view="${id}" aria-label="View ${esc(p.name)}’s profile">${avatar(p, 44)}</button>
         <div class="req-main">
-          <div class="req-title"><button class="req-name" type="button" data-view="${id}">${esc(p.name)}</button>${roleChip(p.role)}</div>
+          <div class="req-title"><button class="req-name" type="button" data-view="${id}">${esc(p.name)}</button>${roleChip(p.role, p.specialty)}</div>
           <span class="meta">Sent ${esc(ago(x.at).toLowerCase())}</span>
           ${x.note ? `<p class="req-note">“${esc(x.note)}”</p>` : ""}
         </div>
         <div class="req-actions"><span class="chip chip--blue">Pending</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div>
       </article>`;
   }
+  let showAllRequests = false;
+  const REQUESTS_SHOWN = 3;
   function renderRequests() {
     if (holdRequests) return;
     const recv = $("#recvList");
-    const sentEl = $("#sentList");
+    const more = $("#recvMore");
+    const title = $("#recvTitle");
+    more.hidden = true;
     if (loadState === "off") {
-      $("#recvCount").textContent = "";
-      $("#sentCount").textContent = "";
-      recv.innerHTML = emptyHTML("network", "Sign in with Google to connect", "Connection requests need a Sandbox account, so demo accounts don’t have any.", "", "req-empty");
-      sentEl.innerHTML = "";
+      title.textContent = "Requests";
+      recv.innerHTML = `<p class="meta req-none">Connection requests need a Google sign-in, so demo accounts don’t have any.</p>`;
       return;
     }
     if (loadState === "loading" && !N.links().length) {
+      title.textContent = "Requests";
       recv.innerHTML = `<div class="req-loading meta">Loading requests…</div>`;
-      sentEl.innerHTML = "";
       return;
     }
     const incoming = N.incoming();
-    const sent = N.sent();
-    $("#recvCount").textContent = incoming.length ? `${incoming.length} waiting` : "";
-    $("#sentCount").textContent = sent.length ? `${sent.length} pending` : "";
-    recv.innerHTML = incoming.length ? incoming.map(receivedRow).join("") : emptyHTML("inbox", "No requests waiting.", "When founders or specialists want to connect, they’ll show up here.", "", "req-empty");
-    sentEl.innerHTML = sent.length ? sent.map(sentRow).join("") : emptyHTML("userPlus", "No pending requests.", "Find people in Explore and hit Connect.", `<a class="btn btn--sm" href="#explore">${icon("compass")} Explore members</a>`, "req-empty");
-    const ids = incoming.concat(sent).map((x) => x.link.id).join(",");
-    if (ids !== shownRequests) { Mori.motion.enter(recv); Mori.motion.enter(sentEl); }
+    title.textContent = incoming.length ? `Requests (${incoming.length})` : "Requests";
+    const shown = showAllRequests ? incoming : incoming.slice(0, REQUESTS_SHOWN);
+    recv.innerHTML = incoming.length ? shown.map(receivedRow).join("") : `<p class="meta req-none">No requests waiting. When founders or specialists want to connect, they’ll show up here.</p>`;
+    if (incoming.length > REQUESTS_SHOWN) { more.hidden = false; more.textContent = showAllRequests ? "Show less" : `Show all ${incoming.length}`; }
+    const ids = shown.map((x) => x.link.id).join(",");
+    if (ids !== shownRequests) Mori.motion.enter(recv);
     shownRequests = ids;
+  }
+  $("#recvMore").addEventListener("click", () => { showAllRequests = !showAllRequests; renderRequests(); });
+
+  let shownSent = null;
+  function renderSent() {
+    if (holdRequests) return;
+    const sentEl = $("#sentList");
+    if (loadState === "off") {
+      $("#sentCount").textContent = "";
+      sentEl.innerHTML = emptyHTML("network", "Sign in with Google to connect", "Connection requests need a Sandbox account, so demo accounts don’t have any.", "", "req-empty");
+      return;
+    }
+    const sent = N.sent();
+    $("#sentCount").textContent = sent.length ? `${sent.length} pending` : "";
+    sentEl.innerHTML = sent.length ? sent.map(sentRow).join("") : emptyHTML("userPlus", "No pending requests.", "Find people in Discover and hit Connect.", `<a class="btn btn--sm" href="#explore">${icon("compass")} Discover members</a>`, "req-empty");
+    const ids = sent.map((x) => x.link.id).join(",");
+    if (ids !== shownSent) Mori.motion.enter(sentEl);
+    shownSent = ids;
   }
   /** Slide a request row out while the change is saved; put it back if saving fails. */
   function leaveRow(row, work, done) {
@@ -403,12 +441,12 @@
     const wait = new Promise((r) => setTimeout(r, Mori.motion.reduced() ? 0 : 430));
     Promise.allSettled([Promise.resolve().then(work), wait]).then(([res]) => {
       holdRequests--;
-      renderRequests();
+      renderTab();
       if (res.status === "fulfilled") { if (done) done(); } else fail(res.reason);
     });
   }
   // Actions on request rows (everything else is handled by people.js).
-  $(".net-pane[data-pane='requests']").addEventListener("click", (e) => {
+  $(".net-main").addEventListener("click", (e) => {
     const t = e.target.closest(".req [data-accept], .req [data-ignore], .req [data-withdraw]");
     if (!t) return;
     const d = t.dataset;
@@ -429,7 +467,7 @@
   /** Size the panel to the space under the sticky tab bar; optionally scroll it into place. */
   function fitChat(scroll) {
     const nav = document.getElementById("topNav");
-    const top = (nav ? nav.offsetHeight : 72) + 12 + $(".net-bar").offsetHeight + 14;
+    const top = (nav ? nav.offsetHeight : 72) + 16;
     document.documentElement.style.setProperty("--chatTop", top + "px");
     if (!scroll || activeTab !== "messages") return;
     const y = Math.round(chat.getBoundingClientRect().top + window.scrollY - top);
@@ -474,7 +512,7 @@
 
   function chatIntro() {
     const any = N.connections().length;
-    return `<div class="chat-empty"><span class="empty-ico">${icon("message")}</span><p><b>${loadState === "off" ? "Messaging needs a Google sign-in" : any ? "Pick a conversation" : "No connections to message yet"}</b></p><p class="meta">${loadState === "off" ? "Demo accounts can’t message other members." : any ? "Messages arrive here as soon as they’re sent." : "Connect with founders and specialists in Explore, then message them here."}</p>${!any && loadState !== "off" ? `<a class="btn btn--sm" href="#explore">${icon("compass")} Explore members</a>` : ""}</div>`;
+    return `<div class="chat-empty"><span class="empty-ico">${icon("message")}</span><p><b>${loadState === "off" ? "Messaging needs a Google sign-in" : any ? "Pick a conversation" : "No connections to message yet"}</b></p><p class="meta">${loadState === "off" ? "Demo accounts can’t message other members." : any ? "Messages arrive here as soon as they’re sent." : "Connect with founders and specialists in Discover, then message them here."}</p>${!any && loadState !== "off" ? `<a class="btn btn--sm" href="#explore">${icon("compass")} Discover members</a>` : ""}</div>`;
   }
   function bubbles(id) {
     const msgs = C.thread(id);
@@ -514,7 +552,7 @@
             ${avatar(p, 40, { ring: p.open })}
             <span class="who"><b>${esc(p.name)}</b><span class="meta">${esc(p.headline || roleLabel(p.role))}</span></span>
           </button>
-          ${roleChip(p.role)}
+          ${roleChip(p.role, p.specialty)}
         </header>
         <div class="chat-scroll" id="chatScroll"></div>
         <p class="sr-only" id="chatAnnounce" aria-live="polite"></p>

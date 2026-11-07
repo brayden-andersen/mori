@@ -33,8 +33,8 @@
      Onboarding answers plus later edits. With Supabase the database is the
      source of truth and this local copy keeps rendering instant. */
   const PROFILE_BLANK = {
-    firstName: "", lastName: "", age: null, region: "", role: null, experience: "", employment: "", industries: [],
-    linkedin: "", links: [], photo: "", cvPath: "", cvName: "", languages: [], headline: "", bio: "", skills: [],
+    firstName: "", lastName: "", age: null, birthDate: "", region: "", role: null, specialty: "", experience: "", employment: "", industries: [],
+    linkedin: "", links: [], photo: "", cover: "", cvPath: "", cvName: "", languages: [], headline: "", bio: "", skills: [],
     open: true, openType: "", visibility: "everyone", rating: null, reviews: 0,
     // What the profile shows (age starts hidden, the rest shown)
     show: { age: false, region: true, employment: true, languages: true },
@@ -46,8 +46,24 @@
     const p = Object.assign({}, PROFILE_BLANK, get("profile", {}));
     if (!p.openType) p.openType = p.role === "specialist" ? "join" : "cofound";
     p.show = Object.assign({}, SHOW_DEFAULT, p.show);
+    if (p.birthDate) p.age = ageOn(p.birthDate);
     return p;
   }
+  /** Age in whole years on a date (today by default) from "YYYY-MM-DD". */
+  function ageOn(birthDate, on = new Date()) {
+    const [y, m, d] = String(birthDate).split("-").map(Number);
+    if (!y || !m || !d) return null;
+    let age = on.getFullYear() - y;
+    if (on.getMonth() + 1 < m || (on.getMonth() + 1 === m && on.getDate() < d)) age--;
+    return age;
+  }
+  /** Is it their birthday today? */
+  const isBirthday = (p = profile(), on = new Date()) => {
+    const [, m, d] = String(p.birthDate || "").split("-").map(Number);
+    return !!m && on.getMonth() + 1 === m && on.getDate() === d;
+  };
+  /** Has the member answered the current sign-up questions? */
+  const profileComplete = (p = profile()) => !!(p.birthDate && p.region && (p.role !== "specialist" || p.specialty));
   const fullName = (p = profile(), s = session()) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;
   /** You, shaped like a member, for avatars and headers. */
   const self = () => ({ id: me(), name: fullName(), picture: profile().photo || "" });
@@ -80,6 +96,15 @@
     await saveProfile({ photo });
     if (remoteEnabled() && before && before !== photo) Mori.db.removePhoto(before).catch(() => {});
     return photo;
+  }
+  /** Change your profile banner: an image Blob, or null for the default. */
+  async function setCover(source) {
+    const before = profile().cover;
+    let cover = "";
+    if (source instanceof Blob) cover = remoteEnabled() ? await Mori.db.uploadPhoto(source, "cover-") : await Mori.ui.blobToDataUrl(source);
+    await saveProfile({ cover });
+    if (remoteEnabled() && before && before !== cover) Mori.db.removePhoto(before).catch(() => {});
+    return cover;
   }
 
   /* ---------- Settings ---------- */
@@ -507,7 +532,7 @@
 
   Mori.state = {
     session, ladder: D.ladder,
-    profile, saveProfile, syncProfile, setPhoto, me: self, fullName,
+    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete,
     settings, saveSettings, applyPrefs,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, toggleMilestone, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,

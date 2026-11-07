@@ -1,7 +1,8 @@
 /* ==========================================================================
    Mori: Sandbox — onboarding (sign-up questions)
    --------------------------------------------------------------------------
-   Six steps: about you · role · experience · industry niche · CV · languages.
+   Steps: about you · role · specialty (specialists only) · experience ·
+   industries · CV · languages.
    Answers are kept as a draft while the member goes, then saved to their
    profile (Supabase for Google members, this browser in demo mode).
    onboarding.html?edit=1 reopens the same questions to update them.
@@ -18,12 +19,16 @@
   const editing = new URLSearchParams(location.search).has("edit");
   const session = S.session();
   const saved = S.profile();
-  const STEPS = ["About you", "Role", "Experience", "Industries", "CV", "Languages"];
+  const ALL_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["experience", "Experience"], ["industries", "Industries"], ["cv", "CV"], ["languages", "Languages"]];
+  /** The steps for this member: specialists also say what they do. */
+  const steps = () => ALL_STEPS.filter(([k]) => k !== "specialty" || a.role === "specialist");
+  // Members who signed up before the current questions are asked to fill the gaps.
+  const updating = !editing && !!(saved.firstName && saved.region && saved.role);
   const MAX_INDUSTRIES = 3;
   const MAX_LANGUAGES = 6;
   const MAX_CV_BYTES = 10 * 1024 * 1024;
   const DRAFT_KEY = Mori.store.userKey("onboardingDraft");
-  const ROLE_TONES = { founder: ["#fb923c", "#f97316"], specialist: ["#60a5fa", "#6366f1"] };
+  const ROLE_TONES = { founder: ["#ec9e5f", "#e78440"], specialist: ["#7cafee", "#7e80e7"] };
 
   /* ---------- Answers: draft > saved profile > Google name > role picked on the landing page ---------- */
   let joinRole = null;
@@ -32,9 +37,10 @@
   const a = Object.assign({
     firstName: saved.firstName || (session.provider === "google" ? given : session.name) || "",
     lastName: saved.lastName || (session.provider === "google" ? family.join(" ") : ""),
-    age: saved.age || "",
+    birthDate: saved.birthDate || "",
     region: saved.region || "",
     role: saved.role || (D.roles[joinRole] ? joinRole : null),
+    specialty: saved.specialty || "",
     experience: saved.experience || "",
     employment: saved.employment || "",
     industries: (saved.industries || []).slice(0, MAX_INDUSTRIES),
@@ -52,17 +58,24 @@
     `<option value="" disabled ${a.region ? "" : "selected"}>Choose your region</option>` +
     D.regions.map((g) => `<optgroup label="${esc(g.group)}">${g.items.map((r) => `<option ${r === a.region ? "selected" : ""}>${esc(r)}</option>`).join("")}</optgroup>`).join("");
 
-  const STEP_HTML = [
-    () => `
-      <h1 class="grad-ink" tabindex="-1">${editing ? "Your details" : "Welcome! Tell us about you"}</h1>
-      <p class="ob-lead">This is how founders and specialists will see you on Sandbox.</p>
+  // Born at least 16 years ago, at most 80.
+  const today = new Date();
+  const isoDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const MAX_BIRTH = isoDay(new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()));
+  const MIN_BIRTH = isoDay(new Date(today.getFullYear() - 81, today.getMonth(), today.getDate() + 1));
+  const isSpecialty = (v) => D.specialties.includes(v);
+
+  const STEP_HTML = {
+    about: () => `
+      <h1 class="grad-ink" tabindex="-1">${editing ? "Your details" : updating ? "A few new questions" : "Welcome! Tell us about you"}</h1>
+      <p class="ob-lead">${updating ? "We now ask for your date of birth instead of your age" + (a.role === "specialist" && !a.specialty ? ", and what you do as a specialist" : "") + ". Your other answers are filled in: check them and continue." : "This is how founders and specialists will see you on Sandbox."}</p>
       <div class="ob-grid">
         <label class="field"><span>First name</span><input class="input" name="firstName" value="${esc(a.firstName)}" maxlength="40" autocomplete="given-name"></label>
         <label class="field"><span>Last name <em class="hint">optional</em></span><input class="input" name="lastName" value="${esc(a.lastName)}" maxlength="40" autocomplete="family-name"></label>
-        <label class="field"><span>Age</span><input class="input" name="age" type="number" inputmode="numeric" min="16" max="80" value="${esc(a.age)}" placeholder="e.g. 21"></label>
+        <label class="field"><span>Date of birth <em class="hint">private · we’ll wish you a happy birthday</em></span><input class="input" name="birthDate" type="date" min="${MIN_BIRTH}" max="${MAX_BIRTH}" value="${esc(a.birthDate)}" autocomplete="bday"></label>
         <label class="field"><span>Region</span><select class="select" name="region">${regionOptions()}</select></label>
       </div>`,
-    () => `
+    role: () => `
       <h1 class="grad-ink" tabindex="-1">You’re joining as…</h1>
       <p class="ob-lead">Sandbox starts with two kinds of members. You can change this later.</p>
       <div class="ob-roles" role="radiogroup" aria-label="Role">
@@ -75,15 +88,23 @@
             <span class="ob-tick" aria-hidden="true">${icon("check")}</span>
           </label>`).join("")}
       </div>`,
-    () => `
+    specialty: () => `
+      <h1 class="grad-ink" tabindex="-1">What’s your specialty?</h1>
+      <p class="ob-lead">Founders search for specialists by role. Pick the closest one, or write your own.</p>
+      <div class="ob-choices" role="radiogroup" aria-label="Specialty">
+        ${D.specialties.map((v) => `<label class="fchip ob-chip" data-active="${a.specialty === v}"><input type="radio" name="specialtyPick" value="${esc(v)}" ${a.specialty === v ? "checked" : ""}>${esc(v)}</label>`).join("")}
+        <label class="fchip ob-chip" data-active="${!!a.specialty && !isSpecialty(a.specialty)}"><input type="radio" name="specialtyPick" value="other" ${a.specialty && !isSpecialty(a.specialty) ? "checked" : ""}>Other</label>
+      </div>
+      <label class="field ob-other" ${a.specialty && !isSpecialty(a.specialty) ? "" : "hidden"}><span>Your role</span><input class="input" name="specialtyOther" maxlength="60" placeholder="e.g. Supply chain analyst" value="${esc(a.specialty && !isSpecialty(a.specialty) ? a.specialty : "")}"></label>`,
+    experience: () => `
       <h1 class="grad-ink" tabindex="-1">Your experience</h1>
       <p class="ob-lead">Helps founders and specialists find the right match.</p>
       <span class="ob-label" id="expLabel">Years of experience</span>
       <div class="ob-choices" role="radiogroup" aria-labelledby="expLabel">${choices("experience", D.experience)}</div>
       <span class="ob-label" id="empLabel">Status of employment</span>
       <div class="ob-choices" role="radiogroup" aria-labelledby="empLabel">${choices("employment", D.employment)}</div>`,
-    () => `
-      <h1 class="grad-ink" tabindex="-1">Your industry niche</h1>
+    industries: () => `
+      <h1 class="grad-ink" tabindex="-1">Your industry</h1>
       <p class="ob-lead">Pick up to three. Search the full list if yours isn’t in the popular picks.</p>
       <span class="ob-label">Your picks <span class="ob-counter" id="obIndCount"></span></span>
       <div class="ob-picked" id="obPicked"></div>
@@ -96,7 +117,7 @@
       </div>
       <span class="ob-label">Popular</span>
       <div class="ob-choices" id="obPopular">${D.popularIndustries.map((x) => `<button type="button" class="fchip" data-ind="${esc(x)}" data-active="${a.industries.includes(x)}">${esc(x)}</button>`).join("")}</div>`,
-    () => `
+    cv: () => `
       <h1 class="grad-ink" tabindex="-1">Share your CV</h1>
       <p class="ob-lead">Optional, but complete profiles get more replies. Add your LinkedIn page, a CV file, or both.</p>
       <label class="field"><span>LinkedIn profile</span>
@@ -110,23 +131,27 @@
         <span class="meta">PDF or Word, up to 10 MB. Drop it here or click to browse.${db.enabled ? "" : " (Demo mode keeps the file name only.)"}</span>
       </label>
       <div id="obFileRow"></div>`,
-    () => `
+    languages: () => `
       <h1 class="grad-ink" tabindex="-1">Languages you work in</h1>
       <p class="ob-lead">Add each language and how well you speak it.</p>
       <div class="ob-langs" id="obLangs"></div>
       <button type="button" class="btn btn--sm" id="obAddLang">${icon("plus")} Add a language</button>`,
-  ];
+  };
 
   /* ---------- Validation (returns [fieldName|null, message] or null) ---------- */
-  const isAge = (v) => Number.isInteger(Number(v)) && Number(v) >= 16 && Number(v) <= 80;
-  const VALIDATE = [
-    () => (!a.firstName.trim() ? ["firstName", "Add your first name."] : !isAge(a.age) ? ["age", "Enter an age between 16 and 80."] : !a.region ? ["region", "Choose your region."] : null),
-    () => (!a.role ? [null, "Choose Founder or Specialist."] : null),
-    () => (!a.experience ? [null, "Choose your years of experience."] : !a.employment ? [null, "Choose your employment status."] : null),
-    () => (!a.industries.length ? [null, "Pick at least one industry."] : null),
-    () => (a.linkedin.trim() && !/^(https?:\/\/)?([\w-]+\.)*linkedin\.com\/\S+/i.test(a.linkedin.trim()) ? ["linkedin", "That doesn’t look like a LinkedIn link."] : null),
-    () => (a.languages.some((l) => !l.level) ? [null, "Choose a level for each language."] : null),
-  ];
+  const age = () => (a.birthDate ? S.ageOn(a.birthDate) : null);
+  const VALIDATE = {
+    about: () => (!a.firstName.trim() ? ["firstName", "Add your first name."]
+      : !/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate) ? ["birthDate", "Add your date of birth."]
+      : !(age() >= 16 && age() <= 80) ? ["birthDate", "Sandbox is for members aged 16 to 80. Check your date of birth."]
+      : !a.region ? ["region", "Choose your region."] : null),
+    role: () => (!a.role ? [null, "Choose Founder or Specialist."] : null),
+    specialty: () => (!String(a.specialty || "").trim() ? [isSpecialty(a.specialty) || !$('input[name="specialtyPick"]:checked') ? null : "specialtyOther", "Choose your specialty, or write your own."] : null),
+    experience: () => (!a.experience ? [null, "Choose your years of experience."] : !a.employment ? [null, "Choose your employment status."] : null),
+    industries: () => (!a.industries.length ? [null, "Pick at least one industry."] : null),
+    cv: () => (a.linkedin.trim() && !/^(https?:\/\/)?([\w-]+\.)*linkedin\.com\/\S+/i.test(a.linkedin.trim()) ? ["linkedin", "That doesn’t look like a LinkedIn link."] : null),
+    languages: () => (a.languages.some((l) => !l.level) ? [null, "Choose a level for each language."] : null),
+  };
 
   /* ---------- Rendering ---------- */
   const body = $("#obBody");
@@ -140,19 +165,24 @@
     errorEl.classList.add("is-on");
   }
 
-  $("#obSteps").innerHTML = STEPS.map((label, i) => `<li ${editing ? `role="button" tabindex="0" data-goto="${i}"` : ""}>${label}</li>`).join("");
+  const key = (n) => steps()[n][0];
+  function renderSteps() {
+    $("#obSteps").innerHTML = steps().map(([, label], i) => `<li ${editing || updating ? `role="button" tabindex="0" data-goto="${i}"` : ""}>${label}</li>`).join("");
+  }
 
   function show(n, dir = 1) {
     step = n;
-    body.innerHTML = `<section class="ob-step ${dir < 0 ? "is-back" : ""}">${STEP_HTML[n]()}</section>`;
+    const list = steps();
+    renderSteps();
+    body.innerHTML = `<section class="ob-step ${dir < 0 ? "is-back" : ""}">${STEP_HTML[key(n)]()}</section>`;
     errorEl.textContent = "";
     $("#obBack").hidden = n === 0;
-    const last = n === STEPS.length - 1;
-    $("#obNext").innerHTML = last ? (editing ? `${icon("check")} Save changes` : `Finish ${icon("arrowRight")}`) : `Continue ${icon("arrowRight")}`;
-    $("#obBar").style.setProperty("--p", ((n + 1) / STEPS.length) * 100 + "%");
-    $("#obCount").textContent = `Step ${n + 1} of ${STEPS.length}`;
+    const last = n === list.length - 1;
+    $("#obNext").innerHTML = last ? (editing || updating ? `${icon("check")} Save changes` : `Finish ${icon("arrowRight")}`) : `Continue ${icon("arrowRight")}`;
+    $("#obBar").style.setProperty("--p", ((n + 1) / list.length) * 100 + "%");
+    $("#obCount").textContent = `Step ${n + 1} of ${list.length}`;
     $$("#obSteps li").forEach((li, i) => { li.classList.toggle("is-on", i === n); li.classList.toggle("is-done", i < n); });
-    if (WIRE[n]) WIRE[n]();
+    if (WIRE[key(n)]) WIRE[key(n)]();
     window.scrollTo({ top: 0, behavior: "instant" });
     const first = $(".ob-step input:not([type=radio]):not([type=file]), .ob-step select", body);
     (first && !matchMedia("(pointer: coarse)").matches ? first : $("h1", body)).focus({ preventScroll: true });
@@ -162,10 +192,21 @@
   const form = $("#obForm");
   form.addEventListener("input", (e) => {
     const t = e.target;
+    if (t.name === "specialtyOther") { a.specialty = t.value.trim(); keepDraft(); return; }
     if (t.name && t.name in a && t.type !== "radio") { a[t.name] = t.value; keepDraft(); }
   });
   form.addEventListener("change", (e) => {
     const t = e.target;
+    if (t.name === "specialtyPick") {
+      const other = t.value === "other";
+      const box = $(".ob-other", form);
+      box.hidden = !other;
+      a.specialty = other ? $('input[name="specialtyOther"]', form).value.trim() : t.value;
+      $$('input[name="specialtyPick"]', form).forEach((r) => { r.closest(".ob-chip").dataset.active = String(r.checked); });
+      if (other) $('input[name="specialtyOther"]', form).focus();
+      keepDraft();
+      return;
+    }
     if (!t.name || !(t.name in a)) return;
     a[t.name] = t.value;
     if (t.type === "radio") {
@@ -329,7 +370,7 @@
     paint();
   }
 
-  const WIRE = { 3: wireIndustries, 4: wireCv, 5: wireLanguages };
+  const WIRE = { industries: wireIndustries, cv: wireCv, languages: wireLanguages };
 
   /* ---------- Save ---------- */
   const linkedinUrl = (v) => { const t = v.trim(); return t && !/^https?:\/\//i.test(t) ? "https://" + t : t; };
@@ -342,9 +383,11 @@
       const patch = {
         firstName: a.firstName.trim(),
         lastName: a.lastName.trim(),
-        age: Number(a.age),
+        birthDate: a.birthDate,
+        age: age(),
         region: a.region,
         role: a.role,
+        specialty: a.role === "specialist" ? String(a.specialty || "").trim() : "",
         experience: a.experience,
         employment: a.employment,
         industries: a.industries.slice(0, MAX_INDUSTRIES),
@@ -362,10 +405,10 @@
         }
       }
       // Starter headline and open-to-build type follow the answers until the member writes their own.
-      const starter = (role, industries) => (D.roles[role] ? `${D.roles[role].label} · ${(industries || []).join(", ")}` : "");
+      const starter = (role, industries, specialty) => (D.roles[role] ? `${role === "specialist" && specialty ? specialty : D.roles[role].label} · ${(industries || []).join(", ")}` : "");
       const OLD_DEFAULTS = ["Founder · building something new", "Specialist · ready to join an early-stage team"];
-      if (!saved.headline || OLD_DEFAULTS.includes(saved.headline) || saved.headline === starter(saved.role, saved.industries)) {
-        patch.headline = starter(a.role, patch.industries);
+      if (!saved.headline || OLD_DEFAULTS.includes(saved.headline) || saved.headline === starter(saved.role, saved.industries) || saved.headline === starter(saved.role, saved.industries, saved.specialty)) {
+        patch.headline = starter(a.role, patch.industries, patch.specialty);
       }
       if (a.role !== saved.role) patch.openType = a.role === "founder" ? "cofound" : "join";
 
@@ -376,7 +419,7 @@
       Mori.store.remove(Mori.auth.PENDING_DRAFT_KEY);
       try { sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
 
-      loader.show(editing ? "All saved" : `Welcome to Sandbox, ${patch.firstName}`, editing ? "Taking you back…" : "Opening your homepage…");
+      loader.show(editing || updating ? "All saved" : `Welcome to Sandbox, ${patch.firstName}`, editing || updating ? "Taking you back…" : "Opening your homepage…");
       location.replace(Mori.auth.nextUrl(editing ? "home.html" : Mori.auth.startPage()));
     } catch (err) {
       if (err.code === "signed-out") {
@@ -397,14 +440,14 @@
   /* ---------- Navigation ---------- */
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const problem = VALIDATE[step]();
+    const problem = VALIDATE[key(step)]();
     if (problem) {
       flash(problem[1]);
       const field = problem[0] && form.elements[problem[0]];
       if (field) field.focus();
       return;
     }
-    if (step === STEPS.length - 1) finish();
+    if (step === steps().length - 1) finish();
     else show(step + 1, 1);
   });
   $("#obBack").addEventListener("click", () => { if (step > 0) show(step - 1, -1); });
@@ -420,5 +463,5 @@
   });
 
   // Start on the first unanswered step (or the first step when editing).
-  show(editing ? 0 : Math.max(0, VALIDATE.findIndex((check) => check())));
+  show(editing ? 0 : Math.max(0, steps().findIndex(([k]) => VALIDATE[k]())));
 })();

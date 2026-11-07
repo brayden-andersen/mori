@@ -140,14 +140,14 @@
         <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`;
 
     return `
-      <div class="pf-cover" aria-hidden="true"><span></span><span></span><span></span></div>
+      ${Mori.ui.coverHTML(m.cover)}
       <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
       <div class="pf-head">${avatar(m, 88, { ring: m.open })}</div>
       <div class="pf-body">
         <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
         ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
         ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
-        <div class="chips">${roleChip(m.role)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
+        <div class="chips">${roleChip(m.role, m.specialty)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         <div class="mp-action">${action}</div>
         ${details}
       </div>`;
@@ -226,7 +226,7 @@
           ${avatar(p, 44, { ring: p.open })}
           <span class="cn-copy"><b>${esc(p.name)}</b><span class="meta">${esc(p.headline || [roleLabel(p.role), p.region].filter(Boolean).join(" · "))}</span></span>
         </button>
-        ${roleChip(p.role)}
+        ${roleChip(p.role, p.specialty)}
         <div class="cn-actions">
           <button class="btn btn--sm btn--ink" type="button" data-message="${esc(p.id)}">${icon("message")} Message</button>
           <button class="btn btn--sm" type="button" data-view="${esc(p.id)}">Profile</button>
@@ -234,7 +234,7 @@
       </div>`;
     let body;
     if (!N.available()) body = Mori.ui.empty("network", "Sign in with Google to connect", "Demo accounts stay on this device, so there’s no one to connect with.");
-    else if (!all.length) body = `${Mori.ui.empty("userPlus", "No connections yet", "When someone accepts your request, or you accept theirs, they’ll appear here.")}<p class="cn-cta"><a class="btn" href="network.html#explore">${icon("compass")} Explore members</a></p>`;
+    else if (!all.length) body = `${Mori.ui.empty("userPlus", "No connections yet", "When someone accepts your request, or you accept theirs, they’ll appear here.")}<p class="cn-cta"><a class="btn" href="network.html#explore">${icon("compass")} Discover members</a></p>`;
     else if (!list.length) body = `<p class="meta cn-none">No connections match “${esc(cnQuery.trim())}”.</p>`;
     else body = `<div class="cn-list" role="list">${list.map(row).join("")}</div>`;
     return `

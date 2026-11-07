@@ -213,7 +213,7 @@
   function burst(el) {
     if (!el || !el.animate || Mori.motion.reduced()) return;
     const r = el.getBoundingClientRect();
-    const colors = ["#f97316", "#3b82f6", "#10b981", "#8b5cf6", "#f472b6", "#facc15"];
+    const colors = ["#e78440", "#5e92e8", "#10b981", "#9b79ea", "#eb8bbd", "#e8c63f"];
     for (let i = 0; i < 18; i++) {
       const s = document.createElement("span");
       s.className = "confetti";

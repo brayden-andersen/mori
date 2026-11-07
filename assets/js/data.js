@@ -16,6 +16,14 @@ Mori.data = {
 
   openTypes: { cofound: "Open to co-found", join: "Open to join a team" },
 
+  /* What a specialist does (onboarding asks right after the role) */
+  specialties: [
+    "Software Engineer", "Frontend Developer", "Backend Developer", "Mobile Developer", "Data Scientist",
+    "AI / ML Engineer", "UI/UX Designer", "Graphic Designer", "Product Manager", "Marketing & Growth",
+    "Sales & Business Development", "Finance & Accounting", "Legal", "Operations", "Content & Copywriting",
+    "Video & Photography", "Hardware Engineer",
+  ],
+
   /* ---------- Onboarding options ---------- */
   regions: [
     { group: "Indonesia", items: ["Aceh", "North Sumatra", "West Sumatra", "Riau", "Riau Islands", "Jambi", "Bengkulu", "South Sumatra", "Bangka Belitung Islands", "Lampung", "Banten", "DKI Jakarta", "West Java", "Central Java", "DI Yogyakarta", "East Java", "Bali", "West Nusa Tenggara", "East Nusa Tenggara", "West Kalimantan", "Central Kalimantan", "South Kalimantan", "East Kalimantan", "North Kalimantan", "North Sulawesi", "Gorontalo", "Central Sulawesi", "West Sulawesi", "South Sulawesi", "Southeast Sulawesi", "Maluku", "North Maluku", "Papua", "West Papua", "Southwest Papua", "Central Papua", "Highland Papua", "South Papua"] },

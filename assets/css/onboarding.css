@@ -5,7 +5,7 @@
 .ob-top-right{ display:flex; align-items:center; gap:14px; font-size:13px; color:var(--muted) }
 
 /* Progress */
-.ob-progress{ height:6px; border-radius:6px; overflow:hidden; background: rgba(15,23,42,.08) }
+.ob-progress{ height:6px; border-radius:6px; overflow:hidden; background: rgba(26,28,31,.08) }
 .ob-progress span{ display:block; height:100%; width: var(--p, 16.6%); border-radius:6px; background: var(--brand-grad); transition: width .6s var(--ease-out) }
 .ob-steps{ list-style:none; display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:6px; margin:12px 0 20px; padding:0 }
 .ob-steps li{ font-size:12px; text-align:center; color:var(--subtle); transition: color .3s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
@@ -15,7 +15,7 @@
 .ob-steps li[role="button"]:hover{ color:var(--ink) }
 
 /* Card + steps */
-.ob-card{ position:relative; border-radius:24px; padding:30px 32px 22px; background: var(--glass); border:1px solid rgba(255,255,255,.92); box-shadow: 0 20px 44px rgba(15,23,42,.08), var(--panel-shadow) }
+.ob-card{ position:relative; border-radius:24px; padding:30px 32px 22px; background: var(--glass); border:1px solid rgba(39,39,42,.30); box-shadow: 0 20px 44px rgba(26,28,31,.08), var(--panel-shadow) }
 .ob-step{ position:relative; z-index:2; animation: ob-in .5s var(--ease-out) both } /* above the actions so the industry list overlays them */
 .ob-step.is-back{ animation-name: ob-in-back }
 @keyframes ob-in{ from{ opacity:0; translate: 26px 0 } }
@@ -30,17 +30,17 @@
 
 /* Role cards */
 .ob-roles{ display:grid; grid-template-columns: 1fr 1fr; gap:14px }
-.ob-option{ position:relative; display:flex; flex-direction:column; gap:8px; padding:22px; border-radius:18px; cursor:pointer; background:#fff; border:1.5px solid #e5e7eb; box-shadow: var(--panel-shadow); transition: transform .35s var(--ease-out), box-shadow .3s ease, border-color .3s ease }
+.ob-option{ position:relative; display:flex; flex-direction:column; gap:8px; padding:22px; border-radius:18px; cursor:pointer; background:#fff; border:1.5px solid #e8e8e8; box-shadow: var(--panel-shadow); transition: transform .35s var(--ease-out), box-shadow .3s ease, border-color .3s ease }
 .ob-option:hover{ transform: translateY(-2px); box-shadow: var(--lift-shadow) }
 .ob-option input{ position:absolute; opacity:0; pointer-events:none }
 .ob-option b{ font-size:18px }
 .ob-option .meta{ line-height:1.5 }
-.ob-option.is-on{ border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 4px rgba(59,130,246,.12), var(--lift-shadow) }
-.ob-option:focus-within{ box-shadow: 0 0 0 3px rgba(59,130,246,.35), var(--panel-shadow) }
+.ob-option.is-on{ border-color: rgba(94,146,232,.55); box-shadow: 0 0 0 4px rgba(94,146,232,.12), var(--lift-shadow) }
+.ob-option:focus-within{ box-shadow: 0 0 0 3px rgba(94,146,232,.35), var(--panel-shadow) }
 .ob-option-ico{ width:48px; height:48px; border-radius:15px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 12px 22px -10px var(--c2); transition: transform .5s var(--ease-spring) }
 .ob-option-ico .ico{ width:22px; height:22px }
 .ob-option:hover .ob-option-ico{ transform: rotate(-8deg) scale(1.06) }
-.ob-tick{ position:absolute; top:16px; right:16px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #3b82f6, #6366f1); opacity:0; transform: scale(.5); transition: opacity .2s ease, transform .4s var(--ease-spring) }
+.ob-tick{ position:absolute; top:16px; right:16px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #5e92e8, #7e80e7); opacity:0; transform: scale(.5); transition: opacity .2s ease, transform .4s var(--ease-spring) }
 .ob-tick .ico{ width:15px; height:15px }
 .ob-option.is-on .ob-tick{ opacity:1; transform:none }
 
@@ -48,20 +48,20 @@
 .ob-choices{ display:flex; flex-wrap:wrap; gap:8px }
 .ob-chip{ position:relative; font-size:13px; padding:9px 14px }
 .ob-chip input{ position:absolute; opacity:0; pointer-events:none }
-.ob-chip:focus-within{ box-shadow: 0 0 0 3px rgba(59,130,246,.3) }
+.ob-chip:focus-within{ box-shadow: 0 0 0 3px rgba(94,146,232,.3) }
 
 /* Industries */
 .ob-picked{ display:flex; flex-wrap:wrap; gap:8px; min-height:36px; align-items:center }
-.ob-pick{ display:inline-flex; align-items:center; gap:6px; padding:6px 6px 6px 12px; border-radius:999px; font-size:13px; font-weight:500; color:#1e3a8a; background: rgba(59,130,246,.10); border:1px solid rgba(59,130,246,.28); animation: pop-in .35s var(--ease-spring) both }
-.ob-pick button{ appearance:none; width:22px; height:22px; border:0; border-radius:50%; display:grid; place-items:center; cursor:pointer; color:inherit; background: rgba(59,130,246,.12) }
+.ob-pick{ display:inline-flex; align-items:center; gap:6px; padding:6px 6px 6px 12px; border-radius:999px; font-size:13px; font-weight:500; color:#2c458d; background: rgba(94,146,232,.10); border:1px solid rgba(94,146,232,.28); animation: pop-in .35s var(--ease-spring) both }
+.ob-pick button{ appearance:none; width:22px; height:22px; border:0; border-radius:50%; display:grid; place-items:center; cursor:pointer; color:inherit; background: rgba(94,146,232,.12) }
 .ob-pick button .ico{ width:12px; height:12px }
 .ob-combo{ position:relative; margin-top:12px }
-.ob-list{ position:absolute; z-index:30; left:0; right:0; top: calc(100% + 6px); max-height:260px; overflow:auto; margin:0; padding:6px; list-style:none; border-radius:14px; background:#fff; border:1px solid #e5e7eb; box-shadow: var(--lift-shadow); animation: fade-up .25s var(--ease-out) both }
+.ob-list{ position:absolute; z-index:30; left:0; right:0; top: calc(100% + 6px); max-height:260px; overflow:auto; margin:0; padding:6px; list-style:none; border-radius:14px; background:#fff; border:1px solid #e8e8e8; box-shadow: var(--lift-shadow); animation: fade-up .25s var(--ease-out) both }
 .ob-list li{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 12px; border-radius:10px; font-size:14px; cursor:pointer }
-.ob-list li:hover, .ob-list li.is-active{ background: rgba(59,130,246,.08) }
-.ob-list li[aria-selected="true"]{ font-weight:600; color:#1e3a8a }
+.ob-list li:hover, .ob-list li.is-active{ background: rgba(94,146,232,.08) }
+.ob-list li[aria-selected="true"]{ font-weight:600; color:#2c458d }
 .ob-list li .ico{ width:16px; height:16px }
-.ob-list .ob-custom{ justify-content:flex-start; color:#1d4ed8; font-weight:500 }
+.ob-list .ob-custom{ justify-content:flex-start; color:#3d64d2; font-weight:500 }
 .ob-list .ob-none{ color:var(--subtle); cursor:default }
 
 /* CV */
@@ -69,27 +69,27 @@
 .ob-prefix .ico{ position:absolute; left:12px; top:50%; width:16px; height:16px; margin-top:-8px; color:var(--subtle) }
 .ob-prefix .input{ padding-left:36px }
 .ob-or{ display:flex; align-items:center; gap:12px; margin:20px 0; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--subtle) }
-.ob-or::before, .ob-or::after{ content:""; flex:1; height:1px; background: rgba(15,23,42,.1) }
-.ob-drop{ display:grid; justify-items:center; gap:6px; padding:28px 20px; border-radius:18px; text-align:center; cursor:pointer; border:2px dashed #cbd5e1; background: rgba(255,255,255,.6); transition: border-color .2s ease, background .2s ease, transform .3s var(--ease-out) }
-.ob-drop:hover, .ob-drop.is-over{ border-color: var(--accent); background: rgba(59,130,246,.06) }
+.ob-or::before, .ob-or::after{ content:""; flex:1; height:1px; background: rgba(26,28,31,.1) }
+.ob-drop{ display:grid; justify-items:center; gap:6px; padding:28px 20px; border-radius:18px; text-align:center; cursor:pointer; border:2px dashed #d2d9e2; background: rgba(255,255,255,.6); transition: border-color .2s ease, background .2s ease, transform .3s var(--ease-out) }
+.ob-drop:hover, .ob-drop.is-over{ border-color: var(--accent); background: rgba(94,146,232,.06) }
 .ob-drop.is-over{ transform: scale(1.01) }
-.ob-drop-ico{ width:48px; height:48px; border-radius:15px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #60a5fa, #6366f1); box-shadow: 0 12px 22px -10px #6366f1; animation: bob 3s ease-in-out infinite }
+.ob-drop-ico{ width:48px; height:48px; border-radius:15px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #7cafee, #7e80e7); box-shadow: 0 12px 22px -10px #7e80e7; animation: bob 3s ease-in-out infinite }
 .ob-drop-ico .ico{ width:22px; height:22px }
-.ob-file{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; background:#fff; border:1px solid #e5e7eb; animation: fade-up .35s var(--ease-out) both }
+.ob-file{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; background:#fff; border:1px solid #e8e8e8; animation: fade-up .35s var(--ease-out) both }
 .ob-file > .ico{ width:22px; height:22px; color: var(--accent) }
 .ob-file > div{ flex:1; min-width:0 }
 .ob-file b{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
 /* Languages */
 .ob-langs{ display:grid; gap:10px; margin-bottom:14px }
-.ob-lang{ display:grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) auto; align-items:center; gap:10px; padding:10px; border-radius:14px; background:#fff; border:1px solid #e5e7eb; animation: fade-up .35s var(--ease-out) both }
+.ob-lang{ display:grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) auto; align-items:center; gap:10px; padding:10px; border-radius:14px; background:#fff; border:1px solid #e8e8e8; animation: fade-up .35s var(--ease-out) both }
 .ob-lang .icon-btn[disabled]{ opacity:.35; cursor:not-allowed }
 
 /* Actions + errors */
-.ob-error{ min-height:1.3em; margin:16px 0 0; font-size:13px; font-weight:500; color:#b91c1c }
+.ob-error{ min-height:1.3em; margin:16px 0 0; font-size:13px; font-weight:500; color:#c33030 }
 .ob-error.is-on{ animation: ob-shake .4s ease }
 @keyframes ob-shake{ 25%{ translate:-5px 0 } 75%{ translate:5px 0 } }
-.ob-actions{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; padding-top:18px; border-top:1px solid rgba(15,23,42,.06) }
+.ob-actions{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; padding-top:18px; border-top:1px solid rgba(26,28,31,.06) }
 .ob-actions #obNext{ margin-left:auto }
 .ob-actions .ico{ width:16px; height:16px }
 .ob-note{ margin:16px 4px 0; text-align:center }
@@ -97,7 +97,7 @@
 @media (max-width: 640px){
   .ob-card{ padding:24px 18px 18px; border-radius:20px }
   .ob-grid, .ob-roles{ grid-template-columns: 1fr }
-  .ob-steps li{ font-size:0; height:4px; border-radius:4px; background: rgba(15,23,42,.08) }
+  .ob-steps li{ font-size:0; height:4px; border-radius:4px; background: rgba(26,28,31,.08) }
   .ob-steps li.is-on, .ob-steps li.is-done{ background: var(--accent) }
   .ob-lang{ grid-template-columns: minmax(0,1fr) auto; }
   .ob-lang .select[data-level]{ grid-column:1; grid-row:2 }

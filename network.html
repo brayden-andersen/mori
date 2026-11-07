@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mori: Sandbox • Network</title>
+  <title>SandBox • Network</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/mori.css" />
   <link rel="stylesheet" href="assets/css/network.css" />
+  <link rel="stylesheet" href="assets/css/dark.css" />
   <script src="assets/js/config.js"></script>
   <script src="assets/js/auth.js"></script>
   <script defer src="assets/js/data.js"></script>
@@ -28,7 +29,7 @@
   <!-- NAV (rendered by shell.js) -->
   <div data-shell="nav"></div>
 
-  <main class="wrap">
+  <main class="wrap wrap--network">
     <header class="pagehead" role="banner">
       <div>
         <nav class="crumbs" aria-label="Breadcrumb" data-reveal="fade">
@@ -40,101 +41,102 @@
       <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="userPlus"></i> Find a co-founder</button>
     </header>
 
-    <!-- Sticky tab bar -->
-    <section class="subnav net-bar" aria-label="Network sections" data-reveal style="--reveal-delay:120ms">
-      <div class="net-tabs" role="tablist" aria-label="Network">
-        <span class="net-glider" aria-hidden="true"></span>
-        <a class="net-tab" role="tab" href="#explore" data-tab="explore"><i data-icon="compass"></i>Explore</a>
-        <a class="net-tab" role="tab" href="#requests" data-tab="requests"><i data-icon="inbox"></i>Requests<span class="drop-badge" data-badge="requests" hidden></span></a>
-        <a class="net-tab" role="tab" href="#messages" data-tab="messages"><i data-icon="message"></i>Messages<span class="drop-badge" data-badge="messages" hidden></span></a>
+    <div class="net-layout">
+      <!-- Manage my network -->
+      <aside class="panel net-manage" aria-labelledby="manageTitle">
+        <h2 class="net-manage-title" id="manageTitle">Manage my network</h2>
+        <nav class="manage-list" aria-label="Manage my network">
+          <a class="manage-item" href="#explore" data-tab="explore"><i data-icon="compass"></i><span>Discover</span></a>
+          <a class="manage-item" href="#requests" data-tab="requests"><i data-icon="inbox"></i><span>Requests</span><span class="manage-badge" data-badge="requests" hidden></span></a>
+          <a class="manage-item" href="#messages" data-tab="messages"><i data-icon="message"></i><span>Messages</span><span class="manage-badge" data-badge="messages" hidden></span></a>
+          <a class="manage-item" href="#" data-connections><i data-icon="network"></i><span>Connections</span><span class="manage-num" id="mConnections"></span></a>
+          <a class="manage-item" href="#sent" data-tab="sent"><i data-icon="send"></i><span>Sent requests</span><span class="manage-num" id="mSent"></span></a>
+        </nav>
+      </aside>
+
+      <div class="net-main">
+        <!-- ===== Discover, with requests on top ===== -->
+        <div class="net-pane" data-pane="explore" aria-label="Discover">
+          <section class="panel net-requests" id="requestsBox" aria-labelledby="recvTitle">
+            <div class="panel-head"><h3 id="recvTitle">Requests</h3><button class="link-btn" type="button" id="recvMore" hidden>Show all</button></div>
+            <div class="req-list" id="recvList"></div>
+          </section>
+
+          <section class="panel explore" aria-labelledby="peopleTitle">
+            <div class="panel-head"><h3 id="peopleTitle">Discover</h3></div>
+            <div class="explore-top">
+              <label class="search" aria-label="Search members">
+                <i data-icon="search"></i>
+                <input type="search" id="peopleQ" placeholder="Search names, skills or regions…" autocomplete="off">
+              </label>
+              <select class="select" id="peopleSort" aria-label="Sort members">
+                <option value="newest">Newest members</option>
+                <option value="rating">Highest sprint rating</option>
+                <option value="experience">Most experience</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </div>
+
+            <div class="explore-filters">
+              <div class="fgroup">
+                <label class="fgroup-label" for="roleSel">Role</label>
+                <select class="select select--sm" id="roleSel"></select>
+              </div>
+              <div class="fgroup">
+                <label class="fgroup-label" for="expSel">Years of experience</label>
+                <select class="select select--sm" id="expSel"></select>
+              </div>
+              <div class="fgroup">
+                <label class="fgroup-label" for="regionSel">Region</label>
+                <select class="select select--sm" id="regionSel"></select>
+              </div>
+              <div class="fgroup">
+                <label class="fgroup-label" for="ratingMin">Sprint rating</label>
+                <select class="select select--sm" id="ratingMin">
+                  <option value="0">Any rating</option>
+                  <option value="4.5">4.5 and up</option>
+                  <option value="4">4.0 and up</option>
+                  <option value="3">3.0 and up</option>
+                </select>
+              </div>
+              <div class="fgroup ind-filter" id="indFilter">
+                <span class="fgroup-label" id="indLabel">Industry</span>
+                <button class="select select--sm ind-toggle" type="button" id="indToggle" aria-expanded="false" aria-controls="indPanel" aria-describedby="indLabel">Any industry</button>
+                <div class="ind-panel" id="indPanel" role="group" aria-labelledby="indLabel" hidden>
+                  <label class="search search--sm" aria-label="Search industries"><i data-icon="search"></i><input type="search" id="indQ" placeholder="Search industries" autocomplete="off"></label>
+                  <ul class="ind-list" id="indList"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="explore-active" id="activeFilters" hidden></div>
+
+            <div class="grid people-grid" id="peopleGrid"></div>
+            <div class="empty" id="peopleEmpty" hidden></div>
+          </section>
+        </div>
+
+        <!-- ===== Sent requests ===== -->
+        <div class="net-pane" data-pane="sent" aria-label="Sent requests" hidden>
+          <section class="panel" aria-labelledby="sentTitle">
+            <div class="panel-head"><h3 id="sentTitle">Sent requests</h3><span class="meta" id="sentCount"></span></div>
+            <div class="req-list" id="sentList"></div>
+          </section>
+        </div>
+
+        <!-- ===== Messages: live chat with your connections ===== -->
+        <div class="net-pane" data-pane="messages" aria-label="Messages" hidden>
+          <section class="panel chat" id="chat" aria-label="Conversations">
+            <aside class="chat-side">
+              <label class="search" aria-label="Search conversations">
+                <i data-icon="search"></i>
+                <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
+              </label>
+              <div class="chat-list" id="chatList" role="list"></div>
+            </aside>
+            <div class="chat-main" id="chatMain"></div>
+          </section>
+        </div>
       </div>
-    </section>
-
-    <!-- ===== Explore ===== -->
-    <div class="net-pane" data-pane="explore" role="tabpanel" aria-label="Explore">
-      <section class="panel explore" aria-labelledby="peopleTitle">
-        <div class="explore-top">
-          <label class="search" aria-label="Search members">
-            <i data-icon="search"></i>
-            <input type="search" id="peopleQ" placeholder="Search names, skills or regions…" autocomplete="off">
-          </label>
-          <select class="select" id="peopleSort" aria-label="Sort members">
-            <option value="newest">Newest members</option>
-            <option value="rating">Highest sprint rating</option>
-            <option value="experience">Most experience</option>
-            <option value="name">Name A–Z</option>
-          </select>
-        </div>
-
-        <div class="explore-filters">
-          <div class="fgroup">
-            <span class="fgroup-label" id="roleLabel">Founder or specialist</span>
-            <div class="filters" id="roleChips" role="group" aria-labelledby="roleLabel">
-              <button class="fchip" type="button" data-role-filter="all" data-active="true">All</button>
-              <button class="fchip" type="button" data-role-filter="founder" data-active="false">Founders</button>
-              <button class="fchip" type="button" data-role-filter="specialist" data-active="false">Specialists</button>
-            </div>
-          </div>
-          <div class="fgroup">
-            <span class="fgroup-label" id="expLabel">Years of experience</span>
-            <div class="filters" id="expChips" role="group" aria-labelledby="expLabel"></div>
-          </div>
-          <div class="fgroup">
-            <label class="fgroup-label" for="ratingMin">Sprint rating</label>
-            <select class="select select--sm" id="ratingMin">
-              <option value="0">Any rating</option>
-              <option value="4.5">4.5 and up</option>
-              <option value="4">4.0 and up</option>
-              <option value="3">3.0 and up</option>
-            </select>
-          </div>
-          <div class="fgroup ind-filter" id="indFilter">
-            <span class="fgroup-label" id="indLabel">Industry</span>
-            <button class="select select--sm ind-toggle" type="button" id="indToggle" aria-expanded="false" aria-controls="indPanel" aria-describedby="indLabel">Any industry</button>
-            <div class="ind-panel" id="indPanel" role="group" aria-labelledby="indLabel" hidden>
-              <label class="search search--sm" aria-label="Search industries"><i data-icon="search"></i><input type="search" id="indQ" placeholder="Search industries" autocomplete="off"></label>
-              <ul class="ind-list" id="indList"></ul>
-            </div>
-          </div>
-          <div class="fgroup fgroup--switch">
-            <label class="switch"><input type="checkbox" id="openOnly"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-label">Open to build</span></label>
-          </div>
-        </div>
-        <div class="explore-active" id="activeFilters" hidden></div>
-
-        <div class="panel-head">
-          <h3 id="peopleTitle">Members</h3>
-          <span class="meta" id="peopleCount" aria-live="polite"></span>
-        </div>
-        <div class="grid people-grid" id="peopleGrid"></div>
-        <div class="empty" id="peopleEmpty" hidden></div>
-      </section>
-    </div>
-
-    <!-- ===== Requests ===== -->
-    <div class="net-pane" data-pane="requests" role="tabpanel" aria-label="Requests" hidden>
-      <section class="panel" aria-labelledby="recvTitle">
-        <div class="panel-head"><h3 id="recvTitle">Received</h3><span class="meta" id="recvCount"></span></div>
-        <div class="req-list" id="recvList"></div>
-      </section>
-      <section class="panel" aria-labelledby="sentTitle">
-        <div class="panel-head"><h3 id="sentTitle">Sent</h3><span class="meta" id="sentCount"></span></div>
-        <div class="req-list" id="sentList"></div>
-      </section>
-    </div>
-
-    <!-- ===== Messages: live chat with your connections ===== -->
-    <div class="net-pane" data-pane="messages" role="tabpanel" aria-label="Messages" hidden>
-      <section class="panel chat" id="chat" aria-label="Conversations">
-        <aside class="chat-side">
-          <label class="search" aria-label="Search conversations">
-            <i data-icon="search"></i>
-            <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
-          </label>
-          <div class="chat-list" id="chatList" role="list"></div>
-        </aside>
-        <div class="chat-main" id="chatMain"></div>
-      </section>
     </div>
   </main>
 

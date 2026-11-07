@@ -24,7 +24,7 @@
 
 /* Recent messages: unread pulse */
 .msg.is-unread h4{ display:flex; align-items:center; gap:8px }
-.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--progress-orange); animation: ping 2.2s ease-out infinite }
+.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--mori-red); animation: ping 2.2s ease-out infinite }
 .msg .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block }
 
 /* Empty panels: one centred prompt across the whole row */
@@ -39,9 +39,9 @@
 }
 .panel#pinnedPanel .pin-left{ flex:1; min-width:0; }
 .panel#pinnedPanel .pin h4{ margin:0 0 6px; }
-.panel#pinnedPanel .chip{ background: rgba(249,115,22,.10); border:1px solid rgba(249,115,22,.28); color:#7c2d12; }
-.panel#pinnedPanel .caption{ margin-top:10px; font-size:13px; color:#475569; font-style:italic; }
-.panel#pinnedPanel .pin-separator{ width:1px; background:#e5e7eb; align-self:stretch; margin-left:16px; margin-right:8px; }
+.panel#pinnedPanel .chip{ background: rgba(231,132,64,.10); border:1px solid rgba(231,132,64,.28); color:#81381f; }
+.panel#pinnedPanel .caption{ margin-top:10px; font-size:13px; color:#55575b; font-style:italic; }
+.panel#pinnedPanel .pin-separator{ width:1px; background:#e8e8e8; align-self:stretch; margin-left:16px; margin-right:8px; }
 .panel#pinnedPanel .pin:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
 @keyframes ring-pop{ 40%{ transform: scale(1.06) } }
 

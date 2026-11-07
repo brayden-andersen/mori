@@ -28,7 +28,7 @@
     return `
     <nav class="nav app-nav" id="topNav" aria-label="Main">
       <div class="nav-inner">
-        <a href="home.html" class="brand" aria-label="Mori: Sandbox — go to your homepage">${brandMark()}<div class="brand-name">Mori: Sandbox</div></a>
+        <a href="home.html" class="brand" aria-label="SandBox — go to your homepage">${brandMark()}<div class="brand-name">SandBox</div></a>
         <div class="menu" id="mainMenu">
           <span class="menu-glider" aria-hidden="true"></span>
           <div class="item"><a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
@@ -45,7 +45,7 @@
           <div class="item">
             <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
             <div class="dropdown" role="menu" aria-label="Network">
-              ${link("network.html#explore", "Explore", "compass")}
+              ${link("network.html#explore", "Discover", "compass")}
               <a class="drop-link" role="menuitem" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
               <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
               <a class="drop-link" role="menuitem" href="#" data-connections>${icon("network")} Connections</a>
@@ -67,6 +67,7 @@
               <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} Sign out</a>
             </div>
           </div>
+          <div class="item item--theme">${Mori.ui.themeToggle()}</div>
         </div>
       </div>
     </nav>`;
@@ -214,11 +215,21 @@
     const photoMenu = [
       `<button class="drop-link" type="button" role="menuitem" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
       google ? `<button class="drop-link" type="button" role="menuitem" data-photo="google">${googleG()} Use my Google photo</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="adjust">${icon("search")} Adjust or resize</button>` : "",
       p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
     ].join("");
+    const coverMenu = [
+      `<button class="drop-link" type="button" role="menuitem" data-cover="upload">${icon("upload")} ${p.cover ? "Upload a new image" : "Upload an image"}</button>`,
+      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="adjust">${icon("search")} Adjust or resize</button>` : "",
+      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="remove">${icon("x")} Use the default banner</button>` : "",
+    ].join("");
+    const coverControls = `
+      <button class="pf-cover-btn" type="button" data-pf-cover aria-haspopup="menu" aria-expanded="false">${icon("camera")} ${p.cover ? "Edit banner" : "Add a banner"}</button>
+      <div class="pf-photo-menu pf-cover-menu" role="menu" aria-label="Profile banner" hidden>${coverMenu}</div>
+      <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-cover-file hidden>`;
 
     return `
-      <div class="pf-cover" aria-hidden="true"><span></span><span></span><span></span></div>
+      ${Mori.ui.coverHTML(p.cover, coverControls)}
       ${closeBtn("Close profile")}
       <div class="pf-head">
         <div class="pf-photo">
@@ -233,7 +244,7 @@
         <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}</h2>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
         <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
-        <div class="chips">${roleChip(p.role)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
+        <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
         ${Mori.people.factPills(seen)}
         ${hidden.length ? `<p class="meta pf-hidden">${icon("shield")} Hidden from your profile: ${esc(hidden.join(", "))}. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         <div class="pf-stats pf-stats--2">
@@ -272,7 +283,7 @@
           <div class="pf-link-rows">${(p.links || []).map(linkRowHTML).join("")}</div>
           <button class="btn btn--sm" type="button" data-pf-addlink>${icon("plus")} Add a link</button>
         </fieldset>
-        <p class="field--full meta pf-edit-note">Name, age, region, role, industries, LinkedIn, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
+        <p class="field--full meta pf-edit-note">Name, date of birth, region, role, industries, LinkedIn, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
       </form>
       <div class="modal-foot"><button class="btn" type="button" data-pf-cancel>Cancel</button><button class="btn btn--ink" type="button" data-pf-save>${icon("check")} Save profile</button></div>`;
   }
@@ -305,17 +316,71 @@
     return out.slice(0, 8);
   }
 
-  /* Profile photo: upload (cropped square), your Google photo, or the default icon */
+  /* Profile photo: upload or adjust (in the cropper), your Google photo, or the default icon */
+  const CROP = {
+    photo: { title: "Adjust your photo", save: "Save photo", aspect: 1, round: true, outW: 512, done: "Profile photo updated", apply: (blob) => S.setPhoto(blob) },
+    cover: { title: "Adjust your banner", save: "Save banner", aspect: 3, round: false, outW: 1500, done: "Banner updated", apply: (blob) => S.setCover(blob) },
+  };
+  function checkImage(file) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Choose a JPG, PNG or WebP image.");
+    if (file.size > 15 * 1024 * 1024) throw new Error("That image is over 15 MB. Choose a smaller one.");
+  }
+  async function openCropper(kind, src) {
+    const c = CROP[kind];
+    const el = createModal("modal-profile", { label: "Profile", panelCls: "modal--profile" });
+    const panel = $(".modal", el);
+    panel.innerHTML = `
+      <div class="modal-head"><h2 id="pfTitle">${c.title}</h2>${closeBtn()}</div>
+      <div class="modal-body"><div id="pfCrop" class="pf-crop pf-crop--${kind}"></div></div>
+      <div class="modal-foot"><button class="btn" type="button" data-crop-cancel>Cancel</button><button class="btn btn--ink" type="button" data-crop-save disabled>${icon("check")} ${c.save}</button></div>`;
+    const back = () => renderProfile("view");
+    $("[data-crop-cancel]", panel).addEventListener("click", back);
+    let crop;
+    try {
+      crop = await Mori.ui.cropper($("#pfCrop", panel), src, { aspect: c.aspect, round: c.round, outW: c.outW });
+    } catch (err) {
+      toast(err.message, { icon: "x", duration: 4200 });
+      back();
+      return;
+    }
+    const save = $("[data-crop-save]", panel);
+    save.disabled = false;
+    $(".crop-stage", panel).focus({ preventScroll: true });
+    save.addEventListener("click", async () => {
+      save.disabled = true;
+      save.innerHTML = `${icon("clock")} Saving…`;
+      try {
+        await c.apply(await crop.toBlob());
+        toast(c.done, { icon: "check" });
+      } catch (err) {
+        toast(err.code === "signed-out" ? err.message : "Couldn’t save it: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+      }
+      crop.destroy();
+      if (Mori.modal.isOpen("modal-profile")) back();
+    });
+  }
+  async function changeCover(choice, file) {
+    try {
+      if (choice === "upload") { checkImage(file); openCropper("cover", file); return; }
+      if (choice === "adjust") { openCropper("cover", S.profile().cover); return; }
+      await S.setCover(null);
+      toast("Back to the default banner", { icon: "check" });
+    } catch (err) {
+      toast(err.code === "signed-out" ? err.message : "Couldn’t change your banner: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+    }
+    if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
+  }
   async function changePhoto(choice, panel, file) {
+    if (choice === "upload") {
+      try { checkImage(file); } catch (err) { toast(err.message, { icon: "x", duration: 4200 }); return; }
+      openCropper("photo", file);
+      return;
+    }
+    if (choice === "adjust") { openCropper("photo", S.profile().photo); return; }
     const wrap = $(".pf-photo", panel);
     if (wrap) wrap.classList.add("is-busy");
     try {
-      if (choice === "upload") {
-        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error("Choose a JPG, PNG or WebP image.");
-        if (file.size > 15 * 1024 * 1024) throw new Error("That image is over 15 MB. Choose a smaller one.");
-        await S.setPhoto(await Mori.ui.squareImage(file, 512));
-        toast("Profile photo updated", { icon: "check" });
-      } else if (choice === "google") {
+      if (choice === "google") {
         await S.setPhoto(S.session().picture);
         toast("Using your Google photo", { icon: "check" });
       } else {
@@ -353,7 +418,7 @@
       const cv = $("[data-pf-cv]", panel);
       if (cv) cv.addEventListener("click", openCv);
       const photoBtn = $("[data-pf-photo]", panel);
-      const menu = $(".pf-photo-menu", panel);
+      const menu = $(".pf-photo > .pf-photo-menu", panel);
       const fileInput = $("[data-pf-photo-file]", panel);
       const showMenu = (open) => { menu.hidden = !open; photoBtn.setAttribute("aria-expanded", String(open)); };
       photoBtn.addEventListener("click", (e) => {
@@ -370,6 +435,24 @@
       });
       panel.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".pf-photo")) showMenu(false); });
       fileInput.addEventListener("change", () => { const f = fileInput.files && fileInput.files[0]; if (f) changePhoto("upload", panel, f); });
+      const coverBtn = $("[data-pf-cover]", panel);
+      const coverMenu = $(".pf-cover-menu", panel);
+      const coverFile = $("[data-pf-cover-file]", panel);
+      const showCoverMenu = (open) => { coverMenu.hidden = !open; coverBtn.setAttribute("aria-expanded", String(open)); };
+      coverBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (coverMenu.children.length === 1) coverFile.click();
+        else showCoverMenu(coverMenu.hidden);
+      });
+      coverMenu.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-cover]");
+        if (!b) return;
+        showCoverMenu(false);
+        if (b.dataset.cover === "upload") coverFile.click();
+        else changeCover(b.dataset.cover);
+      });
+      panel.addEventListener("click", (e) => { if (!coverMenu.hidden && !e.target.closest(".pf-cover")) showCoverMenu(false); });
+      coverFile.addEventListener("change", () => { const f = coverFile.files && coverFile.files[0]; if (f) changeCover("upload", f); });
       Mori.motion.refresh(panel);
       return el;
     }
@@ -550,15 +633,15 @@
 
   /* ---------- Notifications modal ---------- */
   const NT_STYLE = {
-    request: ["userPlus", "#60a5fa", "#6366f1"],
+    request: ["userPlus", "#3e5c98", "#3d5b96"],
     accepted: ["check", "#34d399", "#10b981"],
-    message: ["message", "#34d399", "#14b8a6"],
-    mention: ["at", "#a78bfa", "#ec4899"],
-    project: ["target", "#fb923c", "#f97316"],
-    ladder:  ["ladder", "#f59e0b", "#f97316"],
-    sprint:  ["zap", "#38bdf8", "#3b82f6"],
-    insight: ["bulb", "#facc15", "#f59e0b"],
-    badge:   ["award", "#f472b6", "#f97316"],
+    message: ["message", "#34d399", "#265451"],
+    mention: ["at", "#a04174", "#8b2e45"],
+    project: ["target", "#896938", "#775b31"],
+    ladder:  ["ladder", "#71562e", "#775b31"],
+    sprint:  ["zap", "#375186", "#375186"],
+    insight: ["bulb", "#775b31", "#71562e"],
+    badge:   ["award", "#a13651", "#775b31"],
   };
   let ntFilter = "all";
 
@@ -681,6 +764,13 @@
     // Keep the local profile in step with the database (signed-in Google members).
     S.syncProfile().then((changed) => {
       if (!changed) return;
+      if (S.session().provider === "google" && !S.profileComplete()) {
+        // New sign-up questions (date of birth, a specialist's role): ask once, answers filled in.
+        Mori.auth.updateSession({ onboarded: false });
+        const here = location.pathname.split("/").pop() || "home.html";
+        location.replace("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));
+        return;
+      }
       const name = fullName(S.profile(), S.session());
       if (name && name !== S.session().name) { Mori.auth.updateSession({ name, givenName: name.split(/\s+/)[0] }); mountNav(); }
       if (Mori.modal.isOpen("modal-profile")) renderProfile("view");

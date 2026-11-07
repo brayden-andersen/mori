@@ -1,0 +1,26 @@
+/* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */
+html[data-theme="dark"]{
+  --bg:#111113;                          /* a deep, dark grey base */
+  --aura-top: rgba(236,236,242,0.055);   /* a really faint light grey at the top */
+  --aura-top-2: rgba(236,236,242,0.04);
+  --aura-red: rgba(200,0,0,0.20);        /* the MORI red, stronger than in light mode */
+  --aura-red-2: rgba(200,0,0,0.15);
+  --aura-red-soft: rgba(184,0,0,0.09);
+  --orb-top: rgba(236,236,242,.03);
+  --orb-red: rgba(200,0,0,.10);
+  --orb-mid: rgba(110,40,150,.08);
+}
+html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }
+/* The logo stays black and red; a faint light edge keeps the black visible on dark grey */
+html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
+html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#111 }
+html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-logo{ filter: drop-shadow(0 0 .6px rgba(255,255,255,.7)) drop-shadow(0 0 3px rgba(255,255,255,.18)) }
+/* Profile banner: darker still */
+html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(120deg, #0c0c0e 0%, #23100f 52%, #5c1218 100%) }
+/* The nav floats over the aura */
+html[data-theme="dark"] .nav{ background: rgba(17,17,19,.4) }
+html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
+/* Photos and illustrations aren't recoloured */
+html[data-theme="dark"] img{ color-scheme: normal }
+/* The default avatar: a grey person on dark grey */
+html[data-theme="dark"] .avatar--face{ background: linear-gradient(180deg, #505157, #3d3e43); color:#d7d8dc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06) }

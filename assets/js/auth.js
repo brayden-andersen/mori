@@ -207,6 +207,15 @@
   };
 
   /* ---------- Before first paint ---------- */
+  // Light or dark, as chosen with the nav toggle (this browser, every account).
+  const applyTheme = () => {
+    if (Mori.store.read("mori.theme", "light") === "dark") root.setAttribute("data-theme", "dark");
+    else root.removeAttribute("data-theme");
+  };
+  applyTheme();
+  window.addEventListener("storage", (e) => { if (e.key === "mori.theme") applyTheme(); });
+  window.addEventListener("pageshow", applyTheme);
+  document.addEventListener("prerenderingchange", applyTheme);
   const s = Mori.auth.session();
   if (s) {
     const st = Mori.store.read(`mori.${s.id}.settings`, {}) || {};

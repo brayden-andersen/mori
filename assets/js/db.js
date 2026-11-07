@@ -74,14 +74,17 @@
       firstName: r.first_name || "",
       lastName: r.last_name || "",
       age: r.age,
+      birthDate: r.birth_date || "",
       region: r.region || "",
       role,
+      specialty: r.specialty || "",
       experience: r.expertise_level || "",
       employment: r.employment_status || "",
       industries: r.business_sector || [],
       linkedin: r.linkedin_url || "",
       links: cleanLinks(r.links),
       photo: https(r.avatar_url),
+      cover: https(r.cover_url),
       cvPath: r.cv_path || "",
       cvName: r.cv_name || "",
       languages: Array.isArray(r.languages) ? r.languages : [],
@@ -95,8 +98,9 @@
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.created_at) || 0,
       show: { age: r.show_age === true, region: r.show_region !== false, employment: r.show_employment !== false, languages: r.show_languages !== false },
-      // Older rows predate the current questions: send those members through onboarding once.
-      onboarded: !!(r.onboarding_completed && r.age != null && r.region),
+      // Older rows predate the current questions (date of birth, a specialist's role):
+      // those members go through onboarding again, with their answers filled in.
+      onboarded: !!(r.onboarding_completed && r.birth_date && r.region && (role !== "specialist" || r.specialty)),
     };
   }
   function toRow(id, p) {
@@ -105,14 +109,17 @@
       first_name: p.firstName || "Member",
       last_name: p.lastName || "",
       age: p.age == null || p.age === "" ? null : Number(p.age),
+      birth_date: p.birthDate || null,
       region: p.region || null,
       profile_type: ROLE_TO_DB[p.role] || null,
+      specialty: p.role === "specialist" && p.specialty ? String(p.specialty).slice(0, 60) : null,
       expertise_level: p.experience || null,
       employment_status: p.employment || null,
       business_sector: (p.industries || []).slice(0, 3),
       linkedin_url: p.linkedin || null,
       links: cleanLinks(p.links),
       avatar_url: https(p.photo) || null, // demo photos (data: URLs) never leave the browser
+      cover_url: https(p.cover) || null,
       cv_path: p.cvPath || null,
       cv_name: p.cvName || null,
       languages: p.languages || [],
@@ -137,7 +144,9 @@
       id: r.id,
       name,
       picture: https(r.avatar_url),
+      cover: https(r.cover_url),
       role: ROLE_FROM_DB[r.profile_type] || null,
+      specialty: r.specialty || "",
       headline: r.headline || "",
       bio: r.bio || "",
       age: r.age == null ? null : Number(r.age), // only when they show it
@@ -232,9 +241,9 @@
     },
 
     /** Upload a square photo to avatars/<user id>/…; returns its public URL. */
-    async uploadPhoto(blob) {
+    async uploadPhoto(blob, prefix = "") {
       const { c, id } = await signedIn();
-      const path = `${id}/${Date.now()}.jpg`;
+      const path = `${id}/${prefix}${Date.now()}.jpg`;
       const { error } = await c.storage.from("avatars").upload(path, blob, { contentType: "image/jpeg", upsert: false, cacheControl: "31536000" });
       fail(error);
       return c.storage.from("avatars").getPublicUrl(path).data.publicUrl;

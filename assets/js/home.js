@@ -19,7 +19,10 @@
   /* Greeting — "Welcome back, Brayden" (just "Welcome" on the first visit) */
   const s = S.session();
   const hello = $("#hello");
-  hello.innerHTML = `${s.isNew ? "Welcome" : "Welcome back"}, <span id="username">${esc(s.givenName || s.name)}</span>`;
+  // On their birthday (from the date of birth they gave in onboarding), a happy birthday instead.
+  const birthday = S.isBirthday();
+  hello.innerHTML = `${birthday ? "Happy birthday" : s.isNew ? "Welcome" : "Welcome back"}, <span id="username">${esc(s.givenName || s.name)}</span>`;
+  if (birthday) document.body.classList.add("is-birthday");
   splitWords(hello);
   if (s.isNew) Mori.auth.updateSession({ isNew: false });
 

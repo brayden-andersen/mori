@@ -214,10 +214,10 @@
 
   /* ---------- Hero: live message card ---------- */
   const MSGS = [
-    { name: "Rahul P.", role: "Specialist", initials: "RP", a1: "#34d399", a2: "#22d3ee", text: "Shared notes on the pitch deck v3 — take a look!" },
-    { name: "Anna S.", role: "Specialist", initials: "AS", a1: "#60a5fa", a2: "#818cf8", text: "Free later for a 15-min sync about the specialist pool?" },
-    { name: "Sari K.", role: "Specialist", initials: "SK", a1: "#818cf8", a2: "#22d3ee", text: "Your pricing page is close. Try anchoring on the annual plan." },
-    { name: "Lina W.", role: "Founder", initials: "LW", a1: "#f472b6", a2: "#fb7185", text: "Can you intro me to the Jakarta founders circle?" },
+    { name: "Rahul P.", role: "Specialist", initials: "RP", a1: "#34d399", a2: "#49cbdf", text: "Shared notes on the pitch deck v3 — take a look!" },
+    { name: "Anna S.", role: "Specialist", initials: "AS", a1: "#7cafee", a2: "#979fef", text: "Free later for a 15-min sync about the specialist pool?" },
+    { name: "Sari K.", role: "Specialist", initials: "SK", a1: "#979fef", a2: "#49cbdf", text: "Your pricing page is close. Try anchoring on the annual plan." },
+    { name: "Lina W.", role: "Founder", initials: "LW", a1: "#eb8bbd", a2: "#f08a99", text: "Can you intro me to the Jakarta founders circle?" },
   ];
   let msgIndex = 0;
   function cycleMessage() {
