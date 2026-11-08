@@ -24,7 +24,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 - The sun/moon button on the right of every nav bar switches between light and dark with one quick (0.5 s) cross-fade of the whole page; browsers without view transitions, and reduced motion, switch at once. Element transitions are paused for the switch, so nothing lags behind. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo has a white top half and a red bottom half.
-- **The aura** (both modes) is the original soft background, held still: two large blurred hue layers and three faint orbs. Nothing on it moves, so it's painted once.
+- **The aura** (both modes) is the original soft background, held still: two large blurred hue layers and three faint orbs. Nothing on it moves, so it's painted once. Light and dark each have their own copy (`.aura`, `.aura-night`) with fixed colours; switching theme only fades the dark copy in or out, so the blur is never redrawn.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
 ### Sign-up questions

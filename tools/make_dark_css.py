@@ -215,6 +215,8 @@ def walk(css):
                 out.append(f"{head}{{\n{inner}}}\n")
         elif head.startswith("@"):
             pass  # @keyframes, @view-transition, @font-face…
+        elif ".aura" in head:
+            pass  # the background has its own ready-made light and dark copies
         else:
             out.append(rule_to_dark(head, body))
         i = k

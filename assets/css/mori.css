@@ -19,12 +19,7 @@
   --mori-black:#111111;
   --accent:#5e92e8;
   --progress-orange:#e78440;      /* progress */
-  /* Background aura: a light grey at the top, the MORI red at the bottom */
-  --aura-top: rgba(120,120,128,0.15);
-  --aura-top-2: rgba(120,120,128,0.11);
-  --aura-red: rgba(184,0,0,0.15);
-  --aura-red-2: rgba(184,0,0,0.13);
-  --aura-red-soft: rgba(184,0,0,0.07);
+  /* Background orbs (the aura's own colours are set on .aura / .aura-night) */
   --orb-top: rgba(120,120,128,.08);
   --orb-red: rgba(184,0,0,.11);
   --orb-mid: rgba(155,121,234,.06);
@@ -68,24 +63,32 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
 /* ---------- 3. Background aura (drafts) + soft orbs, static ----------
    The original background, held still: a light grey hue at the top and the
    MORI red at the bottom, softened by two large blurred layers and three
-   faint orbs. Nothing on it moves, so it's painted once. */
-.aura{
-  position:fixed; inset:0; z-index:-2;
+   faint orbs. Nothing on it moves, so it's painted once.
+   Light and dark each have their own ready-painted copy (.aura and
+   .aura-night, with their colours set on themselves, not by the theme), and
+   switching theme only fades the dark copy in or out. So the big blur is
+   never redrawn when you switch. tools/make_dark_css.py leaves these alone. */
+.aura, .aura-night{
+  position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; contain:strict;
   background:
-    radial-gradient(1300px 900px at 18% 22%, var(--aura-top), transparent 62%),
-    radial-gradient(1300px 900px at 82% 78%, var(--aura-red), transparent 62%),
-    radial-gradient(900px 1000px at 50% 110%, var(--aura-red-soft), transparent 64%),
-    var(--bg);
+    radial-gradient(1300px 900px at 18% 22%, var(--a-top), transparent 62%),
+    radial-gradient(1300px 900px at 82% 78%, var(--a-red), transparent 62%),
+    radial-gradient(900px 1000px at 50% 110%, var(--a-red-soft), transparent 64%),
+    var(--a-bg);
 }
-.aura::before,.aura::after{
+.aura::before, .aura::after, .aura-night::before, .aura-night::after{
   content:""; position:absolute; inset:-28%; border-radius:50%;
-  filter: blur(120px); opacity:.7;
+  filter: blur(120px); opacity:var(--a-veil);
   background:
-    radial-gradient(circle at 30% 40%, var(--aura-top-2), transparent 60%),
-    radial-gradient(circle at 72% 72%, var(--aura-red-2), transparent 60%);
+    radial-gradient(circle at 30% 40%, var(--a-top-2), transparent 60%),
+    radial-gradient(circle at 72% 72%, var(--a-red-2), transparent 60%);
 }
-.aura::after{ opacity:.6 }
-@media (max-width: 640px){ .aura::before, .aura::after{ filter: blur(72px) } }
+.aura::after, .aura-night::after{ opacity:var(--a-veil-2) }
+@media (max-width: 640px){ .aura::before, .aura::after, .aura-night::before, .aura-night::after{ filter: blur(72px) } }
+.aura{ --a-bg:#efeff0; --a-top: rgba(120,120,128,0.15); --a-top-2: rgba(120,120,128,0.11); --a-red: rgba(184,0,0,0.15); --a-red-2: rgba(184,0,0,0.13); --a-red-soft: rgba(184,0,0,0.07); --a-veil:.7; --a-veil-2:.6 }
+.aura-night{ --a-bg:#111113; --a-top: rgba(236,236,242,0.055); --a-top-2: rgba(236,236,242,0.04); --a-red: rgba(200,0,0,0.17); --a-red-2: rgba(200,0,0,0.13); --a-red-soft: rgba(184,0,0,0.075); --a-veil:.85; --a-veil-2:.85;
+  opacity:0; will-change:opacity }
+html[data-theme="dark"] .aura-night{ opacity:1 }
 
 .aura-orbs{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden }
 .orb{ position:absolute; border-radius:50% }
