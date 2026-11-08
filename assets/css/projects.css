@@ -1,7 +1,8 @@
 /* ==========================================================================
-   Mori: Sandbox — Projects page
-   Subnav, grid and pager are carried over from the draft; the project
-   drawer and the "declare a new project" modal are new.
+   Mori: Sandbox — Projects page, and the parts the planner shares
+   Subnav, grid and pager are carried over from the draft. The project
+   preview, the team rows, the milestone ladder card, the people picker and
+   the "declare a new project" window are also used by project.html.
    ========================================================================== */
 .subgrid{ display:grid; grid-template-columns: minmax(0,1fr) auto auto; gap:12px; align-items:center; }
 .subgrid .filters{ grid-column: 1 / -1; order:3 }
@@ -24,37 +25,46 @@
 .pagebtn:hover{ transform: translateY(-1px) }
 .pagebtn[aria-current="page"]{ border-color: rgba(94,146,232,.28); background: rgba(94,146,232,.08); }
 
-/* ---------- Project drawer ---------- */
+/* ---------- Project preview (drawer) ---------- */
 .modal--drawer{ display:flex; flex-direction:column; padding-bottom:6px }
-.pd-head{ position:relative; padding:24px 22px 6px }
+/* The preview card: the whole thing opens the planner */
+.pd-sheet{
+  display:block; margin:16px 22px 0; padding:4px 16px 16px; border-radius:18px; text-decoration:none; color:inherit;
+  background:#fff; border:1px solid #e8e8e8; box-shadow: var(--panel-shadow);
+  transition: transform .35s var(--ease-out), box-shadow .3s ease, border-color .3s ease;
+}
+.pd-sheet:hover{ transform: translateY(-2px); border-color:#d6d6d8; box-shadow: var(--lift-shadow) }
+.pd-sheet:active{ transform: translateY(0) scale(.995) }
+.pd-sheet:focus-visible{ box-shadow: 0 0 0 3px rgba(94,146,232,.35), var(--panel-shadow) }
+.pd-head{ position:relative; padding:20px 0 4px }
 .pd-head .chips{ margin-top:0; padding-right:44px }
 .pd-head h2{ margin:14px 0 4px; font-size:24px; letter-spacing:-.02em }
-.pd-sec{ margin:14px 22px 0; padding:16px; border-radius:16px; background:#fff; border:1px solid #e8e8e8; box-shadow: var(--panel-shadow) }
-.pd-sec h3{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
-.pd-sec h3 span{ font-weight:600; letter-spacing:0; text-transform:none; color:var(--ink-2) }
-.pd-progress{ display:flex; align-items:center; gap:18px }
-.pd-progress .progress-wrapper{ width:92px; height:92px }
-.pd-progress .progress-inner{ inset:12px }
-.pd-progress .progress-label{ font-size:16px }
-.pd-big{ display:block; font-size:20px; letter-spacing:-.01em }
-.pd-hint{ margin-top:6px; font-size:13px; color:#065f46 }
-.pd-ladder .ladder-bar i{ height:8px }
+#projectDrawer.is-open #pdTitle{ view-transition-name: project-title }
+.pd-board{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top:14px }
+.pd-col{ display:grid; align-content:start; gap:5px; min-width:0; padding:10px; border-radius:12px; background: rgba(26,28,31,.035); border:1px solid rgba(26,28,31,.06) }
+.pd-col-h{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:2px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--subtle) }
+.pd-col-h b{ font-size:12px; letter-spacing:0; color:var(--ink-2) }
+.pd-line{ display:block; padding:6px 8px; border-radius:8px; font-size:12px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; background:#fff; border:1px solid #ececec; color:var(--ink-2) }
+.pd-col--done .pd-line{ color:var(--subtle); text-decoration: line-through; text-decoration-color: rgba(117,119,122,.5) }
+.pd-line.is-empty{ background:transparent; border-style:dashed; color:var(--subtle); text-decoration:none }
+.pd-more{ font-size:11.5px; color:var(--subtle); padding:0 2px }
+.pd-open-row{ display:flex; align-items:center; gap:12px; margin-top:14px }
+.pd-bar{ flex:1; height:6px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.07) }
+.pd-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #34d399, #10b981); transition: width .7s var(--ease-out) }
+.pd-open-row .meta{ font-size:12.5px; white-space:nowrap }
+.pd-go{ display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:600; white-space:nowrap; color:var(--ink) }
+.pd-go .ico{ width:15px; height:15px; transition: transform .35s var(--ease-out) }
+.pd-sheet:hover .pd-go .ico{ transform: translateX(3px) }
+/* White cards inside the preview and down the planner's side */
+.pd-sec, .pl-card{ padding:16px; border-radius:16px; background:#fff; border:1px solid #e8e8e8; box-shadow: var(--panel-shadow) }
+.pd-sec{ margin:14px 22px 0 }
+.pd-sec h3, .pl-card h3{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
+.pd-sec h3 span, .pl-card h3 span{ font-weight:600; letter-spacing:0; text-transform:none; color:var(--ink-2) }
+.pd-ladder .ladder-bar i, .pl-card .ladder-bar i{ height:8px }
 .ladder-labels{ display:grid; grid-template-columns: repeat(6, 1fr); gap:4px; margin-top:6px; font-size:11px; text-align:center; color:var(--subtle) }
 .ladder-labels .is-now{ font-weight:700; color:var(--progress-orange) }
 .pd-now{ margin:12px 0 0; font-size:14px }
 .pd-next{ margin-top:10px; padding:12px 14px; border-radius:12px; font-size:13.5px; line-height:1.5; background: rgba(231,132,64,.06); border:1px dashed rgba(231,132,64,.38) }
-
-.ms-list{ list-style:none; margin:0; padding:0; display:grid; gap:4px }
-.ms{ position:relative; display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; cursor:pointer; transition: background .2s ease }
-.ms:hover{ background:#fafafa }
-.ms input{ position:absolute; opacity:0; width:1px; height:1px }
-.ms-box{ width:22px; height:22px; flex:0 0 auto; display:grid; place-items:center; border-radius:7px; border:2px solid #d2d9e2; transition: background .25s ease, border-color .25s ease, transform .45s var(--ease-spring) }
-.ms-box .ico{ width:14px; height:14px; color:#fff; stroke-width:3; stroke-dasharray:24; stroke-dashoffset:24; transition: stroke-dashoffset .35s var(--ease-out) .05s }
-.ms input:checked + .ms-box{ background: linear-gradient(135deg, #34d399, #10b981); border-color:#10b981; transform: scale(1.06) }
-.ms input:checked + .ms-box .ico{ stroke-dashoffset:0 }
-.ms input:focus-visible + .ms-box{ box-shadow: 0 0 0 3px rgba(94,146,232,.3) }
-.ms-text{ font-size:14px; transition: color .25s ease }
-.ms input:checked ~ .ms-text{ color:var(--subtle); text-decoration: line-through; text-decoration-color: rgba(117,119,122,.5) }
 
 .team{ display:grid; gap:10px }
 .team-row{ display:flex; align-items:center; gap:12px }
@@ -101,6 +111,13 @@
 @media (max-width: 760px){ .subgrid{ grid-template-columns: minmax(0,1fr) auto; gap:10px } .subgrid .search{ grid-column: 1 / -1 } }
 @media (max-width: 640px){
   .subnav{ position:static }
-  .pd-head, .pd-actions{ padding-left:16px; padding-right:16px }
-  .pd-sec{ margin-left:16px; margin-right:16px }
+  .pd-actions{ padding-left:16px; padding-right:16px }
+  .pd-sec, .pd-sheet{ margin-left:16px; margin-right:16px }
+  .pd-sheet{ padding-left:12px; padding-right:12px }
+  .pd-open-row .meta{ display:none }
 }
+
+/* Project cards: the title is the button (the whole card is clickable) */
+.pcard{ cursor:pointer }
+.pcard-open{ all:unset; cursor:pointer; color:inherit; font:inherit }
+.pcard-open:focus-visible{ outline:none; text-decoration:underline; text-underline-offset:3px }

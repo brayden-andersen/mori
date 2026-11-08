@@ -322,11 +322,47 @@
   };
 
   /* ---------- Projects ----------
-     Google members: stored in Supabase and shared with co-founders (a local
-     copy renders instantly). Demo accounts: kept in this browser.
-     Pins are a personal choice, so they stay in this browser either way. */
+     A project is a planner: a board of tasks the team shares, and its rung on
+     the milestone ladder. Google members: stored in Supabase and shared with
+     co-founders (a local copy renders instantly). Demo accounts: kept in this
+     browser. Pins are a personal choice, so they stay in this browser either way.
+     Tasks are stored in the project's `milestones` list (up to 20), each
+     { id, text, status: todo|doing|done, done, assignee, due: "YYYY-MM-DD" }. */
+  const TASK_STATUSES = ["todo", "doing", "done"];
+  const MAX_TASKS = 20;
   const remoteList = () => get("projectsRemote", []);
   const localList = () => get("projectsCreated", []);
+  let taskSeq = 0;
+  const taskId = () => "k" + Date.now().toString(36) + (taskSeq++).toString(36) + Math.random().toString(36).slice(2, 5);
+  const newTask = (text, extra) => Object.assign({ id: taskId(), text: String(text).trim().slice(0, 200), status: "todo", done: false, assignee: null, due: null }, extra);
+
+  /** A stored task (or an older { text, done } milestone) in today's shape. */
+  function toTask(m, i) {
+    const t = m && typeof m === "object" ? m : {};
+    const status = TASK_STATUSES.includes(t.status) ? t.status : t.done ? "done" : "todo";
+    return {
+      id: typeof t.id === "string" && t.id ? t.id.slice(0, 40) : "t" + i,
+      text: String(t.text || "").slice(0, 200),
+      status,
+      done: status === "done",
+      assignee: typeof t.assignee === "string" && t.assignee ? t.assignee : null,
+      due: typeof t.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.due) ? t.due : null,
+    };
+  }
+  function toTasks(list) {
+    const seen = new Set();
+    return (Array.isArray(list) ? list : []).map(toTask).map((t, i) => {
+      if (seen.has(t.id)) t.id += "-" + i;
+      seen.add(t.id);
+      return t;
+    });
+  }
+  /** What's stored: the same, without empty fields. */
+  const stored = (tasks) => tasks.map((t) => Object.fromEntries(Object.entries(t).filter(([, v]) => v != null)));
+  /** A demo project's tasks, including ticks made before tasks had a status. */
+  const localTasks = (p, o) => toTasks((p.milestones || []).map((m, i) => (o.done && typeof o.done[i] === "boolean"
+    ? Object.assign({}, m, { done: o.done[i], status: o.done[i] ? "done" : m && m.status === "done" ? "todo" : m && m.status })
+    : m)));
 
   function projects() {
     const overrides = get("projectOverrides", {});
@@ -334,18 +370,20 @@
     const list = remote ? remoteList() : localList().map((p) => Object.assign({ ownerId: me(), cofounders: [] }, p));
     return list.map((p) => {
       const o = overrides[p.id] || {};
-      const milestones = remote ? p.milestones : p.milestones.map((m, i) => ({ text: m.text, done: o.done && typeof o.done[i] === "boolean" ? o.done[i] : !!m.done }));
-      const touched = remote ? p.updatedAt || p.createdAt : o.updatedAt || p.createdAt;
-      const doneCount = milestones.filter((m) => m.done).length;
-      return Object.assign({}, p, {
-        milestones,
+      const tasks = remote ? toTasks(p.milestones) : localTasks(p, o);
+      const touched = remote ? p.updatedAt || p.createdAt : Math.max(o.updatedAt || 0, p.updatedAt || 0) || p.createdAt;
+      const doneCount = tasks.filter((t) => t.done).length;
+      const out = Object.assign({}, p, {
+        tasks,
         doneCount,
         owner: p.ownerId === me(),
         cofounders: p.cofounders || [],
         pinned: typeof o.pinned === "boolean" ? o.pinned : !!p.pinned,
         updated_days: touched ? Math.floor((Date.now() - touched) / 864e5) : 0,
-        progress: milestones.length ? Math.round((doneCount / milestones.length) * 100) : 0,
+        progress: tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0,
       });
+      delete out.milestones;
+      return out;
     });
   }
   const project = (id) => projects().find((p) => p.id === id) || null;
@@ -359,6 +397,12 @@
     return project(pid);
   }
   const patchRemote = (pid, patch) => set("projectsRemote", remoteList().map((p) => (p.id === pid ? Object.assign({}, p, patch) : p)));
+  /** Change a demo project in this browser. */
+  function patchLocal(pid, patch) {
+    const overrides = get("projectOverrides", {});
+    if (patch.milestones && overrides[pid] && overrides[pid].done) { delete overrides[pid].done; put("projectOverrides", overrides); }
+    set("projectsCreated", localList().map((p) => (p.id === pid ? Object.assign({}, p, patch, { updatedAt: Date.now() }) : p)));
+  }
 
   /** Projects declared in this browser before projects moved to Supabase: upload them once. */
   async function importLocalProjects() {
@@ -369,8 +413,7 @@
     for (const p of local.slice().reverse()) { // oldest first, so the order stays the same
       const o = overrides[p.id] || {};
       try {
-        const milestones = p.milestones.map((m, i) => ({ text: m.text, done: o.done && typeof o.done[i] === "boolean" ? o.done[i] : !!m.done }));
-        const created = await Mori.db.createProject({ name: p.name, focus: p.focus, tags: p.tags, rung: p.rung, milestones });
+        const created = await Mori.db.createProject({ name: p.name, focus: p.focus, tags: p.tags, rung: p.rung, milestones: stored(localTasks(p, o)) });
         const pinned = typeof o.pinned === "boolean" ? o.pinned : !!p.pinned;
         delete overrides[p.id];
         if (pinned) overrides[created.id] = { pinned: true };
@@ -381,9 +424,16 @@
     put("projectOverrides", overrides);
     put("projectsCreated", keep);
   }
+  /* A save in flight, or one that finished after a refresh was sent, is newer
+     than what that refresh brings back: keep the copy here for those projects. */
+  const saving = {};
+  const savedAt = {};
   const refreshProjects = refresher(async () => {
     await importLocalProjects();
-    set("projectsRemote", await Mori.db.projects());
+    const sent = Date.now();
+    const rows = await Mori.db.projects();
+    const here = remoteList();
+    set("projectsRemote", rows.map((r) => (saving[r.id] || (savedAt[r.id] || 0) >= sent ? here.find((x) => x.id === r.id) || r : r)));
   });
 
   /** Declare a project; founders can add co-founders (their connections) straight away. */
@@ -395,7 +445,7 @@
       focus: String(focus || "").trim() || `Working toward ${next.stage}`,
       tags: tags && tags.length ? tags : ["Idea"],
       rung: r,
-      milestones: D.starterMilestones[r].map((text) => ({ text, done: false })),
+      milestones: stored(D.starterTasks[r].map((text) => newTask(text))),
     };
     const pinFirst = pinnedProjects().length === 0; // the first project shows on the homepage
     let id;
@@ -422,30 +472,109 @@
     return id;
   }
 
+  /* Saves to one project run one after another, so each starts from the last. */
+  const queues = {};
+  const queue = (pid, job) => (queues[pid] = (queues[pid] || Promise.resolve()).catch(() => {}).then(job));
   let saveSeq = 0;
   /**
-   * Tick or untick a milestone. Returns the updated project straight away;
-   * `saved` settles once Supabase has it (it rejects, and the tick is undone, if saving fails).
+   * Save a change to a project. The copy here changes straight away (the
+   * updated project is returned at once); `saved` settles once Supabase has it
+   * and rejects, undoing the change, if saving fails.
+   *   remotely(pid): the request that stores it.
    */
-  function toggleMilestone(pid, index) {
+  function commit(pid, patch, remotely) {
     const p = project(pid);
-    if (!p || !p.milestones[index]) return { project: null, saved: Promise.resolve() };
-    const milestones = p.milestones.map((m, i) => ({ text: m.text, done: i === index ? !m.done : m.done }));
+    if (!p) return { project: null, saved: Promise.resolve(null) };
     if (!remoteEnabled()) {
-      override(pid, { done: milestones.map((m) => m.done), updatedAt: Date.now() });
-      return { project: project(pid), saved: Promise.resolve() };
+      patchLocal(pid, patch);
+      return { project: project(pid), saved: Promise.resolve(project(pid)) };
     }
-    patchRemote(pid, { milestones, updatedAt: Date.now() });
+    const before = remoteList().find((x) => x.id === pid);
+    const undo = {};
+    Object.keys(patch).forEach((k) => { undo[k] = before[k]; });
+    undo.updatedAt = before.updatedAt;
+    patchRemote(pid, Object.assign({}, patch, { updatedAt: Date.now() }));
     const seq = ++saveSeq;
-    const saved = Mori.db.updateProject(pid, { milestones }).then(
-      (row) => { if (row && seq === saveSeq) patchRemote(pid, row); },
-      (err) => { if (seq === saveSeq) patchRemote(pid, { milestones: p.milestones }); throw err; }
+    saving[pid] = (saving[pid] || 0) + 1;
+    const done = () => { saving[pid] -= 1; savedAt[pid] = Date.now(); };
+    const saved = queue(pid, remotely).then(
+      (row) => { done(); if (row && seq === saveSeq) patchRemote(pid, row); return project(pid); },
+      (err) => {
+        done();
+        if (seq === saveSeq) { patchRemote(pid, undo); refreshProjects({ force: true }).catch(() => {}); }
+        throw err;
+      }
     );
     return { project: project(pid), saved };
+  }
+
+  /**
+   * Change a project's tasks: `change(tasks)` returns the new list. It runs on
+   * the copy here at once and again on the latest copy in Supabase, so a
+   * co-founder's edits made in the meantime aren't overwritten.
+   */
+  function changeTasks(pid, change) {
+    const p = project(pid);
+    if (!p) return { project: null, saved: Promise.resolve(null) };
+    const apply = (list) => {
+      const next = toTasks(change(toTasks(list).map((t) => Object.assign({}, t))));
+      if (next.length > MAX_TASKS) throw Object.assign(new Error(`A project holds up to ${MAX_TASKS} tasks for now.`), { code: "too-many" });
+      return stored(next);
+    };
+    let milestones;
+    try { milestones = apply(p.tasks); } catch (err) { return { project: p, saved: Promise.reject(err) }; }
+    return commit(pid, { milestones }, () => Mori.db.changeTasks(pid, apply));
+  }
+  const addTask = (pid, text, extra) => {
+    const t = newTask(text, extra);
+    return Object.assign(changeTasks(pid, (ts) => ts.concat([t])), { task: t });
+  };
+  const updateTask = (pid, id, patch) => changeTasks(pid, (ts) => ts.map((t) => (t.id === id ? Object.assign(t, patch, patch.status ? { done: patch.status === "done" } : {}) : t)));
+  const removeTask = (pid, id) => changeTasks(pid, (ts) => ts.filter((t) => t.id !== id));
+  /** Move a task to a column, before the task `beforeId` (or to the end). */
+  const moveTask = (pid, id, status, beforeId) => changeTasks(pid, (ts) => {
+    const t = ts.find((x) => x.id === id);
+    if (!t) return ts;
+    const rest = ts.filter((x) => x.id !== id);
+    Object.assign(t, { status, done: status === "done" });
+    const at = beforeId ? rest.findIndex((x) => x.id === beforeId) : -1;
+    if (at < 0) {
+      // the end of that column: just after its last task
+      let last = -1;
+      rest.forEach((x, i) => { if (x.status === status) last = i; });
+      rest.splice(last < 0 ? rest.length : last + 1, 0, t);
+    } else rest.splice(at, 0, t);
+    return rest;
+  });
+  /** Tick or untick a task (the tick box on a task card). */
+  const toggleTask = (pid, id) => {
+    const t = (project(pid) || { tasks: [] }).tasks.find((x) => x.id === id);
+    return t ? updateTask(pid, id, { status: t.done ? "todo" : "done" }) : { project: null, saved: Promise.resolve(null) };
+  };
+
+  /** Change a project's name, focus, tags or rung. */
+  function updateProject(pid, patch) {
+    const clean = {};
+    if (typeof patch.name === "string" && patch.name.trim()) clean.name = patch.name.trim().slice(0, 60);
+    if (typeof patch.focus === "string") clean.focus = patch.focus.trim().slice(0, 80);
+    if (Array.isArray(patch.tags)) clean.tags = patch.tags.map((t) => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 10);
+    if (patch.rung != null) clean.rung = Math.max(0, Math.min(5, Number(patch.rung) || 0));
+    return commit(pid, clean, () => Mori.db.updateProject(pid, clean));
   }
   function togglePin(pid) {
     const p = project(pid);
     return p ? override(pid, { pinned: !p.pinned }) : null;
+  }
+  /** Delete a project you own, with its tasks, for everyone on the team. */
+  async function deleteProject(pid) {
+    if (remoteEnabled()) {
+      await queue(pid, () => Mori.db.deleteProject(pid));
+      set("projectsRemote", remoteList().filter((x) => x.id !== pid));
+    } else {
+      set("projectsCreated", localList().filter((x) => x.id !== pid));
+    }
+    const overrides = get("projectOverrides", {});
+    if (overrides[pid]) { delete overrides[pid]; put("projectOverrides", overrides); }
   }
   async function addCofounders(pid, ids) {
     const added = await Mori.db.addCofounders(pid, ids);
@@ -457,7 +586,13 @@
     await Mori.db.removeCofounder(pid, memberId);
     const p = remoteList().find((x) => x.id === pid);
     if (memberId === me()) set("projectsRemote", remoteList().filter((x) => x.id !== pid)); // you left
-    else if (p) patchRemote(pid, { cofounders: p.cofounders.filter((x) => x !== memberId) });
+    else if (p) {
+      // Their tasks go back to the team.
+      patchRemote(pid, { cofounders: p.cofounders.filter((x) => x !== memberId) });
+      if (toTasks(p.milestones).some((t) => t.assignee === memberId)) {
+        changeTasks(pid, (ts) => ts.map((t) => (t.assignee === memberId ? Object.assign(t, { assignee: null }) : t))).saved.catch(() => {});
+      }
+    }
   }
 
   /* ---------- Notifications: built from connection requests ---------- */
@@ -544,7 +679,8 @@
     profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete,
     settings, saveSettings, applyPrefs,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
-    projects, project, pinnedProjects, allTags, toggleMilestone, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
+    projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
+    updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS,
     network, chat, live, forgetPrivate, reset,
   };
 })();

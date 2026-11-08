@@ -2,12 +2,11 @@
 html[data-theme="dark"]{ color-scheme: dark }
 
 /* ---- mori.css ---- */
-html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --aura-top:rgba(153,153,156,0.15); --aura-top-2:rgba(153,153,156,0.11); --aura-red:rgba(226,32,32,0.15); --aura-red-2:rgba(226,32,32,0.13); --aura-red-soft:rgba(226,32,32,0.07); --orb-top:rgba(153,153,156,0.08); --orb-red:rgba(226,32,32,0.11); --orb-mid:rgba(76,21,204,0.166); --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%) }
+html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --aura-top:rgba(153,153,156,0.15); --aura-top-2:rgba(153,153,156,0.11); --aura-red:rgba(226,32,32,0.15); --aura-red-2:rgba(226,32,32,0.13); --aura-red-soft:rgba(226,32,32,0.07); --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%); --red-grad:linear-gradient(110deg, #790c0c 0%, #e22020 45%, #a51910 100%) }
 html[data-theme="dark"] code{ background:rgba(227,228,230,0.06) }
 html[data-theme="dark"] ::selection{ background:rgba(20,90,204,0.418) }
 html[data-theme="dark"] :where(a, button, input, select, textarea, [tabindex]):focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
-html[data-theme="dark"] .nav{ background:rgba(27,27,27,0.14) }
-html[data-theme="dark"] .nav.is-scrolled{ background:rgba(27,27,27,0.32); box-shadow:0 1px 0 rgba(0,0,0,0.224), 0 10px 30px rgba(0,0,0,0.176) }
+html[data-theme="dark"] .nav.is-scrolled{ background:rgba(27,27,27,0.55); box-shadow:0 1px 0 rgba(0,0,0,0.224), 0 10px 30px rgba(0,0,0,0.176) }
 html[data-theme="dark"] .brand:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
 html[data-theme="dark"] .menu-glider{ background:rgba(27,27,27,0.36); border:1px solid rgba(224,224,226,0.3); box-shadow:0 6px 16px rgba(0,0,0,0.224), inset 0 1px 0 rgba(255,255,255,0.072) }
 html[data-theme="dark"] .dropdown{ border:1px solid rgba(227,228,230,0.08); box-shadow:0 18px 36px rgba(0,0,0,0.368), 0 2px 6px rgba(0,0,0,0.224) }
@@ -123,7 +122,7 @@ html[data-theme="dark"] .nt.is-unread{ background:rgba(20,90,204,0.166) }
 html[data-theme="dark"] .nt-ico{ color:#ffffff }
 html[data-theme="dark"] .nt-dot{ box-shadow:0 0 0 4px rgba(20,82,184,0.188) }
 html[data-theme="dark"] .spotlight{ --spot:rgba(27,27,27,0.78) }
-html[data-theme="dark"] .spotlight::after{ background:radial-gradient(260px circle at var(--mx) var(--my), #145acc, rgba(204,95,20,0.775) 45%, transparent 72%) }
+html[data-theme="dark"] .spotlight::after{ background:radial-gradient(260px circle at var(--mx) var(--my), #1b1b1b, rgba(27,27,27,0.55) 45%, transparent 72%) }
 html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot:rgba(20,103,204,0.25) }
 html[data-theme="dark"] .typing{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .typing i{ background:#6c6e70 }
@@ -135,7 +134,6 @@ html[data-theme="dark"] .loader{ background:radial-gradient(1300px 900px at 18% 
     var(--bg) }
 html[data-theme="dark"] .loader-mark{ color:#ededed }
 html[data-theme="dark"] .loader-mark::before{ border:1.5px solid rgba(237,237,237,0.09); border-top-color:#ededed }
-html[data-theme="dark"] .pf-facts div{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .mp-remove:hover{ color:#ed8c8c }
 html[data-theme="dark"] .mp-connect{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .fact-pill{ background:#1b1b1b; border:1px solid #2b2b2b }
@@ -151,7 +149,7 @@ html[data-theme="dark"] .eyebrow .dot{ background:#0c7c57 }
 html[data-theme="dark"] .btn-google{ background:#1b1b1b; border:1px solid #323337; color:#e4e4e4; box-shadow:0 1px 2px rgba(0,0,0,0.224), var(--panel-shadow) }
 html[data-theme="dark"] .btn-google:hover{ border-color:#404246 }
 html[data-theme="dark"] .legal a{ color:#8ba5ef }
-html[data-theme="dark"] .fc{ border:1px solid rgba(224,224,226,0.3); box-shadow:0 22px 44px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.2) }
+html[data-theme="dark"] .fc{ background:linear-gradient(to bottom right, rgba(32,32,36,0.9), rgba(27,27,27,0.95)); border:1px solid rgba(224,224,226,0.3); box-shadow:0 22px 44px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.2) }
 html[data-theme="dark"] .fc--main{ background:linear-gradient(to bottom right, rgba(27,27,27,0.88), rgba(27,27,27,0.97)) }
 html[data-theme="dark"] .fc-live{ color:#81f8d7 }
 html[data-theme="dark"] .fc-row{ border-top:1px solid #232324 }
@@ -160,11 +158,25 @@ html[data-theme="dark"] .fc-kicker{ color:#af87f3 }
 html[data-theme="dark"] .bubble{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .badge-ico{ color:#ffffff; background:linear-gradient(135deg, #c36213, #c0166f); box-shadow:0 10px 20px -8px #b71569 }
 html[data-theme="dark"] .badge-ico::after{ background:linear-gradient(110deg, transparent 35%, rgba(27,27,27,0.55) 50%, transparent 65%) }
-html[data-theme="dark"] .float-chip{ color:#dfe0e1; background:rgba(27,27,27,0.78); border:1px solid rgba(224,224,226,0.3) }
+html[data-theme="dark"] .float-chip{ color:#dfe0e1; background:rgba(27,27,27,0.92); border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .marquee-track span{ background:rgba(27,27,27,0.55); border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .l-section + .l-section{ border-top:1px solid rgba(227,228,230,0.06) }
-html[data-theme="dark"] .pillar-ico{ color:#ffffff }
-html[data-theme="dark"] .pillar-more{ color:#8ba5ef }
+html[data-theme="dark"] .l-story{ border-top:1px solid rgba(227,228,230,0.06) }
+html[data-theme="dark"] .story.is-pinned .story-bar{ background:rgba(227,228,230,0.1) }
+html[data-theme="dark"] .mock{ background:linear-gradient(to bottom right, rgba(27,27,27,0.9), rgba(27,27,27,0.97)); border:1px solid rgba(224,224,226,0.3); box-shadow:0 30px 60px rgba(0,0,0,0.368), 0 2px 8px rgba(0,0,0,0.2) }
+html[data-theme="dark"] .mock-bar{ border-bottom:1px solid #252526 }
+html[data-theme="dark"] .mock-bar i{ background:rgba(227,228,230,0.14) }
+html[data-theme="dark"] .mock-search{ background:#202022; border:1px solid #272728 }
+html[data-theme="dark"] .mock-row{ background:#1b1b1b; border:1px solid #272728 }
+html[data-theme="dark"] .mock-row.is-match{ border-color:rgba(227,228,230,0.22); box-shadow:0 10px 24px rgba(0,0,0,0.272) }
+html[data-theme="dark"] .mock-btn{ border:1px solid rgba(227,228,230,0.2) }
+html[data-theme="dark"] .mock-col{ background:rgba(227,228,230,0.035); border:1px solid rgba(227,228,230,0.06) }
+html[data-theme="dark"] .mock-task{ background:#1b1b1b; border:1px solid #272728 }
+html[data-theme="dark"] .mock-task.is-doing{ box-shadow:inset 2px 0 0 #345598 }
+html[data-theme="dark"] .mock-meter{ background:rgba(227,228,230,0.07) }
+html[data-theme="dark"] .mock-meter i{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .mock-ladder{ background:#1b1b1b; border:1px solid #272728 }
+html[data-theme="dark"] .fact{ border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .pill{ background:rgba(27,27,27,0.72); border:1px solid #292a2b; box-shadow:0 1px 2px rgba(0,0,0,0.176) }
 html[data-theme="dark"] .pill:hover{ background:#1b1b1b; color:#92a8e8; border-color:rgba(20,90,204,0.88) }
 html[data-theme="dark"] .pill--more{ color:#8ba5ef; border-color:rgba(20,90,204,0.775) }
@@ -176,7 +188,8 @@ html[data-theme="dark"] .open-match{ color:#92a8e8 }
 html[data-theme="dark"] .orbit-tag{ background:rgba(27,27,27,0.84); border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .cnode .avatar{ box-shadow:0 0 0 3px #1b1b1b, 0 10px 20px rgba(0,0,0,0.416) }
 html[data-theme="dark"] .cnode em{ background:rgba(27,27,27,0.88); border:1px solid rgba(224,224,226,0.3); box-shadow:0 4px 10px rgba(0,0,0,0.224) }
-html[data-theme="dark"] .cnode-core{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6) }
+html[data-theme="dark"] .cnode-core{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 16px 32px rgba(0,0,0,0.656) }
+html[data-theme="dark"] .cnode-core::after, html[data-theme="dark"] .orbit-core::after{ border:2px solid rgba(204,95,20,0.985) }
 html[data-theme="dark"] .ladder-track{ background:rgba(227,228,230,0.08) }
 html[data-theme="dark"] .ladder-fill{ background:linear-gradient(to top, #c36e13, #b75512) }
 html[data-theme="dark"] .rung{ border:1px solid rgba(224,224,226,0.3) }
@@ -191,7 +204,7 @@ html[data-theme="dark"] .who-arrow{ background:rgba(227,228,230,0.05) }
 html[data-theme="dark"] .who-row:hover .who-arrow{ color:#1b1b1b }
 html[data-theme="dark"] .orbit-ring{ border:1px dashed rgba(227,228,230,0.16) }
 html[data-theme="dark"] .orbit-slot .avatar{ box-shadow:0 0 0 3px #1b1b1b, 0 8px 18px rgba(0,0,0,0.416) }
-html[data-theme="dark"] .orbit-core{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6) }
+html[data-theme="dark"] .orbit-core{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 16px 32px rgba(0,0,0,0.656) }
 html[data-theme="dark"] .auth-mark{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 16px 30px rgba(0,0,0,0.608) }
 html[data-theme="dark"] .demo-badge{ color:#eea58b; background:rgba(204,95,20,0.292); border:1px solid rgba(204,95,20,0.67) }
 
@@ -223,7 +236,6 @@ html[data-theme="dark"] .ob-steps li{ background:rgba(227,228,230,0.08) }
 }
 
 /* ---- home.css ---- */
-html[data-theme="dark"] .card-go{ color:#1b1b1b }
 html[data-theme="dark"] .panel#pinnedPanel .chip{ background:rgba(204,95,20,0.25); border:1px solid rgba(204,95,20,0.628); color:#eea58b }
 html[data-theme="dark"] .panel#pinnedPanel .caption{ color:#bfc0c2 }
 html[data-theme="dark"] .panel#pinnedPanel .pin-separator{ background:#2b2b2b }
@@ -231,15 +243,16 @@ html[data-theme="dark"] .panel#pinnedPanel .pin-separator{ background:#2b2b2b }
 /* ---- projects.css ---- */
 html[data-theme="dark"] .pagebtn{ border:1px solid #2b2b2b; background:#1b1b1b }
 html[data-theme="dark"] .pagebtn[aria-current="page"]{ border-color:rgba(20,90,204,0.628); background:rgba(20,90,204,0.208) }
-html[data-theme="dark"] .pd-sec{ background:#1b1b1b; border:1px solid #2b2b2b }
-html[data-theme="dark"] .pd-hint{ color:#81f8d7 }
+html[data-theme="dark"] .pd-sheet{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .pd-sheet:hover{ border-color:#3a3a3c }
+html[data-theme="dark"] .pd-sheet:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438), var(--panel-shadow) }
+html[data-theme="dark"] .pd-col{ background:rgba(227,228,230,0.035); border:1px solid rgba(227,228,230,0.06) }
+html[data-theme="dark"] .pd-line{ background:#1b1b1b; border:1px solid #282828 }
+html[data-theme="dark"] .pd-col--done .pd-line{ text-decoration-color:rgba(158,159,160,0.5) }
+html[data-theme="dark"] .pd-bar{ background:rgba(227,228,230,0.07) }
+html[data-theme="dark"] .pd-bar i{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .pd-sec, html[data-theme="dark"] .pl-card{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .pd-next{ background:rgba(204,95,20,0.166); border:1px dashed rgba(204,95,20,0.838) }
-html[data-theme="dark"] .ms:hover{ background:#1e1e1e }
-html[data-theme="dark"] .ms-box{ border:2px solid #222a35 }
-html[data-theme="dark"] .ms-box .ico{ color:#1b1b1b }
-html[data-theme="dark"] .ms input:checked + .ms-box{ background:linear-gradient(135deg, #199a6b, #0c7c57); border-color:#0c7c57 }
-html[data-theme="dark"] .ms input:focus-visible + .ms-box{ box-shadow:0 0 0 3px rgba(20,82,184,0.375) }
-html[data-theme="dark"] .ms input:checked ~ .ms-text{ text-decoration-color:rgba(158,159,160,0.5) }
 html[data-theme="dark"] .np-colist{ border:1px solid #2b2b2b; background:#1b1b1b }
 html[data-theme="dark"] .co-opt:hover{ background:rgba(108,110,112,0.12) }
 html[data-theme="dark"] .co-opt .ind-box{ border:1.5px solid #222a35; background:#1b1b1b }
@@ -248,6 +261,46 @@ html[data-theme="dark"] .co-opt input:focus-visible + .ind-box{ box-shadow:0 0 0
 html[data-theme="dark"] .np-rung{ border:1px solid #2b2b2b; background:#1b1b1b }
 html[data-theme="dark"] .np-rung[aria-checked="true"]{ color:#ffffff; background:linear-gradient(135deg, #c36213, #b75512); box-shadow:0 10px 20px -10px #b85714 }
 html[data-theme="dark"] .input.is-invalid{ border-color:#c71919; box-shadow:0 0 0 4px rgba(181,23,23,0.15) }
+
+/* ---- project.css ---- */
+html[data-theme="dark"] .pl-head-actions [aria-pressed="true"]{ border-color:rgba(227,228,230,0.42) }
+html[data-theme="dark"] .pl-summary{ border:1px solid rgba(224,224,226,0.3) }
+html[data-theme="dark"] .pl-stack{ background:rgba(227,228,230,0.07) }
+html[data-theme="dark"] .pl-stack .is-done{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .pl-stack .is-doing{ background:linear-gradient(90deg, #2e467e, #223763) }
+html[data-theme="dark"] .pl-stack .is-todo{ background:rgba(227,228,230,0.13) }
+html[data-theme="dark"] .pl-stat{ background:rgba(27,27,27,0.62); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .pl-stat.is-late{ color:#f88282; background:rgba(226,32,32,0.05); border-color:rgba(226,32,32,0.24) }
+html[data-theme="dark"] .pl-stat.is-late b{ color:#ff5c5c }
+html[data-theme="dark"] .pl-col{ border:1px solid rgba(224,224,226,0.3) }
+html[data-theme="dark"] .pl-col.is-over{ border-color:rgba(227,228,230,0.6); box-shadow:0 0 0 3px rgba(0,0,0,0.248), var(--panel-shadow) }
+html[data-theme="dark"] .pl-dot{ background:#76777a }
+html[data-theme="dark"] .pl-col--doing .pl-dot{ background:#223763 }
+html[data-theme="dark"] .pl-col--done .pl-dot{ background:#0c7c57 }
+html[data-theme="dark"] .pl-count{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .pl-empty{ border:1px dashed rgba(227,228,230,0.16) }
+html[data-theme="dark"] .task{ background:#1b1b1b; border:1px solid #2b2b2b; box-shadow:0 2px 8px rgba(0,0,0,0.176) }
+html[data-theme="dark"] .task:hover{ border-color:#3a3a3c; box-shadow:0 8px 20px rgba(0,0,0,0.272) }
+html[data-theme="dark"] .task-box{ border:2px solid #222a35; background:#1b1b1b }
+html[data-theme="dark"] .task-box .ico{ color:#1b1b1b }
+html[data-theme="dark"] .task-check:hover .task-box{ border-color:#555b63 }
+html[data-theme="dark"] .task-check input:checked + .task-box{ background:linear-gradient(135deg, #199a6b, #0c7c57); border-color:#0c7c57 }
+html[data-theme="dark"] .task-check input:focus-visible + .task-box{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .task-open:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .task.is-done .task-text{ text-decoration-color:rgba(158,159,160,0.5) }
+html[data-theme="dark"] .task-due.is-soon{ color:#f8cf81 }
+html[data-theme="dark"] .task-due.is-late{ color:#ff5c5c }
+html[data-theme="dark"] .pl-add-input{ border:1px dashed rgba(227,228,230,0.2); background:rgba(27,27,27,0.5) }
+html[data-theme="dark"] .pl-add-input:hover{ background:rgba(27,27,27,0.78) }
+html[data-theme="dark"] .pl-add-input:focus{ border-color:#145acc; background:#1b1b1b; box-shadow:0 0 0 4px rgba(20,82,184,0.15) }
+html[data-theme="dark"] .pl-up-row:hover{ background:rgba(108,110,112,0.12) }
+html[data-theme="dark"] .pl-up-row:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .pl-up-date{ background:rgba(227,228,230,0.05); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .pl-up-date.is-late{ background:rgba(226,32,32,0.06); border-color:rgba(226,32,32,0.24) }
+html[data-theme="dark"] .pl-up-date.is-late b{ color:#ff5c5c }
+html[data-theme="dark"] .pl-up-date.is-soon b{ color:#f8cf81 }
+html[data-theme="dark"] .pl-danger{ border-top:1px solid #282828 }
+html[data-theme="dark"] .pl-skel{ background:rgba(227,228,230,0.07) }
 
 /* ---- network.css ---- */
 html[data-theme="dark"] .net-manage-title{ border-bottom:1px solid rgba(224,224,226,0.12) }
@@ -291,20 +344,18 @@ html[data-theme="dark"]{
   --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
   --aura-red-2: rgba(200,0,0,0.13);
   --aura-red-soft: rgba(184,0,0,0.075);
-  --orb-top: rgba(236,236,242,.03);
-  --orb-red: rgba(200,0,0,.085);
-  --orb-mid: rgba(110,40,150,.08);
 }
-html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }
-/* The logo stays black and red; a faint light edge keeps the black visible on dark grey */
+/* The logo: a white top and the MORI red below */
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
-html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#111 }
-html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-logo{ filter: drop-shadow(0 0 .6px rgba(255,255,255,.7)) drop-shadow(0 0 3px rgba(255,255,255,.18)) }
+html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#f2f2f3 }
 /* Profile banner: darker still */
 html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(120deg, #0c0c0e 0%, #23100f 52%, #5c1218 100%) }
 /* The nav floats over the aura */
-html[data-theme="dark"] .nav{ background: rgba(17,17,19,.4) }
 html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
+/* Hero words: a brighter red gradient on dark */
+html[data-theme="dark"]{ --red-grad: linear-gradient(110deg, #c20f0f 0%, #ec2b22 50%, #ff6a55 100%) }
+/* Container hover: a white gradient on the edge */
+html[data-theme="dark"] .spotlight::after{ background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,.28) 45%, transparent 72%) }
 /* The cursor highlight on cards: a faint light glow on dark surfaces */
 html[data-theme="dark"] .spotlight{ --spot: rgba(255,255,255,.06) }
 html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot: rgba(120,160,230,.10) }
@@ -312,3 +363,9 @@ html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight
 html[data-theme="dark"] img{ color-scheme: normal }
 /* The default avatar: a grey person on dark grey */
 html[data-theme="dark"] .avatar--face{ background: linear-gradient(180deg, #505157, #3d3e43); color:#d7d8dc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06) }
+/* Project planner: brighter column dots, a white tick, visible checkbox edges */
+html[data-theme="dark"] .pl-col--doing .pl-dot{ background:#7391d8 }
+html[data-theme="dark"] .pl-col--done .pl-dot{ background:#2bc792 }
+html[data-theme="dark"] .pl-stack .is-doing{ background: linear-gradient(90deg, #4f6db6, #3d5a9e) }
+html[data-theme="dark"] .task-box{ border-color:#4a4f57 }
+html[data-theme="dark"] .task-box .ico{ color:#fff }

@@ -227,13 +227,11 @@
   /* ---------- Re-rendered lists: staggered entrance ---------- */
   function enter(container, selector) {
     if (!container) return;
-    const items = selector ? container.querySelectorAll(selector) : container.children;
-    Array.from(items).forEach((el, i) => {
-      el.style.setProperty("--i", i);
-      el.classList.remove("enter");
-      void el.offsetWidth;
-      el.classList.add("enter");
-    });
+    const items = Array.from(selector ? container.querySelectorAll(selector) : container.children);
+    if (!items.length) return;
+    items.forEach((el, i) => { el.style.setProperty("--i", i); el.classList.remove("enter"); });
+    void container.offsetWidth; // one reflow restarts every item's animation
+    items.forEach((el) => el.classList.add("enter"));
   }
 
   function refresh(scope = document) {

@@ -5,6 +5,8 @@
    • "Continue with Google" signs in through Supabase (or the demo sheet when
      Supabase isn't available) behind a full-screen loading screen
    • New members go to onboarding.html; returning members to their start page
+   • Scroll scenes: the hero recedes, "What is Sandbox?" lights up word by
+     word, and "How Sandbox works" pins while its three steps play
    • Interactive milestone ladder, live message card, section scroll-spy
    ========================================================================== */
 (function () {
@@ -158,7 +160,15 @@
     if (db.enabled) finishRedirect();
     else loader.hide();
   } else {
-    db.preload(); // so "Continue with Google" responds instantly
+    // Load the sign-in library once the page has settled (or the moment a visitor
+    // reaches for a sign-in button), so "Continue with Google" responds instantly
+    // without slowing the first paint.
+    const warm = () => { db.preload(); document.removeEventListener("pointerover", onIntent); document.removeEventListener("focusin", onIntent); };
+    const onIntent = (e) => { if (e.target.closest && e.target.closest("[data-auth], [data-gate]")) warm(); };
+    document.addEventListener("pointerover", onIntent, { passive: true });
+    document.addEventListener("focusin", onIntent);
+    if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 3500 });
+    else setTimeout(warm, 2500);
     if (params.has("signedout")) {
       toast("You’ve signed out. See you soon!", { icon: "logout" });
       history.replaceState(null, "", location.pathname + location.hash);
@@ -248,8 +258,130 @@
   }
   if (!Mori.motion.reduced()) setInterval(cycleMessage, 5200);
 
+  // The dots travelling along the constellation's lines (SVG animation) only run while it's on screen.
   const constellation = $(".const-lines");
-  if (constellation && Mori.motion.reduced() && constellation.pauseAnimations) constellation.pauseAnimations();
+  if (constellation && constellation.pauseAnimations) {
+    if (Mori.motion.reduced()) constellation.pauseAnimations();
+    else if ("IntersectionObserver" in window) {
+      constellation.pauseAnimations();
+      new IntersectionObserver(([en]) => (en.isIntersecting ? constellation.unpauseAnimations() : constellation.pauseAnimations()), { rootMargin: "80px 0px" }).observe(constellation);
+    }
+  }
+
+  /* ---------- Scroll scenes ----------
+     One passive scroll listener and at most one update per frame. Positions
+     are measured once (and again on resize), so scrolling never forces a
+     layout; only transform, opacity and classes change. With reduced motion
+     everything shows in its final state and nothing pins. */
+  const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const calm = Mori.motion.reduced();
+  const scenes = [];
+  let vh = window.innerHeight;
+  let queued = false;
+  const tick = () => { queued = false; const y = window.scrollY; scenes.forEach((sc) => sc.update(y)); };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(tick); } };
+  function measure() {
+    vh = window.innerHeight;
+    const y = window.scrollY;
+    scenes.forEach((sc) => { const r = sc.el.getBoundingClientRect(); sc.top = r.top + y; sc.height = r.height; });
+    queue();
+  }
+
+  // The hero recedes: its words sink and fade, the product preview drifts after them.
+  const hero = $(".l-hero");
+  const heroCopy = $(".l-hero-copy");
+  const heroArt = $(".hero-art");
+  if (!calm && hero && heroCopy && heroArt) scenes.push({
+    el: hero, last: -1,
+    update(y) {
+      const p = Math.round(clamp01(y / (this.height * 0.9)) * 1000) / 1000;
+      if (p === this.last) return;
+      this.last = p;
+      hero.classList.toggle("is-receding", p > 0 && p < 1);
+      heroCopy.style.opacity = p ? String(Math.max(0, 1 - p * 1.25)) : "";
+      heroCopy.style.transform = p ? `translate3d(0, ${(p * 90).toFixed(1)}px, 0) scale(${(1 - p * 0.06).toFixed(4)})` : "";
+      heroArt.style.opacity = p ? String(Math.max(0, 1 - p * 1.05)) : "";
+      heroArt.style.transform = p ? `translate3d(0, ${(p * 40).toFixed(1)}px, 0) scale(${(1 - p * 0.05).toFixed(4)})` : "";
+    },
+  });
+
+  // "What is Sandbox?": the words light up as the paragraph moves up the screen.
+  const statement = $("[data-statement]");
+  if (statement && !calm) {
+    const words = [];
+    const split = (node) => Array.from(node.childNodes).forEach((n) => {
+      if (n.nodeType === 1) { split(n); return; }
+      if (n.nodeType !== 3) return;
+      const frag = document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).forEach((part) => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+        const w = document.createElement("span");
+        w.className = "w";
+        w.textContent = part;
+        words.push(w);
+        frag.appendChild(w);
+      });
+      n.replaceWith(frag);
+    });
+    split(statement);
+    statement.classList.add("is-split");
+    scenes.push({
+      el: statement, lit: 0,
+      update(y) {
+        // From its top at 85% of the screen to its bottom at 50%.
+        const p = clamp01((vh * 0.85 - (this.top - y)) / (vh * 0.35 + this.height));
+        const lit = Math.round(p * words.length);
+        if (lit === this.lit) return;
+        for (let i = Math.min(lit, this.lit); i < Math.max(lit, this.lit); i++) words[i].classList.toggle("is-lit", i < lit);
+        this.lit = lit;
+      },
+    });
+  }
+
+  // "How Sandbox works": the scene pins for three screens of scrolling, one step each.
+  const story = $("#story");
+  if (story && !calm) {
+    const copies = $$(".story-copy", story);
+    const screens = $$(".story-screen", story);
+    const bars = $$(".story-bar i", story);
+    const stage = $(".story-stage", story);
+    const n = copies.length;
+    let step = 0;
+    story.classList.add("is-pinned");
+    const scene = {
+      el: story, last: "",
+      update(y) {
+        const span = Math.max(1, this.height - vh);
+        const p = clamp01((y - this.top) / span);
+        const i = Math.min(n - 1, Math.floor(p * n));
+        if (i !== step) {
+          step = i;
+          copies.forEach((c, k) => c.classList.toggle("is-active", k === i));
+          screens.forEach((c, k) => c.classList.toggle("is-active", k === i));
+        }
+        const arrive = clamp01(1 - (this.top - y) / vh); // the screen rises into place as the scene arrives
+        const key = p.toFixed(3) + "|" + arrive.toFixed(3);
+        if (key === this.last) return;
+        this.last = key;
+        bars.forEach((b, k) => b.style.setProperty("--p", clamp01(p * n - k).toFixed(3)));
+        stage.style.transform = arrive < 1 ? `translate3d(0, ${((1 - arrive) * 60).toFixed(1)}px, 0) scale(${(0.94 + arrive * 0.06).toFixed(4)})` : "";
+      },
+    };
+    scenes.push(scene);
+    // Click a step to scroll to it.
+    copies.forEach((c, k) => c.addEventListener("click", () => {
+      window.scrollTo({ top: Math.round(scene.top + (k / n) * Math.max(1, scene.height - vh)) + 2, behavior: "smooth" });
+    }));
+  }
+
+  if (scenes.length) {
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", measure);
+    window.addEventListener("load", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    measure();
+  }
 
   /* ---------- Scroll-spy for the section links ---------- */
   const spyLinks = $$(".l-links a");

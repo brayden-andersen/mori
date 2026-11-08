@@ -160,10 +160,9 @@ span.btn.is-done{ cursor:default; transform:none }
 .cb-time .link-btn{ font-size:11px }
 .cb-failed{ display:inline-flex; align-items:center; gap:4px; color:#c33030; font-weight:600 }
 @keyframes bubble-pop{ from{ opacity:0; scale:.94; translate: 0 6px } }
-.chat-soon, .chat-empty{ margin:auto; display:grid; justify-items:center; gap:8px; max-width:380px; padding:30px; text-align:center; color:var(--muted) }
-.chat-soon p, .chat-empty p{ margin:0; line-height:1.5 }
-.chat-soon b, .chat-empty b{ color:var(--ink) }
-.chat-soon-actions{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:6px }
+.chat-empty{ margin:auto; display:grid; justify-items:center; gap:8px; max-width:380px; padding:30px; text-align:center; color:var(--muted) }
+.chat-empty p{ margin:0; line-height:1.5 }
+.chat-empty b{ color:var(--ink) }
 .chat-compose{ display:flex; gap:10px; padding:12px 14px; border-top:1px solid rgba(26,28,31,.06); background: rgba(255,255,255,.72) }
 .chat-compose .input{ border-radius:999px; padding:11px 16px }
 .chat-compose .input:disabled{ background: rgba(250,250,250,.9); cursor:not-allowed }
@@ -183,11 +182,8 @@ span.btn.is-done{ cursor:default; transform:none }
   .chat.is-thread .chat-side{ display:none }
   .chat.is-thread .chat-main{ display:flex; height: calc(100vh - var(--chatTop, 150px) - 14px); height: calc(100dvh - var(--chatTop, 150px) - 14px); min-height:380px }
   .chat-back{ display:inline-grid }
-  .net-tab{ padding:10px 12px }
 }
 @media (max-width: 560px){
-  .net-tab{ padding:9px 10px; gap:6px; font-size:13px }
-  .net-tab .ico{ display:none }
   .ind-panel{ width: calc(100vw - 48px) }
 }
 .explore-filters .select{ min-width:150px; max-width:230px }

@@ -18,6 +18,7 @@
   const S = Mori.state;
   const D = Mori.data;
   const page = document.body.dataset.page || "";
+  const section = page === "project" ? "projects" : page; // the planner lives under Projects
 
   /* ---------- Nav ---------- */
   function navHTML() {
@@ -88,8 +89,9 @@
     tpl.innerHTML = navHTML().trim();
     const nav = tpl.content.firstElementChild;
     slot.replaceWith(nav);
+    nav.classList.toggle("is-scrolled", window.scrollY > 8);
 
-    const active = $(`[data-nav="${page}"]`, nav);
+    const active = $(`[data-nav="${section}"]`, nav);
     if (active) { active.classList.add("is-active"); active.setAttribute("aria-current", "page"); }
     $$(".dropdown", nav).forEach((d) => Array.from(d.children).forEach((c, i) => c.style.setProperty("--i", i)));
 
@@ -148,7 +150,7 @@
     const s = document.createElement("script");
     s.type = "speculationrules";
     s.textContent = JSON.stringify({
-      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="network.html"]' }, eagerness: "moderate" }],
+      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"]' }, eagerness: "moderate" }],
     });
     document.head.appendChild(s);
   }
@@ -564,7 +566,7 @@
           `)}
           ${pane("preferences", `
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
-            ${row("Animated background", "The drifting blue and orange aura behind every page.", switchHTML('data-setting="aura" aria-label="Animated background"', st.aura !== false))}
+            ${row("Animated background", "The slowly drifting red hue behind every page.", switchHTML('data-setting="aura" aria-label="Animated background"', st.aura !== false))}
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
                 .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}

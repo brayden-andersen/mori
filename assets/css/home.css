@@ -10,13 +10,6 @@
 .hero{ display:grid; place-items:center; padding: 96px 10px 44px }
 .prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
 .sections{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; margin-top:28px; isolation:isolate; }
-.card-go{
-  position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
-  color:#fff; background: var(--ink); opacity:0; transform: translate(-8px, 8px) scale(.6);
-  transition: opacity .3s ease, transform .5s var(--ease-spring);
-}
-.card-go .ico{ width:15px; height:15px }
-.card:hover .card-go, .card:focus-visible .card-go{ opacity:1; transform:none }
 
 /* ===== Panels ===== */
 .panel-link .go .ico{ width:15px; height:15px }
@@ -24,7 +17,7 @@
 
 /* Recent messages: unread pulse */
 .msg.is-unread h4{ display:flex; align-items:center; gap:8px }
-.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--mori-red); animation: ping 2.2s ease-out infinite }
+.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--mori-red) }
 .msg .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block }
 
 /* Empty panels: one centred prompt across the whole row */

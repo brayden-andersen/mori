@@ -23,7 +23,8 @@
 /* ---------- Hero ---------- */
 .l-hero{ display:grid; grid-template-columns: minmax(0,1.02fr) minmax(0,.98fr); align-items:center; gap:40px; min-height: min(100vh, 920px); padding-top: calc(var(--navH) + 40px); padding-bottom:56px }
 .eyebrow{ display:inline-flex; align-items:center; gap:8px; padding:6px 14px 6px 10px; border-radius:999px; font-size:12.5px; font-weight:500; color:#2c458d; background: rgba(255,255,255,.62); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow); }
-.eyebrow .dot{ width:8px; height:8px; border-radius:50%; background:#10b981; animation: ping-green 2s ease-out infinite }
+.eyebrow .dot{ position:relative; width:8px; height:8px; border-radius:50%; background:#10b981 }
+.eyebrow .dot::after, .match-pulse::after{ content:""; position:absolute; inset:0; border-radius:50%; background:inherit; animation: pulse-out 2s ease-out infinite }
 .l-title{ margin:22px 0 18px; font-weight:600; font-size: clamp(40px, 5vw, 58px); line-height:1.12; letter-spacing:-.03em }
 .l-title .line{ display:block; overflow:hidden }
 .l-title .line-in{ display:inline-block; padding:.06em .04em .16em 0; transform: translateY(110%); animation: line-up 1.05s var(--ease-out) forwards; animation-delay: calc(var(--i,0) * 130ms + 120ms) }
@@ -52,6 +53,9 @@
 .legal a:hover{ text-decoration:underline }
 .switch-line{ margin:4px 0 0; font-size:14px; color:var(--muted) }
 
+.l-hero-copy, .hero-art{ transform-origin: 50% 30% }
+.l-hero.is-receding .l-hero-copy, .l-hero.is-receding .hero-art{ will-change: transform, opacity }
+
 /* Floating product preview */
 .hero-art{ position:relative; height:610px }
 .art-lines{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
@@ -59,9 +63,8 @@
 @keyframes dash-flow{ to{ stroke-dashoffset:-220 } }
 .fc{
   position:absolute; border-radius:18px; padding:16px;
-  background: var(--glass); border:1px solid rgba(39,39,42,.30);
+  background: linear-gradient(to bottom right, rgba(244,244,246,.9), rgba(255,255,255,.95)); border:1px solid rgba(39,39,42,.30);
   box-shadow: 0 22px 44px rgba(26,28,31,.10), 0 2px 6px rgba(26,28,31,.05);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   translate: calc(var(--px,0) * var(--depth,16px)) calc(var(--py,0) * var(--depth,16px));
   animation: pop-in .9s var(--ease-spring) both, float var(--float,7s) ease-in-out infinite;
   animation-delay: var(--pop,0s), var(--delay,0s);
@@ -95,7 +98,7 @@
 .badge-ico::after{ content:""; position:absolute; inset:0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-120%); animation: sheen 3.6s ease-in-out infinite }
 .float-chip{
   position:absolute; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:999px; font-size:12.5px; font-weight:600; color:#2a2c2f;
-  background: rgba(255,255,255,.78); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow); backdrop-filter: blur(8px);
+  background: rgba(255,255,255,.92); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow);
   translate: calc(var(--px,0) * var(--depth,50px)) calc(var(--py,0) * var(--depth,50px));
   animation: pop-in .8s var(--ease-spring) both, float 6s ease-in-out infinite; animation-delay: var(--pop,1s), var(--delay,0s);
 }
@@ -122,20 +125,87 @@
 .l-center{ max-width:680px; margin:0 auto; text-align:center }
 .l-center .l-lead{ margin:0 auto }
 
-/* What is Sandbox */
-.l-intro{ padding-top:56px }
-.l-intro-head{ max-width:780px }
-.pillars{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:18px; margin-top:40px }
-.pillar{ display:flex; flex-direction:column; gap:10px; min-height:280px; padding:26px }
-.pillar-ico{ width:50px; height:50px; border-radius:15px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 12px 24px -10px var(--c2); transition: transform .55s var(--ease-spring) }
-.pillar-ico .ico{ width:24px; height:24px }
-.pillar:hover .pillar-ico{ transform: rotate(-8deg) scale(1.08) }
-.pillar-num{ margin-top:10px; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--subtle) }
-.pillar h3{ margin:0; font-size:22px; letter-spacing:-.01em }
-.pillar p{ font-size:15px; line-height:1.55 }
-.pillar-more{ margin-top:auto; padding-top:8px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#3d64d2 }
-.pillar-more .ico{ width:15px; height:15px; transition: transform .35s var(--ease-out) }
-.pillar:hover .pillar-more .ico{ transform: translateX(4px) }
+/* ---------- What is Sandbox: a statement that lights up word by word ---------- */
+.l-statement{ padding-top:64px }
+.l-statement .l-h2{ max-width:760px }
+.statement{ max-width:1000px; margin:30px 0 0; font-size: clamp(24px, 3.1vw, 40px); font-weight:600; line-height:1.3; letter-spacing:-.022em; color:var(--ink) }
+.statement-end{ display:block; margin-top:.5em }
+.statement.is-split .w{ opacity:.16; transition: opacity .35s ease }
+.statement.is-split .w.is-lit{ opacity:1 }
+
+/* ---------- How Sandbox works: three steps; on large screens the scene pins while they play ---------- */
+.l-story{ padding-top:92px; border-top:1px solid rgba(26,28,31,.06) }
+.story-head{ text-align:center }
+.story-head .l-h2{ max-width:720px; margin-left:auto; margin-right:auto }
+.story{ position:relative }
+.story-grid{ display:grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap:40px 64px; align-items:center; padding-top:36px; padding-bottom:72px }
+.story-stage{ display:contents }
+.story-copy{ grid-column:1; position:relative; max-width:440px }
+.story-screen{ grid-column:2; aspect-ratio: 16 / 11; width:100%; max-width:600px; justify-self:end }
+.story-copy[data-step="0"], .story-screen[data-step="0"]{ grid-row:1 }
+.story-copy[data-step="1"], .story-screen[data-step="1"]{ grid-row:2 }
+.story-copy[data-step="2"], .story-screen[data-step="2"]{ grid-row:3 }
+.story-num{ display:block; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--subtle) }
+.story-copy h3{ margin:10px 0 8px; font-size: clamp(24px, 2.5vw, 32px); line-height:1.15; letter-spacing:-.02em }
+.story-copy p{ margin:0; font-size:16px; line-height:1.6; color:var(--muted) }
+.story-bar{ display:none }
+
+.story.is-pinned{ height:300vh }
+.story.is-pinned .story-pin{ position:sticky; top:0; height:100vh; display:flex; align-items:center }
+@supports (height: 100svh){ .story.is-pinned .story-pin{ height:100svh } }
+.story.is-pinned .story-grid{ width:100%; row-gap:4px; padding-top: calc(var(--navH) * .6); padding-bottom:0 }
+.story.is-pinned .story-copy{ padding:16px 0 16px 24px; cursor:pointer; opacity:.32; transition: opacity .5s ease }
+.story.is-pinned .story-copy:hover{ opacity:.55 }
+.story.is-pinned .story-copy.is-active{ opacity:1 }
+.story.is-pinned .story-bar{ display:block; position:absolute; left:0; top:16px; bottom:16px; width:2px; border-radius:2px; overflow:hidden; background: rgba(26,28,31,.10) }
+.story.is-pinned .story-bar i{ display:block; width:100%; height:100%; border-radius:inherit; background: var(--ink); transform-origin: 50% 0; transform: scaleY(var(--p, 0)) }
+.story.is-pinned .story-stage{ display:block; position:relative; grid-column:2; grid-row: 1 / span 3; aspect-ratio: 16 / 11; width:100%; max-width:600px; justify-self:end; will-change:transform }
+.story.is-pinned .story-screen{ position:absolute; inset:0; max-width:none; opacity:0; visibility:hidden; transform: translate3d(0, 26px, 0) scale(.97); transition: opacity .5s ease, transform .9s var(--ease-out), visibility 0s linear .5s }
+.story.is-pinned .story-screen.is-active{ opacity:1; visibility:visible; transform:none; transition: opacity .55s ease .06s, transform .9s var(--ease-out), visibility 0s }
+
+/* The screens: small, quiet product views */
+.mock{ height:100%; display:flex; flex-direction:column; overflow:hidden; border-radius:22px; background: linear-gradient(to bottom right, rgba(255,255,255,.9), rgba(255,255,255,.97)); border:1px solid rgba(39,39,42,.30); box-shadow: 0 30px 60px rgba(26,28,31,.12), 0 2px 8px rgba(26,28,31,.05) }
+.mock-bar{ display:flex; align-items:center; gap:6px; padding:12px 16px; font-size:12px; font-weight:600; color:var(--subtle); border-bottom:1px solid #efeff0 }
+.mock-bar i{ width:9px; height:9px; border-radius:50%; background: rgba(26,28,31,.14) }
+.mock-bar span{ margin-left:10px }
+.mock-body{ flex:1; min-height:0; display:grid; align-content:start; gap:12px; padding:18px }
+.mock-search{ display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:12px; font-size:14px; font-weight:500; color:var(--ink-2); background:#f6f6f7; border:1px solid #ececed }
+.mock-search .ico{ width:16px; height:16px; color:var(--subtle) }
+.mock-search span{ font-weight:400; color:var(--subtle) }
+.mock-row{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:#fff; border:1px solid #ececed }
+.mock-row.is-match{ border-color: rgba(26,28,31,.22); box-shadow: 0 10px 24px rgba(26,28,31,.08) }
+.mock-who{ flex:1; min-width:0; display:grid; gap:2px }
+.mock-who b{ font-size:14px }
+.mock-who span{ font-size:12px; color:var(--subtle); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.mock-row .chip{ margin:0; white-space:nowrap }
+.mock-btn{ padding:7px 12px; border-radius:999px; font-size:12px; font-weight:600; color:var(--ink); border:1px solid rgba(26,28,31,.2) }
+.mock .sprint-ico{ width:40px; height:40px; border-radius:12px }
+.mock .sprint-ico .ico{ width:20px; height:20px }
+.mock .badge-ico{ width:40px; height:40px; border-radius:12px }
+.mock .badge-ico .ico{ width:20px; height:20px }
+.mock-plan-head{ display:flex; align-items:center; justify-content:space-between; gap:12px }
+.mock-plan-head b{ display:block; font-size:16px }
+.mock-plan-head span{ font-size:12px; color:var(--subtle) }
+.mock-cols{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px }
+.mock-col{ display:grid; align-content:start; gap:6px; min-width:0; min-height:126px; padding:10px; border-radius:12px; background: rgba(26,28,31,.035); border:1px solid rgba(26,28,31,.06) }
+.mock-col-h{ font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
+.mock-task{ display:block; padding:8px 9px; border-radius:9px; font-size:12px; line-height:1.3; color:var(--ink-2); background:#fff; border:1px solid #ececed; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.mock-task.is-doing{ box-shadow: inset 2px 0 0 #375186 }
+.mock-task.is-done{ color:var(--subtle); text-decoration: line-through }
+.mock-progress{ display:flex; align-items:center; gap:12px; font-size:12px; color:var(--subtle) }
+.mock-meter{ flex:1; height:6px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.07) }
+.mock-meter i{ display:block; width:40%; height:100%; border-radius:inherit; background: linear-gradient(90deg, #34d399, #10b981); transform-origin:0 50%; transform: scaleX(0); transition: transform 1.2s var(--ease-out) .35s }
+.story:not(.is-pinned) .mock-meter i, .story-screen.is-active .mock-meter i{ transform:none }
+.mock-ladder{ display:grid; gap:8px; padding:14px; border-radius:14px; background:#fff; border:1px solid #ececed }
+.mock-ladder .ladder-bar i{ height:8px }
+.mock-ladder-cap{ font-size:13px; font-weight:600 }
+
+/* ---------- At a glance ---------- */
+.l-facts{ padding-top:8px; padding-bottom:84px }
+.facts{ margin:0; display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:18px }
+.fact{ padding:26px 24px; border-radius: var(--radius); background: var(--glass); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow) }
+.fact dt{ padding-bottom:.08em; font-size: clamp(34px, 4vw, 50px); font-weight:600; line-height:1.05; letter-spacing:-.03em; background: var(--ink-grad); -webkit-background-clip:text; background-clip:text; color:transparent }
+.fact dd{ margin:12px 0 0; font-size:15px; line-height:1.5; color:var(--muted) }
 
 /* Pills */
 .pill-cloud{ display:flex; flex-wrap:wrap; gap:12px }
@@ -184,8 +254,7 @@
 .open-card .chip{ margin-top:12px }
 .open-card .tags{ justify-content:center }
 .open-match{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:16px; font-size:13px; font-weight:500; color:#2c458d }
-.match-pulse{ width:8px; height:8px; border-radius:50%; background:var(--accent); animation: ping-blue 1.8s ease-out infinite }
-@keyframes ping-blue{ 0%{ box-shadow: 0 0 0 0 rgba(94,146,232,.55) } 70%,100%{ box-shadow: 0 0 0 8px rgba(94,146,232,0) } }
+.match-pulse{ position:relative; width:8px; height:8px; border-radius:50%; background:var(--accent) }
 .orbit-tag{ position:absolute; z-index:3; max-width:220px; padding:9px 13px; border-radius:14px; font-size:12.5px; line-height:1.4; color:var(--ink-2); background: rgba(255,255,255,.84); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow); animation: float 6s ease-in-out infinite }
 .ot--1{ left:0; top:0; animation-delay:-1.5s }
 .ot--2{ right:0; bottom:0; animation-delay:-3.5s }
@@ -200,9 +269,11 @@
 .cnode{ position:absolute; left:var(--x); top:var(--y); translate:-50% -50%; display:flex; flex-direction:column; align-items:center; gap:6px; animation: bob 4s ease-in-out infinite; animation-delay: var(--d,0s) }
 .cnode .avatar{ box-shadow: 0 0 0 3px #fff, 0 10px 20px rgba(26,28,31,.14) }
 .cnode em{ font-style:normal; font-size:11.5px; font-weight:600; white-space:nowrap; padding:3px 8px; border-radius:999px; background: rgba(255,255,255,.88); border:1px solid rgba(39,39,42,.30); box-shadow: 0 4px 10px rgba(26,28,31,.06) }
-.cnode-core{ width:64px; height:64px; border-radius:20px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #2a2c2f, #1a1c1f); animation: core-pulse 3.2s ease-in-out infinite }
+.cnode-core{ position:relative; width:64px; height:64px; border-radius:20px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #2a2c2f, #1a1c1f); box-shadow: 0 16px 32px rgba(26,28,31,.24) }
+/* A ring that widens and fades around the dark cores */
+.cnode-core::after, .orbit-core::after{ content:""; position:absolute; inset:0; border-radius:inherit; border:2px solid rgba(231,132,64,.45); pointer-events:none; animation: ring-out 3.2s ease-out infinite }
+@keyframes ring-out{ from{ transform: scale(1); opacity:.9 } to{ transform: scale(1.45); opacity:0 } }
 .cnode-core svg{ width:28px; height:28px }
-@keyframes core-pulse{ 0%,100%{ box-shadow: 0 16px 32px rgba(26,28,31,.24), 0 0 0 0 rgba(231,132,64,.38) } 50%{ box-shadow: 0 16px 32px rgba(26,28,31,.24), 0 0 0 16px rgba(231,132,64,0) } }
 
 /* Milestone ladder */
 .l-ladder{ display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:64px; align-items:center }
@@ -261,7 +332,8 @@
 .orbit-slot{ position:absolute; inset:0; rotate: var(--a) }
 .orbit-slot .avatar{ position:absolute; top:0; left:50%; translate:-50% -50%; rotate: calc(-1 * var(--a)); animation: spin var(--dur) linear infinite reverse; box-shadow: 0 0 0 3px #fff, 0 8px 18px rgba(26,28,31,.14) }
 .orbit-ring--2 .orbit-slot .avatar{ animation-direction: normal }
-.orbit-core{ position:absolute; left:50%; top:50%; width:92px; height:92px; margin:-46px 0 0 -46px; border-radius:28px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #2a2c2f, #1a1c1f); animation: core-pulse 3.6s ease-in-out infinite }
+.orbit-core{ position:absolute; left:50%; top:50%; width:92px; height:92px; margin:-46px 0 0 -46px; border-radius:28px; display:grid; place-items:center; color:#fff; background: linear-gradient(135deg, #2a2c2f, #1a1c1f); box-shadow: 0 16px 32px rgba(26,28,31,.24) }
+.orbit-core::after{ animation-duration:3.6s }
 .orbit-core svg{ width:42px; height:42px }
 
 /* ---------- Auth modal ---------- */
@@ -287,18 +359,37 @@
   .hero-art{ width:100%; max-width:540px; margin:0 auto }
   .l-split, .l-feature, .l-ladder, .l-who{ grid-template-columns: 1fr; gap:32px }
   .l-feature--rev > :first-child{ order:0 }
+  /* Story: one column. Without pinning, each step sits above its screen. */
+  .story-grid{ grid-template-columns: minmax(0,1fr); gap:20px }
+  .story-copy, .story-screen{ grid-column:1; justify-self:stretch }
+  .story-screen{ max-width:520px; justify-self:center }
+  .story-copy[data-step="0"]{ grid-row:1 } .story-screen[data-step="0"]{ grid-row:2 }
+  .story-copy[data-step="1"]{ grid-row:3 } .story-screen[data-step="1"]{ grid-row:4 }
+  .story-copy[data-step="2"]{ grid-row:5 } .story-screen[data-step="2"]{ grid-row:6 }
+  /* Pinned: the screen on top, the active step's words below it */
+  .story.is-pinned .story-grid{ grid-template-rows: auto auto; row-gap:26px; padding-top: calc(var(--navH) + 8px) }
+  .story.is-pinned .story-stage{ grid-column:1; grid-row:1; justify-self:center; width:min(100%, 480px) }
+  .story.is-pinned .story-copy{ grid-column:1; grid-row:2; max-width:none; padding:0 0 14px; opacity:0; visibility:hidden; transform: translate3d(0, 10px, 0); transition: opacity .45s ease, transform .6s var(--ease-out), visibility 0s linear .45s }
+  .story.is-pinned .story-copy.is-active{ opacity:1; visibility:visible; transform:none; transition: opacity .45s ease .05s, transform .6s var(--ease-out), visibility 0s }
+  .story.is-pinned .story-bar{ left:0; right:0; top:auto; bottom:0; width:auto; height:2px }
+  .story.is-pinned .story-bar i{ transform-origin: 0 50%; transform: scaleX(var(--p, 0)) }
 }
 @media (max-width: 760px){
-  .pillars{ grid-template-columns: 1fr }
-  .pillar{ min-height:0 }
+  .facts{ grid-template-columns: 1fr }
+  .l-facts{ padding-bottom:56px }
   .sprints{ display:flex; overflow-x:auto; scroll-snap-type: x mandatory; gap:12px; margin-left:-18px; margin-right:-18px; padding:4px 18px 10px; scrollbar-width:none }
   .sprints::-webkit-scrollbar{ display:none }
   .sprint{ flex:0 0 74%; min-height:210px; scroll-snap-align:start }
   .l-band{ flex-direction:column; align-items:flex-start; padding:32px 24px }
   .l-section{ padding-top:64px; padding-bottom:64px }
-  .l-intro{ padding-top:40px }
+  .l-statement{ padding-top:44px }
+  .l-story{ padding-top:64px }
 }
 @media (max-width: 560px){
+  .mock-body{ padding:14px; gap:10px }
+  .mock-row{ padding:10px }
+  .mock-row .chip, .mock-btn{ display:none }
+  .mock-col{ min-height:104px; padding:8px }
   .landing-nav .nav-inner{ padding:10px 8px }
   .l-actions{ gap:4px }
   .l-actions .nav-btn{ padding:9px 10px }

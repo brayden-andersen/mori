@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SandBox • Project planner</title>
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/mori.css" />
+  <link rel="stylesheet" href="assets/css/projects.css" />
+  <link rel="stylesheet" href="assets/css/project.css" />
+  <link rel="stylesheet" href="assets/css/dark.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/state.js"></script>
+  <script defer src="assets/js/ui.js"></script>
+  <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/db.js"></script>
+  <script defer src="assets/js/shell.js"></script>
+  <script defer src="assets/js/people.js"></script>
+  <script defer src="assets/js/projectkit.js"></script>
+  <script defer src="assets/js/project.js"></script>
+</head>
+<body data-page="project">
+  <div class="aura" aria-hidden="true"></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <!-- The planner (rendered by project.js) -->
+  <main class="wrap wrap--planner" id="planner" aria-busy="true">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="home.html">Home</a> <span class="sep">/</span> <a href="projects.html">Projects</a> <span class="sep">/</span> <span id="crumbName">Project</span>
+    </nav>
+    <div class="pl-loading" id="plLoading">
+      <span class="pl-skel pl-skel--title"></span>
+      <span class="pl-skel pl-skel--line"></span>
+      <div class="pl-skel-board"><span class="pl-skel"></span><span class="pl-skel"></span><span class="pl-skel"></span></div>
+    </div>
+  </main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>

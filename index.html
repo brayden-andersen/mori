@@ -8,10 +8,11 @@
   <meta name="theme-color" content="#fafafa" />
   <meta property="og:title" content="Mori: Sandbox" />
   <meta property="og:description" content="Find your people. Build your idea. Earn the spotlight." />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/mori.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
   <link rel="stylesheet" href="assets/css/dark.css" />
@@ -30,8 +31,7 @@
   <div class="loader" id="moriLoader" role="status" aria-live="polite">
     <div class="loader-card"><span class="loader-mark"><svg class="loader-logo" viewBox="-1 -1 102 102" fill="currentColor" aria-hidden="true"><use href="#mori-mark"/></svg></span><p class="loader-title">Signing you in</p><p class="loader-sub">Checking your Google account…</p></div>
   </div>
-  <div class="aura" aria-hidden="true" data-parallax></div>
-  <div class="aura-orbs" aria-hidden="true" data-parallax><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div>
+  <div class="aura" aria-hidden="true"></div>
   <div class="scroll-progress" aria-hidden="true"></div>
 
   <!-- NAV -->
@@ -61,7 +61,7 @@
 
   <main>
     <!-- ===== HERO ===== -->
-    <section class="l-hero l-wrap" aria-labelledby="heroTitle">
+    <section class="l-hero l-wrap" aria-labelledby="heroTitle" data-pause-offscreen>
       <div class="l-hero-copy">
         <span class="eyebrow" data-reveal="fade"><span class="dot" aria-hidden="true"></span>Open-access · Built for Indonesia’s founders</span>
         <h1 class="l-title" id="heroTitle">
@@ -82,7 +82,7 @@
       </div>
 
       <!-- Floating product preview -->
-      <div class="hero-art" aria-hidden="true" data-parallax data-pause-offscreen>
+      <div class="hero-art" aria-hidden="true" data-parallax>
         <svg class="art-lines" viewBox="0 0 520 560" preserveAspectRatio="none">
           <defs>
             <linearGradient id="artLine" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#5e92e8" stop-opacity=".55"/><stop offset="1" stop-color="#e78440" stop-opacity=".55"/></linearGradient>
@@ -95,14 +95,14 @@
         <div class="fc fc--main">
           <div class="fc-top">
             <span class="chip chip--orange">Marketplace</span>
-            <span class="fc-live"><i class="live-dot"></i>Sprint 4 · live</span>
+            <span class="fc-live"><i class="live-dot"></i>Team online</span>
           </div>
           <h4>Raflesia — Talent Graph</h4>
           <p class="meta">Rung 2 · Solution tested</p>
           <div class="ladder-bar"><i class="on"></i><i class="on"></i><i class="on now"></i><i></i><i></i><i></i></div>
           <div class="fc-row">
             <div class="progress-wrapper"><div class="progress-circle" data-percent="75"><div class="progress-inner"></div><div class="progress-label">0%</div></div></div>
-            <div><div class="fc-cap">Sprint milestones</div><div class="caption">Awaiting pitch deck approval</div></div>
+            <div><div class="fc-cap">Project tasks</div><div class="caption">Next up: pitch deck review</div></div>
           </div>
           <div class="fc-team">
             <span class="av-stack">
@@ -150,36 +150,116 @@
       </div>
     </div>
 
-    <!-- ===== WHAT IS SANDBOX ===== -->
-    <section class="l-section l-wrap l-intro" aria-labelledby="introTitle">
-      <div class="l-intro-head" data-reveal>
-        <p class="kicker">What is Sandbox?</p>
-        <h2 class="l-h2 grad-ink" id="introTitle">A professional network, an incubator and a case competition — open to everyone.</h2>
-        <p class="l-lead">Incubators are selective and time-boxed. Collaborators, specialists and templates are scattered across group chats and blogs. And without a track record, early founders struggle to stand out. Sandbox brings the people, the tools and the proof together in one open place.</p>
+    <!-- ===== WHAT IS SANDBOX: the words light up as you read ===== -->
+    <section class="l-section l-wrap l-statement" aria-labelledby="introTitle">
+      <p class="kicker" data-reveal="fade">What is Sandbox?</p>
+      <h2 class="l-h2 grad-ink" id="introTitle" data-reveal>A professional network, an incubator and a case competition, open to everyone.</h2>
+      <p class="statement" data-statement>Incubators are selective and time-boxed. Collaborators, specialists and templates are scattered across group chats and blogs. And without a track record, early founders struggle to stand out. <span class="statement-end">Sandbox brings the people, the tools and the proof together in one open place.</span></p>
+    </section>
+
+    <!-- ===== HOW IT WORKS: a pinned scene, one step per screen of scrolling ===== -->
+    <section class="l-story" id="how" aria-labelledby="storyTitle">
+      <div class="l-wrap story-head" data-reveal>
+        <p class="kicker">How Sandbox works</p>
+        <h2 class="l-h2 grad-ink" id="storyTitle">From a first idea to a team that ships.</h2>
       </div>
-      <div class="pillars" data-stagger="110">
-        <a class="card pillar spotlight tilt" data-tilt="4" href="#network">
-          <span class="pillar-ico" style="--c1:#7cafee;--c2:#7e80e7"><i data-icon="network"></i></span>
-          <span class="pillar-num">01 · MORI Network</span>
-          <h3>Find your people</h3>
-          <p>Founder and specialist profiles, declared startup pages and intent-based matching to find co-founders and collaborators.</p>
-          <span class="pillar-more">Explore the network <i data-icon="arrowRight"></i></span>
-        </a>
-        <a class="card pillar spotlight tilt" data-tilt="4" href="#toolkits">
-          <span class="pillar-ico" style="--c1:#ec9e5f;--c2:#e78440"><i data-icon="layers"></i></span>
-          <span class="pillar-num">02 · Toolkits &amp; guidance</span>
-          <h3>Build your idea</h3>
-          <p>Pitch, financial, legal and go-to-market toolkits, with guidance and insights shared by experienced founders and specialists.</p>
-          <span class="pillar-more">See the toolkits <i data-icon="arrowRight"></i></span>
-        </a>
-        <a class="card pillar spotlight tilt" data-tilt="4" href="#sprints">
-          <span class="pillar-ico" style="--c1:#b4a0f2;--c2:#e168a3"><i data-icon="award"></i></span>
-          <span class="pillar-num">03 · Sprints &amp; track record</span>
-          <h3>Earn the spotlight</h3>
-          <p>Online sprints, peer reviews and sprint badges build a visible track record. Leaderboards and showcases come next.</p>
-          <span class="pillar-more">How sprints work <i data-icon="arrowRight"></i></span>
-        </a>
+      <div class="story" id="story">
+        <div class="story-pin">
+          <div class="l-wrap story-grid">
+            <div class="story-copy is-active" data-step="0">
+              <span class="story-num">01 · MORI Network</span>
+              <h3>Find your people</h3>
+              <p>Founder and specialist profiles, declared startup pages and intent-based matching to find co-founders and collaborators.</p>
+              <span class="story-bar" aria-hidden="true"><i></i></span>
+            </div>
+            <div class="story-copy" data-step="1">
+              <span class="story-num">02 · Projects &amp; toolkits</span>
+              <h3>Build your idea</h3>
+              <p>Plan your project with the people you connect with: one board for every task, owner and due date, with toolkits and guidance from experienced founders.</p>
+              <span class="story-bar" aria-hidden="true"><i></i></span>
+            </div>
+            <div class="story-copy" data-step="2">
+              <span class="story-num">03 · Sprints &amp; track record</span>
+              <h3>Earn the spotlight</h3>
+              <p>Online sprints, peer reviews and sprint badges build a visible track record. Leaderboards and showcases come next.</p>
+              <span class="story-bar" aria-hidden="true"><i></i></span>
+            </div>
+
+            <div class="story-stage" aria-hidden="true">
+              <div class="story-screen is-active" data-step="0">
+                <div class="mock">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>MORI Network</span></div>
+                  <div class="mock-body">
+                    <div class="mock-search"><i data-icon="search"></i>Technical co-founder <span>· Jakarta</span></div>
+                    <div class="mock-row is-match">
+                      <span class="avatar" style="--size:44px;--a1:#7cafee;--a2:#979fef">AS</span>
+                      <div class="mock-who"><b>Anna S.</b><span>Product designer · Jakarta</span></div>
+                      <span class="chip chip--emerald"><i class="live-dot"></i>Open to co-found</span>
+                    </div>
+                    <div class="mock-row">
+                      <span class="avatar" style="--size:40px;--a1:#34d399;--a2:#49cbdf">RP</span>
+                      <div class="mock-who"><b>Rahul P.</b><span>Full-stack developer · Bandung</span></div>
+                      <span class="mock-btn">Connect</span>
+                    </div>
+                    <div class="mock-row">
+                      <span class="avatar" style="--size:40px;--a1:#ec9e5f;--a2:#eb8bbd">KT</span>
+                      <div class="mock-who"><b>Kevin T.</b><span>Data &amp; ML engineer · Remote</span></div>
+                      <span class="mock-btn">Connect</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="story-screen" data-step="1">
+                <div class="mock">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>Project planner</span></div>
+                  <div class="mock-body">
+                    <div class="mock-plan-head">
+                      <div><b>Warung Pay</b><span>Rung 1 · Problem understood</span></div>
+                      <span class="av-stack"><span class="avatar" style="--size:26px;--a1:#7cafee;--a2:#979fef">AS</span><span class="avatar" style="--size:26px;--a1:#34d399;--a2:#49cbdf">RP</span><span class="avatar" style="--size:26px;--a1:#e3a336;--a2:#e78440">LW</span></span>
+                    </div>
+                    <div class="mock-cols">
+                      <div class="mock-col"><span class="mock-col-h">To do</span><span class="mock-task">Book 10 interviews</span><span class="mock-task">Draft the pricing page</span></div>
+                      <div class="mock-col"><span class="mock-col-h">In progress</span><span class="mock-task is-doing">Clickable prototype</span></div>
+                      <div class="mock-col"><span class="mock-col-h">Done</span><span class="mock-task is-done">Problem brief</span><span class="mock-task is-done">Interview script</span></div>
+                    </div>
+                    <div class="mock-progress"><span class="mock-meter"><i></i></span><span>2 of 5 tasks done</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="story-screen" data-step="2">
+                <div class="mock">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>Sprints</span></div>
+                  <div class="mock-body">
+                    <div class="mock-row">
+                      <span class="sprint-ico" style="--c1:#b4a0f2;--c2:#9b79ea"><i data-icon="flask"></i></span>
+                      <div class="mock-who"><b>Prototype sprint</b><span>Two weeks · online</span></div>
+                      <span class="chip chip--purple">Toward rung 2</span>
+                    </div>
+                    <div class="mock-row is-match">
+                      <span class="badge-ico"><i data-icon="award"></i></span>
+                      <div class="mock-who"><b>Sprint badge earned</b><span>Peer-reviewed · 92% would work again</span></div>
+                    </div>
+                    <div class="mock-ladder">
+                      <span class="mock-col-h">Milestone ladder</span>
+                      <div class="ladder-bar"><i class="on"></i><i class="on"></i><i class="on now"></i><i></i><i></i><i></i></div>
+                      <span class="mock-ladder-cap">Rung 2 · Solution tested</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- ===== IN NUMBERS ===== -->
+    <section class="l-wrap l-facts" aria-label="Sandbox at a glance">
+      <dl class="facts" data-stagger="110">
+        <div class="fact"><dt>Free</dt><dd>to join the MORI Network and find your people</dd></div>
+        <div class="fact"><dt>6 rungs</dt><dd>from a declared idea to early traction, each with a clear proof</dd></div>
+        <div class="fact"><dt>2 weeks</dt><dd>for each online sprint, from problem to first build</dd></div>
+      </dl>
     </section>
 
     <!-- ===== EXPLORE (topics) ===== -->

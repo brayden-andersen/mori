@@ -93,7 +93,7 @@
   }
   function avatar(p, size = 40, opts = {}) {
     // The icon sits underneath, so it shows if the photo is missing or fails to load.
-    const img = p && p.picture ? `<img src="${esc(p.picture)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">` : "";
+    const img = p && p.picture ? `<img src="${esc(p.picture)}" alt="" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.remove()">` : "";
     const av = `<span class="avatar avatar--face" style="--size:${size}px" aria-hidden="true">${FACE}${img}</span>`;
     return opts.ring ? `<span class="open-ring">${av}</span>` : av;
   }
@@ -250,17 +250,32 @@
     if (meta) meta.content = dark ? "#111113" : "#efeff0";
   }
   /**
-   * Switch light / dark in one frame: element transitions are paused for the
-   * switch, so text, surfaces and borders all change together, straight away,
-   * instead of each fading on its own (which was slow on busy pages).
+   * Switch light / dark with one quick (0.5 s) crossfade of the whole page.
+   * Element transitions are paused, so nothing lags behind: the browser fades
+   * from a snapshot of the old page to the new one on the GPU. Browsers
+   * without view transitions, and reduced motion, switch at once.
    */
   function setTheme(theme) {
     const root = document.documentElement;
     Mori.store.write("mori.theme", theme);
-    root.classList.add("theme-instant");
-    if (theme === "dark") root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
-    syncThemeToggles();
-    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-instant")));
+    const apply = () => {
+      root.classList.add("theme-instant");
+      if (theme === "dark") root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
+      syncThemeToggles();
+    };
+    const settle = () => requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove("theme-instant", "theme-fade")));
+    const calm = root.getAttribute("data-motion") === "reduced" || (root.getAttribute("data-motion") !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (document.startViewTransition && !calm && !document.hidden) {
+      root.classList.add("theme-fade");
+      try {
+        const vt = document.startViewTransition(apply);
+        [vt.ready, vt.updateCallbackDone].forEach((p) => p.catch(() => {}));
+        vt.finished.catch(() => {}).finally(settle);
+        return;
+      } catch (err) { /* switch at once below */ }
+    }
+    apply();
+    settle();
   }
   document.addEventListener("click", (e) => {
     if (!e.target.closest("[data-theme-toggle]")) return;

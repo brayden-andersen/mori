@@ -71,12 +71,12 @@ Mori.data = {
     { rung: 5, stage: "Early traction",     proof: "Repeat use or revenue for four weeks running.", time: "Ongoing",             toolkit: "Marketing, branding and go-to-market frameworks",         opens: "Eligibility for leaderboards and showcases." },
   ],
 
-  /* Starter milestones for a newly declared project, by starting rung */
-  starterMilestones: [
+  /* Starter tasks on a newly declared project's board, by starting rung */
+  starterTasks: [
     ["Write the one-page problem brief", "Book 8–10 problem interviews", "Summarise what you learned"],
     ["Sketch the riskiest user flow", "Build a clickable prototype", "Test it with five users"],
     ["Set a sign-up target", "Launch a landing page", "Share it with three communities"],
-    ["Pick the one feature to ship", "Recruit specialists for a Build sprint", "Ship it to the first users"],
+    ["Pick the one feature to ship", "Bring specialists onto the team", "Ship it to the first users"],
     ["Track weekly active use", "Talk to five repeat users", "Hit four straight weeks of use"],
     ["Update the financial model", "Plan the go-to-market push", "Prepare for showcases"],
   ],

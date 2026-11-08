@@ -195,7 +195,7 @@
     focus: r.focus || "",
     tags: r.tags || [],
     rung: r.rung || 0,
-    milestones: (Array.isArray(r.milestones) ? r.milestones : []).map((m) => ({ text: String((m && m.text) || ""), done: !!(m && m.done) })),
+    milestones: Array.isArray(r.milestones) ? r.milestones.filter((m) => m && typeof m === "object") : [], // tasks: state.js shapes them
     createdAt: Date.parse(r.created_at) || Date.now(),
     updatedAt: Date.parse(r.updated_at) || 0,
     cofounders: (r.project_members || []).map((x) => x.member_id),
@@ -354,6 +354,25 @@
       const { data, error } = await c.from("projects").update(patch).eq("id", id).select(PROJECT_COLS).maybeSingle();
       fail(error);
       return data ? projectFromRow(data) : null;
+    },
+
+    /**
+     * Change a project's tasks starting from the latest stored copy:
+     * `apply(tasks)` returns the new list. Resolves null if you no longer have access.
+     */
+    async changeTasks(id, apply) {
+      const { c } = await signedIn();
+      const { data: cur, error: readError } = await c.from("projects").select("milestones").eq("id", id).maybeSingle();
+      fail(readError);
+      if (!cur) return null;
+      return Mori.db.updateProject(id, { milestones: apply(cur.milestones) });
+    },
+
+    /** Delete a project you own (its team and tasks go with it). */
+    async deleteProject(id) {
+      const { c } = await signedIn();
+      const { error } = await c.from("projects").delete().eq("id", id);
+      fail(error);
     },
 
     /** Add co-founders to a project you own; returns the ids that were added. */

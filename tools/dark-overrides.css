@@ -6,20 +6,18 @@ html[data-theme="dark"]{
   --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
   --aura-red-2: rgba(200,0,0,0.13);
   --aura-red-soft: rgba(184,0,0,0.075);
-  --orb-top: rgba(236,236,242,.03);
-  --orb-red: rgba(200,0,0,.085);
-  --orb-mid: rgba(110,40,150,.08);
 }
-html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }
-/* The logo stays black and red; a faint light edge keeps the black visible on dark grey */
+/* The logo: a white top and the MORI red below */
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
-html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#111 }
-html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-logo{ filter: drop-shadow(0 0 .6px rgba(255,255,255,.7)) drop-shadow(0 0 3px rgba(255,255,255,.18)) }
+html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#f2f2f3 }
 /* Profile banner: darker still */
 html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(120deg, #0c0c0e 0%, #23100f 52%, #5c1218 100%) }
 /* The nav floats over the aura */
-html[data-theme="dark"] .nav{ background: rgba(17,17,19,.4) }
 html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
+/* Hero words: a brighter red gradient on dark */
+html[data-theme="dark"]{ --red-grad: linear-gradient(110deg, #c20f0f 0%, #ec2b22 50%, #ff6a55 100%) }
+/* Container hover: a white gradient on the edge */
+html[data-theme="dark"] .spotlight::after{ background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,.28) 45%, transparent 72%) }
 /* The cursor highlight on cards: a faint light glow on dark surfaces */
 html[data-theme="dark"] .spotlight{ --spot: rgba(255,255,255,.06) }
 html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot: rgba(120,160,230,.10) }
@@ -27,3 +25,9 @@ html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight
 html[data-theme="dark"] img{ color-scheme: normal }
 /* The default avatar: a grey person on dark grey */
 html[data-theme="dark"] .avatar--face{ background: linear-gradient(180deg, #505157, #3d3e43); color:#d7d8dc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06) }
+/* Project planner: brighter column dots, a white tick, visible checkbox edges */
+html[data-theme="dark"] .pl-col--doing .pl-dot{ background:#7391d8 }
+html[data-theme="dark"] .pl-col--done .pl-dot{ background:#2bc792 }
+html[data-theme="dark"] .pl-stack .is-doing{ background: linear-gradient(90deg, #4f6db6, #3d5a9e) }
+html[data-theme="dark"] .task-box{ border-color:#4a4f57 }
+html[data-theme="dark"] .task-box .ico{ color:#fff }
