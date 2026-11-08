@@ -6,6 +6,7 @@ html[data-theme="dark"]{
   --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
   --aura-red-2: rgba(200,0,0,0.13);
   --aura-red-soft: rgba(184,0,0,0.075);
+  --aura-grain: .03;                     /* a lighter grain on dark grey */
 }
 /* The logo: a white top and the MORI red below */
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
@@ -15,7 +16,7 @@ html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(1
 /* The nav floats over the aura */
 html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
 /* Hero words: a brighter red gradient on dark */
-html[data-theme="dark"]{ --red-grad: linear-gradient(110deg, #c20f0f 0%, #ec2b22 50%, #ff6a55 100%) }
+html[data-theme="dark"]{ --red-grad: linear-gradient(110deg, #9e0d18 0%, #e3201f 24%, #ff7a5c 50%, #e3201f 76%, #9e0d18 100%) }
 /* Container hover: a white gradient on the edge */
 html[data-theme="dark"] .spotlight::after{ background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,.28) 45%, transparent 72%) }
 /* The cursor highlight on cards: a faint light glow on dark surfaces */

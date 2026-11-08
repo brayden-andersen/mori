@@ -8,7 +8,7 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 
 | Page | What it is |
 | --- | --- |
-| `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero recedes as you scroll, *What is Sandbox?* lights up word by word, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Sign in and join use Google. |
+| `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero recedes as you scroll, *What is Sandbox?* sums it up in one line and three before → after pairs, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Sign in and join use Google. |
 | `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
 | `home.html` | **Homepage**: greeting, entry cards, your pinned project, your latest conversations, insights. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
@@ -24,7 +24,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 - The sun/moon button on the right of every nav bar switches between light and dark with one quick (0.5 s) cross-fade of the whole page; browsers without view transitions, and reduced motion, switch at once. Element transitions are paused for the switch, so nothing lags behind. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo has a white top half and a red bottom half.
-- **The aura** (both modes) drifts very slowly (48 s and 64 s cycles), using only transform and opacity. *Settings → Animated background* and reduced motion hold it still.
+- **The aura** (both modes) drifts very slowly (a 56 s cycle), using only transform and opacity. Each glow fades out on an eased curve and a faint static grain dithers it, so it blends smoothly with no visible rings. *Settings → Animated background* and reduced motion hold it still.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
 ### Sign-up questions
@@ -154,7 +154,7 @@ assets/
     landing.js · onboarding.js · home.js · projects.js · network.js
   vendor/supabase-2.58.0.js
   fonts/            Inter (latin and latin-ext, weights 400–700) and its licence (OFL)
-  img/              the MORI logo (森) as favicon.svg, favicon-32.png and apple-touch-icon.png
+  img/              the MORI logo (森) as the site icon: mori-icon.svg, mori-icon-32.png, mori-icon-180.png
 favicon.ico         the MORI logo for browsers that look for /favicon.ico
 tools/
   make_dark_css.py  builds assets/css/dark.css from the light stylesheets
@@ -194,7 +194,6 @@ Pages render straight away from a copy kept in the browser, then refresh from Su
 | `.progress-circle[data-percent="75"]` | Ring animates to its value |
 | `.spotlight` / `.tilt` / `.magnetic` | Cursor light, 3D tilt, button lean |
 | `data-pause-offscreen` | Pauses the element's animations while out of view |
-| `data-statement` (landing) | Splits a paragraph into words that light up as it scrolls through the screen |
 
 Everything respects the device's reduced-motion setting and **Settings → Preferences → Motion effects**.
 

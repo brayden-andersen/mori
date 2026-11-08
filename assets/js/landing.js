@@ -5,8 +5,8 @@
    • "Continue with Google" signs in through Supabase (or the demo sheet when
      Supabase isn't available) behind a full-screen loading screen
    • New members go to onboarding.html; returning members to their start page
-   • Scroll scenes: the hero recedes, "What is Sandbox?" lights up word by
-     word, and "How Sandbox works" pins while its three steps play
+   • Scroll scenes: the hero recedes and "How Sandbox works" pins while its
+     three steps play
    • Interactive milestone ladder, live message card, section scroll-spy
    ========================================================================== */
 (function () {
@@ -304,40 +304,6 @@
       heroArt.style.transform = p ? `translate3d(0, ${(p * 40).toFixed(1)}px, 0) scale(${(1 - p * 0.05).toFixed(4)})` : "";
     },
   });
-
-  // "What is Sandbox?": the words light up as the paragraph moves up the screen.
-  const statement = $("[data-statement]");
-  if (statement && !calm) {
-    const words = [];
-    const split = (node) => Array.from(node.childNodes).forEach((n) => {
-      if (n.nodeType === 1) { split(n); return; }
-      if (n.nodeType !== 3) return;
-      const frag = document.createDocumentFragment();
-      n.textContent.split(/(\s+)/).forEach((part) => {
-        if (!part) return;
-        if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-        const w = document.createElement("span");
-        w.className = "w";
-        w.textContent = part;
-        words.push(w);
-        frag.appendChild(w);
-      });
-      n.replaceWith(frag);
-    });
-    split(statement);
-    statement.classList.add("is-split");
-    scenes.push({
-      el: statement, lit: 0,
-      update(y) {
-        // From its top at 85% of the screen to its bottom at 50%.
-        const p = clamp01((vh * 0.85 - (this.top - y)) / (vh * 0.35 + this.height));
-        const lit = Math.round(p * words.length);
-        if (lit === this.lit) return;
-        for (let i = Math.min(lit, this.lit); i < Math.max(lit, this.lit); i++) words[i].classList.toggle("is-lit", i < lit);
-        this.lit = lit;
-      },
-    });
-  }
 
   // "How Sandbox works": the scene pins for three screens of scrolling, one step each.
   const story = $("#story");
