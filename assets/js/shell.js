@@ -566,7 +566,6 @@
           `)}
           ${pane("preferences", `
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
-            ${row("Animated background", "The slowly drifting red hue behind every page.", switchHTML('data-setting="aura" aria-label="Animated background"', st.aura !== false))}
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
                 .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}

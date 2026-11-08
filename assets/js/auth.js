@@ -224,7 +224,6 @@
   if (s) {
     const st = Mori.store.read(`mori.${s.id}.settings`, {}) || {};
     if (st.motion === "reduced" || st.motion === "full") root.setAttribute("data-motion", st.motion);
-    if (st.aura === false) root.setAttribute("data-aura", "still");
   }
   // Google is redirecting back: show the sign-in screen, not the landing page.
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.

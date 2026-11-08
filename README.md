@@ -24,7 +24,7 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 - The sun/moon button on the right of every nav bar switches between light and dark with one quick (0.5 s) cross-fade of the whole page; browsers without view transitions, and reduced motion, switch at once. Element transitions are paused for the switch, so nothing lags behind. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo has a white top half and a red bottom half.
-- **The aura** (both modes) drifts very slowly (a 56 s cycle), using only transform and opacity. Each glow fades out on an eased curve and a faint static grain dithers it, so it blends smoothly with no visible rings. *Settings → Animated background* and reduced motion hold it still.
+- **The aura** (both modes) is the original soft background, held still: two large blurred hue layers and three faint orbs. Nothing on it moves, so it's painted once.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
 ### Sign-up questions
@@ -167,7 +167,7 @@ supabase/
 ## Performance notes
 
 - **Prerendering:** on signed-in pages, hovering a nav link prerenders the page (Chrome / Edge Speculation Rules), so the click feels instant. Other browsers get a quick cross-fade without blur.
-- **Animations run on the GPU:** loops (the aura, pulsing dots, rings, floating cards, the landing's scroll scenes) only change `transform` and `opacity`. Nothing animates `box-shadow`, blur or layout on every frame. The landing's scroll scenes use one passive scroll listener, update at most once per frame, and measure positions only on load and resize.
+- **Animations run on the GPU:** loops (pulsing dots, rings, floating cards, the landing's scroll scenes) only change `transform` and `opacity`. Nothing animates `box-shadow`, blur or layout on every frame. The landing's scroll scenes use one passive scroll listener, update at most once per frame, and measure positions only on load and resize.
 - **Frosted blur only where it's needed:** the nav (once you scroll), sticky bars, the modal backdrop and toasts. The floating landing cards and the background use none, and the nav is fully transparent at the top of the page.
 - **Animations rest off-screen:** the hero, marquee, orbit, constellation and spinning band pause when they're out of view.
 - **Fewer requests:** Inter is served from the site (no Google Fonts round trip before the first paint). The sign-in library loads once the landing page is idle, or as soon as a visitor reaches for a sign-in button. Pages load each kind of data once and share it.

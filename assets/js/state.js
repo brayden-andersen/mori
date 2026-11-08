@@ -111,7 +111,6 @@
   /* ---------- Settings ---------- */
   const SETTINGS_DEFAULTS = {
     motion: "system",            // system | full | reduced
-    aura: true,                  // animated background
     startPage: "home.html",
     showRecord: true,            // show milestone record on the profile
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
@@ -132,8 +131,7 @@
     const s = settings();
     if (s.motion === "system") r.removeAttribute("data-motion");
     else r.setAttribute("data-motion", s.motion);
-    if (s.aura === false) r.setAttribute("data-aura", "still");
-    else r.removeAttribute("data-aura");
+    r.removeAttribute("data-aura"); // an old setting: the background no longer moves
   }
 
   /** Shared refresh helper: one request at a time, reused while fresh unless forced. */

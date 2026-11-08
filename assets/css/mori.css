@@ -25,6 +25,9 @@
   --aura-red: rgba(184,0,0,0.15);
   --aura-red-2: rgba(184,0,0,0.13);
   --aura-red-soft: rgba(184,0,0,0.07);
+  --orb-top: rgba(120,120,128,.08);
+  --orb-red: rgba(184,0,0,.11);
+  --orb-mid: rgba(155,121,234,.06);
   --glass: linear-gradient(to bottom right, rgba(163,165,169,.16), rgba(255,255,255,.72));
   --glass-panel: linear-gradient(to bottom right, rgba(163,165,169,.16), rgba(255,255,255,.66));
   --glass-menu: linear-gradient(to bottom right, #f6f6f7, #fff); /* solid: text behind a menu never shows through */
@@ -62,32 +65,33 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
 .sr-only{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
 :where(a, button, input, select, textarea, [tabindex]):focus-visible{ outline:none; box-shadow: 0 0 0 3px rgba(94,146,232,.35) }
 
-/* ---------- 3. Background aura ----------
-   A light grey hue at the top and the MORI red at the bottom. Every glow
-   fades out along a Gaussian curve, like a blur, so it has no visible edge, and a faint
-   static grain on top (dithering) breaks up the colour steps a screen would
-   otherwise show as rings in such soft gradients. The hues drift very slowly
-   (transform and opacity only); Settings → Animated background and reduced
-   motion hold them still, and they blend the same either way. */
+/* ---------- 3. Background aura (drafts) + soft orbs, static ----------
+   The original background, held still: a light grey hue at the top and the
+   MORI red at the bottom, softened by two large blurred layers and three
+   faint orbs. Nothing on it moves, so it's painted once. */
 .aura{
-  position:fixed; inset:0; z-index:-2; overflow:hidden; pointer-events:none;
+  position:fixed; inset:0; z-index:-2;
   background:
-    radial-gradient(1300px 900px at 18% 22%, var(--aura-top) 0.0%, color-mix(in srgb, var(--aura-top) 95.6%, transparent) 8.6%, color-mix(in srgb, var(--aura-top) 83.5%, transparent) 17.2%, color-mix(in srgb, var(--aura-top) 66.7%, transparent) 25.8%, color-mix(in srgb, var(--aura-top) 48.7%, transparent) 34.4%, color-mix(in srgb, var(--aura-top) 32.5%, transparent) 43.0%, color-mix(in srgb, var(--aura-top) 19.8%, transparent) 51.6%, color-mix(in srgb, var(--aura-top) 11.0%, transparent) 60.2%, color-mix(in srgb, var(--aura-top) 5.6%, transparent) 68.8%, color-mix(in srgb, var(--aura-top) 2.6%, transparent) 77.4%, transparent 86.0%),
-    radial-gradient(1300px 900px at 82% 78%, var(--aura-red) 0.0%, color-mix(in srgb, var(--aura-red) 95.6%, transparent) 8.6%, color-mix(in srgb, var(--aura-red) 83.5%, transparent) 17.2%, color-mix(in srgb, var(--aura-red) 66.7%, transparent) 25.8%, color-mix(in srgb, var(--aura-red) 48.7%, transparent) 34.4%, color-mix(in srgb, var(--aura-red) 32.5%, transparent) 43.0%, color-mix(in srgb, var(--aura-red) 19.8%, transparent) 51.6%, color-mix(in srgb, var(--aura-red) 11.0%, transparent) 60.2%, color-mix(in srgb, var(--aura-red) 5.6%, transparent) 68.8%, color-mix(in srgb, var(--aura-red) 2.6%, transparent) 77.4%, transparent 86.0%),
-    radial-gradient(900px 1000px at 50% 110%, var(--aura-red-soft) 0.0%, color-mix(in srgb, var(--aura-red-soft) 95.6%, transparent) 8.8%, color-mix(in srgb, var(--aura-red-soft) 83.5%, transparent) 17.6%, color-mix(in srgb, var(--aura-red-soft) 66.7%, transparent) 26.4%, color-mix(in srgb, var(--aura-red-soft) 48.7%, transparent) 35.2%, color-mix(in srgb, var(--aura-red-soft) 32.5%, transparent) 44.0%, color-mix(in srgb, var(--aura-red-soft) 19.8%, transparent) 52.8%, color-mix(in srgb, var(--aura-red-soft) 11.0%, transparent) 61.6%, color-mix(in srgb, var(--aura-red-soft) 5.6%, transparent) 70.4%, color-mix(in srgb, var(--aura-red-soft) 2.6%, transparent) 79.2%, transparent 88.0%),
+    radial-gradient(1300px 900px at 18% 22%, var(--aura-top), transparent 62%),
+    radial-gradient(1300px 900px at 82% 78%, var(--aura-red), transparent 62%),
+    radial-gradient(900px 1000px at 50% 110%, var(--aura-red-soft), transparent 64%),
     var(--bg);
 }
-.aura::before{ content:""; position:absolute; inset:-15%; will-change: transform, opacity;
+.aura::before,.aura::after{
+  content:""; position:absolute; inset:-28%; border-radius:50%;
+  filter: blur(120px); opacity:.7;
   background:
-    radial-gradient(42% 46% at 74% 74%, var(--aura-red-2) 0.0%, color-mix(in srgb, var(--aura-red-2) 95.6%, transparent) 9.4%, color-mix(in srgb, var(--aura-red-2) 83.5%, transparent) 18.8%, color-mix(in srgb, var(--aura-red-2) 66.7%, transparent) 28.2%, color-mix(in srgb, var(--aura-red-2) 48.7%, transparent) 37.6%, color-mix(in srgb, var(--aura-red-2) 32.5%, transparent) 47.0%, color-mix(in srgb, var(--aura-red-2) 19.8%, transparent) 56.4%, color-mix(in srgb, var(--aura-red-2) 11.0%, transparent) 65.8%, color-mix(in srgb, var(--aura-red-2) 5.6%, transparent) 75.2%, color-mix(in srgb, var(--aura-red-2) 2.6%, transparent) 84.6%, transparent 94.0%),
-    radial-gradient(40% 44% at 24% 22%, var(--aura-top-2) 0.0%, color-mix(in srgb, var(--aura-top-2) 95.6%, transparent) 9.4%, color-mix(in srgb, var(--aura-top-2) 83.5%, transparent) 18.8%, color-mix(in srgb, var(--aura-top-2) 66.7%, transparent) 28.2%, color-mix(in srgb, var(--aura-top-2) 48.7%, transparent) 37.6%, color-mix(in srgb, var(--aura-top-2) 32.5%, transparent) 47.0%, color-mix(in srgb, var(--aura-top-2) 19.8%, transparent) 56.4%, color-mix(in srgb, var(--aura-top-2) 11.0%, transparent) 65.8%, color-mix(in srgb, var(--aura-top-2) 5.6%, transparent) 75.2%, color-mix(in srgb, var(--aura-top-2) 2.6%, transparent) 84.6%, transparent 94.0%);
-  animation: hue-drift 56s ease-in-out infinite alternate }
-.aura::after{ content:""; position:absolute; inset:0; opacity:var(--aura-grain, .045); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px 180px }
-@keyframes hue-drift{
-  0%  { transform: translate3d(0,0,0) scale(1);           opacity:.85 }
-  50% { transform: translate3d(-2.5%,-2%,0) scale(1.05);  opacity:1 }
-  100%{ transform: translate3d(1.5%,-3.5%,0) scale(1.03); opacity:.9 }
+    radial-gradient(circle at 30% 40%, var(--aura-top-2), transparent 60%),
+    radial-gradient(circle at 72% 72%, var(--aura-red-2), transparent 60%);
 }
+.aura::after{ opacity:.6 }
+@media (max-width: 640px){ .aura::before, .aura::after{ filter: blur(72px) } }
+
+.aura-orbs{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden }
+.orb{ position:absolute; border-radius:50% }
+.orb--1{ width:40vmax; height:40vmax; left:-10vmax; top:4vh; background: radial-gradient(circle, var(--orb-top), transparent 62%) }
+.orb--2{ width:36vmax; height:36vmax; right:-8vmax; bottom:-8vh; background: radial-gradient(circle, var(--orb-red), transparent 62%) }
+.orb--3{ width:24vmax; height:24vmax; left:48%; top:34%; background: radial-gradient(circle, var(--orb-mid), transparent 62%) }
 
 /* ---------- 4. Top navigation — fixed, flush, backdrop blur (drafts) ---------- */
 .nav{
@@ -637,7 +641,6 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 
 /* ---------- 18. Reduced motion (device setting or Settings → Motion) ---------- */
 @media (prefers-reduced-motion: reduce){
-  html:not([data-motion="full"]) .aura::before{ animation:none }
   html:not([data-motion="full"]) *, html:not([data-motion="full"]) *::before, html:not([data-motion="full"]) *::after{
     animation-duration:.001ms !important; animation-delay:0s !important; animation-iteration-count:1 !important;
     transition-duration:.001ms !important; transition-delay:0s !important; scroll-behavior:auto !important;
@@ -652,7 +655,6 @@ html[data-motion="reduced"]{ scroll-behavior:auto }
 html[data-motion="reduced"]::view-transition-group(*),
 html[data-motion="reduced"]::view-transition-old(*),
 html[data-motion="reduced"]::view-transition-new(*){ animation:none !important }
-html[data-aura="still"] .aura::before{ animation:none !important }
 
 /* ---------- 19. Loading screen (sign-in, onboarding, sign-out) ---------- */
 .loader{
