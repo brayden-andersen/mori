@@ -662,16 +662,18 @@ html[data-motion="reduced"]::view-transition-group(*),
 html[data-motion="reduced"]::view-transition-old(*),
 html[data-motion="reduced"]::view-transition-new(*){ animation:none !important }
 
-/* ---------- 19. Loading screen (sign-in, onboarding, sign-out) ---------- */
+/* ---------- 19. Loading screen (sign-in, onboarding, sign-out) ----------
+   It carries its own copy of the site's aura (the same .aura and orbs inside
+   it), so it matches every page in light and dark. */
 .loader{
   position:fixed; inset:0; z-index:6000; display:grid; place-items:center; padding:24px;
-  background:
-    radial-gradient(1300px 900px at 18% 22%, rgba(124,175,238,0.38), transparent 62%),
-    radial-gradient(1300px 900px at 82% 78%, rgba(241,165,111,0.40), transparent 62%),
-    var(--bg);
+  background: var(--bg);
   opacity:0; visibility:hidden; transition: opacity .35s ease, visibility .35s ease;
 }
 .loader.is-on, html.is-signing-in .loader{ opacity:1; visibility:visible }
+/* While it's up it covers everything, the nav included, even during a page or
+   theme fade (the nav otherwise fades on its own layer, drawn above the page). */
+html.is-signing-in .nav, html:has(.loader.is-on) .nav{ view-transition-name: none }
 html.is-signing-in body{ overflow:hidden }
 .loader-card{ display:grid; justify-items:center; gap:4px; text-align:center; animation: fade-up .5s var(--ease-out) both }
 .loader-mark{ position:relative; width:80px; height:80px; margin-bottom:18px; display:grid; place-items:center; color:#000 }

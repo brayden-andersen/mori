@@ -130,9 +130,6 @@ html[data-theme="dark"] .typing i{ background:#6c6e70 }
 @media (max-width: 760px){
 html[data-theme="dark"] .st-nav{ border-bottom:1px solid rgba(227,228,230,0.06) }
 }
-html[data-theme="dark"] .loader{ background:radial-gradient(1300px 900px at 18% 22%, rgba(20,103,204,0.838), transparent 62%),
-    radial-gradient(1300px 900px at 82% 78%, rgba(204,97,20,0.88), transparent 62%),
-    var(--bg) }
 html[data-theme="dark"] .loader-mark{ color:#ededed }
 html[data-theme="dark"] .loader-mark::before{ border:1.5px solid rgba(237,237,237,0.09); border-top-color:#ededed }
 html[data-theme="dark"] .mp-remove:hover{ color:#ed8c8c }

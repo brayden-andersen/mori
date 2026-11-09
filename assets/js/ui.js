@@ -372,7 +372,8 @@
         el.className = "loader";
         el.setAttribute("role", "status");
         el.setAttribute("aria-live", "polite");
-        el.innerHTML = `<div class="loader-card"><span class="loader-mark">${brandMark("loader-logo")}</span><p class="loader-title"></p><p class="loader-sub"></p></div>`;
+        // The site's aura goes inside too, so the screen matches the pages around it.
+        el.innerHTML = `<div class="aura" aria-hidden="true"></div><div class="aura-orbs" aria-hidden="true"><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div><div class="loader-card"><span class="loader-mark">${brandMark("loader-logo")}</span><p class="loader-title"></p><p class="loader-sub"></p></div>`;
         document.body.appendChild(el);
       }
       return el;
