@@ -32,7 +32,6 @@
 
   const activeTags = new Set();
   let currentPage = 1;
-  let highlightId = null;
   // Google members' projects come from Supabase: wait for the first load before saying "none yet".
   let loaded = !N.available() || S.projects().length > 0;
 
@@ -87,7 +86,7 @@
       ? `Co-founder · ${esc(owner.person.name)}’s project`
       : others.length ? `With ${esc(others.slice(0, 2).map((t) => first(t.person.name)).join(" and "))}${others.length > 2 ? ` +${others.length - 2}` : ""}` : "";
     return `
-      <article class="pcard spotlight ${p.id === highlightId ? "is-new" : ""}" data-open="${esc(p.id)}">
+      <article class="pcard spotlight" data-open="${esc(p.id)}">
         <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button></h4>
         <div class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</div>
         <div class="tags" style="margin-top:12px">${chips}</div>
@@ -300,20 +299,11 @@
     );
     K.bindTagField(form, chosen);
 
-    const created = (id, name) => {
+    // A new project opens straight on its Mainframe; the planner shows the note once it's there.
+    const created = (id, name, note, first) => {
+      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) {}
       Mori.modal.close({ restoreFocus: false });
-      q.value = "";
-      activeTags.clear();
-      sortBy.value = "updated_desc";
-      currentPage = 1;
-      highlightId = id;
-      buildChips();
-      render();
-      highlightId = null;
-      setTimeout(() => {
-        const card = grid.querySelector(`.pcard[data-open="${CSS.escape(id)}"]`);
-        if (card) card.scrollIntoView({ behavior: Mori.motion.reduced() ? "auto" : "smooth", block: "center" });
-      }, 120);
+      Mori.ui.go("project.html?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
     };
     const create = async () => {
       const nameInput = form.elements.name;
@@ -329,13 +319,13 @@
       const btn = $("#npCreate", panel);
       if (btn.disabled) return;
       btn.disabled = true;
+      const first = !S.projects().some((p) => p.owner); // your first project gets a short tour of the planner
       try {
         const id = await S.createProject({ name, focus: form.elements.focus.value, tags: Array.from(chosen), rung, cofounders: Array.from(cofounders) });
-        created(id, name);
-        toast(cofounders.size ? `“${name}” declared with ${cofounders.size} ${cofounders.size === 1 ? "person" : "people"} on the team` : `“${name}” declared`, { icon: "check" });
+        created(id, name, { text: cofounders.size ? `“${name}” declared with ${cofounders.size} ${cofounders.size === 1 ? "person" : "people"} on the team` : `“${name}” declared`, icon: "check" }, first);
       } catch (err) {
         btn.disabled = false;
-        if (err.projectId) { created(err.projectId, name); toast(err.message, { icon: "x", duration: 5000 }); return; }
+        if (err.projectId) { created(err.projectId, name, { text: err.message, icon: "x", duration: 5000 }, first); return; }
         Mori.people.fail(err);
       }
     };

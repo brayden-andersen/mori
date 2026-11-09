@@ -115,6 +115,7 @@
     showRecord: true,            // show milestone record on the profile
     projectStart: "mainframe",   // a project opens on: mainframe | tasks
     projectSidebar: true,        // the planner's tools sidebar is shown
+    tour: {},                    // guided tours: { site: network|projects|subscription|done|skipped, project: <id>|done|skipped }
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
   };
   function settings() {

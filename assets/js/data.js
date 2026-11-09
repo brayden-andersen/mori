@@ -2,7 +2,7 @@
    Mori: Sandbox — option lists and fixed content
    --------------------------------------------------------------------------
    Roles, onboarding options, the milestone ladder (from the "SandBox
-   Milestone Ladder" core-kit doc) and the homepage insights. Everything else
+   Milestone Ladder" core-kit doc) and the subscription ladder. Everything else
    a member sees is their own: projects and settings are kept by state.js,
    other members and connection requests come from Supabase.
    ========================================================================== */
@@ -159,9 +159,31 @@ Mori.data = {
     ],
   },
 
-  insights: [
-    { id: "n1", title: "MatchGraph hits 10k successful intros", team: "Signal Rooms",   time: "Today",     blurb: "A new routing model improved introduction acceptance by 21% week-over-week." },
-    { id: "n2", title: "Investor CRM v0.9 Release",             team: "Investor Tools", time: "Yesterday", blurb: "Pipeline stages, smart reminders, and email sync enter public beta." },
-    { id: "n3", title: "Sandbox Jobs launches talent campaign", team: "Growth",         time: "2d ago",    blurb: "Top-of-funnel playbook leads to 2.3× increase in qualified candidates." },
-  ],
+  /* Subscription ladder. PLACEHOLDER prices and perks: to be replaced with the
+     final ones. `monthly` is in rupiah; yearly billing is ten months' price. */
+  plans: {
+    placeholder: true,
+    tiers: [
+      { id: "explorer", name: "Explorer", rung: 1, monthly: 0, tagline: "Find your people and start an idea.",
+        perks: ["MORI Network: discover, connect and message", "1 project with its Mainframe and tools", "Up to 5 documents", "Starter toolkits and templates"] },
+      { id: "builder", name: "Builder", rung: 2, monthly: 49000, tagline: "For founders building in earnest.", popular: true,
+        perks: ["Everything in Explorer", "Up to 5 projects", "Unlimited documents", "Up to 5 people on each project", "Every toolkit and template"] },
+      { id: "founder", name: "Founder Pro", rung: 3, monthly: 129000, tagline: "Get noticed and raise.",
+        perks: ["Everything in Builder", "Unlimited projects and teammates", "Spotlight in Discover for specialists", "Funding deadlines and reminders", "Word and PDF exports for investors"] },
+      { id: "studio", name: "Studio", rung: 4, monthly: 349000, tagline: "For incubators, campuses and venture studios.",
+        perks: ["Everything in Founder Pro", "Run several teams in one place", "Cohort progress across projects", "Mentor seats", "Your own toolkits and templates"] },
+    ],
+    // What each plan includes, for the comparison table (true, false or a short value).
+    compare: [
+      ["MORI Network", [true, true, true, true]],
+      ["Projects", ["1", "5", "Unlimited", "Unlimited"]],
+      ["People on a project", ["2", "5", "Unlimited", "Unlimited"]],
+      ["Documents", ["5", "Unlimited", "Unlimited", "Unlimited"]],
+      ["Mainframe widgets and planner tools", [true, true, true, true]],
+      ["Toolkits and templates", ["Starter", "All", "All", "All + your own"]],
+      ["Spotlight in Discover", [false, false, true, true]],
+      ["Exports for investors", [false, false, true, true]],
+      ["Several teams and cohorts", [false, false, false, true]],
+    ],
+  },
 };

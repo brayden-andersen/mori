@@ -20,7 +20,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SOURCES = ["mori.css", "landing.css", "onboarding.css", "home.css", "projects.css", "project.css", "network.css"]
+SOURCES = ["mori.css", "landing.css", "onboarding.css", "home.css", "projects.css", "project.css", "network.css", "subscription.css", "tour.css"]
 OUT = ROOT / "assets/css/dark.css"
 OVERRIDES = ROOT / "tools/dark-overrides.css"
 DARK = 'html[data-theme="dark"]'

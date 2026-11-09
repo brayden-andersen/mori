@@ -1,0 +1,313 @@
+/* ==========================================================================
+   Mori: Sandbox — guided tours (tour.js)
+   1. The site tour's slideshow (a modal)
+   2. The slides' pictures: small demos, drawn in CSS. Each element's plain
+      style is its final state; the animation plays from the start state, so
+      with reduced motion every picture simply shows how it ends.
+   3. The spotlight for the project tour
+   4. The "carry on with the tour" pill
+   ========================================================================== */
+
+/* ---------- 1. Slideshow ---------- */
+.tour-modal{ width:min(560px, 100%); display:flex; flex-direction:column; background: linear-gradient(to bottom right, #f4f4f5, #ffffff) } /* solid: the page behind never shows through */
+.tour-top{ display:flex; align-items:center; gap:14px; padding:18px 20px 0 }
+.tour-chapters{ list-style:none; display:flex; gap:6px; flex:1; min-width:0; margin:0; padding:0 }
+.tour-chapters li{ flex:1; display:grid; gap:6px; min-width:0; font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
+.tour-chapters li i{ height:4px; border-radius:999px; background: rgba(26,28,31,.10) }
+.tour-chapters li.is-done i{ background: rgba(184,0,0,.45) }
+.tour-chapters li.is-on i{ background: linear-gradient(90deg, #8f0710, #c8141a) }
+.tour-chapters li.is-on{ color:var(--ink) }
+.tour-chapters span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.tour-skip{ flex:none; font-size:13px; color:var(--muted) }
+.tour-skip:hover{ color:var(--ink) }
+.tour-art{ position:relative; height:220px; margin:16px 20px 0; border-radius:16px; overflow:hidden; isolation:isolate;
+  background: radial-gradient(110% 90% at 88% 0%, rgba(200,20,26,.10), rgba(200,20,26,0) 62%), radial-gradient(90% 90% at 0% 100%, rgba(163,165,169,.24), rgba(163,165,169,0) 60%), linear-gradient(to bottom right, #f1f1f2, #fafafa);
+  border:1px solid rgba(26,28,31,.07) }
+.tour-copy{ padding:18px 24px 2px }
+.tour-kicker{ margin:0; font-size:12px; font-weight:600; letter-spacing:.02em; color: var(--mori-red) }
+.tour-copy h2{ margin:6px 0 0; font-size:21px; letter-spacing:-.015em }
+#tourBody{ margin:8px 0 0; min-height:4.7em; font-size:14.5px; line-height:1.55; color:var(--muted) }
+.tour-foot{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:16px 20px 20px }
+.tour-dots{ display:flex; gap:6px }
+.tour-dot{ width:7px; height:7px; padding:0; border:0; border-radius:999px; background: rgba(26,28,31,.18); cursor:pointer; transition: width .35s var(--ease-out), background-color .2s ease }
+.tour-dot:hover{ background: rgba(26,28,31,.35) }
+.tour-dot.is-on{ width:22px; background: var(--ink) }
+.tour-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto }
+.tour-actions .btn .ico{ width:15px; height:15px }
+.tour-art.is-next > .ta, .tour-copy.is-next{ animation: tour-in-next .45s var(--ease-out) both }
+.tour-art.is-prev > .ta, .tour-copy.is-prev{ animation: tour-in-prev .45s var(--ease-out) both }
+@keyframes tour-in-next{ from{ opacity:0; translate:26px 0 } }
+@keyframes tour-in-prev{ from{ opacity:0; translate:-26px 0 } }
+
+/* ---------- 2. Pictures ---------- */
+.ta{ position:absolute; inset:0; display:grid; place-items:center; font-size:12px; color:var(--ink) }
+.ta-col{ display:grid; gap:10px; width:min(400px, 88%) }
+.ta-col--center{ justify-items:center }
+.ta .ico{ width:14px; height:14px }
+.ta-card{ background:#fff; border:1px solid rgba(26,28,31,.08); border-radius:12px; box-shadow: 0 6px 18px rgba(26,28,31,.07) }
+.ta-av{ display:inline-grid; place-items:center; flex:none; width:var(--s, 34px); height:var(--s, 34px); border-radius:50%; font-style:normal; font-size: calc(var(--s, 34px) * .34); font-weight:650; letter-spacing:.02em; color:#ffffff; background:#5b6475 }
+.ta-av--1{ background:#4f6a8a } .ta-av--2{ background:#8a5f4a } .ta-av--3{ background:#3f7262 } .ta-av--4{ background:#6a5487 } .ta-av--5{ background:#8a4a64 }
+.ta-line{ display:block; height:7px; border-radius:999px; background: rgba(26,28,31,.11) }
+.ta-line.is-red{ background: rgba(184,0,0,.5) }
+.ta-chip{ display:inline-flex; align-items:center; height:21px; padding:0 9px; border-radius:999px; font-size:10.5px; font-weight:600; white-space:nowrap; color:#55575b; background: rgba(26,28,31,.06) }
+.ta-chip.is-red{ color:#9a0b11; background: rgba(184,0,0,.09) }
+.ta-btn{ display:inline-flex; align-items:center; justify-content:center; gap:5px; height:28px; padding:0 11px; border-radius:9px; font-size:11.5px; font-weight:600; white-space:nowrap; color:var(--ink); background:#ffffff; border:1px solid rgba(26,28,31,.14) }
+.ta-btn .ico{ width:13px; height:13px }
+.ta-btn--ink{ color:#ffffff; background:#1a1c1f; border-color:#1a1c1f }
+.ta-row{ display:flex; align-items:center; gap:11px; padding:11px 13px }
+.ta-copy{ display:grid; gap:2px; flex:1; min-width:0 }
+.ta-copy b{ font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.ta-copy span{ font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.ta-pills{ display:flex; flex-wrap:wrap; gap:6px }
+.ta-pills .ta-chip{ animation: ta-up .4s var(--ease-out) both; animation-delay: calc(1.3s + var(--d) * 90ms) }
+.ta-typed{ display:inline-block; vertical-align:bottom; max-width: var(--w, 8em); overflow:hidden; white-space:nowrap; animation: ta-type 1.1s steps(12) both .35s }
+.ta-caret{ display:inline-block; width:1.5px; height:15px; margin-left:1px; background: var(--ink); animation: ta-blink 1s steps(1) infinite }
+.ta-cursor{ position:absolute; z-index:3; right:-10px; bottom:-16px; width:20px; height:20px; opacity:0; pointer-events:none;
+  animation: ta-cursor 1.9s var(--ease-out) both .8s }
+.ta-cursor svg{ width:100%; height:100%; fill:#1a1c1f; stroke:#ffffff; stroke-width:1.5; stroke-linejoin:round }
+@keyframes ta-up{ from{ opacity:0; translate:0 8px } }
+@keyframes ta-pop{ from{ opacity:0; scale:.4 } }
+@keyframes ta-fade{ from{ opacity:0 } }
+@keyframes ta-type{ from{ max-width:0 } }
+@keyframes ta-blink{ 50%{ opacity:0 } }
+@keyframes ta-press{ 40%{ scale:.9 } }
+@keyframes ta-ring{ from{ opacity:.85; scale:.92 } to{ opacity:0; scale:1.75 } }
+@keyframes ta-cursor{ 0%{ opacity:0; translate:46px 36px } 30%{ opacity:1; translate:0 0; scale:1 } 42%{ scale:.82 } 54%{ scale:1 } 85%{ opacity:1 } 100%{ opacity:0; translate:0 0 } }
+
+/* Network: you, in the middle of everyone */
+.ta-links{ position:absolute; inset:0; width:100%; height:100% }
+.ta-links line{ stroke: rgba(184,0,0,.38); stroke-width:1.4; vector-effect: non-scaling-stroke; stroke-dasharray:4 5;
+  animation: ta-fade .5s ease both, ta-dash 1.8s linear infinite; animation-delay: calc(.4s + var(--d) * .12s), 0s }
+@keyframes ta-dash{ to{ stroke-dashoffset:-18 } }
+.ta-node{ position:absolute; translate:-50% -50%; animation: ta-pop .5s var(--ease-spring) both; animation-delay: calc(.25s + var(--d) * .12s) }
+.ta-node .ta-av, .ta-node .avatar{ box-shadow: 0 0 0 3px #ffffff, 0 8px 18px rgba(26,28,31,.16) }
+.ta-node--you{ z-index:2; animation-delay:0s }
+.ta-node--you::after{ content:""; position:absolute; inset:-7px; border-radius:50%; border:2px solid rgba(184,0,0,.5); animation: ta-ring 2.4s ease-out infinite 1.1s }
+.ta-node .avatar{ display:block }
+
+/* Network: search, filters, results */
+.ta-search{ display:flex; align-items:center; gap:8px; height:38px; padding:0 13px; font-size:13px; font-weight:500 }
+.ta-search .ico{ color:var(--subtle) }
+.ta-results{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px }
+.ta-person{ display:grid; justify-items:center; gap:3px; padding:11px 6px 10px; text-align:center; animation: ta-up .45s var(--ease-out) both; animation-delay: calc(1.8s + var(--d) * .12s) }
+.ta-person .ta-av{ margin-bottom:3px }
+.ta-person b{ font-size:11.5px }
+.ta-person span{ font-size:10px; color:var(--muted) }
+
+/* Network: a request with a note */
+.ta-swap{ position:relative; display:inline-grid; color:var(--ink); background:#ffffff; border-color: rgba(26,28,31,.14); animation: ta-sent .3s ease both 1.75s }
+.ta-swap > span{ grid-area:1/1; display:inline-flex; align-items:center; justify-content:center; gap:5px }
+.ta-swap .ta-a{ opacity:0; animation: ta-out .25s ease both 1.75s }
+.ta-swap .ta-b{ animation: ta-fade .25s ease both 1.75s }
+@keyframes ta-sent{ from{ color:#ffffff; background:#1a1c1f; border-color:#1a1c1f } }
+@keyframes ta-out{ from{ opacity:1 } to{ opacity:0 } }
+.ta-note{ justify-self:end; width:86%; margin:0; padding:10px 12px; border-radius:14px 14px 4px 14px; font-size:11.5px; line-height:1.45; color:var(--ink-2); animation: ta-up .45s var(--ease-out) both .35s }
+
+/* Network: accept, then talk */
+.ta-accept{ animation: ta-press .45s ease both .8s }
+.ta-chat{ display:grid; gap:6px; padding:0 2px }
+.ta-bub{ justify-self:start; max-width:80%; margin:0; padding:7px 11px; border-radius:14px 14px 14px 4px; font-size:11.5px; background:#ffffff; border:1px solid rgba(26,28,31,.08); box-shadow: 0 4px 12px rgba(26,28,31,.05);
+  animation: ta-up .4s var(--ease-out) both; animation-delay: calc(1.25s + var(--d) * .65s) }
+.ta-bub--me{ justify-self:end; border-radius:14px 14px 4px 14px; color:#ffffff; background:#1a1c1f; border-color:#1a1c1f }
+.ta-typing{ display:flex; gap:3px; padding:10px 12px }
+.ta-typing i{ width:5px; height:5px; border-radius:50%; background: var(--subtle); animation: ta-hop 1s ease-in-out infinite; animation-delay: calc(var(--k) * .15s) }
+@keyframes ta-hop{ 0%, 60%, 100%{ translate:0 0 } 30%{ translate:0 -3px } }
+
+/* Network: your profile */
+.ta-pf{ overflow:hidden; animation: ta-up .45s var(--ease-out) both .1s }
+.ta-pf-cover{ height:38px; background: linear-gradient(110deg, #2b0306, #8f0710 55%, #c8141a) }
+.ta-pf-body{ display:flex; align-items:flex-end; gap:11px; padding:0 13px 11px }
+.ta-pf-photo{ margin-top:-20px; border-radius:50%; box-shadow: 0 0 0 3px #ffffff }
+.ta-pf-photo .avatar{ display:block }
+.ta-vis{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 11px 9px 13px; font-size:11.5px; font-weight:600; animation: ta-up .45s var(--ease-out) both .45s }
+.ta-vis > span:first-child{ display:inline-flex; align-items:center; gap:6px; color:var(--ink-2) }
+.ta-seg{ position:relative; display:inline-grid; grid-auto-flow:column; grid-auto-columns:1fr; padding:3px; border-radius:9px; background: rgba(26,28,31,.06) }
+.ta-seg i{ position:relative; z-index:1; padding:4px 9px; font-style:normal; font-size:10.5px; font-weight:600; text-align:center; color:var(--muted) }
+.ta-seg b{ position:absolute; top:3px; bottom:3px; left:3px; width: calc(50% - 3px); border-radius:7px; background:#ffffff; box-shadow: 0 2px 6px rgba(26,28,31,.12) }
+.ta-vis .ta-seg b{ animation: ta-toggle 4.8s var(--ease-out) infinite 1s }
+@keyframes ta-toggle{ 0%, 38%{ translate:0 0 } 50%, 88%{ translate:100% 0 } 100%{ translate:0 0 } }
+
+/* Projects: the gallery */
+.ta-cards3{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; width:min(440px, 90%) }
+.ta-proj{ display:grid; gap:6px; padding:11px 11px 12px; animation: ta-up .45s var(--ease-out) both; animation-delay: calc(.15s + var(--d) * .12s) }
+.ta-proj-top{ display:flex; align-items:center; justify-content:space-between; gap:6px; min-width:0 }
+.ta-proj b{ margin-top:2px; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.ta-proj .ta-line{ height:6px }
+.ta-bar{ display:block; height:5px; margin-top:4px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.08) }
+.ta-bar i{ display:block; width: var(--p); height:100%; border-radius:inherit; background: linear-gradient(90deg, #e78440, #c8141a); animation: ta-grow .9s var(--ease-out) both; animation-delay: calc(.7s + var(--d) * .15s) }
+@keyframes ta-grow{ from{ width:0 } }
+.ta-pin{ display:inline-grid; color: var(--mori-red); animation: ta-drop .5s var(--ease-spring) both 1.3s }
+@keyframes ta-drop{ from{ opacity:0; translate:0 -10px } }
+
+/* Projects: declaring one */
+.ta-form{ display:grid; gap:9px; width:min(340px, 84%); padding:13px 14px 14px; animation: ta-up .45s var(--ease-out) both .05s }
+.ta-form-head{ display:flex; align-items:center; justify-content:space-between; font-size:13px }
+.ta-form-head .ico{ color:var(--subtle) }
+.ta-field{ display:grid; gap:4px }
+.ta-field > span:first-child{ font-size:10.5px; font-weight:600; color:var(--muted) }
+.ta-input{ display:flex; align-items:center; height:30px; padding:0 10px; border-radius:8px; font-size:12px; background: rgba(26,28,31,.03); border:1px solid rgba(26,28,31,.12) }
+.ta-typed--2{ animation-delay:1.75s; animation-duration:1.5s }
+.ta-caret--1{ animation: ta-blink 1s steps(1) infinite, ta-gone .01s linear both 1.6s }
+.ta-caret--2{ animation: ta-blink 1s steps(1) infinite, ta-wait 1.65s step-end both }
+@keyframes ta-gone{ to{ visibility:hidden } }
+@keyframes ta-wait{ from{ visibility:hidden } to{ visibility:hidden } }
+.ta-form-foot{ display:flex; justify-content:flex-end; padding-top:2px }
+.ta-create{ position:relative; animation: ta-press .45s ease both 3.5s }
+.ta-create::after{ content:""; position:absolute; inset:-4px; border-radius:12px; border:2px solid rgba(184,0,0,.45); opacity:0; animation: ta-ring 1.2s ease-out both 3.55s }
+
+/* Projects: the milestone ladder */
+.ta-stairs{ display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); align-items:end; gap:6px; height:132px }
+.ta-stair{ display:grid; grid-template-rows: 1fr auto; gap:5px; height:100% }
+.ta-stair i{ position:relative; align-self:end; height: calc(18px + var(--k) * 15px); border-radius:6px 6px 3px 3px; background: rgba(26,28,31,.09); transform-origin:bottom;
+  animation: ta-rise .5s var(--ease-out) both; animation-delay: calc(.1s + var(--k) * 80ms) }
+.ta-stair.is-done i{ background: linear-gradient(180deg, #c8141a, #8f0710); animation: ta-rise .5s var(--ease-out) both, ta-fill .4s ease both; animation-delay: calc(.1s + var(--k) * 80ms), calc(.9s + var(--k) * .2s) }
+@keyframes ta-rise{ from{ scale:1 0 } }
+@keyframes ta-fill{ from{ filter: grayscale(1) brightness(1.9) } }
+.ta-stair em{ position:absolute; left:50%; bottom: calc(100% + 6px); translate:-50% 0; padding:2px 7px; border-radius:999px; font-style:normal; font-size:9.5px; font-weight:700; white-space:nowrap; color:#ffffff; background:#1a1c1f; animation: ta-drop .45s var(--ease-spring) both 1.7s }
+.ta-stair span{ font-size:9px; line-height:1.2; text-align:center; color:var(--muted); min-height:2.4em }
+.ta-stair.is-here span{ color:var(--ink); font-weight:600 }
+.ta-ladder .ta-pills{ justify-content:center }
+
+/* Projects: the team */
+.ta-teamcard{ display:grid; justify-items:start; gap:6px; width:min(300px, 80%); padding:14px 15px 15px; animation: ta-up .45s var(--ease-out) both .05s }
+.ta-teamcard > b{ font-size:15px }
+.ta-stack{ display:flex; align-items:center; margin:6px 0 2px 6px }
+.ta-stack > span{ display:inline-grid; margin-left:-7px; border-radius:50%; box-shadow: 0 0 0 3px #ffffff; animation: ta-join .55s var(--ease-spring) both; animation-delay: calc(.45s + var(--k) * .3s) }
+.ta-stack .avatar{ display:block }
+.ta-plus{ place-items:center; width:36px; height:36px; color:var(--muted); background: rgba(26,28,31,.06); border:1.5px dashed rgba(26,28,31,.22) }
+.ta-plus .ico{ width:15px; height:15px }
+@keyframes ta-join{ from{ opacity:0; translate:-26px 0; scale:.7 } }
+.ta-meta{ font-size:11px; color:var(--muted); animation: ta-fade .4s ease both 1.6s }
+
+/* Projects: the planner */
+.ta-app{ display:grid; grid-template-columns: 74px minmax(0,1fr); width:min(430px, 90%); height:164px; overflow:hidden; animation: ta-up .45s var(--ease-out) both .05s }
+.ta-app-side{ display:grid; align-content:start; gap:9px; padding:14px 10px; border-right:1px solid rgba(26,28,31,.07); background: rgba(26,28,31,.02) }
+.ta-app-side .ta-line{ height:6px }
+.ta-app-main{ display:grid; grid-template-rows:auto 1fr; gap:9px; padding:11px 12px 12px; min-width:0 }
+.ta-app-head{ display:flex; align-items:baseline; gap:8px; font-size:12px }
+.ta-app-head span{ font-size:10.5px; font-weight:600; color: var(--mori-red) }
+.ta-wgrid{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); grid-template-rows: repeat(2, minmax(0,1fr)); gap:6px }
+.ta-wgrid i{ display:block; padding:7px; border-radius:8px; background:#ffffff; border:1px solid rgba(26,28,31,.09); box-shadow: 0 3px 8px rgba(26,28,31,.05); animation: ta-pop .45s var(--ease-spring) both; animation-delay: calc(.5s + var(--d) * .14s) }
+.ta-wgrid b{ display:block; width:60%; height:5px; border-radius:999px; background: rgba(26,28,31,.14) }
+
+/* Subscription: the ladder of plans */
+.ta-plancols{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); align-items:end; gap:10px; width:min(420px, 90%); height:170px }
+.ta-plancol{ position:relative; display:grid; grid-template-rows: 1fr auto auto; gap:3px; height:100%; text-align:center }
+.ta-plancol i{ align-self:end; height: calc(34px + var(--k) * 26px); border-radius:9px 9px 4px 4px; background:#ffffff; border:1px solid rgba(26,28,31,.10); box-shadow: 0 6px 14px rgba(26,28,31,.06); transform-origin:bottom; animation: ta-rise .55s var(--ease-out) both; animation-delay: calc(.1s + var(--k) * .12s) }
+.ta-plancol.is-you i{ background: linear-gradient(180deg, #c8141a, #8f0710); border-color: rgba(143,7,16,.6) }
+.ta-plancol b{ margin-top:4px; font-size:11px; white-space:nowrap }
+.ta-plancol span{ font-size:10px; color:var(--muted); white-space:nowrap }
+.ta-plancol em{ position:absolute; left:50%; bottom: calc(34px + 3em + 12px); translate:-50% 0; padding:2px 7px; border-radius:999px; font-style:normal; font-size:9.5px; font-weight:700; white-space:nowrap; color:#ffffff; background:#1a1c1f; animation: ta-drop .45s var(--ease-spring) both .9s }
+
+/* Subscription: what the next plan adds */
+.ta-perks{ display:grid; gap:9px; width:min(330px, 84%); padding:13px 15px 14px; animation: ta-up .45s var(--ease-out) both .05s }
+.ta-perks-head{ display:flex; align-items:center; gap:8px }
+.ta-perks-head .ico{ color:var(--subtle) }
+.ta-perks ul{ list-style:none; display:grid; gap:6px; margin:0; padding:0 }
+.ta-perks li{ display:flex; align-items:center; gap:8px; font-size:12px; animation: ta-up .4s var(--ease-out) both; animation-delay: calc(.4s + var(--k) * .18s) }
+.ta-perks li .ico{ flex:none; color: var(--mori-red) }
+.ta-keep{ display:flex; align-items:center; gap:7px; margin:2px 0 0; padding-top:9px; border-top:1px solid rgba(26,28,31,.07); font-size:11px; color:var(--muted); animation: ta-fade .4s ease both 1.3s }
+
+/* Subscription: monthly or yearly */
+.ta-seg--bill{ width:200px; animation: ta-up .4s var(--ease-out) both .05s }
+.ta-seg--bill i{ font-size:11.5px; padding:6px 10px }
+.ta-seg--bill b{ translate:100% 0; animation: ta-slide .45s var(--ease-out) both 1.1s }
+@keyframes ta-slide{ from{ translate:0 0 } }
+.ta-price{ display:grid; padding:14px 22px; min-width:200px; text-align:center; animation: ta-up .45s var(--ease-out) both .2s }
+.ta-price > span{ grid-area:1/1; font-size:12px; color:var(--muted) }
+.ta-price b{ font-size:19px; letter-spacing:-.01em; color:var(--ink); font-variant-numeric: tabular-nums }
+.ta-price-a{ opacity:0; animation: ta-out .25s ease both 1.15s }
+.ta-price-b{ animation: ta-fade .3s ease both 1.25s }
+.ta-free{ padding:3px 9px; border-radius:999px; font-size:11px; font-weight:600; color:#0c7c57; background: rgba(16,185,129,.12); animation: ta-pop .45s var(--ease-spring) both 1.5s }
+
+/* Subscription: ready */
+.ta-ready{ place-items:center }
+.ta-rings{ position:absolute; left:50%; top:50%; width:96px; height:96px; translate:-50% -50% }
+.ta-rings i{ position:absolute; inset:0; border-radius:50%; border:2px solid rgba(184,0,0,.4); animation: ta-ring 2.6s ease-out infinite; animation-delay: calc(var(--k, 0) * .85s) }
+.ta-rings i:nth-child(2){ --k:1 } .ta-rings i:nth-child(3){ --k:2 }
+.ta-mark{ position:relative; display:grid; place-items:center; width:84px; height:84px; border-radius:24px; color:#1a1c1f; background:#ffffff; box-shadow: 0 14px 34px rgba(26,28,31,.14); animation: ta-pop .6s var(--ease-spring) both .1s }
+.ta-logo{ width:50px; height:50px }
+
+/* The project tour: widgets on a four-column grid (loops) */
+.ta-mini{ position:relative; height:104px; padding:8px; border-radius:12px; background: rgba(26,28,31,.035); border:1px solid rgba(26,28,31,.07) }
+.ta-mini-cells{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); grid-template-rows: repeat(2, minmax(0,1fr)); gap:6px; height:100% }
+.ta-mini-cells i{ border-radius:7px; border:1.5px dashed rgba(26,28,31,.12) }
+.ta-mini-w, .ta-mini-fixed{ position:absolute; top:8px; height: calc((100% - 22px) / 2); padding:7px; border-radius:7px; background:#ffffff; border:1px solid rgba(26,28,31,.12); box-shadow: 0 4px 10px rgba(26,28,31,.08) }
+.ta-mini-w b, .ta-mini-fixed b{ display:block; width:55%; height:4px; border-radius:999px; background: rgba(26,28,31,.16) }
+.ta-mini-fixed{ left: calc(8px + 3 * ((100% - 34px) / 4 + 6px)); width: calc((100% - 34px) / 4); top: calc(8px + (100% - 22px) / 2 + 6px) }
+.ta-mini-w{ left:8px; width: calc((100% - 34px) / 4); border-color: rgba(184,0,0,.5); animation: ta-widget 6.5s var(--ease-out) infinite }
+.ta-mini-w b{ background: rgba(184,0,0,.45) }
+@keyframes ta-widget{
+  0%{ opacity:0; scale:.7; left:8px; width: calc((100% - 34px) / 4) }
+  10%{ opacity:1; scale:1; left:8px; width: calc((100% - 34px) / 4) }
+  30%{ left:8px }
+  44%{ left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 4) }
+  60%{ width: calc((100% - 34px) / 4) }
+  76%{ left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 2 + 6px) }
+  92%{ opacity:1; left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 2 + 6px) }
+  100%{ opacity:0; left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 2 + 6px) }
+}
+
+/* Reduced motion: every picture shows how it ends */
+html[data-motion="reduced"] .ta *, html[data-motion="reduced"] .ta-mini *, html[data-motion="reduced"] .tour-art > .ta, html[data-motion="reduced"] .tour-copy{ animation:none !important }
+@media (prefers-reduced-motion: reduce){
+  html:not([data-motion="full"]) .ta *, html:not([data-motion="full"]) .ta-mini *, html:not([data-motion="full"]) .tour-art > .ta, html:not([data-motion="full"]) .tour-copy{ animation:none !important }
+}
+html[data-motion="reduced"] .ta-mini-w{ left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 2 + 6px) }
+@media (prefers-reduced-motion: reduce){ html:not([data-motion="full"]) .ta-mini-w{ left: calc(8px + (100% - 34px) / 4 + 6px); width: calc((100% - 34px) / 2 + 6px) } }
+
+/* ---------- 3. Spotlight ---------- */
+.coach{ position:fixed; inset:0; z-index:1700; pointer-events:none }
+.coach[hidden]{ display:none }
+.coach-block{ position:fixed; pointer-events:auto }
+.coach-spot{ position:fixed; border-radius:14px; pointer-events:none; opacity:0;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 0 6px rgba(184,0,0,.35), 0 0 0 200vmax rgba(14,14,16,.5);
+  transition: opacity .3s ease }
+.coach.is-gliding .coach-spot{ transition: left .42s var(--ease-out), top .42s var(--ease-out), width .42s var(--ease-out), height .42s var(--ease-out), opacity .3s ease }
+.coach:not(.is-on) .coach-spot, .coach:not(.is-on) .coach-pop{ opacity:0 !important }
+.coach-pop{ position:fixed; left:0; top:0; display:grid; gap:0; width:min(350px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow:auto; padding:16px 18px 14px; pointer-events:auto; outline:none;
+  border-radius:18px; background: linear-gradient(to bottom right, #f6f6f7, #ffffff); border:1px solid rgba(39,39,42,.22); box-shadow: 0 24px 60px rgba(14,14,16,.28), 0 2px 8px rgba(14,14,16,.08);
+  transition: opacity .2s ease }
+.coach.is-moving .coach-pop{ opacity:0 }
+.coach-pop.coach-pop--in{ animation: coach-in .4s var(--ease-out) both }
+@keyframes coach-in{ from{ opacity:0; translate:0 8px } }
+.coach-pop.is-center{ width:min(400px, calc(100vw - 24px)) }
+.coach-art{ margin:-2px 0 12px }
+.coach-art[hidden]{ display:none }
+.coach-art .ta{ position:relative; inset:auto; height:150px; border-radius:12px; overflow:hidden; background: radial-gradient(110% 90% at 88% 0%, rgba(200,20,26,.10), rgba(200,20,26,0) 62%), linear-gradient(to bottom right, #f1f1f2, #fafafa); border:1px solid rgba(26,28,31,.07) }
+.coach-art .ta-app{ height:128px }
+.coach-art .ta-mark{ width:70px; height:70px; border-radius:20px }
+.coach-art .ta-logo{ width:42px; height:42px }
+.coach-kicker{ margin:0; font-size:11.5px; font-weight:600; letter-spacing:.02em; color: var(--mori-red) }
+.coach-title{ margin:5px 0 0; font-size:17px; letter-spacing:-.01em }
+.coach-body{ margin:7px 0 0; font-size:13.5px; line-height:1.55; color:var(--muted) }
+.coach-extra{ margin-top:10px }
+.coach-extra[hidden]{ display:none }
+.coach-tip{ display:flex; gap:8px; align-items:flex-start; text-wrap:pretty; margin:0; padding:9px 11px; border-radius:12px; font-size:12.5px; line-height:1.45; color:var(--ink-2); background: rgba(26,28,31,.04) }
+.coach-tip .ico{ flex:none; width:15px; height:15px; margin-top:1px; color: var(--mori-red) }
+.coach-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px }
+.coach-skip{ font-size:12.5px; color:var(--muted) }
+.coach-skip:hover{ color:var(--ink) }
+.coach-skip[hidden]{ visibility:hidden; display:inline }
+.coach-actions{ display:flex; gap:8px; margin-left:auto }
+.coach-actions .btn .ico{ width:14px; height:14px }
+
+/* ---------- 4. Carry on ---------- */
+.tour-pill{ position:fixed; z-index:1400; left:16px; bottom:16px; display:flex; align-items:center; gap:10px; max-width: calc(100vw - 32px); padding:8px 8px 8px 12px; border-radius:16px;
+  background: var(--glass-menu); border:1px solid rgba(26,28,31,.12); box-shadow: 0 16px 36px rgba(26,28,31,.16); animation: ta-up .45s var(--ease-out) both }
+.tour-pill-ico .ico{ width:18px; height:18px; color: var(--mori-red) }
+.tour-pill-copy{ display:grid; gap:1px; min-width:0; margin-right:4px }
+.tour-pill-copy b{ font-size:13px }
+.tour-pill-copy span{ font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+
+@media (max-width: 560px){
+  .tour-root{ padding:12px }
+  .tour-art{ height:196px; margin:14px 14px 0 }
+  .tour-copy{ padding:16px 18px 2px }
+  .tour-top{ padding:16px 16px 0 }
+  .tour-chapters span{ display:none }
+  .tour-foot{ padding:14px 16px 16px }
+  .ta-stair span{ font-size:8px }
+  .ta-results .ta-person:nth-child(3){ display:none }
+  .ta-results{ grid-template-columns: repeat(2, minmax(0,1fr)) }
+}

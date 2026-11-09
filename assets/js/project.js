@@ -16,6 +16,8 @@
      Mainframe, New document) and the page itself: the Mainframe
      (mainframe.js), documents (planner-docs.js) or a tool (planner-tools.js)
    Teammates' changes arrive when the page comes back into view and every 20 s.
+   A project you've just declared opens here on its Mainframe; your first one
+   also gets a short tour of the planner (tour.js).
    ========================================================================== */
 (function () {
   "use strict";
@@ -441,6 +443,12 @@
   window.addEventListener("focus", refreshAll);
   setInterval(refreshAll, 20000);
 
+  /* A project just declared on the Projects page opens here: say so once. */
+  let justCreated = null;
+  try { justCreated = JSON.parse(sessionStorage.getItem("mori.created") || "null"); sessionStorage.removeItem("mori.created"); } catch (e) { /* private mode */ }
+  if (justCreated && justCreated.id !== pid) justCreated = null;
+  if (justCreated && justCreated.note) toast(justCreated.note.text, { icon: justCreated.note.icon || "check", duration: justCreated.note.duration || 3200 });
+
   renderAll();
   const ready = N.available()
     ? Promise.all([
@@ -453,4 +461,17 @@
       ])
     : Promise.resolve();
   ready.then(() => { loaded = true; renderAll(); });
+
+  /* What the project tour (tour.js) drives: the sidebar, the pages and editing. */
+  Mori.planner = {
+    pid,
+    justCreated,
+    ready: () => ready.then(() => !!$("#plShell")),
+    isNarrow,
+    navOpen: () => !!$("#plShell") && navOpen(),
+    setNav: (open) => { if ($("#plShell") && navOpen() !== open) setNav(open); },
+    section,
+    go,
+    setEditing: (on) => { if (MF.isEditing() !== on) { MF.setEditing(on); renderToolbar(); } },
+  };
 })();

@@ -63,7 +63,7 @@
               <a class="drop-link" role="menuitem" href="#" data-modal="profile">${icon("user")} Profile</a>
               <a class="drop-link" role="menuitem" href="#" data-modal="settings">${icon("sliders")} Settings</a>
               <a class="drop-link" role="menuitem" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="#" data-soon="Subscription">${icon("card")} Subscription</a>
+              <a class="drop-link" role="menuitem" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
               <div class="drop-sep" role="separator"></div>
               <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} Sign out</a>
             </div>
@@ -150,8 +150,8 @@
     const s = document.createElement("script");
     s.type = "speculationrules";
     s.textContent = JSON.stringify({
-      prefetch: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"]' }, eagerness: "eager" }],
-      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"]' }, eagerness: "moderate" }],
+      prefetch: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "eager" }],
+      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "moderate" }],
     });
     document.head.appendChild(s);
   }
@@ -161,14 +161,14 @@
     const slot = $('[data-shell="footer"]');
     if (!slot) return;
     const col = (id, title, items) =>
-      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map((t) => `<li><a href="#" data-soon="${t}">${t}</a></li>`).join("")}</ul></nav>`;
+      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map((t) => (Array.isArray(t) ? `<li><a href="${t[1]}"${t[2] ? " " + t[2] : ""}>${t[0]}</a></li>` : `<li><a href="#" data-soon="${t}">${t}</a></li>`)).join("")}</ul></nav>`;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          ${col("assistTitle", "Assistance", ["Sandbox Guide", "About Sandbox", "Contact Us", "Terms &amp; Policy"])}
-          ${col("productsTitle", "Products", ["Toolkits", "Subscription Pricing", "Cancellation"])}
+          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], "About Sandbox", "Contact Us", "Terms &amp; Policy"])}
+          ${col("productsTitle", "Products", ["Toolkits", ["Subscription Pricing", "subscription.html"], "Cancellation"])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -571,10 +571,12 @@
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
                 .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
+            ${row("Site tour", "A short tour of the MORI Network, your projects and the subscription ladder.", `<button class="btn btn--sm" type="button" data-tour-start="site">${icon("compass")} Take the tour</button>`)}
           `)}
           ${pane("projects", `
             ${row("Open projects on", "The page a project opens on from Home, Projects and the Projects menu.", segHTML("projectStart", st.projectStart, [["mainframe", "Mainframe"], ["tasks", "Daily tasks"]]))}
             ${row("Tools sidebar", "Show the sidebar of tools in the project planner. The button at its top left hides and shows it too.", switchHTML('data-setting="projectSidebar" aria-label="Show the tools sidebar"', st.projectSidebar !== false))}
+            ${row("Project tour", S.projects().length ? "A walk through the planner: its tools, your team and the Mainframe’s widgets." : "A walk through the planner. It starts when you declare your first project.", `<button class="btn btn--sm" type="button" data-tour-start="project" ${S.projects().length ? "" : "disabled"}>${icon("compass")} Take the tour</button>`)}
             <div class="st-row st-row--list"><div class="st-copy"><h4>Pinned to your homepage</h4><p>Pinned projects show on your homepage and in the Projects menu.${s.provider === "google" ? " Your pins, like these settings, follow you to every device you sign in on." : ""}</p></div></div>
             <div class="st-pins">${S.projects().map((p) => `<div class="st-pin"><span class="st-pin-name">${esc(p.name)}</span>${switchHTML(`data-pin="${esc(p.id)}" aria-label="Pin ${esc(p.name)} to your homepage"`, p.pinned)}</div>`).join("") || `<p class="meta">No projects yet. <a href="projects.html?new=1">Declare one</a>.</p>`}</div>
           `)}

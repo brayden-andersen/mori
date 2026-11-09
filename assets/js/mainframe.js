@@ -459,6 +459,18 @@
     return W.change(ctx.pid, "layout", (cur) => resolve(cur.map((w) => (w.id === id ? Object.assign({}, w, patch, { opts: Object.assign({}, w.opts, patch.opts || {}) }) : w)), id)).catch(failed);
   }
   function removeWidget(id) { return W.change(ctx.pid, "layout", (cur) => cur.filter((w) => w.id !== id)).catch(failed); }
+  /** A first set of widgets for an empty Mainframe (the project tour offers it). */
+  const STARTER = [
+    { type: "tasks", variant: "today", x: 0, y: 0, w: 1, h: 2 },
+    { type: "ladder", variant: "next", x: 1, y: 0, w: 1, h: 1 },
+    { type: "finance", variant: "runway", x: 2, y: 0, w: 1, h: 1 },
+    { type: "people", variant: "team", x: 3, y: 0, w: 1, h: 1 },
+    { type: "tasks", variant: "progress", x: 1, y: 1, w: 3, h: 1 },
+  ];
+  function addStarter() {
+    if (!ctx) return Promise.resolve();
+    return W.change(ctx.pid, "layout", (cur) => (cur.length ? cur : STARTER.map((w) => Object.assign({ id: W.uid("w"), opts: {} }, w)))).catch(failed);
+  }
 
   /* ---------- Drag to move, drag the corner to resize ---------- */
   const metrics = () => {
@@ -812,5 +824,5 @@
     requestAnimationFrame(() => { if (state) drawPreview(); });
   }
 
-  Mori.mainframe = { render, openGallery, TYPES, resolve, freeSpot, setEditing, isEditing: () => editing, COLS };
+  Mori.mainframe = { render, openGallery, addStarter, TYPES, resolve, freeSpot, setEditing, isEditing: () => editing, COLS };
 })();

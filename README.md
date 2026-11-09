@@ -10,14 +10,22 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero recedes as you scroll, *What is Sandbox?* sums it up in one line and three before → after pairs, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Sign in and join use Google. |
 | `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
-| `home.html` | **Homepage**: greeting, entry cards, your pinned projects, your latest conversations, insights. It opens with a short welcome (see *Homepage: the opening* below). |
+| `home.html` | **Homepage**: greeting, entry cards, your pinned projects, your latest conversations, and *Insights are coming soon* where insights will go. It opens with a short welcome (see *Homepage: the opening* below). |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
 | `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* below. |
+| `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments open soon. In the Account menu and the footer. |
 | `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
-**Profile**, **Settings** and **Notifications** are modals in the Account menu. Settings has five sections: Account, Preferences, Privacy, Projects (what a project opens on, the planner's tools sidebar, and which projects are pinned to the homepage; also under *Projects → Project settings* in the nav) and Notifications. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
+**Profile**, **Settings** and **Notifications** are modals in the Account menu. Settings has five sections: Account, Preferences (including *Take the tour* for the site tour), Privacy, Projects (what a project opens on, the planner's tools sidebar, which projects are pinned to the homepage, and the project tour; also under *Projects → Project settings* in the nav) and Notifications. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
-Apart from the homepage insights, nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
+Nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
+
+### Guided tours
+
+- **The site tour** starts as soon as a new member finishes the sign-up questions: instead of the homepage they land on the **MORI Network** (Discover), where a slideshow opens in a modal: finding people, connecting with a note, requests and messages, and their profile. *Next: Projects* takes them to the **Projects** gallery, where the slides show how to declare a first project (name and focus, tags and rung, co-founders, the planner) without asking them to make one. *Next: Plans* ends on the **subscription ladder**: the plans, climbing up or down, monthly or yearly, and a last slide that offers *Start my first project* (the new project form) or their homepage.
+- **The project tour** starts when a member declares their **first project**, which (like every new project) opens straight on its Mainframe. A spotlight walks through the sidebar's tools (Plan; Build with their own documents, interviews and the lean canvas; Grow, Money and Learn), then the **People** page (the team, adding people from their connections, the roles the team needs, the team in the header), then back to the **Mainframe** to show how widgets work: what they are (with *Add starter widgets* for an empty Mainframe), *Add widget*, and *Edit Mainframe*, which it turns on so they can move and resize widgets right there. On phones the tools drawer opens and closes along the way.
+- Every slide's picture is a small animated demo drawn in CSS (with reduced motion it just shows how it ends). Both tours can be skipped at any step (*Skip tour*, or Escape) and taken again from **Settings → Preferences / Projects → Take the tour**; the footer's *Sandbox Guide* starts the site tour too. If a member leaves the site tour half way, a small *Continue* pill waits on the other pages.
+- Where a member is in each tour is kept with their settings (`settings.tour`), so it follows them to other devices, and a skipped tour stays skipped. The code is `assets/js/tour.js` and `assets/css/tour.css`.
 
 ### Homepage: the opening
 
@@ -59,6 +67,7 @@ Each time a member arrives on the homepage fresh (after signing in, after reload
 
 A project is a **planner** for the people building it. (Sprints are separate: a hackathon-like event members sign up for, outside project management.)
 
+- **Declaring a project** takes you straight to its new Mainframe (with a note that it was declared); your first one also gets the project tour (see *Guided tours*).
 - **Opening a project:** on the Projects page a project opens its **preview** first (the board at a glance, its rung, its team); clicking the preview opens the planner. Projects pinned to the homepage, and the pinned list in the nav, open the planner straight away.
 - **The planner's pages:** the header (tags, name, the page you're on in red, when it was updated and created, the team, *Edit details*, *Pin*) and the overall progress stay at the top of every page. The sidebar on the left lists the project's pages; the button at the top left shows or hides it. The page itself stays centred and never moves: on wide screens a sidebar-wide space is kept free on both sides and the sidebar slides into the left one; up to 1240px wide (and on phones) the sidebar is a drawer over the page. Each page has its own address (`project.html?id=…#finance`, `#docs/<document id>`…) and tab title, so it can be bookmarked or shared and the back button works. Switching pages is instant: they share one app shell and the project's data, and nothing being saved is lost on the way.
 - **Overall progress:** how far the project is from idea to early traction on the milestone ladder: its rung, plus the share of the next rung's proof steps that are done (rung 1 with one of the next rung's three steps done is 27%). The ring on a pinned project on the homepage shows the same figure. Next to it, how many tasks are overdue or due this week.
@@ -88,7 +97,7 @@ Projects are saved to Supabase for members signed in with Google (projects made 
 The sign-in flow works like this:
 1. "Continue with Google" shows a loading screen and goes to Google.
 2. Google returns the member to `index.html?auth=callback`, which keeps showing the loading screen.
-3. New members go to onboarding; returning members go to their start page.
+3. New members go to onboarding, then to the MORI Network for the site tour; returning members go to their start page.
 4. Anyone who opens an app page before finishing onboarding is sent back to it.
 
 ## Run it locally
@@ -153,12 +162,14 @@ To make a new database change, add the next migration file here and apply it to 
 ## Project structure
 
 ```
-index.html  onboarding.html  home.html  projects.html  project.html  network.html
+index.html  onboarding.html  home.html  projects.html  project.html  network.html  subscription.html
 assets/
   css/
     mori.css        design system: tokens, aura, nav, glass, chips, buttons, forms,
                     modals, toasts, loading screen, account modals, motion
     landing.css · onboarding.css · home.css · network.css
+    subscription.css the subscription ladder
+    tour.css        the guided tours: slideshow, its animated pictures, the spotlight
     projects.css    Projects page, plus the parts the planner shares (preview, team, pickers)
     project.css     the project planner
     dark.css        dark mode, generated by tools/make_dark_css.py (don't edit by hand)
@@ -167,7 +178,7 @@ assets/
     auth.js         storage (with parsed-value cache), session, route guards (loads in <head>)
     db.js           Supabase: Google sign-in, profiles, photos, CVs, member directory, connection
                     requests, projects + co-founders, messages, Realtime subscription
-    data.js         option lists (roles, regions, industries, languages, link types…), milestone ladder, insights
+    data.js         option lists (roles, regions, industries, languages, link types…), milestone ladder, the subscription plans (placeholders)
     state.js        per-member state: profile, settings, projects, network, chat, notifications,
                     live updates (cached locally)
     ui.js           helpers, icons, avatars, photo cropping, toasts, modals, sliding highlights, loading screen
@@ -181,7 +192,9 @@ assets/
     planner-tools.js the tool pages: tasks, GTM checklist, ladder, people, interviews, lean canvas,
                     marketing, metrics, finance, funding, toolkits
     planner-docs.js the documents: list and editor (formatting, autosave, Word download, sanitising)
-    landing.js · onboarding.js · home.js · projects.js · network.js
+    tour.js         the guided tours: the site tour (a slideshow on Network, Projects and Subscription)
+                    and the first-project tour (a spotlight over the planner)
+    landing.js · onboarding.js · home.js · projects.js · network.js · subscription.js
   vendor/supabase-2.58.0.js
   fonts/            Inter (latin and latin-ext, weights 400–700) and its licence (OFL)
   img/              the MORI logo (森) on a rounded white tile, as the site icon: mori-icon.svg,
@@ -233,4 +246,4 @@ Everything respects the device's reduced-motion setting and **Settings → Prefe
 
 ## Content sources
 
-Copy follows the SandBox Lean Canvas v2 report and the Milestone Ladder core-kit doc (November 2026). For now the app focuses on two roles, **founders** and **specialists**. The homepage insights are sample content; the illustrations on the landing page are decorative.
+Copy follows the SandBox Lean Canvas v2 report and the Milestone Ladder core-kit doc (November 2026). For now the app focuses on two roles, **founders** and **specialists**. Subscription prices and perks are placeholders; the illustrations on the landing page and in the tours are decorative.

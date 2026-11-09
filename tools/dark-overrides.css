@@ -31,3 +31,9 @@ html[data-theme="dark"] .task-box{ border-color:#4a4f57 }
 html[data-theme="dark"] .task-box .ico{ color:#fff }
 /* Mainframe: a note is a warm, quiet card on dark */
 html[data-theme="dark"] .wg--note{ background: linear-gradient(180deg, #2a2618, #232017); border-color: rgba(240,220,160,.16) }
+
+/* Tours: initials stay white on their colour; the spotlight dims the page (not a light veil). */
+html[data-theme="dark"] .ta-av{ color:#f4f4f5 }
+html[data-theme="dark"] .coach-spot{ box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 0 0 6px rgba(226,32,32,.4), 0 0 0 200vmax rgba(0,0,0,.62) }
+html[data-theme="dark"] .tour-skip, html[data-theme="dark"] .coach-skip{ color:var(--muted) }
+html[data-theme="dark"] .tour-skip:hover, html[data-theme="dark"] .coach-skip:hover{ color:var(--ink) }

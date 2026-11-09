@@ -1,7 +1,7 @@
 /* ==========================================================================
    Mori: Sandbox — homepage
    Greeting, the member's pinned project with its progress ring, recent
-   messages and insights. Clicking through goes to the Projects and Network
+   messages, and Insights (coming soon). Clicking through goes to the Projects and Network
    pages. Until the member adds something, each panel says how to start.
    ========================================================================== */
 (function () {
@@ -9,7 +9,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, ago, soon, splitWords } = Mori.ui;
+  const { $, $$, esc, icon, ago, splitWords } = Mori.ui;
   const S = Mori.state;
   const CHIP_HUES = ["emerald", "blue", "purple", "orange", "teal", "gray"];
 
@@ -139,20 +139,8 @@
     }
   }
 
-  function renderInsights() {
-    $("#insights").innerHTML = Mori.data.insights
-      .map((n) => `<article class="news spotlight" tabindex="0" role="button" data-insight="${esc(n.id)}">
-        <h4>${esc(n.title)}</h4>
-        <div class="meta">${esc(n.team)} • ${esc(n.time)}</div>
-        <p>${esc(n.blurb)}</p>
-      </article>`)
-      .join("");
-  }
-
   renderPinned();
   renderMessages();
-  renderInsights();
-  $("#insights").setAttribute("data-stagger", "90");
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
     if (["network", "links", "messages"].includes(key)) renderMessages();
@@ -168,6 +156,5 @@
     if (pin) { location.href = "project.html?id=" + encodeURIComponent(pin.dataset.project); return; }
     const msg = e.target.closest(".msg[data-chat]");
     if (msg) { location.href = "network.html#messages/" + encodeURIComponent(msg.dataset.chat); return; }
-    if (e.target.closest(".news[data-insight]")) soon("Insights reader");
   });
 })();

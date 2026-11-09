@@ -419,7 +419,14 @@
       Mori.store.remove(Mori.auth.PENDING_DRAFT_KEY);
       try { sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
 
-      loader.show(editing || updating ? "All saved" : `Welcome to Sandbox, ${patch.firstName}`, editing || updating ? "Taking you back…" : "Opening your homepage…");
+      if (!editing && !updating) {
+        // A first sign-up: a short tour of the site, starting on the MORI Network.
+        S.saveSettings({ tour: Object.assign({}, S.settings().tour, { site: "network" }) });
+        loader.show(`Welcome to Sandbox, ${patch.firstName}`, "Let’s show you around…");
+        location.replace("network.html#explore");
+        return;
+      }
+      loader.show("All saved", "Taking you back…");
       location.replace(Mori.auth.nextUrl(editing ? "home.html" : Mori.auth.startPage()));
     } catch (err) {
       if (err.code === "signed-out") {

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SandBox • Subscription</title>
+  <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/mori-icon-32.png?v=7" type="image/png" sizes="32x32" />
+  <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
+  <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/mori.css?v=10" />
+  <link rel="stylesheet" href="assets/css/subscription.css?v=10" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=10" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=10" />
+  <script src="assets/js/config.js?v=10"></script>
+  <script src="assets/js/auth.js?v=10"></script>
+  <script defer src="assets/js/data.js?v=10"></script>
+  <script defer src="assets/js/state.js?v=10"></script>
+  <script defer src="assets/js/ui.js?v=10"></script>
+  <script defer src="assets/js/motion.js?v=10"></script>
+  <script defer src="assets/js/db.js?v=10"></script>
+  <script defer src="assets/js/shell.js?v=10"></script>
+  <script defer src="assets/js/people.js?v=10"></script>
+  <script defer src="assets/js/subscription.js?v=10"></script>
+  <script defer src="assets/js/tour.js?v=10"></script>
+</head>
+<body data-page="subscription">
+  <div class="aura" aria-hidden="true"></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <main class="wrap wrap--plans">
+    <header class="pagehead">
+      <div>
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="home.html">Home</a> <span class="sep">/</span> <span>Subscription</span>
+        </nav>
+        <h1 class="title">The SandBox ladder</h1>
+        <p class="meta plans-lead">Start free, then climb as your project grows. Every plan keeps your network, projects and documents.</p>
+      </div>
+      <div class="plans-billing">
+        <div class="seg" id="billing" data-value="monthly" role="group" aria-label="Billing">
+          <button data-value="monthly">Monthly</button>
+          <button data-value="yearly">Yearly <span class="plans-save">2 months free</span></button>
+        </div>
+      </div>
+    </header>
+
+    <p class="plans-note" id="plansNote" hidden><i data-icon="sparkle"></i> Placeholder pricing: the final prices and perks are coming soon.</p>
+
+    <section class="plans" id="plans" aria-label="Plans"></section>
+
+    <section class="panel plans-compare" aria-labelledby="compareTitle">
+      <h3 id="compareTitle">Compare plans</h3>
+      <div class="cmp" id="compare" role="table" aria-label="What each plan includes"></div>
+    </section>
+
+    <section class="plans-faq" aria-labelledby="faqTitle">
+      <h3 id="faqTitle">Questions</h3>
+      <details><summary>Can I change plans later?</summary><p>Yes. Move up or down the ladder whenever you like; your projects, documents and connections stay as they are.</p></details>
+      <details><summary>Is there a free plan?</summary><p>Explorer is free for as long as you need it: the MORI Network, one project with its Mainframe and tools, and the starter toolkits.</p></details>
+      <details><summary>How will payment work?</summary><p>Payments aren’t open yet. When they are, you’ll be able to pay monthly or yearly in rupiah, and cancel at any time.</p></details>
+    </section>
+  </main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>

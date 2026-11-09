@@ -15,8 +15,6 @@
 .rung-row{ display:flex; align-items:center; gap:10px; margin-top:14px }
 .rung-row .ladder-bar{ flex:1 }
 .rung-row .meta{ font-size:12px; white-space:nowrap }
-.pcard.is-new{ animation: glow-new 2.6s var(--ease-out) }
-@keyframes glow-new{ 0%{ box-shadow: 0 0 0 0 rgba(94,146,232,.5), var(--panel-shadow) } 25%{ box-shadow: 0 0 0 7px rgba(94,146,232,.18), var(--lift-shadow) } 100%{ box-shadow: var(--panel-shadow) } }
 
 /* Pagination (draft) */
 .pager{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; gap:10px; }

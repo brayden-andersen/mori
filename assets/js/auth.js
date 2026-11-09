@@ -90,7 +90,7 @@
     if (draft) Mori.store.write(PENDING_DRAFT_KEY, draft);
     Mori.store.remove(SESSION_KEY);
   })();
-  const APP_PAGES = ["home.html", "projects.html", "project.html", "network.html"];
+  const APP_PAGES = ["home.html", "projects.html", "project.html", "network.html", "subscription.html"];
   const params = new URLSearchParams(location.search);
   const pageName = () => location.pathname.split("/").pop() || "index.html";
   const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "member";
