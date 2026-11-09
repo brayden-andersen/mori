@@ -2,7 +2,7 @@
 html[data-theme="dark"]{ color-scheme: dark }
 
 /* ---- mori.css ---- */
-html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --aura-top:rgba(153,153,156,0.15); --aura-top-2:rgba(153,153,156,0.11); --aura-red:rgba(226,32,32,0.15); --aura-red-2:rgba(226,32,32,0.13); --aura-red-soft:rgba(226,32,32,0.07); --orb-top:rgba(153,153,156,0.08); --orb-red:rgba(226,32,32,0.11); --orb-mid:rgba(76,21,204,0.166); --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%); --red-grad:linear-gradient(110deg, #790c1f 0%, #e22020 24%, #b02511 50%, #e22020 76%, #790c1f 100%) }
+html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%); --red-grad:linear-gradient(110deg, #790c1f 0%, #e22020 24%, #b02511 50%, #e22020 76%, #790c1f 100%) }
 html[data-theme="dark"] code{ background:rgba(227,228,230,0.06) }
 html[data-theme="dark"] ::selection{ background:rgba(20,90,204,0.418) }
 html[data-theme="dark"] :where(a, button, input, select, textarea, [tabindex]):focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
@@ -418,16 +418,10 @@ html[data-theme="dark"] .chat-compose .input:disabled{ background:rgba(30,30,30,
 /* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */
 html[data-theme="dark"]{
   --bg:#111113;                          /* a deep, dark grey base */
-  --aura-top: rgba(236,236,242,0.055);   /* a really faint light grey at the top */
-  --aura-top-2: rgba(236,236,242,0.04);
-  --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
-  --aura-red-2: rgba(200,0,0,0.13);
-  --aura-red-soft: rgba(184,0,0,0.075);
-  --orb-top: rgba(236,236,242,.03);
-  --orb-red: rgba(200,0,0,.085);
-  --orb-mid: rgba(110,40,150,.08);
 }
-html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }
+/* The background aura: its dark images (made by tools/make_aura.py) */
+html[data-theme="dark"] .aura{ background-image: url("../img/aura-dark-wide.webp") }
+@media (max-aspect-ratio: 4/5){ html[data-theme="dark"] .aura{ background-image: url("../img/aura-dark-tall.webp") } }
 /* The logo: a white top and the MORI red below */
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
 html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#f2f2f3 }

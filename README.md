@@ -28,7 +28,7 @@ Each time a member arrives on the homepage fresh (after signing in, after reload
 - The sun/moon button on the right of every nav bar switches between light and dark with one quick (0.5 s) cross-fade of the whole page; browsers without view transitions, and reduced motion, switch at once. Element transitions are paused for the switch, so nothing lags behind. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo has a white top half and a red bottom half.
-- **The aura** (both modes) is the original soft background, held still: two large soft hue layers and three faint orbs. The soft layers were a 120px blur, which graphics cards render at reduced resolution on big screens; they're now gradients that fade along the same curve (measured within 0.4%), so they look the same and render crisply and cheaply. The loading screen (signing in, signing out, saving the sign-up answers) carries its own copy of the aura, so it matches the pages in both modes, and it stays on top of the nav during page and theme fades.
+- **The aura** (both modes) is the original release-5 background, held still: a grey hue at the top left, the MORI red at the bottom right, two large soft layers (a 120px blur) and three faint orbs. It's drawn as images: `tools/make_aura.py` works out those gradients and the blur with full precision and dithers them to 8 bits, writing `assets/img/aura-{light,dark}-{wide,tall}.webp` (2400 × 1500 for desktops, 860 × 1864 for phones in portrait; lossless, about 400 KB and 225 KB). Drawn live, Safari shows such faint gradients in visible steps (Chrome smooths them) and renders large blurs at low resolution; the images look the same in every browser and match Chrome's rendering of the original to within about one colour level. A page asks for its image before the first paint (the base colour shows until it arrives) and fetches the other theme's once idle, so switching is instant. To change the aura's colours, edit `tools/make_aura.py` and run it. The loading screen (signing in, signing out, saving the sign-up answers) carries its own copy of the aura, so it matches the pages in both modes, and it stays on top of the nav during page and theme fades.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
 ### Sign-up questions
@@ -181,11 +181,13 @@ assets/
   vendor/supabase-2.58.0.js
   fonts/            Inter (latin and latin-ext, weights 400–700) and its licence (OFL)
   img/              the MORI logo (森) on a rounded white tile, as the site icon: mori-icon.svg,
-                    mori-icon-32.png, mori-icon-180.png (a full square: phones round it themselves)
+                    mori-icon-32.png, mori-icon-180.png (a full square: phones round it themselves);
+                    the background aura: aura-light-wide.webp, aura-dark-wide.webp, aura-*-tall.webp
 favicon.ico         the MORI logo for browsers that look for /favicon.ico
 tools/
   make_dark_css.py  builds assets/css/dark.css from the light stylesheets
-  dark-overrides.css hand-tuned dark values (aura, base colour, logo)
+  dark-overrides.css hand-tuned dark values (aura images, base colour, logo)
+  make_aura.py      renders the background aura images (needs numpy and Pillow)
 supabase/
   config.toml       read by Supabase's GitHub integration and the Supabase CLI
   migrations/       every database change, in order

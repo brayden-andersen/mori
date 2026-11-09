@@ -218,6 +218,37 @@
   };
   applyTheme();
   window.addEventListener("storage", (e) => { if (e.key === "mori.theme") applyTheme(); }); // the store has already dropped its cached copy
+
+  /* The background aura is an image (one per theme, wide or tall screens).
+     Ask for this page's one now, before the stylesheet does; once the page is
+     idle, fetch and decode the other theme's, so switching is instant. */
+  const auraUrl = (theme) => `assets/img/aura-${theme}-${window.matchMedia("(max-aspect-ratio: 4/5)").matches ? "tall" : "wide"}.webp`;
+  const auraReady = {};
+  /** Resolves once the theme's background image is decoded (or after `wait` ms, whichever comes first). */
+  Mori.warmAura = (theme, wait = 0) => {
+    const url = auraUrl(theme);
+    if (!auraReady[url]) {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = url;
+      auraReady[url] = (img.decode ? img.decode() : Promise.resolve()).catch(() => {});
+    }
+    return wait ? Promise.race([auraReady[url], new Promise((r) => setTimeout(r, wait))]) : auraReady[url];
+  };
+  try {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = auraUrl(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
+    link.setAttribute("fetchpriority", "high");
+    document.head.appendChild(link);
+  } catch (e) { /* the stylesheet will ask for it */ }
+  window.addEventListener("load", () => {
+    const saveData = navigator.connection && navigator.connection.saveData;
+    if (saveData) return;
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1500));
+    idle(() => Mori.warmAura(root.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+  }, { once: true });
   window.addEventListener("pageshow", applyTheme);
   document.addEventListener("prerenderingchange", applyTheme);
   const s = Mori.auth.session();

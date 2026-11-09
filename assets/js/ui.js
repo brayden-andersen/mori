@@ -277,7 +277,15 @@
    * from a snapshot of the old page to the new one on the GPU. Browsers
    * without view transitions, and reduced motion, switch at once.
    */
-  function setTheme(theme) {
+  let pendingTheme = null;
+  function setTheme(theme, ready) {
+    // The new theme's background image is usually decoded already; if not, give it a moment
+    // (at most 0.35 s) so the fade doesn't pass through a plain background.
+    if (!ready && Mori.warmAura) {
+      pendingTheme = theme;
+      Mori.warmAura(theme, 350).then(() => { if (pendingTheme === theme) { pendingTheme = null; setTheme(theme, true); } });
+      return;
+    }
     const root = document.documentElement;
     Mori.store.write("mori.theme", theme);
     const apply = () => {
@@ -373,7 +381,7 @@
         el.setAttribute("role", "status");
         el.setAttribute("aria-live", "polite");
         // The site's aura goes inside too, so the screen matches the pages around it.
-        el.innerHTML = `<div class="aura" aria-hidden="true"></div><div class="aura-orbs" aria-hidden="true"><span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span></div><div class="loader-card"><span class="loader-mark">${brandMark("loader-logo")}</span><p class="loader-title"></p><p class="loader-sub"></p></div>`;
+        el.innerHTML = `<div class="aura" aria-hidden="true"></div><div class="loader-card"><span class="loader-mark">${brandMark("loader-logo")}</span><p class="loader-title"></p><p class="loader-sub"></p></div>`;
         document.body.appendChild(el);
       }
       return el;

@@ -19,15 +19,6 @@
   --mori-black:#111111;
   --accent:#5e92e8;
   --progress-orange:#e78440;      /* progress */
-  /* Background aura: a light grey at the top, the MORI red at the bottom */
-  --aura-top: rgba(120,120,128,0.15);
-  --aura-top-2: rgba(120,120,128,0.11);
-  --aura-red: rgba(184,0,0,0.15);
-  --aura-red-2: rgba(184,0,0,0.13);
-  --aura-red-soft: rgba(184,0,0,0.07);
-  --orb-top: rgba(120,120,128,.08);
-  --orb-red: rgba(184,0,0,.11);
-  --orb-mid: rgba(155,121,234,.06);
   --glass: linear-gradient(to bottom right, rgba(163,165,169,.16), rgba(255,255,255,.72));
   --glass-panel: linear-gradient(to bottom right, rgba(163,165,169,.16), rgba(255,255,255,.66));
   --glass-menu: linear-gradient(to bottom right, #f6f6f7, #fff); /* solid: text behind a menu never shows through */
@@ -65,35 +56,21 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
 .sr-only{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
 :where(a, button, input, select, textarea, [tabindex]):focus-visible{ outline:none; box-shadow: 0 0 0 3px rgba(94,146,232,.35) }
 
-/* ---------- 3. Background aura (drafts) + soft orbs, static ----------
-   The original background, held still: a light grey hue at the top and the
-   MORI red at the bottom, two large soft layers and three faint orbs.
-   The soft layers used to be blurred with a 120px filter, which graphics
-   cards draw at reduced resolution on big screens (it looked smeared and
-   blocky on desktops). They are now gradients that fade along the same curve
-   the blur produced (measured to within 0.4%), so they look the same, render
-   crisply at any size, and cost nothing to draw. */
+/* ---------- 3. Background aura ----------
+   The original background: a light grey hue at the top left, the MORI red at
+   the bottom right, two large soft layers and three faint orbs, held still.
+   It's an image made by tools/make_aura.py, which works out the original
+   gradients and 120px blur with full precision and dithers them to 8 bits.
+   Drawn live, Safari shows soft gradients in visible steps (Chrome smooths
+   them) and renders large blurs at low resolution; the image is smooth and
+   crisp in every browser, and cheaper to draw. Phones in portrait get a tall
+   version; dark mode its own pair (dark-overrides.css). The base colour shows
+   until the image arrives (auth.js asks for it before the first paint). */
 .aura{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden;
-  background:
-    radial-gradient(1300px 900px at 18% 22%, var(--aura-top), transparent 62%),
-    radial-gradient(1300px 900px at 82% 78%, var(--aura-red), transparent 62%),
-    radial-gradient(900px 1000px at 50% 110%, var(--aura-red-soft), transparent 64%),
-    var(--bg);
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background: var(--bg) url("../img/aura-light-wide.webp") center / cover no-repeat;
 }
-.aura::before,.aura::after{
-  content:""; position:absolute; inset:-28%; opacity:.7;
-  background:
-    radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--aura-top-2) 86%, transparent) 0%, color-mix(in srgb, var(--aura-top-2) 84.8%, transparent) 4%, color-mix(in srgb, var(--aura-top-2) 81.4%, transparent) 8%, color-mix(in srgb, var(--aura-top-2) 75.2%, transparent) 13%, color-mix(in srgb, var(--aura-top-2) 67.8%, transparent) 18%, color-mix(in srgb, var(--aura-top-2) 58.4%, transparent) 24%, color-mix(in srgb, var(--aura-top-2) 48.7%, transparent) 30%, color-mix(in srgb, var(--aura-top-2) 39%, transparent) 36%, color-mix(in srgb, var(--aura-top-2) 29.1%, transparent) 42%, color-mix(in srgb, var(--aura-top-2) 19.4%, transparent) 48%, color-mix(in srgb, var(--aura-top-2) 10.6%, transparent) 54%, color-mix(in srgb, var(--aura-top-2) 4.1%, transparent) 60%, color-mix(in srgb, var(--aura-top-2) 1%, transparent) 66%, transparent 72%),
-    radial-gradient(circle at 72% 72%, color-mix(in srgb, var(--aura-red-2) 86%, transparent) 0%, color-mix(in srgb, var(--aura-red-2) 84.8%, transparent) 4%, color-mix(in srgb, var(--aura-red-2) 81.4%, transparent) 8%, color-mix(in srgb, var(--aura-red-2) 75.2%, transparent) 13%, color-mix(in srgb, var(--aura-red-2) 67.8%, transparent) 18%, color-mix(in srgb, var(--aura-red-2) 58.4%, transparent) 24%, color-mix(in srgb, var(--aura-red-2) 48.7%, transparent) 30%, color-mix(in srgb, var(--aura-red-2) 39%, transparent) 36%, color-mix(in srgb, var(--aura-red-2) 29.1%, transparent) 42%, color-mix(in srgb, var(--aura-red-2) 19.4%, transparent) 48%, color-mix(in srgb, var(--aura-red-2) 10.6%, transparent) 54%, color-mix(in srgb, var(--aura-red-2) 4.1%, transparent) 60%, color-mix(in srgb, var(--aura-red-2) 1%, transparent) 66%, transparent 72%);
-}
-.aura::after{ opacity:.6 }
-
-.aura-orbs{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden }
-.orb{ position:absolute; border-radius:50% }
-.orb--1{ width:40vmax; height:40vmax; left:-10vmax; top:4vh; background: radial-gradient(circle, var(--orb-top), transparent 62%) }
-.orb--2{ width:36vmax; height:36vmax; right:-8vmax; bottom:-8vh; background: radial-gradient(circle, var(--orb-red), transparent 62%) }
-.orb--3{ width:24vmax; height:24vmax; left:48%; top:34%; background: radial-gradient(circle, var(--orb-mid), transparent 62%) }
+@media (max-aspect-ratio: 4/5){ .aura{ background-image: url("../img/aura-light-tall.webp") } }
 
 /* ---------- 4. Top navigation — fixed, flush, backdrop blur (drafts) ---------- */
 .nav{
