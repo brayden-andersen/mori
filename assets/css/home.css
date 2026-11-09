@@ -2,7 +2,7 @@
    Mori: Sandbox — homepage (signed in)
    Layout and the pinned-project overrides are carried over from the draft.
    ========================================================================== */
-.wrap--home{ padding: calc(var(--navH) + 28px) 18px 96px; }
+.wrap--home{ padding: calc(var(--navH) + 28px) 16px 96px; }
 
 /* ===== Hero: the welcome, just under the nav ===== */
 .hero{ display:grid; place-items:center; padding: 44px 10px 40px }

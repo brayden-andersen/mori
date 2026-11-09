@@ -116,6 +116,8 @@ html[data-theme="dark"] .st-tab:hover{ background:rgba(27,27,27,0.7) }
 html[data-theme="dark"] .st-tab.is-on{ background:#1b1b1b; border-color:#2b2b2b }
 html[data-theme="dark"] .st-row{ border-bottom:1px solid rgba(227,228,230,0.06) }
 html[data-theme="dark"] .st-row--danger h4{ color:#ed8c8c }
+html[data-theme="dark"] .st-pins{ border-bottom:1px solid rgba(227,228,230,0.06) }
+html[data-theme="dark"] .st-pin{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.06) }
 html[data-theme="dark"] .st-card{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .provider{ background:rgba(227,228,230,0.04); border:1px solid rgba(227,228,230,0.08) }
 html[data-theme="dark"] .nt:hover{ background:rgba(27,27,27,0.9); border-color:#2b2b2b }
@@ -273,17 +275,19 @@ html[data-theme="dark"] .pl-stat{ background:rgba(27,27,27,0.62); border:1px sol
 html[data-theme="dark"] .pl-stat.is-late{ color:#f88282; background:rgba(226,32,32,0.05); border-color:rgba(226,32,32,0.24) }
 html[data-theme="dark"] .pl-stat.is-late b{ color:#ff5c5c }
 html[data-theme="dark"] .pl-sep{ background:rgba(227,228,230,0.13) }
+html[data-theme="dark"] .mf-cells i{ border:1.5px dashed rgba(227,228,230,0.14); background:rgba(27,27,27,0.18) }
 html[data-theme="dark"] .mf-empty{ border:1.5px dashed rgba(227,228,230,0.18); background:rgba(27,27,27,0.35) }
 html[data-theme="dark"] .mf-empty-ico{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 12px 24px -10px rgba(0,0,0,0.85) }
 html[data-theme="dark"] .wg{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .wg:hover{ border-color:#333335; box-shadow:0 10px 26px rgba(0,0,0,0.272) }
 html[data-theme="dark"] .wg-title:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .mf-grid.is-editing .wg{ box-shadow:0 0 0 1px rgba(0,0,0,0.272), var(--panel-shadow) }
 html[data-theme="dark"] .wg-tool:hover{ background:rgba(227,228,230,0.06) }
 html[data-theme="dark"] .wg-tool:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
 html[data-theme="dark"] .wg-resize::before{ border-right:2px solid rgba(227,228,230,0.35); border-bottom:2px solid rgba(227,228,230,0.35) }
 html[data-theme="dark"] .wg.is-dragging{ box-shadow:0 24px 48px rgba(0,0,0,0.512) }
-html[data-theme="dark"] .wg.is-resizing{ box-shadow:0 0 0 2px rgba(0,0,0,0.85), var(--lift-shadow) }
-html[data-theme="dark"] .wg-ghost{ border:2px dashed rgba(227,228,230,0.22); background:rgba(227,228,230,0.035) }
+html[data-theme="dark"] .mf-grid > .wg.is-resizing{ box-shadow:0 0 0 2px rgba(0,0,0,0.85), var(--lift-shadow) }
+html[data-theme="dark"] .wg-ghost{ border:2px dashed rgba(226,32,32,0.55); background:rgba(226,32,32,0.07) }
 html[data-theme="dark"] .wg-bar{ background:rgba(227,228,230,0.08) }
 html[data-theme="dark"] .wg-bar i{ background:linear-gradient(90deg, #790c13, #880d12) }
 html[data-theme="dark"] .wg-bar.is-green i{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
@@ -376,8 +380,8 @@ html[data-theme="dark"] .pl-add-input:hover{ background:rgba(27,27,27,0.78) }
 html[data-theme="dark"] .pl-add-input:focus{ border-color:#145acc; background:#1b1b1b; box-shadow:0 0 0 4px rgba(20,82,184,0.15) }
 html[data-theme="dark"] .pl-danger{ border-top:1px solid #282828 }
 html[data-theme="dark"] .pl-skel{ background:rgba(227,228,230,0.07) }
-@media (max-width: 900px){
-html[data-theme="dark"] .pl-nav{ box-shadow:18px 0 40px rgba(0,0,0,0.512); border-right:1px solid rgba(227,228,230,0.08) }
+@media (max-width: 1240px){
+html[data-theme="dark"] .pl-nav, html[data-theme="dark"] .pl-shell.is-collapsed .pl-nav{ box-shadow:18px 0 40px rgba(0,0,0,0.512); border-right:1px solid rgba(227,228,230,0.08) }
 html[data-theme="dark"] .pl-scrim{ background:rgba(227,228,230,0.34) }
 }
 

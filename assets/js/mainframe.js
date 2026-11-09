@@ -1,13 +1,16 @@
 /* ==========================================================================
    Mori: Sandbox — the Mainframe (a project's home in the planner)
    --------------------------------------------------------------------------
-   A canvas of widgets on a grid three columns wide, with as many rows as it
+   A canvas of widgets on a grid four columns wide, with as many rows as it
    needs. Widgets come from the project's tools (tasks, GTM checklist,
-   finance, metrics…). "Edit Mainframe" opens a drawer on the right where you
-   pick a widget, its style and its size, like on a phone's home screen. On
-   the canvas, drag a widget by its top bar to move it and by its corner to
-   resize it; it never gets smaller than its style needs. Other widgets move
-   down out of the way. The layout is saved in the project's workspace.
+   finance, metrics…). "Add widget" opens a drawer on the right where you
+   pick a widget, its style and its size, like on a phone's home screen.
+   "Edit Mainframe" turns on editing: the grid's cells show, and you drag a
+   widget by its top bar to move it, or by its corner to resize it (it
+   follows the pointer, and the cells it will take are highlighted); it never
+   gets smaller than its style needs. Other widgets move down out of the way.
+   Outside editing, widgets stay put. The layout is saved in the project's
+   workspace.
    On narrow screens the widgets stack in one column (arrange them on a
    larger screen).
    ========================================================================== */
@@ -22,7 +25,7 @@
   const P = D.planner;
   const W = Mori.workspace;
   const K = Mori.projectKit;
-  const COLS = 3;
+  const COLS = 4;
   const MAXH = W.MAX_ROWS;
   const EASE = "cubic-bezier(.16,1,.3,1)";
 
@@ -63,8 +66,8 @@
       name: "Daily tasks", icon: "checklist", section: "tasks", desc: "What’s on today, overall progress or the whole board.",
       variants: {
         today: { name: "Today", min: [1, 2], sizes: [[1, 2], [2, 2], [1, 3]] },
-        progress: { name: "Progress", min: [2, 1], sizes: [[2, 1], [3, 1]] },
-        board: { name: "Board", min: [3, 2], sizes: [[3, 2], [3, 3]] },
+        progress: { name: "Progress", min: [2, 1], sizes: [[2, 1], [3, 1], [4, 1]] },
+        board: { name: "Board", min: [3, 2], sizes: [[3, 2], [4, 2], [3, 3], [4, 3]] },
       },
       render({ p }, w) {
         const c = K.counts(p);
@@ -111,7 +114,7 @@
       name: "Milestone ladder", icon: "ladder", section: "ladder", desc: "Your rung, and the proof for the next one.",
       variants: {
         next: { name: "Next rung", min: [1, 1], sizes: [[1, 1], [2, 1]] },
-        steps: { name: "Proof steps", min: [2, 2], sizes: [[2, 2], [3, 2]] },
+        steps: { name: "Proof steps", min: [2, 2], sizes: [[2, 2], [3, 2], [4, 2]] },
       },
       render({ p, ws }, w) {
         const g = W.progress(p, ws);
@@ -126,8 +129,8 @@
       name: "Finance", icon: "wallet", section: "finance", desc: "Cash in the bank, monthly burn and runway.",
       variants: {
         runway: { name: "Runway", min: [1, 1], sizes: [[1, 1]] },
-        summary: { name: "Summary", min: [2, 1], sizes: [[2, 1], [3, 1]] },
-        chart: { name: "Cash flow", min: [2, 2], sizes: [[2, 2], [3, 2]] },
+        summary: { name: "Summary", min: [2, 1], sizes: [[2, 1], [3, 1], [4, 1]] },
+        chart: { name: "Cash flow", min: [2, 2], sizes: [[2, 2], [3, 2], [4, 2]] },
       },
       render({ ws }, w) {
         const m = W.money(ws);
@@ -176,7 +179,7 @@
       name: "Metrics", icon: "chart", section: "metrics", desc: "The numbers that tell you it’s working.",
       variants: {
         kpi: { name: "One metric", min: [1, 1], sizes: [[1, 1], [2, 1]], pick: "metric" },
-        row: { name: "Key metrics", min: [3, 1], sizes: [[3, 1]] },
+        row: { name: "Key metrics", min: [3, 1], sizes: [[3, 1], [4, 1]] },
       },
       render({ ws }, w) {
         const items = ws.metrics.items;
@@ -186,7 +189,7 @@
           return `<div class="wg-kpi"><span class="wg-sub">${esc(m.name)}</span><span class="wg-big">${v == null ? "—" : fmtNum(v)}<small>${m.unit ? " " + esc(m.unit) : ""}</small></span>${target ? `<span class="wg-sub">${v == null ? 0 : Math.round((v / target) * 100)}% of ${fmtNum(target)}</span>` : ""}${spark((m.points || []).slice(-12))}</div>`;
         };
         if (!items.length) return empty("Add the numbers you want to watch, like sign-ups or revenue.", "metrics", "Add a metric");
-        if (w.variant === "row") return `<div class="wg-kpis">${items.slice(0, 3).map(tile).join("")}</div>`;
+        if (w.variant === "row") { const shown = items.slice(0, w.w); return `<div class="wg-kpis" style="--n:${shown.length}">${shown.map(tile).join("")}</div>`; }
         const m = items.find((x) => x.id === w.opts.metricId) || items[0];
         return tile(m);
       },
@@ -259,7 +262,7 @@
       name: "Lean canvas", icon: "canvas", section: "canvas", desc: "Your business model on one page.",
       variants: {
         uvp: { name: "Value proposition", min: [1, 1], sizes: [[1, 1], [2, 1]] },
-        full: { name: "Whole canvas", min: [3, 2], sizes: [[3, 2], [3, 3]] },
+        full: { name: "Whole canvas", min: [3, 2], sizes: [[3, 2], [4, 2], [3, 3], [4, 3]] },
       },
       render({ ws }, w) {
         const c = ws.canvas;
@@ -323,6 +326,7 @@
   let grid = null;
   let dragging = null; // the drag or resize in progress
   let pendingRender = false;
+  let editing = false;         // "Edit Mainframe": widgets can be moved and resized
   const celebrate = new Set(); // widgets just added: scroll to them and flash them once drawn
 
   /** A widget's markup; `place` adds its spot on the grid (left out for the drawer's preview and for comparing). */
@@ -358,12 +362,14 @@
           <span class="mf-empty-ico">${icon("grid")}</span>
           <h2>Your Mainframe is empty</h2>
           <p>Pick the widgets you want to see at a glance: tasks, runway, metrics, documents and more. Everything also lives in the sidebar on the left.</p>
-          <button class="btn btn--ink" type="button" data-mf-edit>${icon("plus")} Add widgets</button>
+          <button class="btn btn--ink" type="button" data-mf-add>${icon("plus")} Add widgets</button>
         </div>`;
       return;
     }
     if (container.classList.contains("is-empty")) { container.classList.remove("is-empty"); container.textContent = ""; }
+    container.classList.toggle("is-editing", editing);
     container.style.setProperty("--mf-rows", Math.max(1, rowsUsed(layout)));
+    drawCells(rowsUsed(layout));
     // Keyed: a widget is re-drawn only when what it shows changed, and never
     // while someone types in it; one that only moved keeps its element, so a
     // drop's glide plays out. Focus on a ticked box comes back after a re-draw.
@@ -372,8 +378,9 @@
     const focusAttr = inWid && ["data-wtask", "data-wgtm", "data-wstep"].find((a) => active.hasAttribute(a));
     const focusSel = focusAttr ? `[${focusAttr}="${CSS.escape(active.getAttribute(focusAttr))}"]` : null;
     const ids = new Set(layout.map((w) => w.id));
-    Array.from(container.children).forEach((el) => { if (!el.classList.contains("wg") || !ids.has(el.dataset.wid)) el.remove(); });
-    const old = new Map(Array.from(container.children).map((el) => [el.dataset.wid, el]));
+    Array.from(container.children).forEach((el) => { if (el.classList.contains("mf-cells")) return; if (!el.classList.contains("wg") || !ids.has(el.dataset.wid)) el.remove(); });
+    const lead = container.firstElementChild && container.firstElementChild.classList.contains("mf-cells") ? 1 : 0;
+    const old = new Map(Array.from(container.children).filter((el) => el.classList.contains("wg")).map((el) => [el.dataset.wid, el]));
     layout.forEach((w, i) => {
       const html = widgetHTML(w, { place: false });
       let el = old.get(w.id);
@@ -388,7 +395,7 @@
       }
       placeEl(el, w);
       el.style.setProperty("--order", w.y * COLS + w.x);
-      if (container.children[i] !== el) container.insertBefore(el, container.children[i] || null);
+      if (container.children[i + lead] !== el) container.insertBefore(el, container.children[i + lead] || null);
       if (celebrate.has(w.id)) {
         celebrate.delete(w.id);
         el.classList.add("is-new");
@@ -400,6 +407,34 @@
       const box = $(`.wg[data-wid="${CSS.escape(inWid)}"]`, container);
       const target = box && ((focusSel && $(focusSel, box)) || $("input, .wg-title", box));
       if (target) target.focus({ preventScroll: true });
+    }
+  }
+
+  /* ---------- Editing: on with "Edit Mainframe", off with "Done", Escape or leaving the page ---------- */
+  function setEditing(on) {
+    editing = !!on;
+    if (!editing) closeMenu();
+    if (grid && !grid.classList.contains("is-empty")) {
+      grid.classList.toggle("is-editing", editing);
+      drawCells(rowsUsed(ctx ? ctx.ws.layout : []));
+    }
+  }
+  /** While editing, the grid's cells show behind the widgets (two spare rows below them, to drag into). */
+  function drawCells(rows) {
+    if (!grid) return;
+    let layer = grid.firstElementChild && grid.firstElementChild.classList.contains("mf-cells") ? grid.firstElementChild : null;
+    if (!editing || grid.classList.contains("is-empty")) { if (layer) layer.remove(); return; }
+    const n = Math.min(MAXH * 8, Math.max(3, rows + 2));
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.className = "mf-cells";
+      layer.setAttribute("aria-hidden", "true");
+      grid.insertBefore(layer, grid.firstChild);
+    }
+    if (Number(layer.dataset.rows) !== n) {
+      layer.dataset.rows = n;
+      layer.style.gridRow = `1 / span ${n}`;
+      layer.innerHTML = "<i></i>".repeat(n * COLS);
     }
   }
 
@@ -442,6 +477,7 @@
     $$(".wg", grid).forEach((el) => before.set(el.dataset.wid, el.getBoundingClientRect()));
     preview.forEach((w) => { if (w.id === skipId) return; const el = $(`.wg[data-wid="${CSS.escape(w.id)}"]`, grid); if (el) placeEl(el, w); });
     grid.style.setProperty("--mf-rows", Math.max(1, rowsUsed(preview)));
+    drawCells(rowsUsed(preview));
     if (Mori.motion.reduced()) return;
     $$(".wg", grid).forEach((el) => {
       if (el.dataset.wid === skipId) return;
@@ -452,6 +488,7 @@
   }
 
   function startDrag(e, el, mode) {
+    if (!editing) return;
     if (stacked()) { toast("Rearrange the Mainframe on a larger screen", { icon: "grid" }); return; }
     const id = el.dataset.wid;
     const layout = ctx.ws.layout.map((w) => Object.assign({}, w));
@@ -465,7 +502,8 @@
     ghost.className = "wg-ghost";
     grid.appendChild(ghost);
     placeEl(ghost, self);
-    dragging = { id, el, mode, layout, self, m, startX: e.clientX, startY: e.clientY, box, target: Object.assign({}, self), ghost, pointerId: e.pointerId, v };
+    dragging = { id, el, mode, layout, self, m, startX: e.clientX, startY: e.clientY, box, target: Object.assign({}, self), ghost, pointerId: e.pointerId, v,
+      grabX: box.right - e.clientX, grabY: box.bottom - e.clientY }; // where on the corner it was grabbed
     el.classList.add(mode === "move" ? "is-dragging" : "is-resizing");
     grid.classList.add("is-arranging");
     try { el.setPointerCapture(e.pointerId); } catch (err) { /* fine */ }
@@ -484,10 +522,21 @@
       const y = Math.max(0, self.y + step(dy, m.rowH));
       t = Object.assign({}, self, { x, y });
     } else {
-      const w = Math.max(v.min[0], Math.min(COLS - self.x, Math.round((e.clientX - d.box.left + m.gap) / (m.colW + m.gap))));
-      const h = Math.max(v.min[1], Math.min(MAXH, Math.round((e.clientY - d.box.top + m.gap) / (m.rowH + m.gap))));
+      // The widget follows the pointer, never smaller than its style needs nor past the grid's edge…
+      const span = (n, size) => n * size + (n - 1) * m.gap;
+      const g = grid.getBoundingClientRect();
+      const top = g.top + self.y * (m.rowH + m.gap);
+      const left = g.left + self.x * (m.colW + m.gap);
+      const pw = Math.max(span(v.min[0], m.colW), Math.min(span(COLS - self.x, m.colW), e.clientX + d.grabX - left));
+      const ph = Math.max(span(v.min[1], m.rowH), Math.min(span(MAXH, m.rowH), e.clientY + d.grabY - top));
+      d.el.style.width = pw + "px";
+      d.el.style.height = ph + "px";
+      // …and decides which cells it takes (they're highlighted): a quarter of a cell
+      // outward grows it by a cell, a quarter of a cell back shrinks it.
+      const cells = (px, n, size) => { const dlt = (px - span(n, size)) / (size + m.gap); return n + (dlt >= 0 ? Math.floor(dlt + .75) : Math.ceil(dlt - .75)); };
+      const w = Math.max(v.min[0], Math.min(COLS - self.x, cells(pw, self.w, m.colW)));
+      const h = Math.max(v.min[1], Math.min(MAXH, cells(ph, self.h, m.rowH)));
       t = Object.assign({}, self, { w, h });
-      placeEl(d.el, t);
     }
     if (t.x === d.target.x && t.y === d.target.y && t.w === d.target.w && t.h === d.target.h) return;
     d.target = t;
@@ -505,6 +554,20 @@
     grid.classList.remove("is-arranging");
     d.ghost.remove();
     const changed = d.preview && (d.target.x !== d.self.x || d.target.y !== d.self.y || d.target.w !== d.self.w || d.target.h !== d.self.h);
+    if (d.mode === "resize") {
+      // From the pointer's size to the cells' size, briefly animated, then back to the grid's sizing.
+      const t = changed ? d.target : d.self;
+      const tw = t.w * d.m.colW + (t.w - 1) * d.m.gap;
+      const th = t.h * d.m.rowH + (t.h - 1) * d.m.gap;
+      const el = d.el;
+      if (Mori.motion.reduced()) { el.style.width = el.style.height = ""; }
+      else {
+        el.classList.add("is-settling");
+        el.style.width = tw + "px";
+        el.style.height = th + "px";
+        setTimeout(() => { el.classList.remove("is-settling"); el.style.width = el.style.height = ""; }, 220);
+      }
+    }
     if (changed) {
       placeEl(d.el, d.target);
       if (!Mori.motion.reduced() && d.mode === "move") {
@@ -547,7 +610,7 @@
     container.addEventListener("keydown", (e) => {
       // Keyboard: arrows on the grip move the widget a cell.
       const grip = e.target.closest(".wg-grip");
-      if (!grip || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key) || stacked()) return;
+      if (!grip || !editing || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key) || stacked()) return;
       e.preventDefault();
       const id = grip.closest(".wg").dataset.wid;
       const w = ctx.ws.layout.find((x) => x.id === id);
@@ -559,7 +622,7 @@
       savePlaces(resolve(ctx.ws.layout.map((x) => (x.id === id ? t : x)), id)).then(() => { const g = $(`.wg[data-wid="${CSS.escape(id)}"] .wg-grip`, grid); if (g) g.focus(); });
     });
     container.addEventListener("click", (e) => {
-      if (e.target.closest("[data-mf-edit]")) { openGallery(e.target.closest("[data-mf-edit]")); return; }
+      if (e.target.closest("[data-mf-add]")) { openGallery(e.target.closest("[data-mf-add]")); return; }
       const go = e.target.closest("[data-wgo]");
       if (go) { ctx.go(go.dataset.wgo); return; }
       const doc = e.target.closest("[data-wdoc]");
@@ -660,7 +723,7 @@
         </div>
         <div class="modal-body mfg-config">
           ${Object.keys(t.variants).length > 1 ? `<div class="field"><span>Style</span><div class="seg" id="mfgVariant" data-value="${state.variant}">${Object.entries(t.variants).map(([id, x]) => `<button data-value="${id}">${esc(x.name)}</button>`).join("")}</div></div>` : ""}
-          <div class="field"><span>Size</span><div class="mfg-sizes" role="radiogroup" aria-label="Size">${sizes.map((s) => `<button type="button" class="mfg-size" role="radio" aria-checked="${s[0] === state.size[0] && s[1] === state.size[1]}" data-mfg-size="${s[0]}x${s[1]}"><span class="mfg-size-pic" style="--w:${s[0]};--h:${s[1]}"></span>${s[0]} × ${s[1]}</button>`).join("")}</div>
+          <div class="field"><span>Size</span><div class="mfg-sizes" role="radiogroup" aria-label="Size">${sizes.map((s) => `<button type="button" class="mfg-size" role="radio" aria-checked="${s[0] === state.size[0] && s[1] === state.size[1]}" data-mfg-size="${s[0]}x${s[1]}">${s[0]} × ${s[1]}</button>`).join("")}</div>
             <p class="meta mfg-min">Takes at least ${v.min[0]} column${v.min[0] > 1 ? "s" : ""} × ${v.min[1]} row${v.min[1] > 1 ? "s" : ""}. Drag its corner on the Mainframe to resize.</p></div>
           ${optionsHTML(t, v)}
           <div class="field"><span>Preview</span><div class="mfg-preview" id="mfgPreview"></div></div>
@@ -749,5 +812,5 @@
     requestAnimationFrame(() => { if (state) drawPreview(); });
   }
 
-  Mori.mainframe = { render, openGallery, TYPES, resolve, freeSpot };
+  Mori.mainframe = { render, openGallery, TYPES, resolve, freeSpot, setEditing, isEditing: () => editing, COLS };
 })();

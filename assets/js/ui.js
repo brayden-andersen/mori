@@ -278,7 +278,8 @@
    * without view transitions, and reduced motion, switch at once.
    */
   let pendingTheme = null;
-  function setTheme(theme, ready) {
+  function setTheme(theme, ready, { synced = false } = {}) {
+    if (!synced && !ready && Mori.state && Mori.state.touchPref) setTimeout(() => Mori.state.touchPref("theme"), 0);
     // The new theme's background image is usually decoded already; if not, give it a moment
     // (at most 0.35 s) so the fade doesn't pass through a plain background.
     if (!ready && Mori.warmAura) {

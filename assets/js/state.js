@@ -113,6 +113,8 @@
     motion: "system",            // system | full | reduced
     startPage: "home.html",
     showRecord: true,            // show milestone record on the profile
+    projectStart: "mainframe",   // a project opens on: mainframe | tasks
+    projectSidebar: true,        // the planner's tools sidebar is shown
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
   };
   function settings() {
@@ -125,6 +127,85 @@
     if (patch.notify) next.notify = Object.assign({}, cur.notify || {}, patch.notify);
     set("settings", next);
     applyPrefs();
+    touchPref("settings");
+  }
+
+  /* ---------- Synced across devices: settings, pinned projects, the theme ----------
+     Kept in this browser as before, and on the member's account (profiles.prefs)
+     for Google members. Each part carries the time it last changed; whichever
+     copy is newer wins, part by part, so a change on the phone shows on the
+     laptop the next time a page opens or comes back into view. */
+  const PREF_PARTS = ["settings", "pins", "theme"];
+  const prefTimes = () => Object.assign({}, get("prefTimes", {}));
+  let prefTimer = 0;
+  function touchPref(part) {
+    const t = prefTimes();
+    t[part] = Date.now();
+    put("prefTimes", t);
+    if (!remoteEnabled()) return;
+    clearTimeout(prefTimer);
+    prefTimer = setTimeout(() => syncPrefs({ force: true }).catch(() => {}), 800);
+  }
+  function localPrefs() {
+    const overrides = get("projectOverrides", {});
+    const pins = {};
+    Object.keys(overrides).forEach((id) => { if (typeof overrides[id].pinned === "boolean") pins[id] = overrides[id].pinned; });
+    return { settings: get("settings", {}), pins, theme: Mori.store.read("mori.theme", "light") === "dark" ? "dark" : "light", t: prefTimes() };
+  }
+  /** Take the parts of `remote` that are newer than this browser's. */
+  function takePrefs(remote) {
+    const rt = (remote && remote.t) || {};
+    const lt = prefTimes();
+    let took = false;
+    if (remote.settings && typeof remote.settings === "object" && (rt.settings || 0) > (lt.settings || 0)) {
+      set("settings", remote.settings);
+      applyPrefs();
+      lt.settings = rt.settings;
+      took = true;
+    }
+    if (remote.pins && typeof remote.pins === "object" && (rt.pins || 0) > (lt.pins || 0)) {
+      const overrides = get("projectOverrides", {});
+      Object.keys(overrides).forEach((id) => { if (typeof overrides[id].pinned === "boolean" && !(id in remote.pins)) overrides[id] = Object.assign({}, overrides[id], { pinned: false }); });
+      Object.keys(remote.pins).forEach((id) => { overrides[id] = Object.assign({}, overrides[id], { pinned: !!remote.pins[id] }); });
+      lt.pins = rt.pins;
+      put("prefTimes", lt);
+      set("projectOverrides", overrides);
+      took = true;
+    }
+    if ((remote.theme === "dark" || remote.theme === "light") && (rt.theme || 0) > (lt.theme || 0)) {
+      lt.theme = rt.theme;
+      put("prefTimes", lt);
+      const dark = remote.theme === "dark";
+      if (dark !== (document.documentElement.getAttribute("data-theme") === "dark")) {
+        if (Mori.ui && Mori.ui.setTheme) Mori.ui.setTheme(remote.theme, true, { synced: true });
+        else Mori.store.write("mori.theme", remote.theme);
+      } else Mori.store.write("mori.theme", remote.theme);
+      took = true;
+    }
+    put("prefTimes", lt);
+    return took;
+  }
+  let prefsAt = 0;
+  let prefsInflight = null;
+  /** Bring in newer settings, pins and theme from the account, then save anything newer here. */
+  function syncPrefs({ force = false } = {}) {
+    if (!remoteEnabled()) return Promise.resolve(false);
+    if (prefsInflight) return force ? prefsInflight.then(() => syncPrefs({ force: true })) : prefsInflight;
+    if (!force && Date.now() - prefsAt < 15000) return Promise.resolve(false);
+    prefsInflight = (async () => {
+      const remote = await Mori.db.prefs();
+      if (remote === null) return false; // no profile row yet (onboarding saves it)
+      const took = takePrefs(remote);
+      const mine = localPrefs();
+      const rt = remote.t || {};
+      if (PREF_PARTS.some((k) => (mine.t[k] || 0) > (rt[k] || 0))) await Mori.db.savePrefs(mine);
+      prefsAt = Date.now();
+      return took;
+    })().catch((err) => {
+      if (!(err && (err.code === "42703" || err.code === "PGRST204"))) throw err; // no prefs column yet: stay on this device
+      return false;
+    }).finally(() => { prefsInflight = null; });
+    return prefsInflight;
   }
   function applyPrefs() {
     const r = document.documentElement;
@@ -489,7 +570,7 @@
       const created = await Mori.db.createProject(data);
       set("projectsRemote", [created].concat(remoteList()));
       id = created.id;
-      if (pinFirst) override(id, { pinned: true });
+      if (pinFirst) { override(id, { pinned: true }); touchPref("pins"); }
       if (cofounders.length) {
         try {
           await addCofounders(id, cofounders);
@@ -503,7 +584,7 @@
       const p = Object.assign({ id: "c" + Date.now().toString(36), owner: true, createdAt: Date.now(), team: [] }, data);
       set("projectsCreated", [p].concat(localList()));
       id = p.id;
-      if (pinFirst) override(id, { pinned: true });
+      if (pinFirst) { override(id, { pinned: true }); touchPref("pins"); }
     }
     return id;
   }
@@ -599,7 +680,10 @@
   }
   function togglePin(pid) {
     const p = project(pid);
-    return p ? override(pid, { pinned: !p.pinned }) : null;
+    if (!p) return null;
+    const u = override(pid, { pinned: !p.pinned });
+    touchPref("pins");
+    return u;
   }
   /** Delete a project you own, with its tasks, for everyone on the team. */
   async function deleteProject(pid) {
@@ -713,7 +797,7 @@
   Mori.state = {
     session, ladder: D.ladder,
     profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete,
-    settings, saveSettings, applyPrefs,
+    settings, saveSettings, applyPrefs, syncPrefs, touchPref,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
     updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS, ladderProgress,

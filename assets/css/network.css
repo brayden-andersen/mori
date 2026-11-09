@@ -4,7 +4,7 @@
 .pagehead .btn .ico{ width:16px; height:16px }
 
 /* ---------- Layout: "Manage my network" on the left, the rest on the right ---------- */
-.wrap--network{ max-width:1240px; padding-left:12px; padding-right:12px }
+.wrap--network{ max-width:1360px; padding-left:12px; padding-right:12px }
 .net-layout{ display:grid; grid-template-columns: 260px minmax(0,1fr); gap:20px; align-items:start }
 .net-main{ display:grid; gap:18px; min-width:0 }
 .net-main > .net-pane{ display:grid; gap:18px; min-width:0 }

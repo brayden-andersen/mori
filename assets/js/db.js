@@ -254,6 +254,19 @@
       fail(error);
     },
 
+    /** Settings, pins and the theme saved on your account (synced across devices); null if there's no profile row yet. */
+    async prefs() {
+      const { c, id } = await signedIn();
+      const { data, error } = await c.from("profiles").select("prefs").eq("id", id).maybeSingle();
+      fail(error);
+      return data ? data.prefs || {} : null;
+    },
+    async savePrefs(prefs) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("profiles").update({ prefs }).eq("id", id);
+      fail(error);
+    },
+
     /** Upload a square photo to avatars/<user id>/…; returns its public URL. */
     async uploadPhoto(blob, prefix = "") {
       const { c, id } = await signedIn();

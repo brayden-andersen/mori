@@ -38,9 +38,10 @@
 
   /* ---------- Shape ---------- */
   const MAX_ROWS = 6;
+  const COLS = 4; // the Mainframe's columns
   function widget(w) {
-    const x = int(w.x, 0, 2, 0);
-    const width = int(w.w, 1, 3 - x, 1);
+    const x = int(w.x, 0, COLS - 1, 0);
+    const width = int(w.w, 1, COLS - x, 1);
     return { id: String(w.id || uid("w")), type: String(w.type || "note"), variant: String(w.variant || ""), x, y: int(w.y, 0, 400, 0), w: width, h: int(w.h, 1, MAX_ROWS, 1), opts: obj(w.opts) };
   }
   /** A workspace in today's shape, whatever was stored. */

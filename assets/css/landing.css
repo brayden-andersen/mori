@@ -5,7 +5,7 @@
    topic and search pills, a "declare" band, toolkits, a row of sprints,
    two feature rows, the milestone ladder, "who is it for" and a closing CTA.
    ========================================================================== */
-.l-wrap{ max-width:1120px; margin:0 auto; padding-left:18px; padding-right:18px }
+.l-wrap{ max-width:var(--page-w); margin:0 auto; padding-left:16px; padding-right:16px }
 .landing main{ overflow-x:clip }
 .landing section[id]{ scroll-margin-top: calc(var(--navH) + 12px) }
 

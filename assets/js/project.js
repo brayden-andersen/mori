@@ -39,8 +39,9 @@
   let built = false;
   let leaving = false;
   let pendingView = false;
-  const NAV_KEY = "planner.navHidden";
-  const isNarrow = () => window.matchMedia("(max-width: 900px)").matches;
+
+  const DRAWER = "(max-width: 1240px)"; // the sidebar is a drawer over the page up to this width
+  const isNarrow = () => window.matchMedia(DRAWER).matches;
 
   const failed = (err) => Mori.people.fail(err && err.code === "signed-out" ? err : new Error("That change wasn’t saved: " + ((err && err.message) || "please try again.")));
   const isoIn = (days) => { const d = new Date(); d.setDate(d.getDate() + days); return W.isoDay(d); };
@@ -49,7 +50,8 @@
   const SECTION_IDS = T.SECTIONS.filter((s) => s.id).map((s) => s.id);
   const route = () => {
     const h = decodeURIComponent(location.hash.replace(/^#/, ""));
-    return SECTION_IDS.includes(h.split("/")[0]) ? h : "mainframe";
+    if (SECTION_IDS.includes(h.split("/")[0])) return h;
+    return S.settings().projectStart === "tasks" ? "tasks" : "mainframe"; // Settings → Projects → Open projects on
   };
   const section = () => route().split("/")[0];
   function go(to) {
@@ -78,7 +80,7 @@
   function build() {
     built = true;
     main.removeAttribute("aria-busy");
-    const hidden = Mori.store.read(Mori.store.userKey(NAV_KEY), false);
+    const hidden = S.settings().projectSidebar === false;
     main.innerHTML = `
       <div class="pl-shell ${hidden ? "is-collapsed" : ""}" id="plShell">
         <nav class="pl-nav" id="plNav" aria-label="Project tools">
@@ -217,7 +219,13 @@
     const sec = route();
     const bar = $("#plToolbar");
     let html = "";
-    if (sec === "mainframe") html = `<span class="meta pl-toolbar-hint">${W.get(pid).layout.length ? `<span class="pl-hint-wide">Drag a widget by its top bar to move it, or by its corner to resize it.</span><span class="pl-hint-narrow">Move and resize widgets on a larger screen.</span>` : ""}</span><button class="btn" type="button" data-mf-edit>${icon("sliders")} Edit Mainframe</button>`;
+    if (sec === "mainframe") {
+      // Edit Mainframe turns editing on (moving and resizing); Add widget opens the list of widgets.
+      const has = W.get(pid).layout.length > 0;
+      const ed = has && MF.isEditing();
+      const hint = ed ? `<span class="pl-hint-wide">Drag a widget by its top bar to move it, or by its corner to resize it.</span><span class="pl-hint-narrow">Move and resize widgets on a larger screen.</span>` : "";
+      html = `<span class="meta pl-toolbar-hint">${hint}</span><span class="pl-toolbar-actions">${has ? `<button class="btn${ed ? " btn--ink" : ""}" type="button" data-mf-edit aria-pressed="${ed}">${icon(ed ? "check" : "sliders")} ${ed ? "Done" : "Edit Mainframe"}</button>` : ""}<button class="btn" type="button" data-mf-add>${icon("plus")} Add widget</button></span>`;
+    }
     else if (sec === "docs") html = `<span></span><button class="btn btn--ink" type="button" data-doc-new>${icon("plus")} New document</button>`;
     if (bar.innerHTML !== html) bar.innerHTML = html;
     bar.hidden = !html;
@@ -288,7 +296,7 @@
       if (open) { const a = $(".pl-nav-link.is-active", shell) || $(".pl-nav-link", shell); if (a) a.focus({ preventScroll: true }); }
     } else {
       shell.classList.toggle("is-collapsed", !open);
-      Mori.store.write(Mori.store.userKey(NAV_KEY), !open);
+      if (S.settings().projectSidebar !== open) S.saveSettings({ projectSidebar: open }); // the same as Settings → Projects → Tools sidebar
     }
     $(".pl-burger", shell).setAttribute("aria-expanded", String(open));
   }
@@ -300,6 +308,7 @@
     window.addEventListener("hashchange", () => {
       if (isNarrow() && navOpen()) setNav(false);
       const from = shown;
+      if (MF.isEditing() && section() !== "mainframe") MF.setEditing(false); // editing ends with the page
       renderAll();
       shown = section();
       const view = $("#plView");
@@ -320,7 +329,8 @@
       if (e.target.closest("[data-nav-toggle]")) { setNav(!navOpen()); return; }
       const edit = e.target.closest("[data-pl-edit]");
       if (edit) { openDetails(edit); return; }
-      if (e.target.closest("#plToolbar [data-mf-edit]")) { MF.openGallery(e.target.closest("[data-mf-edit]")); return; }
+      if (e.target.closest("#plToolbar [data-mf-edit]")) { MF.setEditing(!MF.isEditing()); renderToolbar(); const b = $("#plToolbar [data-mf-edit]"); if (b) b.focus({ preventScroll: true }); return; }
+      if (e.target.closest("#plToolbar [data-mf-add]")) { MF.openGallery(e.target.closest("[data-mf-add]")); return; }
       if (e.target.closest("#plToolbar [data-doc-new]")) { DOCS.create(ctx(), e.target.closest("[data-doc-new]")); return; }
       const pin = e.target.closest("[data-pl-pin]");
       if (pin) {
@@ -328,14 +338,18 @@
         if (u) toast(u.pinned ? `“${u.name}” is pinned to your homepage` : `“${u.name}” unpinned`, { icon: "pin" });
       }
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && isNarrow() && $("#plShell") && navOpen() && !Mori.modal.isOpen()) setNav(false); });
-    window.matchMedia("(max-width: 900px)").addEventListener("change", () => {
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || Mori.modal.isOpen() || !$("#plShell")) return;
+      if (isNarrow() && navOpen()) { setNav(false); return; }
+      if (MF.isEditing() && !document.querySelector(".wg-pop")) { MF.setEditing(false); renderToolbar(); } // Escape finishes editing
+    });
+    window.matchMedia(DRAWER).addEventListener("change", () => {
       const shell = $("#plShell");
       if (!shell) return;
       shell.classList.remove("is-open");
       $(".pl-scrim", shell).hidden = true;
       document.body.classList.remove("is-locked");
-      const hidden = Mori.store.read(Mori.store.userKey(NAV_KEY), false);
+      const hidden = S.settings().projectSidebar === false;
       shell.classList.toggle("is-collapsed", !!hidden);
       $(".pl-burger", shell).setAttribute("aria-expanded", String(!isNarrow() && !hidden));
     });
@@ -407,6 +421,12 @@
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
     if (["projectsRemote", "projectsCreated", "projectOverrides", "network", "profile"].includes(key)) renderAll();
+    else if (key === "settings" && built && !isNarrow()) {
+      // Tools sidebar switched in Settings, or on another device
+      const shell = $("#plShell");
+      const show = S.settings().projectSidebar !== false;
+      if (shell && shell.classList.contains("is-collapsed") === show) { shell.classList.toggle("is-collapsed", !show); $(".pl-burger", shell).setAttribute("aria-expanded", String(show)); }
+    }
     else if (key === "workspace" && built) { const p = project(); if (p) { renderSummary(p); renderToolbar(); viewSoon(); } }
     else if (key === "docs" && built && (section() === "docs" || section() === "mainframe")) { const p = project(); if (p) setTitle(p); viewSoon(); }
   });

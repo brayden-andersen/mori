@@ -40,7 +40,7 @@
               ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
               <div class="drop-sep" role="separator"></div>
               ${link("projects.html", "All projects")}
-              <a class="drop-link" role="menuitem" href="#" data-soon="Project settings">Project Settings (new)</a>
+              <a class="drop-link" role="menuitem" href="#" data-modal="settings" data-tab="projects">Project settings</a>
             </div>
           </div>
           <div class="item">
@@ -530,8 +530,9 @@
   const SETTINGS_TABS = [
     { id: "account", label: "Account", icon: "user" },
     { id: "preferences", label: "Preferences", icon: "sliders" },
-    { id: "notifications", label: "Notifications", icon: "bell" },
     { id: "privacy", label: "Privacy", icon: "shield" },
+    { id: "projects", label: "Projects", icon: "projects" },
+    { id: "notifications", label: "Notifications", icon: "bell" },
   ];
 
   function settingsHTML(tab) {
@@ -570,6 +571,12 @@
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
                 .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
+          `)}
+          ${pane("projects", `
+            ${row("Open projects on", "The page a project opens on from Home, Projects and the Projects menu.", segHTML("projectStart", st.projectStart, [["mainframe", "Mainframe"], ["tasks", "Daily tasks"]]))}
+            ${row("Tools sidebar", "Show the sidebar of tools in the project planner. The button at its top left hides and shows it too.", switchHTML('data-setting="projectSidebar" aria-label="Show the tools sidebar"', st.projectSidebar !== false))}
+            <div class="st-row st-row--list"><div class="st-copy"><h4>Pinned to your homepage</h4><p>Pinned projects show on your homepage and in the Projects menu.${s.provider === "google" ? " Your pins, like these settings, follow you to every device you sign in on." : ""}</p></div></div>
+            <div class="st-pins">${S.projects().map((p) => `<div class="st-pin"><span class="st-pin-name">${esc(p.name)}</span>${switchHTML(`data-pin="${esc(p.id)}" aria-label="Pin ${esc(p.name)} to your homepage"`, p.pinned)}</div>`).join("") || `<p class="meta">No projects yet. <a href="projects.html?new=1">Declare one</a>.</p>`}</div>
           `)}
           ${pane("notifications", `
             ${notifyRow("messages", "Messages", "A pop-up when a connection messages you. The Messages badge always shows unread conversations.")}
@@ -621,6 +628,11 @@
       input.addEventListener("change", () => { S.saveSettings({ [input.dataset.setting]: input.type === "checkbox" ? input.checked : input.value }); saved(); }));
     $$("input[data-notify]", panel).forEach((input) => input.addEventListener("change", () => { S.saveSettings({ notify: { [input.dataset.notify]: input.checked } }); saved(); updateBadges(); }));
     $$("input[data-profile]", panel).forEach((input) => input.addEventListener("change", () => { S.saveProfile({ [input.dataset.profile]: input.checked }).catch(() => {}); saved(); }));
+    $$("input[data-pin]", panel).forEach((input) => input.addEventListener("change", () => {
+      const p = S.project(input.dataset.pin);
+      if (p && p.pinned !== input.checked) S.togglePin(p.id);
+      saved();
+    }));
 
     const reset = $("[data-reset]", panel);
     let armed = false;
@@ -787,6 +799,7 @@
     }).catch(() => { /* offline: keep the local copy */ });
     // Requests, messages and projects: load the latest, then stay live.
     const refreshAll = () => {
+      S.syncPrefs().catch(() => { /* keep this device's copy */ });
       S.network.refresh().catch(() => { /* keep the local copy */ });
       S.chat.refresh().catch(() => {});
       S.refreshProjects().catch(() => {});
