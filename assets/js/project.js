@@ -1,122 +1,161 @@
 /* ==========================================================================
-   Mori: Sandbox — project planner (project.html?id=<project id>)
+   Mori: Sandbox — project planner (project.html?id=<project id>#<section>)
    --------------------------------------------------------------------------
-   A first draft of the full-screen planner that a project preview opens:
-   • a board in three columns (To do, In progress, Done): add a task in any
-     column, drag it to another, tick it off, or open it to change its text,
-     who it's for, its due date and its column
-   • progress, the project's rung on the milestone ladder, what's due next
-     and the team (founders add people from their connections)
-   • edit the name, focus and tags (the owner can delete the project)
-   Everyone on the team can change tasks. Co-founders' changes arrive when
-   the page comes back into view and every 20 seconds.
+   The project's full-screen workspace:
+   • the header: tags, name, the section you're in ("Mainframe" in red on the
+     project's home), when it was updated and created, the team, Edit details
+     and Pin
+   • overall progress: the rung on the milestone ladder plus the share of the
+     next rung's proof that's done, with overdue and due-this-week tasks
+   • a sidebar of the project's pages on the left (the button at the top
+     left hides it): the Mainframe, the project's home, and a page for each
+     tool. Each page has its own address (…#tasks, #finance, #docs/<id>), so
+     it can be bookmarked or shared and the back button works; switching is
+     instant because the pages share one app shell and the project's data.
+   • below a thin rule: the page's main action on the right (Edit
+     Mainframe, New document) and the page itself: the Mainframe
+     (mainframe.js), documents (planner-docs.js) or a tool (planner-tools.js)
+   Teammates' changes arrive when the page comes back into view and every 20 s.
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, avatarStack, humanizeDays, toast, createModal, seg } = Mori.ui;
+  const { $, $$, esc, icon, avatarStack, humanizeDays, toast, createModal } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
   const K = Mori.projectKit;
-  const COLS = ["todo", "doing", "done"];
-  const HINTS = { todo: "Nothing to do yet. Add the first task below.", doing: "Drag a task here when someone starts on it.", done: "Finished tasks land here." };
-  const EASE = "cubic-bezier(.16,1,.3,1)";
+  const W = Mori.workspace;
+  const T = Mori.plannerTools;
+  const DOCS = Mori.plannerDocs;
+  const MF = Mori.mainframe;
 
   const main = $("#planner");
   const pid = new URLSearchParams(location.search).get("id") || "";
   const project = () => S.project(pid);
   let loaded = !N.available() || !!project();
   let built = false;
-  let dragId = null;      // the task being dragged
-  let deferred = false;   // data changed mid-drag: render when it ends
-  let leaving = false;    // deleting or leaving: the page is about to change
+  let leaving = false;
+  let pendingView = false;
+  const NAV_KEY = "planner.navHidden";
+  const isNarrow = () => window.matchMedia("(max-width: 900px)").matches;
 
-  const failed = (err) => Mori.people.fail(err && (err.code === "signed-out" || err.code === "too-many") ? err : new Error("That change wasn’t saved: " + ((err && err.message) || "please try again.")));
-  const isoIn = (days) => { const d = new Date(); d.setDate(d.getDate() + days); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
-  /** Someone on the team, or null if they've left. */
-  const memberOf = (p, id) => K.teamOf(p).find((m) => m.id === id) || null;
+  const failed = (err) => Mori.people.fail(err && err.code === "signed-out" ? err : new Error("That change wasn’t saved: " + ((err && err.message) || "please try again.")));
+  const isoIn = (days) => { const d = new Date(); d.setDate(d.getDate() + days); return W.isoDay(d); };
 
-  /* ---------- Page frame (built once, then its parts are re-drawn) ---------- */
+  /* ---------- Where we are: #mainframe, #tasks, #docs/<id>… ---------- */
+  const SECTION_IDS = T.SECTIONS.filter((s) => s.id).map((s) => s.id);
+  const route = () => {
+    const h = decodeURIComponent(location.hash.replace(/^#/, ""));
+    return SECTION_IDS.includes(h.split("/")[0]) ? h : "mainframe";
+  };
+  const section = () => route().split("/")[0];
+  function go(to) {
+    if (route() === to) { renderAll(); return; }
+    location.hash = to;
+  }
+  const whoById = (id) => {
+    if (!id) return "";
+    if (id === S.session().id) return "you";
+    const p = project();
+    const m = p && K.teamOf(p).find((x) => x.id === id);
+    return m ? m.person.name : "";
+  };
+  const ctx = () => {
+    const p = project();
+    return { pid, p, ws: W.get(pid), docs: W.docs.list(pid), who: whoById, go, route };
+  };
+
+  /* ---------- Frame (built once) ---------- */
   const crumbs = (name) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home.html">Home</a> <span class="sep">/</span> <a href="projects.html">Projects</a>${name != null ? ` <span class="sep">/</span> <span id="crumbName">${esc(name)}</span>` : ""}</nav>`;
+  function navHTML() {
+    return T.SECTIONS.map((s) => (s.group
+      ? `<p class="pl-nav-group">${esc(s.group)}</p>`
+      : `<a class="pl-nav-link" href="#${s.id}" data-section="${s.id}">${icon(s.icon)}<span>${esc(s.label)}</span></a>`)).join("");
+  }
   function build() {
     built = true;
     main.removeAttribute("aria-busy");
-    main.innerHTML = crumbs("") + `
-      <header class="pl-head" id="plHead"></header>
-      <section class="pl-summary" id="plSummary" aria-label="Progress"></section>
-      <div class="pl-layout">
-        <section class="pl-board" aria-label="Task board">
-          ${COLS.map((st) => `
-          <div class="pl-col pl-col--${st}" data-col="${st}">
-            <header class="pl-col-head"><span class="pl-dot" aria-hidden="true"></span><h2>${K.STATUS[st]}</h2><span class="pl-count" data-count-of="${st}">0</span></header>
-            <ol class="pl-list" data-list="${st}" aria-label="${K.STATUS[st]}"></ol>
-            <form class="pl-add" data-add="${st}" autocomplete="off">
-              <label class="sr-only" for="add-${st}">Add a task to ${K.STATUS[st]}</label>
-              ${icon("plus", "ico pl-add-ico")}
-              <input class="pl-add-input" id="add-${st}" name="text" maxlength="200" placeholder="Add a task" enterkeyhint="done">
-            </form>
-          </div>`).join("")}
-        </section>
-        <aside class="pl-side">
-          <section class="pl-card" id="plStage" aria-label="Milestone ladder"></section>
-          <section class="pl-card" id="plUpcoming" aria-label="Coming up"></section>
-          <section class="pl-card" id="plTeam" aria-label="Team"></section>
-        </aside>
+    const hidden = Mori.store.read(Mori.store.userKey(NAV_KEY), false);
+    main.innerHTML = `
+      <div class="pl-shell ${hidden ? "is-collapsed" : ""}" id="plShell">
+        <nav class="pl-nav" id="plNav" aria-label="Project tools">
+          <div class="pl-nav-inner">
+            <div class="pl-nav-head"><span class="pl-nav-title" id="plNavName"></span><button class="icon-btn pl-nav-close" type="button" data-nav-toggle aria-label="Close tools">${icon("x")}</button></div>
+            ${navHTML()}
+          </div>
+        </nav>
+        <div class="pl-scrim" data-nav-toggle hidden></div>
+        <div class="pl-main">
+          <div class="pl-topline">
+            <button class="icon-btn pl-burger" type="button" data-nav-toggle aria-controls="plNav" aria-expanded="${!hidden}" aria-label="Show or hide the tools">${icon("menu")}</button>
+            ${crumbs("")}
+          </div>
+          <header class="pl-head" id="plHead"></header>
+          <section class="pl-summary" id="plSummary" aria-label="Overall progress"></section>
+          <hr class="pl-sep">
+          <div class="pl-toolbar" id="plToolbar"></div>
+          <div class="pl-view" id="plView"></div>
+          <p class="sr-only" id="plAnnounce" aria-live="polite"></p>
+        </div>
       </div>`;
     if (!main.dataset.bound) { main.dataset.bound = "1"; bind(); }
   }
 
   function showMissing(wasOpen) {
     main.removeAttribute("aria-busy");
-    main.innerHTML = crumbs(null) + `
+    main.innerHTML = `<div class="wrap wrap--planner">${crumbs(null)}
       <div class="panel pl-missing">
         <div class="empty"><span class="empty-ico">${icon("projects")}</span>
           <div>This project isn’t available</div>
           <div class="meta">It may have been deleted, or you’re no longer on its team.</div>
           <div><a class="btn btn--ink" href="projects.html">Back to your projects</a></div>
         </div>
-      </div>`;
+      </div></div>`;
     document.title = "SandBox • Project planner";
     if (wasOpen) toast("You’re no longer on that project", { icon: "x" });
   }
 
-  function render() {
+  /* ---------- Drawing ---------- */
+  /** The browser tab names the page: "SandBox • Warung Pay · Finance" (or the document's title). */
+  function setTitle(p) {
+    const sec = section();
+    const docId = sec === "docs" ? route().split("/")[1] : "";
+    const doc = docId ? W.docs.get(pid, docId) : null;
+    document.title = `SandBox • ${p.name}${sec === "mainframe" ? "" : " · " + (doc ? doc.title : T.label(sec))}`;
+  }
+  function renderAll() {
     if (leaving) return;
     const p = project();
     if (!p) {
       if (loaded) { const wasOpen = built; built = false; showMissing(wasOpen); }
       return;
     }
-    if (dragId) { deferred = true; return; }
     if (!built) build();
-    document.title = `SandBox • ${p.name}`;
+    setTitle(p);
     $("#crumbName").textContent = p.name;
+    $("#plNavName").textContent = p.name;
     renderHead(p);
     renderSummary(p);
-    renderBoard(p);
-    renderStage(p);
-    renderUpcoming(p);
-    const open = {};
-    p.tasks.forEach((t) => { if (t.assignee && !t.done) open[t.assignee] = (open[t.assignee] || 0) + 1; });
-    $("#plTeam").innerHTML = K.teamHTML(p, { openTasks: open });
+    renderNav();
+    renderToolbar();
+    renderView();
   }
 
-  /* ---------- Header ---------- */
   function renderHead(p) {
     const team = K.teamOf(p);
-    const owner = team.find((m) => m.role === "Owner");
+    const created = new Date(p.createdAt || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     $("#plHead").innerHTML = `
       <div class="pl-head-main">
         <div class="chips">${K.tagChips(p.tags)}</div>
         <h1 class="title pl-title" id="plTitle">${esc(p.name)}</h1>
-        <p class="pl-focus">${icon("target")}<span>${esc(p.focus || "No current focus yet")}</span></p>
-        <p class="meta">Updated ${esc(humanizeDays(p.updated_days).toLowerCase())} · ${p.owner ? "You own this project" : owner ? `${esc(owner.person.name)}’s project` : "Shared with you"}</p>
+        <p class="pl-section-label" id="plSection">${esc(T.label(section()))}</p>
+        <p class="meta">Updated ${esc(humanizeDays(p.updated_days).toLowerCase())} · Created on ${esc(created)}</p>
       </div>
       <div class="pl-head-side">
-        <button class="pl-team-peek" type="button" data-jump="plTeam" aria-label="Team: ${team.length === 1 ? "just you" : team.length + " people"}">${avatarStack(team.map((m) => m.person), 30)}<span>${team.length === 1 ? "Just you" : team.length + " people"}</span></button>
+        <a class="pl-team-peek" href="#people" aria-label="Team: ${team.length === 1 ? "just you" : team.length + " people"}">${avatarStack(team.map((m) => m.person), 30)}<span>${team.length === 1 ? "Just you" : team.length + " people"}</span></a>
         <div class="pl-head-actions">
           <button class="btn" type="button" data-pl-edit>${icon("edit")} Edit details</button>
           <button class="btn" type="button" data-pl-pin aria-pressed="${p.pinned}">${icon("pin")} <span>${p.pinned ? "Pinned to home" : "Pin to home"}</span></button>
@@ -125,7 +164,7 @@
       </div>`;
   }
 
-  /* ---------- Progress (updated in place, so the bar and the number glide) ---------- */
+  /* Overall progress (updated in place, so the number and the bar glide). */
   let shownPct = null;
   function renderSummary(p) {
     const box = $("#plSummary");
@@ -134,288 +173,185 @@
       box.innerHTML = `
         <div class="pl-sum-main">
           <span class="pl-pct" id="plPct" data-suffix="%"></span>
-          <div class="pl-sum-copy"><b id="plDoneLine"></b><span class="meta" id="plSub"></span></div>
+          <a class="pl-sum-copy" href="#ladder"><b id="plDoneLine"></b><span class="meta" id="plSub"></span></a>
         </div>
-        <div class="pl-stack" id="plStack" role="img"><i class="is-done"></i><i class="is-doing"></i><i class="is-todo"></i></div>
+        <div class="pl-ladderbar" id="plStack" role="img">${[1, 2, 3, 4, 5].map((r) => `<i data-seg="${r}"><b></b></i>`).join("")}</div>
         <div class="pl-sum-stats"><span class="pl-stat" id="plLate"><b></b> overdue</span><span class="pl-stat" id="plSoon"><b></b> due this week</span></div>`;
     }
-    const c = K.counts(p);
+    const g = W.progress(p);
     const today = K.todayISO();
     const week = isoIn(7);
     const late = p.tasks.filter((t) => !t.done && t.due && t.due < today).length;
     const soon = p.tasks.filter((t) => !t.done && t.due && t.due >= today && t.due <= week).length;
-    $("#plDoneLine", box).textContent = `${p.doneCount} of ${p.tasks.length} task${p.tasks.length === 1 ? "" : "s"} done`;
-    $("#plSub", box).textContent = !p.tasks.length ? "Add your first task to start planning."
-      : p.progress === 100 ? "Everything’s done. Time to post proof for the next rung."
-      : `${c.todo + c.doing} still open`;
+    $("#plDoneLine", box).textContent = `Rung ${p.rung} of 5 · ${D.ladder[p.rung].stage}`;
+    $("#plSub", box).textContent = g.next ? `Next: ${D.ladder[g.next].stage} · ${g.done} of ${g.total} proof steps done` : "Top of the ladder: early traction.";
     const stack = $("#plStack", box);
-    stack.setAttribute("aria-label", `${c.done} done, ${c.doing} in progress, ${c.todo} to do`);
-    const [d, g, t] = stack.children;
-    d.style.flexGrow = c.done;
-    g.style.flexGrow = c.doing;
-    t.style.flexGrow = c.todo;
+    stack.setAttribute("aria-label", `${g.pct}% of the way from idea to early traction`);
+    $$("[data-seg]", stack).forEach((seg) => {
+      const r = Number(seg.dataset.seg);
+      const fill = r <= p.rung ? 1 : r === g.next && g.total ? g.done / g.total : 0;
+      seg.firstElementChild.style.width = Math.round(fill * 100) + "%";
+      seg.title = `Rung ${r} · ${D.ladder[r].stage}`;
+    });
     $("#plLate b", box).textContent = late;
     $("#plLate", box).classList.toggle("is-late", late > 0);
     $("#plSoon b", box).textContent = soon;
     const pct = $("#plPct", box);
-    if (shownPct == null) pct.textContent = p.progress + "%";
-    else if (shownPct !== p.progress) { pct.dataset.from = shownPct; Mori.motion.animateCount(pct, p.progress); }
-    shownPct = p.progress;
+    if (shownPct == null) pct.textContent = g.pct + "%";
+    else if (shownPct !== g.pct) { pct.dataset.from = shownPct; Mori.motion.animateCount(pct, g.pct); }
+    shownPct = g.pct;
   }
 
-  /* ---------- Board ---------- */
-  function taskHTML(t, p) {
-    const who = t.assignee ? memberOf(p, t.assignee) : null;
-    const due = K.dueInfo(t.due, t.done);
-    const label = [t.text, due && due.text, who && `for ${who.you ? "you" : who.person.name}`].filter(Boolean).join(" · ");
-    return `
-      <li class="task${t.done ? " is-done" : ""}" data-task="${esc(t.id)}" draggable="true">
-        <label class="task-check" title="${t.done ? "Mark as not done" : "Mark as done"}"><input type="checkbox" data-task-done="${esc(t.id)}" ${t.done ? "checked" : ""}><span class="task-box">${icon("check")}</span><span class="sr-only">Done: ${esc(t.text)}</span></label>
-        <button class="task-open" type="button" data-task-open="${esc(t.id)}" aria-label="Edit task: ${esc(label)}">
-          <span class="task-text">${esc(t.text)}</span>
-          ${due || who ? `<span class="task-meta">${due ? `<span class="task-due ${due.cls}">${icon("clock")}${esc(due.text)}</span>` : ""}${who ? `<span class="task-who" title="${esc(who.you ? "You" : who.person.name)}">${avatar(who.person, 22)}</span>` : ""}</span>` : ""}
-        </button>
-      </li>`;
+  function renderNav() {
+    const sec = section();
+    $$(".pl-nav-link", main).forEach((a) => {
+      const on = a.dataset.section === sec;
+      a.classList.toggle("is-active", on);
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    const label = $("#plSection");
+    if (label) label.textContent = T.label(sec);
   }
 
-  /** Re-drawing replaces elements: keep keyboard focus on the same control. */
-  function focusKey() {
+  function renderToolbar() {
+    const sec = route();
+    const bar = $("#plToolbar");
+    let html = "";
+    if (sec === "mainframe") html = `<span class="meta pl-toolbar-hint">${W.get(pid).layout.length ? `<span class="pl-hint-wide">Drag a widget by its top bar to move it, or by its corner to resize it.</span><span class="pl-hint-narrow">Move and resize widgets on a larger screen.</span>` : ""}</span><button class="btn" type="button" data-mf-edit>${icon("sliders")} Edit Mainframe</button>`;
+    else if (sec === "docs") html = `<span></span><button class="btn btn--ink" type="button" data-doc-new>${icon("plus")} New document</button>`;
+    if (bar.innerHTML !== html) bar.innerHTML = html;
+    bar.hidden = !html;
+  }
+
+  /* Keep focus (and what someone is typing) when the section is re-drawn
+     underneath them: a ticked checkbox, a status menu or a half-typed field. */
+  function focusState(view) {
     const a = document.activeElement;
-    if (!a || !main.contains(a)) return null;
-    for (const attr of ["data-task-done", "data-task-open"]) if (a.hasAttribute(attr)) return `[${attr}="${CSS.escape(a.getAttribute(attr))}"]`;
-    return null;
-  }
-
-  function renderBoard(p) {
-    const key = focusKey();
-    const before = Mori.motion.reduced() ? null : new Map($$(".task[data-task]", main).map((el) => [el.dataset.task, el.getBoundingClientRect()]));
-    COLS.forEach((st) => {
-      const ts = p.tasks.filter((t) => t.status === st);
-      $(`[data-list="${st}"]`, main).innerHTML = ts.map((t) => taskHTML(t, p)).join("") || `<li class="pl-empty">${HINTS[st]}</li>`;
-      $(`[data-count-of="${st}"]`, main).textContent = ts.length;
-    });
-    const full = p.tasks.length >= S.MAX_TASKS;
-    $$(".pl-add-input", main).forEach((i) => { i.placeholder = full ? `${S.MAX_TASKS} tasks is the limit for now` : "Add a task"; i.disabled = full; });
-    if (key) { const el = $(key, main); if (el) el.focus({ preventScroll: true }); }
-    if (!before) return;
-    // Slide tasks from where they were to where they are now; new ones fade in.
-    const fresh = before.size === 0;
-    $$(".task[data-task]", main).forEach((el, i) => {
-      const a = before.get(el.dataset.task);
-      if (!a) {
-        el.animate([{ opacity: 0, transform: "translateY(8px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: fresh ? i * 30 : 0, easing: EASE, fill: "backwards" });
-        return;
-      }
-      const b = el.getBoundingClientRect();
-      const dx = a.left - b.left;
-      const dy = a.top - b.top;
-      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-      el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 460, easing: EASE });
-    });
-  }
-
-  /* ---------- Side: milestone ladder, coming up, team ---------- */
-  function renderStage(p) {
-    const now = D.ladder[p.rung];
-    const next = D.ladder[Math.min(p.rung + 1, 5)];
-    $("#plStage").innerHTML = `
-      <h3>Milestone ladder <span>Rung ${p.rung} of 5</span></h3>
-      ${Mori.shell.ladderBar(p.rung)}
-      <div class="ladder-labels" aria-hidden="true">${D.ladder.map((r) => `<span class="${r.rung === p.rung ? "is-now" : ""}">${r.rung}</span>`).join("")}</div>
-      <p class="pd-now"><b>Now:</b> ${esc(now.stage)}</p>
-      ${p.rung < 5
-        ? `<div class="pd-next"><b>Next: Rung ${next.rung} · ${esc(next.stage)}</b><br>${esc(next.proof)}</div>`
-        : `<div class="pd-next"><b>Top rung reached.</b> Eligible for leaderboards and showcases.</div>`}
-      <label class="pl-rung"><span>Stage</span><select class="select" data-pl-rung aria-label="Project stage">${D.ladder.map((r) => `<option value="${r.rung}" ${r.rung === p.rung ? "selected" : ""}>Rung ${r.rung} · ${esc(r.stage)}</option>`).join("")}</select></label>`;
-  }
-
-  function renderUpcoming(p) {
-    const items = p.tasks.filter((t) => !t.done && t.due).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 5);
-    const badge = (iso) => {
-      const [y, m, d] = iso.split("-").map(Number);
-      return `<b>${d}</b><small>${new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short" })}</small>`;
-    };
-    $("#plUpcoming").innerHTML = `<h3>Coming up</h3>` + (items.length
-      ? `<ul class="pl-up">${items.map((t) => {
-          const due = K.dueInfo(t.due);
-          const who = t.assignee ? memberOf(p, t.assignee) : null;
-          return `<li><button class="pl-up-row" type="button" data-task-open="${esc(t.id)}"><span class="pl-up-date ${due.cls}">${badge(t.due)}</span><span class="pl-up-copy"><span class="pl-up-text">${esc(t.text)}</span><span class="meta">${esc(due.text)}${who ? ` · ${esc(who.you ? "You" : K.first(who.person.name))}` : ""}</span></span></button></li>`;
-        }).join("")}</ul>`
-      : `<p class="meta pl-up-none">Give tasks a due date and the next ones show up here.</p>`);
-  }
-
-  /* ---------- Changes ---------- */
-  function toggleTask(id) {
-    const was = project();
-    const { project: u, saved } = S.toggleTask(pid, id);
-    if (!u) return;
-    saved.catch(failed);
-    if (u.progress === 100 && was.progress < 100 && u.tasks.length > 1) {
-      K.burst($(`[data-task-done="${CSS.escape(id)}"]`, main) || $("#plPct"));
-      toast("Every task is done. Time to post proof for the next rung!", { icon: "award" });
+    if (!a || !view.contains(a) || !a.matches("input, textarea, select, button")) return null;
+    const own = Array.from(a.attributes).find((x) => x.name.startsWith("data-"));
+    let key = null;
+    if (a.id) key = "#" + CSS.escape(a.id);
+    else if (own) key = `${a.tagName.toLowerCase()}[${own.name}="${CSS.escape(own.value)}"]`;
+    else if (a.form && a.name) {
+      const attr = Array.from(a.form.attributes).find((x) => x.name.startsWith("data-"));
+      if (attr) key = `form[${attr.name}="${CSS.escape(attr.value)}"] [name="${CSS.escape(a.name)}"]`;
     }
+    const typed = a.matches("input:not([type=checkbox]):not([type=radio]), textarea");
+    return key ? { key, typed, value: typed ? a.value : null, start: typed ? a.selectionStart : null, end: typed ? a.selectionEnd : null } : null;
+  }
+  function restoreFocus(view, f) {
+    if (!f) return;
+    const el = $(f.key, view);
+    if (!el || el === document.activeElement) return;
+    if (f.typed && el.value !== f.value) el.value = f.value;
+    el.focus({ preventScroll: true });
+    try { if (f.start != null) el.setSelectionRange(f.start, f.end); } catch (e) { /* not a text field */ }
   }
 
-  function bind() {
-    // Add a task: type, then Enter.
-    main.addEventListener("submit", (e) => {
-      const form = e.target.closest("[data-add]");
-      if (!form) return;
-      e.preventDefault();
-      const input = form.elements.text;
-      const text = input.value.trim();
-      if (!text) return;
-      const { saved } = S.addTask(pid, text, { status: form.dataset.add, done: form.dataset.add === "done" });
-      input.value = "";
-      saved.catch((err) => { failed(err); if (!input.value) input.value = text; });
-    });
-    main.addEventListener("change", (e) => {
-      const cb = e.target.closest("[data-task-done]");
-      if (cb) { toggleTask(cb.dataset.taskDone); return; }
-      const rung = e.target.closest("[data-pl-rung]");
-      if (rung) {
-        const r = Number(rung.value);
-        S.updateProject(pid, { rung: r }).saved.then(() => toast(`Now on rung ${r} · ${D.ladder[r].stage}`, { icon: "ladder" }), failed);
+  /* Data changes re-draw the page once per frame, after the event that
+     caused them is over (so Tab from a field that saved lands where it should). */
+  let viewFrame = 0;
+  const viewSoon = () => { if (!viewFrame) viewFrame = requestAnimationFrame(() => { viewFrame = 0; renderView(); }); };
+  function renderView() {
+    if (viewFrame) { cancelAnimationFrame(viewFrame); viewFrame = 0; }
+    const view = $("#plView");
+    if (!view) return;
+    if (T.isDragging() || DOCS.busy()) { pendingView = true; return; }
+    pendingView = false;
+    const sec = section();
+    const c = ctx();
+    if (sec === "mainframe") {
+      let grid = $(".mf-grid", view);
+      if (view.dataset.section !== "mainframe" || !grid) {
+        view.dataset.section = "mainframe";
+        view.innerHTML = `<div class="mf-grid" id="mfGrid"></div>`;
+        grid = $(".mf-grid", view);
       }
+      MF.render(grid, c);
+      return;
+    }
+    if (sec === "docs") { DOCS.render(view, c, route().split("/")[1]); return; }
+    const f = view.dataset.section === sec ? focusState(view) : null;
+    if (view.dataset.section !== sec) view.innerHTML = "";
+    T.render(sec, view, c);
+    restoreFocus(view, f);
+  }
+
+  /* ---------- Sidebar ---------- */
+  function setNav(open) {
+    const shell = $("#plShell");
+    if (!shell) return;
+    if (isNarrow()) {
+      shell.classList.toggle("is-open", open);
+      $(".pl-scrim", shell).hidden = !open;
+      document.body.classList.toggle("is-locked", open);
+      if (open) { const a = $(".pl-nav-link.is-active", shell) || $(".pl-nav-link", shell); if (a) a.focus({ preventScroll: true }); }
+    } else {
+      shell.classList.toggle("is-collapsed", !open);
+      Mori.store.write(Mori.store.userKey(NAV_KEY), !open);
+    }
+    $(".pl-burger", shell).setAttribute("aria-expanded", String(open));
+  }
+  const navOpen = () => { const shell = $("#plShell"); return isNarrow() ? shell.classList.contains("is-open") : !shell.classList.contains("is-collapsed"); };
+
+  /* ---------- Events ---------- */
+  function bind() {
+    let shown = section();
+    window.addEventListener("hashchange", () => {
+      if (isNarrow() && navOpen()) setNav(false);
+      const from = shown;
+      renderAll();
+      shown = section();
+      const view = $("#plView");
+      if (!view || shown === from) return;
+      // A new page: start at the top (as a page load would), fade it in, say where we are.
+      const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navH")) || 64;
+      if (view.getBoundingClientRect().top < navH) window.scrollTo({ top: 0, behavior: "instant" });
+      if (!Mori.motion.reduced()) {
+        view.animate([{ opacity: 0, translate: "0 10px" }, { opacity: 1, translate: "0 0" }], { duration: 240, easing: "cubic-bezier(.16,1,.3,1)" });
+        const label = $("#plSection");
+        if (label) label.animate([{ opacity: 0, translate: "0 3px" }, { opacity: 1, translate: "0 0" }], { duration: 220, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
+      const say = $("#plAnnounce");
+      if (say) say.textContent = `${T.label(shown)} page`;
+      refreshAll(); // the page shows what's here at once, then anything teammates changed since
     });
     main.addEventListener("click", (e) => {
-      const open = e.target.closest("[data-task-open]");
-      if (open) { openTask(open.dataset.taskOpen, open); return; }
+      if (e.target.closest("[data-nav-toggle]")) { setNav(!navOpen()); return; }
       const edit = e.target.closest("[data-pl-edit]");
       if (edit) { openDetails(edit); return; }
-      const jump = e.target.closest("[data-jump]");
-      if (jump) { const to = document.getElementById(jump.dataset.jump); if (to) to.scrollIntoView({ behavior: Mori.motion.reduced() ? "auto" : "smooth", block: "center" }); return; }
+      if (e.target.closest("#plToolbar [data-mf-edit]")) { MF.openGallery(e.target.closest("[data-mf-edit]")); return; }
+      if (e.target.closest("#plToolbar [data-doc-new]")) { DOCS.create(ctx(), e.target.closest("[data-doc-new]")); return; }
       const pin = e.target.closest("[data-pl-pin]");
       if (pin) {
         const u = S.togglePin(pid);
         if (u) toast(u.pinned ? `“${u.name}” is pinned to your homepage` : `“${u.name}” unpinned`, { icon: "pin" });
       }
     });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && isNarrow() && $("#plShell") && navOpen() && !Mori.modal.isOpen()) setNav(false); });
+    window.matchMedia("(max-width: 900px)").addEventListener("change", () => {
+      const shell = $("#plShell");
+      if (!shell) return;
+      shell.classList.remove("is-open");
+      $(".pl-scrim", shell).hidden = true;
+      document.body.classList.remove("is-locked");
+      const hidden = Mori.store.read(Mori.store.userKey(NAV_KEY), false);
+      shell.classList.toggle("is-collapsed", !!hidden);
+      $(".pl-burger", shell).setAttribute("aria-expanded", String(!isNarrow() && !hidden));
+    });
+    const view = $("#plView");
+    T.bind(view, ctx);
+    DOCS.bind(view, ctx);
+    view._afterDrag = () => { if (pendingView) renderView(); };
+    view.addEventListener("focusout", () => setTimeout(() => { if (pendingView && !view.contains(document.activeElement)) renderView(); }, 0));
     K.bindTeam(main, project, {
-      onAdded: () => render(),
+      onAdded: () => renderAll(),
       beforeLeave: (p) => { leaving = !!p; },
       onLeft: (p) => Mori.ui.go("projects.html", "You left the project", `You’re no longer on “${p.name}”.`),
     });
-    bindDrag();
   }
 
-  /* ---------- Drag and drop between columns (mouse and trackpad) ---------- */
-  let marker = null;
-  function placeMarker(list, y) {
-    if (!marker) { marker = document.createElement("li"); marker.className = "pl-marker"; marker.setAttribute("aria-hidden", "true"); }
-    const items = $$(".task[data-task]", list).filter((el) => el.dataset.task !== dragId);
-    const next = items.find((el) => { const r = el.getBoundingClientRect(); return y < r.top + r.height / 2; });
-    if (next) { if (marker.nextElementSibling !== next) list.insertBefore(marker, next); }
-    else if (marker.parentNode !== list || marker.nextElementSibling) list.appendChild(marker);
-    $$(".pl-col", main).forEach((c) => c.classList.toggle("is-over", c.contains(list)));
-  }
-  function endDrag() {
-    if (marker) marker.remove();
-    $$(".pl-col.is-over, .task.is-dragging", main).forEach((el) => el.classList.remove("is-over", "is-dragging"));
-    main.classList.remove("is-dragging");
-    dragId = null;
-    if (deferred) { deferred = false; render(); }
-  }
-  function bindDrag() {
-    const board = $(".pl-board", main);
-    board.addEventListener("dragstart", (e) => {
-      const el = e.target.closest(".task[data-task]");
-      if (!el) return;
-      dragId = el.dataset.task;
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", el.querySelector(".task-text").textContent);
-      requestAnimationFrame(() => { el.classList.add("is-dragging"); main.classList.add("is-dragging"); });
-    });
-    board.addEventListener("dragover", (e) => {
-      const col = dragId && e.target.closest(".pl-col");
-      if (!col) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      placeMarker($(".pl-list", col), e.clientY);
-    });
-    board.addEventListener("dragleave", (e) => { if (dragId && !board.contains(e.relatedTarget)) { if (marker) marker.remove(); $$(".pl-col.is-over", main).forEach((c) => c.classList.remove("is-over")); } });
-    board.addEventListener("drop", (e) => {
-      const col = dragId && e.target.closest(".pl-col");
-      if (!col) return;
-      e.preventDefault();
-      const id = dragId;
-      let after = marker && marker.parentNode ? marker.nextElementSibling : null;
-      while (after && (!after.dataset.task || after.dataset.task === id)) after = after.nextElementSibling;
-      const status = col.dataset.col;
-      deferred = false;
-      endDrag();
-      const t = project() && project().tasks.find((x) => x.id === id);
-      const was = project();
-      S.moveTask(pid, id, status, after ? after.dataset.task : null).saved.catch(failed);
-      const u = project();
-      if (t && status === "done" && !t.done && u && u.progress === 100 && was.progress < 100 && u.tasks.length > 1) {
-        K.burst($(`[data-task="${CSS.escape(id)}"]`, main));
-        toast("Every task is done. Time to post proof for the next rung!", { icon: "award" });
-      }
-    });
-    board.addEventListener("dragend", endDrag);
-  }
-
-  /* ---------- Edit a task ---------- */
-  function openTask(id, opener) {
-    const p = project();
-    const t = p && p.tasks.find((x) => x.id === id);
-    if (!t) return;
-    const team = K.teamOf(p);
-    const root = createModal("taskModal", { label: "Edit task", panelCls: "modal--new" });
-    const panel = $(".modal", root);
-    panel.setAttribute("aria-labelledby", "tkTitle");
-    panel.innerHTML = `
-      <div class="modal-head">
-        <div><h2 id="tkTitle">Edit task</h2><p class="meta">${esc(p.name)}</p></div>
-        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
-      </div>
-      <form class="modal-body np-form" id="tkForm" novalidate>
-        <label class="field"><span>Task</span><textarea class="textarea tk-text" name="text" maxlength="200" rows="2" required autofocus>${esc(t.text)}</textarea></label>
-        <div class="field"><span>Column</span><div class="seg" id="tkStatus" data-value="${t.status}">${COLS.map((st) => `<button data-value="${st}">${K.STATUS[st]}</button>`).join("")}</div></div>
-        <div class="form-grid">
-          <label class="field"><span>For</span><select class="select tk-select" name="assignee">
-            <option value="">No one yet</option>
-            ${team.map((m) => `<option value="${esc(m.id)}" ${t.assignee === m.id ? "selected" : ""}>${esc(m.you ? "You" : m.person.name)}</option>`).join("")}
-          </select></label>
-          <label class="field"><span>Due <em class="hint">optional</em></span><input class="input" type="date" name="due" value="${esc(t.due || "")}"></label>
-        </div>
-      </form>
-      <div class="modal-foot">
-        <button class="btn btn--danger tk-delete" type="button" id="tkDelete">${icon("trash")} Delete</button>
-        <button class="btn" type="button" data-close>Cancel</button>
-        <button class="btn btn--ink" type="button" id="tkSave">${icon("check")} Save</button>
-      </div>`;
-    seg($("#tkStatus", panel));
-    const form = $("#tkForm", panel);
-    const text = form.elements.text;
-    const save = () => {
-      const value = text.value.trim().replace(/\s+/g, " ");
-      if (!value) { text.classList.remove("is-invalid"); void text.offsetWidth; text.classList.add("is-invalid"); text.focus(); return; }
-      const status = $("#tkStatus", panel).dataset.value;
-      const was = project();
-      const { project: u, saved } = S.updateTask(pid, id, { text: value, status, assignee: form.elements.assignee.value || null, due: form.elements.due.value || null });
-      Mori.modal.close();
-      saved.catch(failed);
-      if (u && u.progress === 100 && was.progress < 100 && u.tasks.length > 1) toast("Every task is done. Time to post proof for the next rung!", { icon: "award" });
-    };
-    text.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); save(); } });
-    text.addEventListener("input", () => text.classList.remove("is-invalid"));
-    form.addEventListener("submit", (e) => { e.preventDefault(); save(); });
-    $("#tkSave", panel).addEventListener("click", save);
-    $("#tkDelete", panel).addEventListener("click", (e) => {
-      if (!Mori.people.confirmTap(e.currentTarget, "Tap again to delete")) return;
-      const { saved } = S.removeTask(pid, id);
-      Mori.modal.close({ restoreFocus: false });
-      toast("Task deleted", { icon: "trash" });
-      saved.catch(failed);
-    });
-    // Put the caret at the end of the text.
-    setTimeout(() => { if (document.activeElement === text) text.setSelectionRange(text.value.length, text.value.length); }, 80);
-    Mori.modal.open("taskModal", { opener });
-  }
-
-  /* ---------- Edit the project's details ---------- */
+  /* ---------- Project details ---------- */
   function openDetails(opener) {
     const p = project();
     if (!p) return;
@@ -435,7 +371,7 @@
         ${p.owner ? `
         <div class="field pl-danger">
           <span>Delete project</span>
-          <p class="meta">Removes the project and its tasks for everyone on the team. This can’t be undone.</p>
+          <p class="meta">Removes the project, its tasks, tools and documents for everyone on the team. This can’t be undone.</p>
           <div><button class="btn btn--danger btn--sm" type="button" id="pdtDelete">${icon("trash")} Delete project</button></div>
         </div>` : ""}
       </form>
@@ -462,7 +398,7 @@
       Mori.people.busy(del, () => {
         leaving = true;
         return S.deleteProject(pid).catch((err) => { leaving = false; throw err; });
-      }, () => { Mori.modal.close({ restoreFocus: false }); Mori.ui.go("projects.html", "Project deleted", `“${p.name}” and its tasks are gone.`); });
+      }, () => { Mori.modal.close({ restoreFocus: false }); Mori.ui.go("projects.html", "Project deleted", `“${p.name}” and everything in it are gone.`); });
     });
     Mori.modal.open("detailsModal", { opener });
   }
@@ -470,18 +406,31 @@
   /* ---------- Data ---------- */
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
-    if (["projectsRemote", "projectsCreated", "projectOverrides", "network", "profile"].includes(key)) render();
+    if (["projectsRemote", "projectsCreated", "projectOverrides", "network", "profile"].includes(key)) renderAll();
+    else if (key === "workspace" && built) { const p = project(); if (p) { renderSummary(p); renderToolbar(); viewSoon(); } }
+    else if (key === "docs" && built && (section() === "docs" || section() === "mainframe")) { const p = project(); if (p) setTitle(p); viewSoon(); }
   });
-  // Co-founders' changes: check again when the page comes back into view, and every 20 s.
-  const poll = () => { if (!document.hidden && N.available()) S.refreshProjects().catch(() => {}); };
-  document.addEventListener("visibilitychange", poll);
-  window.addEventListener("focus", poll);
-  setInterval(poll, 20000);
+  // Teammates' changes: check again when the page comes back into view, and every 20 s.
+  const refreshAll = () => {
+    if (document.hidden || !N.available()) return;
+    S.refreshProjects().catch(() => {});
+    W.load(pid).catch(() => {});
+    W.docs.refresh(pid).catch(() => {});
+  };
+  document.addEventListener("visibilitychange", refreshAll);
+  window.addEventListener("focus", refreshAll);
+  setInterval(refreshAll, 20000);
 
-  render();
-  const ready = N.available() ? S.refreshProjects().catch((err) => { // shares the load the shell started
-    if (err && err.code === "signed-out") Mori.people.signInAgain(err.message);
-    else if (!project()) toast("Couldn’t load this project: " + err.message, { icon: "x" });
-  }) : Promise.resolve();
-  ready.then(() => { loaded = true; render(); });
+  renderAll();
+  const ready = N.available()
+    ? Promise.all([
+        S.refreshProjects().catch((err) => { // shares the load the shell started
+          if (err && err.code === "signed-out") Mori.people.signInAgain(err.message);
+          else if (!project()) toast("Couldn’t load this project: " + err.message, { icon: "x" });
+        }),
+        W.load(pid).catch(() => {}),
+        W.docs.refresh(pid).catch(() => {}),
+      ])
+    : Promise.resolve();
+  ready.then(() => { loaded = true; renderAll(); });
 })();

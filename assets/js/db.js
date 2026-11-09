@@ -188,6 +188,17 @@
     at: Date.parse(r.created_at) || Date.now(),
     readAt: Date.parse(r.read_at) || 0,
   });
+  const DOC_LIST_COLS = "id, project_id, title, created_by, updated_by, created_at, updated_at";
+  const docFromRow = (r) => ({
+    id: r.id,
+    projectId: r.project_id,
+    title: r.title || "Untitled document",
+    body: typeof r.body === "string" ? r.body : undefined,
+    createdBy: r.created_by || null,
+    updatedBy: r.updated_by || null,
+    createdAt: Date.parse(r.created_at) || Date.now(),
+    updatedAt: Date.parse(r.updated_at) || Date.now(),
+  });
   const projectFromRow = (r) => ({
     id: r.id,
     ownerId: r.owner_id,
@@ -357,15 +368,77 @@
     },
 
     /**
+     * Change one column of a project starting from the latest stored copy:
+     * `apply(value)` returns the new value. The write only lands if nobody
+     * saved the project since it was read (its updated_at is the version);
+     * otherwise it reads again and re-applies, so two people saving at the
+     * same moment both keep their change. Resolves the saved row, or null if
+     * you no longer have access.
+     */
+    async changeColumn(id, column, apply, select) {
+      const { c } = await signedIn();
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const { data: cur, error: readError } = await c.from("projects").select(`${column}, updated_at`).eq("id", id).maybeSingle();
+        fail(readError);
+        if (!cur) return null;
+        const { data, error } = await c.from("projects").update({ [column]: apply(cur[column]) }).eq("id", id).eq("updated_at", cur.updated_at).select(select).maybeSingle();
+        fail(error);
+        if (data) return data;
+        await new Promise((r) => setTimeout(r, 40 + Math.random() * 120 * (attempt + 1))); // someone saved in between: try again
+      }
+      throw Object.assign(new Error("Your teammates are saving a lot right now; please try again."), { code: "busy" });
+    },
+    /**
      * Change a project's tasks starting from the latest stored copy:
      * `apply(tasks)` returns the new list. Resolves null if you no longer have access.
      */
     async changeTasks(id, apply) {
+      const row = await Mori.db.changeColumn(id, "milestones", apply, PROJECT_COLS);
+      return row ? projectFromRow(row) : null;
+    },
+
+    /* ---------- Project workspace (Mainframe layout + tools) and documents ---------- */
+    /** A project's workspace; null if you no longer have access. */
+    async workspace(id) {
       const { c } = await signedIn();
-      const { data: cur, error: readError } = await c.from("projects").select("milestones").eq("id", id).maybeSingle();
-      fail(readError);
-      if (!cur) return null;
-      return Mori.db.updateProject(id, { milestones: apply(cur.milestones) });
+      const { data, error } = await c.from("projects").select("workspace").eq("id", id).maybeSingle();
+      fail(error);
+      return data ? data.workspace || {} : null;
+    },
+    /** Change the workspace starting from the latest stored copy: `apply(workspace)` returns the new one. */
+    async changeWorkspace(id, apply) {
+      const row = await Mori.db.changeColumn(id, "workspace", (ws) => apply(ws || {}), "workspace");
+      return row ? row.workspace || {} : null;
+    },
+    /** The team's documents (without their text), latest edit first. */
+    async docs(projectId) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("project_docs").select(DOC_LIST_COLS).eq("project_id", projectId).order("updated_at", { ascending: false });
+      fail(error);
+      return (data || []).map(docFromRow);
+    },
+    async doc(id) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("project_docs").select(DOC_LIST_COLS + ", body").eq("id", id).maybeSingle();
+      fail(error);
+      return data ? docFromRow(data) : null;
+    },
+    async createDoc(projectId, { title, body }) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("project_docs").insert({ project_id: projectId, title, body }).select(DOC_LIST_COLS + ", body").single();
+      fail(error);
+      return docFromRow(data);
+    },
+    async saveDoc(id, patch) {
+      const { c } = await signedIn();
+      const { data, error } = await c.from("project_docs").update(patch).eq("id", id).select(DOC_LIST_COLS + ", body").maybeSingle();
+      fail(error);
+      return data ? docFromRow(data) : null;
+    },
+    async deleteDoc(id) {
+      const { c } = await signedIn();
+      const { error } = await c.from("project_docs").delete().eq("id", id);
+      fail(error);
     },
 
     /** Delete a project you own (its team and tasks go with it). */

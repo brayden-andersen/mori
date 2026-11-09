@@ -2,12 +2,20 @@
    Mori: Sandbox — homepage (signed in)
    Layout and the pinned-project overrides are carried over from the draft.
    ========================================================================== */
-:root{ --topOffset:150px; } /* ⟵ tweak this to push everything down */
+.wrap--home{ padding: calc(var(--navH) + 28px) 18px 96px; }
 
-.wrap--home{ padding: calc(var(--navH) + 24px + var(--topOffset)) 18px 96px; }
+/* ===== Hero: the welcome, just under the nav ===== */
+.hero{ display:grid; place-items:center; padding: 44px 10px 40px }
 
-/* ===== Hero ===== */
-.hero{ display:grid; place-items:center; padding: 96px 10px 44px }
+/* ===== Opening ritual (auth.js decides before the first paint, home.js plays it) =====
+   Only the welcome shows, centred on the screen; then it glides up under the
+   nav while the cards and panels rise from the bottom of the screen. */
+html.boot body{ overflow:hidden }
+html.boot .hello:not(.is-placed),
+html.boot #prompt,
+html.boot .sections > *,
+html.boot .wrap--home > section.panel,
+html.boot .footer{ opacity:0 }
 .prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
 .sections{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; margin-top:28px; isolation:isolate; }
 
@@ -40,7 +48,6 @@
 
 @media (max-width: 760px){ .panel#pinnedPanel .pin{ flex-basis:100% } }
 @media (max-width: 640px){
-  :root{ --topOffset: 24px; }
   .sections{ grid-template-columns: 1fr }
-  .hero{ padding-top: 72px; }
+  .hero{ padding-top: 28px; }
 }

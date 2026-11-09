@@ -2,7 +2,7 @@
 html[data-theme="dark"]{ color-scheme: dark }
 
 /* ---- mori.css ---- */
-html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --orb-top:rgba(153,153,156,0.08); --orb-red:rgba(226,32,32,0.11); --orb-mid:rgba(76,21,204,0.166); --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%); --red-grad:linear-gradient(110deg, #790c1f 0%, #e22020 24%, #b02511 50%, #e22020 76%, #790c1f 100%) }
+html[data-theme="dark"]{ --bg:#252526; --ink:#e3e4e6; --ink-2:#dfe0e1; --muted:#bfc0c2; --subtle:#9e9fa0; --line:#2b2b2b; --panel-shadow:0 8px 24px rgba(0,0,0,0.224); --lift-shadow:0 12px 28px rgba(0,0,0,0.32); --mori-red:#e22020; --mori-black:#e8e8e8; --accent:#82aef8; --progress-orange:#b75512; --aura-top:rgba(153,153,156,0.15); --aura-top-2:rgba(153,153,156,0.11); --aura-red:rgba(226,32,32,0.15); --aura-red-2:rgba(226,32,32,0.13); --aura-red-soft:rgba(226,32,32,0.07); --orb-top:rgba(153,153,156,0.08); --orb-red:rgba(226,32,32,0.11); --orb-mid:rgba(76,21,204,0.166); --glass:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.72)); --glass-panel:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(27,27,27,0.66)); --glass-menu:linear-gradient(to bottom right, #202022, #1b1b1b); --ink-grad:linear-gradient(180deg, rgba(227,228,230,0.92), rgba(227,228,230,0.68)); --brand-grad:linear-gradient(110deg, #1355c3 0%, #4814c2 48%, #b75512 100%); --red-grad:linear-gradient(110deg, #790c1f 0%, #e22020 24%, #b02511 50%, #e22020 76%, #790c1f 100%) }
 html[data-theme="dark"] code{ background:rgba(227,228,230,0.06) }
 html[data-theme="dark"] ::selection{ background:rgba(20,90,204,0.418) }
 html[data-theme="dark"] :where(a, button, input, select, textarea, [tabindex]):focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
@@ -84,10 +84,11 @@ html[data-theme="dark"] .footer-col h4{ color:#e3e4e6 }
 html[data-theme="dark"] .footer-col a{ color:#d4d5d7 }
 html[data-theme="dark"] .footer-col a:hover{ color:#e3e4e6 }
 html[data-theme="dark"] .footer-bottom{ border-top:1px solid rgba(227,228,230,0.08); color:#9e9fa0 }
-html[data-theme="dark"] .modal-backdrop{ background:rgba(227,228,230,0.26) }
+html[data-theme="dark"] .modal-backdrop{ background:rgba(227,228,230,0.34) }
 html[data-theme="dark"] .modal{ background:linear-gradient(to bottom right, rgba(32,34,36,0.94), rgba(27,27,27,0.97)); border:1px solid rgba(224,224,226,0.3); box-shadow:0 30px 70px rgba(0,0,0,0.56), 0 2px 8px rgba(0,0,0,0.224) }
 html[data-theme="dark"] .modal-head{ background:linear-gradient(to bottom, rgba(30,30,30,0.98) 70%, rgba(30,30,30,0)) }
 html[data-theme="dark"] .modal-foot{ background:linear-gradient(to top, rgba(27,27,27,0.98) 70%, rgba(27,27,27,0)) }
+html[data-theme="dark"] .modal-root--drawer .modal{ background:linear-gradient(to bottom right, #202224, #1b1b1b) }
 html[data-theme="dark"] .toast{ background:rgba(27,27,27,0.9); border:1px solid rgba(224,224,226,0.3); color:#e3e4e6; box-shadow:0 10px 24px rgba(0,0,0,0.32) }
 html[data-theme="dark"] .pf-cover{ background:linear-gradient(120deg, #e6e6e7 0%, #63212c 52%, #6f1622 100%) }
 html[data-theme="dark"] .pf-cover.has-image{ background-color:#e6e6e7 }
@@ -265,15 +266,96 @@ html[data-theme="dark"] .np-rung[aria-checked="true"]{ color:#ffffff; background
 html[data-theme="dark"] .input.is-invalid{ border-color:#c71919; box-shadow:0 0 0 4px rgba(181,23,23,0.15) }
 
 /* ---- project.css ---- */
+html[data-theme="dark"] .pl-nav-link:hover{ background:rgba(227,228,230,0.05) }
+html[data-theme="dark"] .pl-nav-link.is-active{ background:rgba(27,27,27,0.78); box-shadow:0 1px 2px rgba(0,0,0,0.224), inset 0 0 0 1px rgba(0,0,0,0.224) }
 html[data-theme="dark"] .pl-head-actions [aria-pressed="true"]{ border-color:rgba(227,228,230,0.42) }
 html[data-theme="dark"] .pl-summary{ border:1px solid rgba(224,224,226,0.3) }
-html[data-theme="dark"] .pl-stack{ background:rgba(227,228,230,0.07) }
-html[data-theme="dark"] .pl-stack .is-done{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
-html[data-theme="dark"] .pl-stack .is-doing{ background:linear-gradient(90deg, #2e467e, #223763) }
-html[data-theme="dark"] .pl-stack .is-todo{ background:rgba(227,228,230,0.13) }
+html[data-theme="dark"] .pl-ladderbar i{ background:rgba(227,228,230,0.08) }
+html[data-theme="dark"] .pl-ladderbar b{ background:linear-gradient(90deg, #790c13, #880d12) }
 html[data-theme="dark"] .pl-stat{ background:rgba(27,27,27,0.62); border:1px solid rgba(227,228,230,0.08) }
 html[data-theme="dark"] .pl-stat.is-late{ color:#f88282; background:rgba(226,32,32,0.05); border-color:rgba(226,32,32,0.24) }
 html[data-theme="dark"] .pl-stat.is-late b{ color:#ff5c5c }
+html[data-theme="dark"] .pl-sep{ background:rgba(227,228,230,0.13) }
+html[data-theme="dark"] .mf-empty{ border:1.5px dashed rgba(227,228,230,0.18); background:rgba(27,27,27,0.35) }
+html[data-theme="dark"] .mf-empty-ico{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 12px 24px -10px rgba(0,0,0,0.85) }
+html[data-theme="dark"] .wg{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .wg:hover{ border-color:#333335; box-shadow:0 10px 26px rgba(0,0,0,0.272) }
+html[data-theme="dark"] .wg-title:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .wg-tool:hover{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .wg-tool:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .wg-resize::before{ border-right:2px solid rgba(227,228,230,0.35); border-bottom:2px solid rgba(227,228,230,0.35) }
+html[data-theme="dark"] .wg.is-dragging{ box-shadow:0 24px 48px rgba(0,0,0,0.512) }
+html[data-theme="dark"] .wg.is-resizing{ box-shadow:0 0 0 2px rgba(0,0,0,0.85), var(--lift-shadow) }
+html[data-theme="dark"] .wg-ghost{ border:2px dashed rgba(227,228,230,0.22); background:rgba(227,228,230,0.035) }
+html[data-theme="dark"] .wg-bar{ background:rgba(227,228,230,0.08) }
+html[data-theme="dark"] .wg-bar i{ background:linear-gradient(90deg, #790c13, #880d12) }
+html[data-theme="dark"] .wg-bar.is-green i{ background:linear-gradient(90deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .wg-counts .is-late, html[data-theme="dark"] .wg-counts .is-late b{ color:#ff5c5c }
+html[data-theme="dark"] .wg-ring{ background:conic-gradient(#880d12 calc(var(--p) * 1%), rgba(227,228,230,0.08) 0) }
+html[data-theme="dark"] .wg-ring::before{ background:#1b1b1b }
+html[data-theme="dark"] .wg-list--rows li{ border-bottom:1px solid #232325 }
+html[data-theme="dark"] .wg-check input:checked + .task-box, html[data-theme="dark"] .tool-check input:checked + .task-box{ background:linear-gradient(135deg, #199a6b, #0c7c57); border-color:#0c7c57 }
+html[data-theme="dark"] .wg-check input:focus-visible + .task-box, html[data-theme="dark"] .tool-check input:focus-visible + .task-box{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .wg-due.is-late{ color:#ff5c5c }
+html[data-theme="dark"] .wg-due.is-soon{ color:#f8cf81 }
+html[data-theme="dark"] .wg-due.is-doing{ color:#99b0e0 }
+html[data-theme="dark"] .wg-chip{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .wg-chip.is-live, html[data-theme="dark"] .wg-chip.is-applying, html[data-theme="dark"] .wg-chip.is-submitted{ color:#99b0e0; background:rgba(57,93,167,0.25) }
+html[data-theme="dark"] .wg-chip.is-done, html[data-theme="dark"] .wg-chip.is-won{ color:#81f8d7; background:rgba(20,204,143,0.292) }
+html[data-theme="dark"] .wg-chip.is-lost{ color:#f88282; background:rgba(226,32,32,0.07) }
+html[data-theme="dark"] .is-in{ color:#81f8d1 }
+html[data-theme="dark"] .is-out{ color:#f88185 }
+html[data-theme="dark"] .wg-bars .is-in{ background:#0c7c57 }
+html[data-theme="dark"] .wg-bars .is-out{ background:#880d12 }
+html[data-theme="dark"] .wg-legend .is-in{ background:#0c7c57 }
+html[data-theme="dark"] .wg-legend .is-out{ background:#880d12 }
+html[data-theme="dark"] .wg-bcol{ background:rgba(227,228,230,0.035) }
+html[data-theme="dark"] .wg-bline{ background:#1b1b1b; border:1px solid #272728 }
+html[data-theme="dark"] .wg-spark{ color:#f88185 }
+html[data-theme="dark"] .wg-cbox{ background:rgba(227,228,230,0.035) }
+html[data-theme="dark"] .wg--note{ background:linear-gradient(180deg, #413a16, #413916); border-color:#413816 }
+html[data-theme="dark"] .wg-pop{ border:1px solid rgba(227,228,230,0.1); box-shadow:0 16px 34px rgba(0,0,0,0.464) }
+html[data-theme="dark"] .wg-pop button:hover, html[data-theme="dark"] .wg-pop button:focus-visible{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .mfg-type{ background:#1b1b1b; border:1px solid #272728 }
+html[data-theme="dark"] .mfg-type:hover{ border-color:#3a3a3c }
+html[data-theme="dark"] .mfg-type:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .mfg-ico{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6) }
+html[data-theme="dark"] .mfg-size{ background:#1b1b1b; border:1px solid #2c2c2e }
+html[data-theme="dark"] .mfg-size[aria-checked="true"]{ border-color:rgba(227,228,230,0.7); box-shadow:0 0 0 2px rgba(0,0,0,0.368) }
+html[data-theme="dark"] .mfg-size:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .tool-stats > div{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .tool-check:hover{ background:rgba(227,228,230,0.03) }
+html[data-theme="dark"] .tool-check input:checked ~ .tool-check-text{ text-decoration-color:rgba(158,159,160,0.5) }
+html[data-theme="dark"] .tool-x:hover{ background:rgba(226,32,32,0.06); color:#ff5c5c }
+html[data-theme="dark"] .tool-entries li{ background:rgba(227,228,230,0.03) }
+html[data-theme="dark"] .tool-entries blockquote{ border-left:2px solid rgba(226,32,32,0.35) }
+html[data-theme="dark"] .tool-entries a{ color:#8ba5ef }
+html[data-theme="dark"] .tool-pay.is-yes{ color:#81f8d1 }
+html[data-theme="dark"] .tool-pay.is-no{ color:#f88185 }
+html[data-theme="dark"] .tool-tr{ border-bottom:1px solid #232325 }
+html[data-theme="dark"] .tool-ledger li{ border-bottom:1px solid #232325 }
+html[data-theme="dark"] .tool-rungs li.is-now{ background:rgba(226,32,32,0.05); box-shadow:inset 0 0 0 1px rgba(184,20,20,0.225) }
+html[data-theme="dark"] .tool-rung-n{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .tool-rungs .is-done .tool-rung-n{ color:#ffffff; background:linear-gradient(135deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .tool-rungs .is-now .tool-rung-n{ color:#ffffff; background:linear-gradient(135deg, #880d12, #790c13) }
+html[data-theme="dark"] .tool-spark{ color:#f88185 }
+html[data-theme="dark"] .tool-template-ico{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6) }
+html[data-theme="dark"] .lean-box{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .lean-box:focus-within{ border-color:rgba(227,228,230,0.45) }
+html[data-theme="dark"] .lean-box--uvp{ background:linear-gradient(180deg, #1b1b1b, #411616) }
+html[data-theme="dark"] .doc-row{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .doc-row:hover{ border-color:#3a3a3c }
+html[data-theme="dark"] .doc-row:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .doc-ico{ color:#83a8f6; background:rgba(33,75,191,0.229) }
+html[data-theme="dark"] .doc-status.is-error{ color:#ff5c5c }
+html[data-theme="dark"] .doc-bar{ border:1px solid rgba(227,228,230,0.1); box-shadow:0 10px 24px rgba(0,0,0,0.272) }
+html[data-theme="dark"] .doc-tool:hover{ background:rgba(227,228,230,0.06) }
+html[data-theme="dark"] .doc-tool[aria-pressed="true"]{ background:rgba(227,228,230,0.1) }
+html[data-theme="dark"] .doc-tool:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
+html[data-theme="dark"] .doc-sep{ background:rgba(227,228,230,0.12) }
+html[data-theme="dark"] .doc-paper{ background:#1b1b1b; border:1px solid #2a2a2d; box-shadow:0 2px 6px rgba(0,0,0,0.2), 0 20px 50px rgba(0,0,0,0.272) }
+html[data-theme="dark"] .doc-page blockquote{ border-left:3px solid rgba(226,32,32,0.4) }
+html[data-theme="dark"] .doc-page a{ color:#8ba8ef }
 html[data-theme="dark"] .pl-col{ border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .pl-col.is-over{ border-color:rgba(227,228,230,0.6); box-shadow:0 0 0 3px rgba(0,0,0,0.248), var(--panel-shadow) }
 html[data-theme="dark"] .pl-dot{ background:#76777a }
@@ -295,14 +377,12 @@ html[data-theme="dark"] .task-due.is-late{ color:#ff5c5c }
 html[data-theme="dark"] .pl-add-input{ border:1px dashed rgba(227,228,230,0.2); background:rgba(27,27,27,0.5) }
 html[data-theme="dark"] .pl-add-input:hover{ background:rgba(27,27,27,0.78) }
 html[data-theme="dark"] .pl-add-input:focus{ border-color:#145acc; background:#1b1b1b; box-shadow:0 0 0 4px rgba(20,82,184,0.15) }
-html[data-theme="dark"] .pl-up-row:hover{ background:rgba(108,110,112,0.12) }
-html[data-theme="dark"] .pl-up-row:focus-visible{ box-shadow:0 0 0 3px rgba(20,82,184,0.438) }
-html[data-theme="dark"] .pl-up-date{ background:rgba(227,228,230,0.05); border:1px solid rgba(227,228,230,0.08) }
-html[data-theme="dark"] .pl-up-date.is-late{ background:rgba(226,32,32,0.06); border-color:rgba(226,32,32,0.24) }
-html[data-theme="dark"] .pl-up-date.is-late b{ color:#ff5c5c }
-html[data-theme="dark"] .pl-up-date.is-soon b{ color:#f8cf81 }
 html[data-theme="dark"] .pl-danger{ border-top:1px solid #282828 }
 html[data-theme="dark"] .pl-skel{ background:rgba(227,228,230,0.07) }
+@media (max-width: 900px){
+html[data-theme="dark"] .pl-nav{ box-shadow:18px 0 40px rgba(0,0,0,0.512); border-right:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .pl-scrim{ background:rgba(227,228,230,0.34) }
+}
 
 /* ---- network.css ---- */
 html[data-theme="dark"] .net-manage-title{ border-bottom:1px solid rgba(224,224,226,0.12) }
@@ -341,10 +421,16 @@ html[data-theme="dark"] .chat-compose .input:disabled{ background:rgba(30,30,30,
 /* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */
 html[data-theme="dark"]{
   --bg:#111113;                          /* a deep, dark grey base */
+  --aura-top: rgba(236,236,242,0.055);   /* a really faint light grey at the top */
+  --aura-top-2: rgba(236,236,242,0.04);
+  --aura-red: rgba(200,0,0,0.17);        /* the MORI red, stronger than in light mode */
+  --aura-red-2: rgba(200,0,0,0.13);
+  --aura-red-soft: rgba(184,0,0,0.075);
   --orb-top: rgba(236,236,242,.03);
   --orb-red: rgba(200,0,0,.085);
   --orb-mid: rgba(110,40,150,.08);
 }
+html[data-theme="dark"] .aura::before, html[data-theme="dark"] .aura::after{ opacity:.85 }
 /* The logo: a white top and the MORI red below */
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
 html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#f2f2f3 }
@@ -369,3 +455,5 @@ html[data-theme="dark"] .pl-col--done .pl-dot{ background:#2bc792 }
 html[data-theme="dark"] .pl-stack .is-doing{ background: linear-gradient(90deg, #4f6db6, #3d5a9e) }
 html[data-theme="dark"] .task-box{ border-color:#4a4f57 }
 html[data-theme="dark"] .task-box .ico{ color:#fff }
+/* Mainframe: a note is a warm, quiet card on dark */
+html[data-theme="dark"] .wg--note{ background: linear-gradient(180deg, #2a2618, #232017); border-color: rgba(240,220,160,.16) }

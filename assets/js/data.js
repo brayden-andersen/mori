@@ -81,6 +81,84 @@ Mori.data = {
     ["Update the financial model", "Plan the go-to-market push", "Prepare for showcases"],
   ],
 
+  /* ---------- Project planner ---------- */
+  planner: {
+    /* The proof for each rung, as steps the team ticks off (Milestone ladder).
+       The project's overall progress is its rung plus the share of the next
+       rung's steps that are done. */
+    ladderSteps: {
+      1: ["Talk to 8–10 people who have the problem", "Write a one-page summary of what you learned"],
+      2: ["Build a prototype, or a first sample of a physical product", "Test it with five users", "Write down what you’ll change"],
+      3: ["Set a sign-up or pre-order target in advance", "Launch a landing or pre-order page", "Reach the target"],
+      4: ["Ship one working feature or product batch", "Get it used by real users", "Track the usage numbers"],
+      5: ["Week 1 of repeat use or revenue", "Week 2", "Week 3", "Week 4 running"],
+    },
+
+    /* Go-to-market checklist */
+    gtm: [
+      { group: "Positioning", items: ["Describe your ideal customer in one paragraph", "Write a one-line value proposition", "List your top three alternatives and how you’re different"] },
+      { group: "Pricing", items: ["Choose a pricing model", "Set launch prices", "Ask five customers what they’d pay"] },
+      { group: "Channels", items: ["Pick two or three channels to start with", "Set up a way to count sign-ups or sales", "Prepare your launch content"] },
+      { group: "Launch", items: ["Build a landing page", "Line up ten early users or pilot customers", "Set a launch date and plan the announcement"] },
+      { group: "Sales & retention", items: ["Write a short pitch or demo script", "Set up a way to collect feedback", "Plan how new customers get started"] },
+      { group: "Legal & admin", items: ["Choose a business entity (for example a PT or CV)", "Register the business (for example an NIB through OSS)", "Check that your name and brand are free to use"] },
+    ],
+
+    marketingChannels: ["Instagram", "TikTok", "LinkedIn", "X", "YouTube", "WhatsApp", "Email", "Paid ads", "SEO & content", "Events", "Community", "Partnerships", "Referrals", "Other"],
+    campaignStatus: { planned: "Planned", live: "Live", done: "Done" },
+
+    // What money comes in from, and goes out on (the ledger's category menu follows "Money in" / "Money out").
+    financeCategories: {
+      in: ["Sales", "Investment", "Grant", "Competition prize", "Loan", "Other income"],
+      out: ["Salaries & contractors", "Marketing", "Tools & software", "Operations", "Rent", "Legal & admin", "Inventory", "Other"],
+    },
+    currencies: { IDR: { symbol: "Rp", decimals: 0 }, USD: { symbol: "$", decimals: 0 }, SGD: { symbol: "S$", decimals: 0 }, EUR: { symbol: "€", decimals: 0 } },
+
+    fundingKinds: { grant: "Grant", competition: "Competition", accelerator: "Accelerator", angel: "Angel", vc: "Venture capital", loan: "Loan", other: "Other" },
+    fundingStatus: { researching: "Researching", applying: "Applying", submitted: "Submitted", won: "Won", lost: "Not this time" },
+    fundingTips: [
+      ["Government programmes", "Ministries and local governments run startup and MSME programmes with funding, mentoring or both."],
+      ["Campus incubators", "Many universities back student and alumni founders with small grants and space."],
+      ["Startup competitions", "Pitch and business-plan competitions give prize money, visibility and feedback."],
+      ["Accelerators", "Programmes that invest a small amount for equity, with a few months of coaching."],
+      ["Angel investors", "Individuals who invest early, often in founders they know or were introduced to."],
+      ["MSME loans", "Bank loans for small businesses, for example the government-backed KUR, suit businesses with steady sales."],
+    ],
+
+    interviewPay: { yes: "Would pay", maybe: "Maybe", no: "Wouldn’t pay" },
+    canvas: [
+      ["problem", "Problem", "The top three problems your customers have."],
+      ["solution", "Solution", "The simplest thing that solves each one."],
+      ["uvp", "Unique value proposition", "One clear sentence on why you’re different and worth paying for."],
+      ["advantage", "Unfair advantage", "What can’t easily be copied or bought."],
+      ["segments", "Customer segments", "Who has the problem; who your first customers are."],
+      ["metrics", "Key metrics", "The numbers that tell you it’s working."],
+      ["channels", "Channels", "How you reach your customers."],
+      ["costs", "Cost structure", "What it costs to build, run and grow."],
+      ["revenue", "Revenue streams", "How you make money, and how much."],
+    ],
+
+    /* Document templates (Toolkits → Use template) */
+    templates: [
+      { id: "brief", name: "Problem brief", toolkit: "Problem brief template", blurb: "The one page a specialist reads to judge your idea.",
+        body: "<h2>The problem</h2><p>Who has it, how often, and what it costs them.</p><h2>Who we’re building for</h2><p>The first customers you’ll serve.</p><h2>How they solve it today</h2><p>The alternatives and why they fall short.</p><h2>Our idea</h2><p>What you’ll build first, in a few lines.</p><h2>What we need</h2><ul><li>Hours we can give each week:</li><li>Roles we need:</li></ul>" },
+      { id: "interview", name: "Interview script", toolkit: "Interview script and summary template", blurb: "Questions for problem interviews that don’t lead the answer.",
+        body: "<p><em>Aim: understand the problem, not pitch the idea.</em></p><h2>Warm up</h2><ul><li>Tell me about your role and a typical week.</li></ul><h2>The problem</h2><ul><li>When did this last happen? Walk me through it.</li><li>What did you try? What did it cost you?</li><li>How do you deal with it today?</li></ul><h2>Wrap up</h2><ul><li>Who else should I talk to?</li><li>Can I follow up when we have something to show?</li></ul><h2>Notes</h2><p></p>" },
+      { id: "summary", name: "Interview summary", toolkit: "Interview script and summary template", blurb: "What 8–10 conversations taught you, on one page.",
+        body: "<h2>Who we spoke to</h2><p>Number of interviews, and who they were.</p><h2>The pattern</h2><ul><li>Most common pain:</li><li>How they solve it today:</li><li>What they’d pay for:</li></ul><h2>Quotes that stood out</h2><blockquote>“…”</blockquote><h2>What we’ll do next</h2><p></p>" },
+      { id: "pitch", name: "Pitch deck outline", toolkit: "Prototype testing guide, pitch deck and financial model", blurb: "Ten slides, in the order investors expect.",
+        body: "<ol><li>Title: name, one-line pitch</li><li>Problem</li><li>Solution</li><li>Why now</li><li>Market size</li><li>Business model</li><li>Traction so far</li><li>Competition</li><li>Team</li><li>The ask: what you’re raising and what it gets you to</li></ol>" },
+      { id: "gtm", name: "Go-to-market plan", toolkit: "Marketing, branding and go-to-market frameworks", blurb: "Who you’ll sell to first, how, and at what price.",
+        body: "<h2>First customers</h2><p></p><h2>Positioning</h2><p>For [customer] who [need], [product] is a [category] that [benefit]. Unlike [alternative], we [difference].</p><h2>Pricing</h2><p></p><h2>Channels</h2><ul><li></li></ul><h2>Launch plan</h2><ul><li>Date:</li><li>Goal:</li></ul>" },
+      { id: "agreement", name: "Founders’ agreement checklist", toolkit: "Founders’ agreement, NDA, IP assignment and project tools", blurb: "What co-founders should agree on early. Not legal advice.",
+        body: "<p><em>Topics to agree on and write down. Have a lawyer review the final agreement.</em></p><ul><li>Roles and responsibilities</li><li>Time each founder commits</li><li>Equity split and vesting</li><li>Who owns the intellectual property</li><li>How decisions are made</li><li>What happens if someone leaves</li></ul>" },
+      { id: "update", name: "Monthly update", toolkit: "", blurb: "A short update for mentors, investors and your team.",
+        body: "<h2>Highlights</h2><ul><li></li></ul><h2>Numbers</h2><ul><li>Users or customers:</li><li>Revenue:</li><li>Cash and runway:</li></ul><h2>Challenges</h2><p></p><h2>Asks</h2><p>How others can help this month.</p>" },
+      { id: "meeting", name: "Meeting notes", toolkit: "", blurb: "Agenda, decisions and who does what next.",
+        body: "<p><b>Date:</b> </p><p><b>People:</b> </p><h2>Agenda</h2><ul><li></li></ul><h2>Decisions</h2><ul><li></li></ul><h2>Next steps</h2><ul><li></li></ul>" },
+    ],
+  },
+
   insights: [
     { id: "n1", title: "MatchGraph hits 10k successful intros", team: "Signal Rooms",   time: "Today",     blurb: "A new routing model improved introduction acceptance by 21% week-over-week." },
     { id: "n2", title: "Investor CRM v0.9 Release",             team: "Investor Tools", time: "Yesterday", blurb: "Pipeline stages, smart reminders, and email sync enter public beta." },

@@ -10,21 +10,25 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero recedes as you scroll, *What is Sandbox?* sums it up in one line and three before → after pairs, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Sign in and join use Google. |
 | `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
-| `home.html` | **Homepage**: greeting, entry cards, your pinned project, your latest conversations, insights. |
+| `home.html` | **Homepage**: greeting, entry cards, your pinned projects, your latest conversations, insights. It opens with a short welcome (see *Homepage: the opening* below). |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
-| `project.html?id=…` | **Project planner** (first draft): a full-screen board for the project and its team. See *Projects* below. |
+| `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* below. |
 | `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
 Apart from the homepage insights, nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
 
+### Homepage: the opening
+
+Each time a member arrives on the homepage fresh (after signing in, after reloading, or when the browser had unloaded the tab), it plays a short opening, on desktop and phones alike: only *Welcome* shows, fading in at the centre of the screen; after about a second it glides up to its place under the nav while the prompt, the entry cards, the pinned projects and the rest glide up from the bottom of the screen into place, about 2.5 seconds in all. Any click, tap, key or scroll skips it. Moving between pages within a visit doesn't replay it, and it's off when the device or **Settings → Preferences → Motion effects** asks for reduced motion.
+
 ### Light and dark mode
 
 - The sun/moon button on the right of every nav bar switches between light and dark with one quick (0.5 s) cross-fade of the whole page; browsers without view transitions, and reduced motion, switch at once. Element transitions are paused for the switch, so nothing lags behind. The choice is remembered in the browser, applied before the page first paints, and followed by other open tabs.
 - **Light:** a light grey base with a light grey aura at the top and the MORI red at the bottom; accents are the original blue, purple and orange, slightly softened.
 - **Dark:** a deep grey base, a faint light grey aura at the top and a stronger MORI red at the bottom; accents become dark, intense versions of the same hues. The logo has a white top half and a red bottom half.
-- **The aura** (both modes) is the original soft background, held still: two large blurred hue layers and three faint orbs. Nothing on it moves, so it's painted once. Light and dark each have their own copy (`.aura`, `.aura-night`) with fixed colours; switching theme only fades the dark copy in or out, so the blur is never redrawn.
+- **The aura** (both modes) is the original soft background, held still: two large soft hue layers and three faint orbs. The soft layers were a 120px blur, which graphics cards render at reduced resolution on big screens; they're now gradients that fade along the same curve (measured within 0.4%), so they look the same and render crisply and cheaply.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
 ### Sign-up questions
@@ -55,12 +59,27 @@ Apart from the homepage insights, nothing is pre-filled: projects appear once th
 
 A project is a **planner** for the people building it. (Sprints are separate: a hackathon-like event members sign up for, outside project management.)
 
-- **Preview:** clicking a project on the Projects page opens a preview with its board at a glance, its rung on the milestone ladder and its team. Clicking the preview card (or *Open project planner*) opens the full-screen planner, `project.html?id=<project id>`.
-- **Board:** three columns, *To do*, *In progress* and *Done*. Type in *Add a task* under any column and press Enter. Drag a task to another column or position (mouse and trackpad), tick it off, or click it to edit its text, who it's for, its due date and its column, or to delete it (two taps). Overdue tasks are flagged in red; *Coming up* lists the next five due dates.
-- **Progress:** the share of tasks done, a bar split by column, and how many tasks are overdue or due this week. The milestone ladder card shows the next rung's proof, and the stage can be changed from there.
-- **Team:** owner first, then co-founders, each with their open tasks. A **founder** who owns the project adds people from their connections (*Add to team*) and can remove them; their tasks go back to the team. Co-founders can edit everything on the board and leave the project. Only the owner can delete the project (*Edit details → Delete project*), for everyone.
-- **Working together:** every change shows at once and is saved in the background (undone, with a message, if saving fails). Each change is re-applied to the latest stored copy, so two people editing at the same time don't overwrite each other. Teammates' changes appear when the page comes back into view and every 20 seconds.
-- **Limits in this draft:** up to 20 tasks per project, and only founders can add people. Both are database rules that can be changed.
+- **Opening a project:** on the Projects page a project opens its **preview** first (the board at a glance, its rung, its team); clicking the preview opens the planner. Projects pinned to the homepage, and the pinned list in the nav, open the planner straight away.
+- **The planner's pages:** the header (tags, name, the page you're on in red, when it was updated and created, the team, *Edit details*, *Pin*) and the overall progress stay at the top of every page. The sidebar on the left lists the project's pages; the button at the top left hides it (on phones it's a drawer). Each page has its own address (`project.html?id=…#finance`, `#docs/<document id>`…) and tab title, so it can be bookmarked or shared and the back button works. Switching pages is instant: they share one app shell and the project's data, and nothing being saved is lost on the way.
+- **Overall progress:** how far the project is from idea to early traction on the milestone ladder: its rung, plus the share of the next rung's proof steps that are done (rung 1 with one of the next rung's three steps done is 27%). The ring on a pinned project on the homepage shows the same figure. Next to it, how many tasks are overdue or due this week.
+- **Mainframe** (the project's home page) starts empty. *Edit Mainframe* opens a drawer on the right with every widget: pick one, then its style and size, like adding a widget on a phone, with a preview. The canvas is three columns wide with as many rows as it needs. Drag a widget by its top bar to move it and by its corner to resize it; the others move down out of the way, and a widget never gets smaller than its style needs (a checklist takes two rows to show a few items; the task progress bar two columns; a document can be a single cell). Its ⋯ menu changes the style and size, or removes it. On phones the widgets stack in one column; they're arranged on a larger screen.
+- **Widgets:** Daily tasks (today's list, a progress bar or the whole board) · GTM checklist (list or progress ring) · Milestone ladder (next rung or its proof steps) · Finance (runway, summary or cash-flow chart) · Funding opportunities (next deadline or pipeline) · Metrics (one metric or three) · Marketing (campaigns or sign-ups) · Document (one document's name and last edit, or the latest edits) · People (team or roles we need) · Customer interviews · Lean canvas (value proposition or the whole canvas) · Note · Countdown (to a launch or demo day).
+- **The tools, one page each:**
+  - *Daily tasks:* the board (To do, In progress, Done). Type in *Add a task* under any column, drag tasks between columns, tick them off, or open one to set who it's for, a due date and its column, or to delete it (two taps). Overdue tasks are flagged in red.
+  - *GTM checklist:* 18 go-to-market steps in six groups (positioning, pricing, channels, launch, sales and retention, legal and admin), plus your own.
+  - *Milestone ladder:* the proof steps for the next rung, *Move up* once they're done, the stage picker, and every rung at a glance.
+  - *People:* the team, and the roles it still needs (with a link to find specialists in the MORI Network).
+  - *Documents:* documents the team writes together (headings, bold, italics, lists, quotes, links), saved as you type and downloadable for Word. Pasted text is cleaned; links only open `http(s)` and `mailto` addresses. Teammates see each other's latest saved version: the last save wins, it isn't live co-editing.
+  - *Customer interviews:* log each problem interview (who, their pain, a quote, would they pay); eight interviews tick off rung 1's first step.
+  - *Lean canvas:* the nine boxes of a lean canvas, saved as you type.
+  - *Marketing:* campaigns by channel, status, budget and sign-ups, with the cost per sign-up.
+  - *Metrics:* the numbers you track, with an optional target, logged by date with a trend line.
+  - *Finance:* starting cash, money in and out by category, balance, monthly burn (the average net spend of the last three months with entries), runway and a six-month cash-flow chart, in IDR, USD, SGD or EUR.
+  - *Funding opportunities:* the grants, competitions, accelerators and investors you're going after, with deadlines and status, plus where to look.
+  - *Toolkits:* templates that start a document: problem brief, interview script, interview summary, pitch deck outline, go-to-market plan, founders' agreement checklist, monthly update and meeting notes.
+- **Team:** owner first, then co-founders, each with their open tasks. A **founder** who owns the project adds people from their connections (*Add to team*) and can remove them; their tasks go back to the team. Co-founders can edit everything in the planner and leave the project. Only the owner can delete the project (*Edit details → Delete project*), for everyone, with its tools and documents.
+- **Working together:** every change shows at once and is saved in the background (undone, with a message, if saving fails). Each save carries a version check: if a teammate saved in between, the change is re-applied to their newer copy and saved again, so two people editing at the same moment both keep their change. Teammates' changes appear when you switch pages, when the page comes back into view and every 20 seconds.
+- **Limits:** up to 100 tasks per project, 256 KB of tool data per project (the Mainframe layout, finance, marketing and the rest) and 200,000 characters per document; only founders can add people. All are database rules that can be changed.
 
 Projects are saved to Supabase for members signed in with Google (projects made before this were moved over once, automatically); demo accounts keep them in the browser. Pins to the homepage are personal.
 
@@ -99,7 +118,8 @@ The site uses the Supabase project **Sandbox**. The URL and anon key are in `ass
 - **`public.find_member(full_name)`:** finds invisible members by their exact full name (case and spacing don't matter) and returns only their name and join date. Signed-in members only.
 - **`public.connections`:** one row per pair of members (`requester_id`, `addressee_id`, `status` pending / accepted / ignored, `note`). Members can only send requests as themselves, only the addressee can accept or ignore, and either side can withdraw or remove. Column privileges stop anything else from being edited.
 - **`public.messages`:** direct messages (`sender_id`, `recipient_id`, `body` up to 2,000 characters, `read_at`). Only the two members can read a message, members can only message accepted connections, the sender and time are set by the database, and only the recipient can mark it read.
-- **`public.projects`** and **`public.project_members`:** projects (`owner_id`, `name`, `focus`, `tags`, `rung`, `milestones`) and their co-founders. `milestones` holds the planner's tasks, each `{ id, text, status: todo|doing|done, done, assignee, due }` (older `{ text, done }` items are read as tasks and upgraded on the next save). The owner and co-founders can see and update a project; only the owner can delete it. Only a founder who owns the project can add co-founders, and only from their accepted connections. Owners can remove co-founders, and co-founders can leave. The policy checks live in a `private` schema that the API doesn't expose.
+- **`public.projects`** and **`public.project_members`:** projects (`owner_id`, `name`, `focus`, `tags`, `rung`, `milestones`, `workspace`) and their co-founders. `milestones` holds the planner's tasks (up to 100), each `{ id, text, status: todo|doing|done, done, assignee, due }` (older `{ text, done }` items are read as tasks and upgraded on the next save). `workspace` holds the Mainframe's widget layout and the tools' data (finance, marketing, GTM checklist, funding, metrics, interviews, lean canvas, ladder proof, roles), up to 256 KB. The planner saves both with `updated_at` as a version, so concurrent saves are re-applied instead of overwritten. The owner and co-founders can see and update a project; only the owner can delete it. Only a founder who owns the project can add co-founders, and only from their accepted connections. Owners can remove co-founders, and co-founders can leave. The policy checks live in a `private` schema that the API doesn't expose.
+- **`public.project_docs`:** the planner's documents (`project_id`, `title`, `body` as sanitised HTML up to 200,000 characters, `created_by`, `updated_by`, `created_at`, `updated_at`). The owner and co-founders of the project can read, write and delete them; a trigger stamps who edited and when, and keeps the author and project from being changed. The list loads without the text; a document's text loads when it's opened.
 - **Realtime:** `connections` and `messages` are in the `supabase_realtime` publication. Each signed-in page listens for changes to the member's own requests and messages; Realtime only delivers rows the member is allowed to read.
 - **Storage bucket `cvs`:** private, PDF or Word up to 10 MB. Each member can read and write `cvs/<their user id>/…`; connections can read each other's CVs.
 - **Storage bucket `avatars`:** public profile photos and banners, JPEG, PNG or WebP up to 2 MB. Each member can only write `avatars/<their user id>/…`.
@@ -118,6 +138,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261106222340_profile_display_choices.sql`: the *Show on your profile* switches, applied in the member directory.
 - `20261107010827_birth_date_specialty_cover.sql`: date of birth, a specialist's role and the profile banner.
 - `20261107155209_invisible_members.sql`: Invisible mode (the column, the directory and name-search rules, and the policy that refuses requests to invisible members).
+- `20261109000717_project_workspace_and_docs.sql`: the planner's `workspace` column, up to 100 tasks per project, and the `project_docs` table with its policies and trigger.
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
@@ -150,11 +171,17 @@ assets/
     shell.js        shared nav + footer, page prerendering, Profile / Settings / Notifications, live pop-ups
     people.js       member profiles, the Connections window, connect / accept / message buttons
     projectkit.js   shared by the Projects page and the planner: team list, Add to team, tags, due dates
-    project.js      the project planner
+    project.js      the project planner: its pages, header, overall progress and sidebar
+    workspace.js    a project's workspace (Mainframe layout + tool data) and documents, saved with version checks
+    mainframe.js    the Mainframe: widgets, the widget drawer, drag to move and resize
+    planner-tools.js the tool pages: tasks, GTM checklist, ladder, people, interviews, lean canvas,
+                    marketing, metrics, finance, funding, toolkits
+    planner-docs.js the documents: list and editor (formatting, autosave, Word download, sanitising)
     landing.js · onboarding.js · home.js · projects.js · network.js
   vendor/supabase-2.58.0.js
   fonts/            Inter (latin and latin-ext, weights 400–700) and its licence (OFL)
-  img/              the MORI logo (森) as the site icon: mori-icon.svg, mori-icon-32.png, mori-icon-180.png
+  img/              the MORI logo (森) on a rounded white tile, as the site icon: mori-icon.svg,
+                    mori-icon-32.png, mori-icon-180.png (a full square: phones round it themselves)
 favicon.ico         the MORI logo for browsers that look for /favicon.ico
 tools/
   make_dark_css.py  builds assets/css/dark.css from the light stylesheets
@@ -173,6 +200,7 @@ supabase/
 - **Fewer requests:** Inter is served from the site (no Google Fonts round trip before the first paint). The sign-in library loads once the landing page is idle, or as soon as a visitor reaches for a sign-in button. Pages load each kind of data once and share it.
 - **Measured** in a headless browser without a GPU (2 s of continuous scrolling, every page): about 4 frames per second before this release, about 60 after; the worst frame went from about 330 ms to 17 ms.
 - **Loading screen instead of a blank wait:** sign-in, onboarding save and sign-out show a full-screen loader.
+- **No wait between a tap and what it does:** app pages show their content at once (no reveal delays), page changes cross-fade in 0.12 s out and 0.2 s in, and connection requests, accepts, ignores and removals show straight away and are undone if saving fails. On signed-in pages, Chrome and Edge fetch the linked app pages ahead of time and prerender the one you hover. In the planner, switching pages doesn't load anything new: the page draws from what's on hand, then brings in teammates' changes.
 
 ## Speed on the server side
 

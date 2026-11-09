@@ -19,7 +19,12 @@
   --mori-black:#111111;
   --accent:#5e92e8;
   --progress-orange:#e78440;      /* progress */
-  /* Background orbs (the aura's own colours are set on .aura / .aura-night) */
+  /* Background aura: a light grey at the top, the MORI red at the bottom */
+  --aura-top: rgba(120,120,128,0.15);
+  --aura-top-2: rgba(120,120,128,0.11);
+  --aura-red: rgba(184,0,0,0.15);
+  --aura-red-2: rgba(184,0,0,0.13);
+  --aura-red-soft: rgba(184,0,0,0.07);
   --orb-top: rgba(120,120,128,.08);
   --orb-red: rgba(184,0,0,.11);
   --orb-mid: rgba(155,121,234,.06);
@@ -62,33 +67,27 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
 
 /* ---------- 3. Background aura (drafts) + soft orbs, static ----------
    The original background, held still: a light grey hue at the top and the
-   MORI red at the bottom, softened by two large blurred layers and three
-   faint orbs. Nothing on it moves, so it's painted once.
-   Light and dark each have their own ready-painted copy (.aura and
-   .aura-night, with their colours set on themselves, not by the theme), and
-   switching theme only fades the dark copy in or out. So the big blur is
-   never redrawn when you switch. tools/make_dark_css.py leaves these alone. */
-.aura, .aura-night{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden; contain:strict;
+   MORI red at the bottom, two large soft layers and three faint orbs.
+   The soft layers used to be blurred with a 120px filter, which graphics
+   cards draw at reduced resolution on big screens (it looked smeared and
+   blocky on desktops). They are now gradients that fade along the same curve
+   the blur produced (measured to within 0.4%), so they look the same, render
+   crisply at any size, and cost nothing to draw. */
+.aura{
+  position:fixed; inset:0; z-index:-2; pointer-events:none; overflow:hidden;
   background:
-    radial-gradient(1300px 900px at 18% 22%, var(--a-top), transparent 62%),
-    radial-gradient(1300px 900px at 82% 78%, var(--a-red), transparent 62%),
-    radial-gradient(900px 1000px at 50% 110%, var(--a-red-soft), transparent 64%),
-    var(--a-bg);
+    radial-gradient(1300px 900px at 18% 22%, var(--aura-top), transparent 62%),
+    radial-gradient(1300px 900px at 82% 78%, var(--aura-red), transparent 62%),
+    radial-gradient(900px 1000px at 50% 110%, var(--aura-red-soft), transparent 64%),
+    var(--bg);
 }
-.aura::before, .aura::after, .aura-night::before, .aura-night::after{
-  content:""; position:absolute; inset:-28%; border-radius:50%;
-  filter: blur(120px); opacity:var(--a-veil);
+.aura::before,.aura::after{
+  content:""; position:absolute; inset:-28%; opacity:.7;
   background:
-    radial-gradient(circle at 30% 40%, var(--a-top-2), transparent 60%),
-    radial-gradient(circle at 72% 72%, var(--a-red-2), transparent 60%);
+    radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--aura-top-2) 86%, transparent) 0%, color-mix(in srgb, var(--aura-top-2) 84.8%, transparent) 4%, color-mix(in srgb, var(--aura-top-2) 81.4%, transparent) 8%, color-mix(in srgb, var(--aura-top-2) 75.2%, transparent) 13%, color-mix(in srgb, var(--aura-top-2) 67.8%, transparent) 18%, color-mix(in srgb, var(--aura-top-2) 58.4%, transparent) 24%, color-mix(in srgb, var(--aura-top-2) 48.7%, transparent) 30%, color-mix(in srgb, var(--aura-top-2) 39%, transparent) 36%, color-mix(in srgb, var(--aura-top-2) 29.1%, transparent) 42%, color-mix(in srgb, var(--aura-top-2) 19.4%, transparent) 48%, color-mix(in srgb, var(--aura-top-2) 10.6%, transparent) 54%, color-mix(in srgb, var(--aura-top-2) 4.1%, transparent) 60%, color-mix(in srgb, var(--aura-top-2) 1%, transparent) 66%, transparent 72%),
+    radial-gradient(circle at 72% 72%, color-mix(in srgb, var(--aura-red-2) 86%, transparent) 0%, color-mix(in srgb, var(--aura-red-2) 84.8%, transparent) 4%, color-mix(in srgb, var(--aura-red-2) 81.4%, transparent) 8%, color-mix(in srgb, var(--aura-red-2) 75.2%, transparent) 13%, color-mix(in srgb, var(--aura-red-2) 67.8%, transparent) 18%, color-mix(in srgb, var(--aura-red-2) 58.4%, transparent) 24%, color-mix(in srgb, var(--aura-red-2) 48.7%, transparent) 30%, color-mix(in srgb, var(--aura-red-2) 39%, transparent) 36%, color-mix(in srgb, var(--aura-red-2) 29.1%, transparent) 42%, color-mix(in srgb, var(--aura-red-2) 19.4%, transparent) 48%, color-mix(in srgb, var(--aura-red-2) 10.6%, transparent) 54%, color-mix(in srgb, var(--aura-red-2) 4.1%, transparent) 60%, color-mix(in srgb, var(--aura-red-2) 1%, transparent) 66%, transparent 72%);
 }
-.aura::after, .aura-night::after{ opacity:var(--a-veil-2) }
-@media (max-width: 640px){ .aura::before, .aura::after, .aura-night::before, .aura-night::after{ filter: blur(72px) } }
-.aura{ --a-bg:#efeff0; --a-top: rgba(120,120,128,0.15); --a-top-2: rgba(120,120,128,0.11); --a-red: rgba(184,0,0,0.15); --a-red-2: rgba(184,0,0,0.13); --a-red-soft: rgba(184,0,0,0.07); --a-veil:.7; --a-veil-2:.6 }
-.aura-night{ --a-bg:#111113; --a-top: rgba(236,236,242,0.055); --a-top-2: rgba(236,236,242,0.04); --a-red: rgba(200,0,0,0.17); --a-red-2: rgba(200,0,0,0.13); --a-red-soft: rgba(184,0,0,0.075); --a-veil:.85; --a-veil-2:.85;
-  opacity:0; will-change:opacity }
-html[data-theme="dark"] .aura-night{ opacity:1 }
+.aura::after{ opacity:.6 }
 
 .aura-orbs{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden }
 .orb{ position:absolute; border-radius:50% }
@@ -206,6 +205,7 @@ html[data-theme="dark"] .aura-night{ opacity:1 }
   padding-bottom:10px; margin-bottom:12px;
 }
 .grad-ink, .split-words .word{ background: var(--ink-grad); -webkit-background-clip:text; background-clip:text; color:transparent }
+.hello.split-words{ background:none } /* each word carries the gradient (a moving parent would draw it twice) */
 .split-words .word{ display:inline-block; padding:.06em 0 .14em; margin:-.06em 0 -.14em; opacity:0; transform: translateY(.42em); filter: blur(8px); animation: word-in .9s var(--ease-out) forwards; animation-delay: calc(var(--i,0) * 85ms + 120ms) }
 @keyframes word-in{ to{ opacity:1; transform:none; filter:none } }
 .grad-brand{ background: var(--red-grad); background-size: 200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation: grad-pan 9s ease-in-out infinite }
@@ -332,6 +332,7 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 }
 .select{ appearance:none; width:auto; padding:9px 34px 9px 12px; cursor:pointer;
   background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 16px }
+.select--sm{ padding:6px 30px 6px 11px; font-size:12.5px; border-radius:999px; background-position: right 9px center; background-size:14px }
 .input:focus, .textarea:focus, .select:focus, .search:focus-within{ border-color: rgba(94,146,232,.55); box-shadow: 0 0 0 4px rgba(94,146,232,.12) }
 .textarea{ resize:vertical; min-height:96px; line-height:1.5 }
 .field{ display:grid; gap:6px; font-size:13px; font-weight:500; color:var(--ink-2) }
@@ -407,7 +408,7 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 
 /* ---------- 13. Modals & drawers ---------- */
 .modal-root{ position:fixed; inset:0; z-index:2000; display:grid; place-items:center; padding:24px }
-.modal-backdrop{ position:absolute; inset:0; background: rgba(26,28,31,.26); backdrop-filter: blur(6px) saturate(120%); -webkit-backdrop-filter: blur(6px) saturate(120%); opacity:0; transition: opacity .35s ease }
+.modal-backdrop{ position:absolute; inset:0; background: rgba(26,28,31,.34); opacity:0; transition: opacity .2s ease } /* a plain dim: no blur to recompute while it opens */
 .modal{
   position:relative; width:min(620px, 100%); max-height:min(88vh, 860px); overflow:auto; overscroll-behavior:contain; outline:none;
   border-radius:22px; background: linear-gradient(to bottom right, rgba(244,245,246,.94), rgba(255,255,255,.97));
@@ -428,7 +429,8 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 .modal > .modal-x{ position:absolute; top:14px; right:14px; z-index:6 }
 
 .modal-root--drawer{ place-items: stretch end; padding:12px }
-.modal-root--drawer .modal{ width:min(520px, 100%); height:100%; max-height:none; transform: translateX(48px); opacity:0; transition: transform .55s var(--ease-out), opacity .25s ease }
+.modal-root--drawer .modal{ width:min(520px, 100%); height:100%; max-height:none; transform: translateX(48px); opacity:0; transition: transform .55s var(--ease-out), opacity .25s ease;
+  background: linear-gradient(to bottom right, #f4f5f6, #fff) } /* solid: the page's text never shows through a drawer */
 .modal-root--drawer.is-open .modal{ transform:none; opacity:1 }
 
 
@@ -557,17 +559,18 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 .nt-empty{ padding:36px 10px }
 
 /* ---------- 16. Motion utilities ---------- */
-/* Reveal on scroll — uses translate/scale so element transforms stay free */
-.js [data-reveal]{ opacity:0; translate: 0 22px; transition: opacity .8s var(--ease-out), translate .9s var(--ease-out), scale .9s var(--ease-out), filter .9s var(--ease-out); transition-delay: var(--reveal-delay, 0ms) }
-.js [data-reveal="scale"]{ translate:none; scale:.94 }
-.js [data-reveal="left"]{ translate: -30px 0 }
-.js [data-reveal="right"]{ translate: 30px 0 }
-.js [data-reveal="blur"]{ translate: 0 14px; filter: blur(10px) }
-.js [data-reveal="fade"]{ translate:none }
-.js [data-reveal].is-visible{ opacity:1; translate:none; scale:none; filter:none }
+/* Reveal on scroll (the landing page only: inside the app, content is there at once).
+   Uses translate/scale so element transforms stay free. */
+.js .landing [data-reveal]{ opacity:0; translate: 0 22px; transition: opacity .8s var(--ease-out), translate .9s var(--ease-out), scale .9s var(--ease-out), filter .9s var(--ease-out); transition-delay: var(--reveal-delay, 0ms) }
+.js .landing [data-reveal="scale"]{ translate:none; scale:.94 }
+.js .landing [data-reveal="left"]{ translate: -30px 0 }
+.js .landing [data-reveal="right"]{ translate: 30px 0 }
+.js .landing [data-reveal="blur"]{ translate: 0 14px; filter: blur(10px) }
+.js .landing [data-reveal="fade"]{ translate:none }
+.js .landing [data-reveal].is-visible{ opacity:1; translate:none; scale:none; filter:none }
 
 /* Staggered entrance for lists that re-render */
-.enter{ animation: enter-up .6s var(--ease-out) backwards; animation-delay: calc(var(--i,0) * 45ms) }
+.enter{ animation: enter-up .4s var(--ease-out) backwards; animation-delay: min(calc(var(--i,0) * 35ms), 210ms) } /* long lists don't wait */
 @keyframes enter-up{ from{ opacity:0; translate: 0 14px } }
 
 /* Cursor spotlight + border glow */
@@ -602,8 +605,8 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 
 /* Page transitions between Sandbox pages (Chrome, Edge, Safari 18+) */
 @view-transition{ navigation: auto; }
-::view-transition-old(root){ animation: vt-out .16s ease-out both }
-::view-transition-new(root){ animation: vt-in .3s var(--ease-out) both }
+::view-transition-old(root){ animation: vt-out .12s ease-out both }
+::view-transition-new(root){ animation: vt-in .2s var(--ease-out) both }
 @keyframes vt-out{ to{ opacity:0; transform: translateY(-6px) scale(.996) } }
 @keyframes vt-in{ from{ opacity:0; transform: translateY(10px) scale(1.004) } }
 @supports not (view-transition-name: none){ body{ animation: page-in .5s var(--ease-out) both } }

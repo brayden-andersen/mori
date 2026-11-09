@@ -37,7 +37,7 @@
             <a class="nav-btn" href="projects.html" data-nav="projects" aria-haspopup="true">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
             <div class="dropdown" role="menu" aria-label="Projects">
               <div class="drop-label">Pinned</div>
-              ${S.pinnedProjects().map((p) => link(`projects.html?open=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
+              ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
               <div class="drop-sep" role="separator"></div>
               ${link("projects.html", "All projects")}
               <a class="drop-link" role="menuitem" href="#" data-soon="Project settings">Project Settings (new)</a>
@@ -150,6 +150,7 @@
     const s = document.createElement("script");
     s.type = "speculationrules";
     s.textContent = JSON.stringify({
+      prefetch: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"]' }, eagerness: "eager" }],
       prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"]' }, eagerness: "moderate" }],
     });
     document.head.appendChild(s);

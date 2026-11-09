@@ -209,11 +209,16 @@
       const who = network.member(id);
       const invisibleError = () => new Error(`${who ? who.name : "This member"} is invisible on the MORI Network, so you can’t connect.`);
       if (who && who.invisible) throw invisibleError();
+      // Shown as sent straight away; the database confirms it a moment later.
+      const tmp = { id: "tmp-" + Date.now().toString(36), from: me(), to: id, status: "pending", note: String(note || ""), at: Date.now(), respondedAt: 0, pending: true };
+      set("links", network.links().concat(tmp));
+      const withoutTmp = () => network.links().filter((l) => l.id !== tmp.id);
       try {
         const link = await Mori.db.requestConnection(id, note);
-        set("links", network.links().concat(link));
+        set("links", withoutTmp().concat(link));
         return link;
       } catch (err) {
+        set("links", withoutTmp());
         if (err.code === "42501") throw invisibleError(); // turned invisible since this page loaded
         if (err.code !== "23505") throw err;
         // They sent you a request at the same moment: accept theirs instead.
@@ -227,10 +232,18 @@
     remove: (id) => drop(id),
   };
 
+  /* Accept / ignore / withdraw / remove show at once and are undone if saving fails. */
   async function answer(id, status) {
     const l = network.link(id);
     if (!l) return null;
-    const link = await Mori.db.answerRequest(l.id, status);
+    set("links", network.links().map((x) => (x.id === l.id ? Object.assign({}, x, { status, respondedAt: Date.now() }) : x)));
+    let link;
+    try {
+      link = await Mori.db.answerRequest(l.id, status);
+    } catch (err) {
+      set("links", network.links().map((x) => (x.id === l.id ? l : x)));
+      throw err;
+    }
     if (!link) {
       await network.refresh({ force: true });
       throw new Error("That request was withdrawn.");
@@ -241,8 +254,13 @@
   async function drop(id) {
     const l = network.link(id);
     if (!l) return;
-    await Mori.db.deleteConnection(l.id);
     set("links", network.links().filter((x) => x.id !== l.id));
+    try {
+      await Mori.db.deleteConnection(l.id);
+    } catch (err) {
+      if (!network.links().some((x) => x.id === l.id)) set("links", network.links().concat(l));
+      throw err;
+    }
   }
 
   /* ---------- Messages (between connections) ----------
@@ -327,7 +345,7 @@
      Tasks are stored in the project's `milestones` list (up to 20), each
      { id, text, status: todo|doing|done, done, assignee, due: "YYYY-MM-DD" }. */
   const TASK_STATUSES = ["todo", "doing", "done"];
-  const MAX_TASKS = 20;
+  const MAX_TASKS = 100;
   const remoteList = () => get("projectsRemote", []);
   const localList = () => get("projectsCreated", []);
   let taskSeq = 0;
@@ -378,11 +396,31 @@
         cofounders: p.cofounders || [],
         pinned: typeof o.pinned === "boolean" ? o.pinned : !!p.pinned,
         updated_days: touched ? Math.floor((Date.now() - touched) / 864e5) : 0,
-        progress: tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0,
+        progress: tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0, // share of tasks done
       });
       delete out.milestones;
+      out.overall = ladderProgress(out).pct; // the project's overall progress, as the planner shows it
       return out;
     });
+  }
+  /**
+   * Overall progress: the rung reached on the milestone ladder plus the share
+   * of the next rung's proof steps that are done (rung 1 with one of three
+   * steps done is 27%). `ws` is the project's workspace; by default the copy
+   * last seen in this browser.
+   */
+  function ladderProgress(p, ws) {
+    const w = ws || get("ws." + p.id, {}) || {};
+    const ticked = (w.ladder && w.ladder.done) || {};
+    const interviews = w.interviews && Array.isArray(w.interviews.items) ? w.interviews.items.length : 0;
+    const rung = Math.max(0, Math.min(5, Number(p.rung) || 0));
+    if (rung >= 5) return { pct: 100, rung, next: null, done: 0, total: 0, flags: [] };
+    const next = rung + 1;
+    const steps = (D.planner && D.planner.ladderSteps[next]) || [];
+    // Rung 1's first step ticks itself once eight interviews are logged.
+    const flags = steps.map((_, i) => !!ticked[`${next}:${i}`] || (next === 1 && i === 0 && interviews >= 8));
+    const done = flags.filter(Boolean).length;
+    return { pct: Math.round(((rung + (steps.length ? done / steps.length : 0)) / 5) * 100), rung, next, done, total: steps.length, flags };
   }
   const project = (id) => projects().find((p) => p.id === id) || null;
   const pinnedProjects = () => projects().filter((p) => p.pinned);
@@ -678,7 +716,7 @@
     settings, saveSettings, applyPrefs,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
-    updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS,
+    updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS, ladderProgress,
     network, chat, live, forgetPrivate, reset,
   };
 })();

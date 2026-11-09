@@ -221,9 +221,26 @@
   window.addEventListener("pageshow", applyTheme);
   document.addEventListener("prerenderingchange", applyTheme);
   const s = Mori.auth.session();
+  let motion = "system";
   if (s) {
     const st = Mori.store.read(`mori.${s.id}.settings`, {}) || {};
     if (st.motion === "reduced" || st.motion === "full") root.setAttribute("data-motion", st.motion);
+    motion = st.motion || "system";
+  }
+
+  /* The homepage's opening ritual: on a fresh start (signing in, a new tab, a
+     reload, or a tab the browser had unloaded) the homepage opens with just the
+     welcome, centred, which then glides up while everything else rises into
+     place (home.js). Moving between pages during a visit doesn't replay it. */
+  const VISIT_KEY = "mori.inVisit";
+  const session = (fn) => { try { return fn(); } catch (e) { return null; } };
+  if (s && s.onboarded && root.getAttribute("data-auth") === "required") {
+    const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    const type = entry ? entry.type : "navigate";
+    const fresh = !session(() => sessionStorage.getItem(VISIT_KEY)) || type === "reload" || document.wasDiscarded;
+    const calm = motion === "reduced" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (pageName() === "home.html" && fresh && !calm && !document.prerendering) root.classList.add("boot");
+    session(() => sessionStorage.setItem(VISIT_KEY, "1"));
   }
   // Google is redirecting back: show the sign-in screen, not the landing page.
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
