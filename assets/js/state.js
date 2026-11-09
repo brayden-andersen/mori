@@ -163,14 +163,21 @@
       lt.settings = rt.settings;
       took = true;
     }
-    if (remote.pins && typeof remote.pins === "object" && (rt.pins || 0) > (lt.pins || 0)) {
+    if (remote.pins && typeof remote.pins === "object" && ((rt.pins || 0) > (lt.pins || 0) || (!rt.pins && !lt.pins))) {
+      // Pins made before syncing existed carry no time on either side: the first
+      // sync merges them (nothing pinned on any device is lost), then stamps them.
       const overrides = get("projectOverrides", {});
-      Object.keys(overrides).forEach((id) => { if (typeof overrides[id].pinned === "boolean" && !(id in remote.pins)) overrides[id] = Object.assign({}, overrides[id], { pinned: false }); });
-      Object.keys(remote.pins).forEach((id) => { overrides[id] = Object.assign({}, overrides[id], { pinned: !!remote.pins[id] }); });
-      lt.pins = rt.pins;
+      const pins = Object.assign({}, remote.pins);
+      const legacy = !lt.pins;
+      if (legacy) Object.keys(overrides).forEach((id) => { if (overrides[id].pinned === true) pins[id] = true; });
+      Object.keys(overrides).forEach((id) => { if (typeof overrides[id].pinned === "boolean" && !(id in pins)) overrides[id] = Object.assign({}, overrides[id], { pinned: false }); });
+      Object.keys(pins).forEach((id) => { overrides[id] = Object.assign({}, overrides[id], { pinned: !!pins[id] }); });
+      lt.pins = legacy ? Date.now() : rt.pins; // merged here: newer than the account's copy, so it's saved back
       put("prefTimes", lt);
       set("projectOverrides", overrides);
       took = true;
+    } else if (!remote.pins && !lt.pins && Object.values(get("projectOverrides", {})).some((o) => typeof o.pinned === "boolean")) {
+      lt.pins = Date.now(); // pins from before syncing, and none on the account yet: save them
     }
     if ((remote.theme === "dark" || remote.theme === "light") && (rt.theme || 0) > (lt.theme || 0)) {
       lt.theme = rt.theme;
@@ -191,7 +198,7 @@
   function syncPrefs({ force = false } = {}) {
     if (!remoteEnabled()) return Promise.resolve(false);
     if (prefsInflight) return force ? prefsInflight.then(() => syncPrefs({ force: true })) : prefsInflight;
-    if (!force && Date.now() - prefsAt < 15000) return Promise.resolve(false);
+    if (!force && Date.now() - prefsAt < 4000) return Promise.resolve(false);
     prefsInflight = (async () => {
       const remote = await Mori.db.prefs();
       if (remote === null) return false; // no profile row yet (onboarding saves it)

@@ -809,6 +809,8 @@
     if (document.prerendering) document.addEventListener("prerenderingchange", goLive, { once: true });
     else goLive();
     document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll(); });
+    // Switching windows (another browser beside this one) doesn't hide the page: bring in synced settings and pins on focus too.
+    window.addEventListener("focus", () => S.syncPrefs().catch(() => {}));
     // Safety net in case the live connection drops without telling us.
     setInterval(() => { if (!document.hidden && S.live.state !== "SUBSCRIBED") refreshAll(); }, 45000);
     lastNav = navKey();
