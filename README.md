@@ -83,7 +83,7 @@ A project is a **planner** for the people building it. (Sprints are separate: a 
 
 Projects are saved to Supabase for members signed in with Google (projects made before this were moved over once, automatically); demo accounts keep them in the browser. Pins to the homepage are personal.
 
-**Across devices:** for Google members, settings (including the project ones), pinned projects and light/dark mode are saved on the account as well as in the browser, so a change on the phone shows on the laptop the next time a page opens or comes back into view. Each of the three carries the time it last changed, and the newer copy wins, part by part.
+**Across devices:** for Google members, settings (including the project ones), pinned projects, light/dark mode and which notifications you've read are saved on the account as well as in the browser, so a change on the phone shows on the laptop the next time a page opens, comes back into view or its window is clicked into. Settings, pins and the theme each carry the time they last changed, and the newer copy wins, part by part; pins made before syncing existed are merged on the first sync. A notification read on any device is read everywhere.
 
 The sign-in flow works like this:
 1. "Continue with Google" shows a loading screen and goes to Google.

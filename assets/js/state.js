@@ -150,13 +150,21 @@
     const overrides = get("projectOverrides", {});
     const pins = {};
     Object.keys(overrides).forEach((id) => { if (typeof overrides[id].pinned === "boolean") pins[id] = overrides[id].pinned; });
-    return { settings: get("settings", {}), pins, theme: Mori.store.read("mori.theme", "light") === "dark" ? "dark" : "light", t: prefTimes() };
+    return { settings: get("settings", {}), pins, theme: Mori.store.read("mori.theme", "light") === "dark" ? "dark" : "light", read: readIds(), t: prefTimes() };
   }
+  /** Notifications marked read here (the latest 300). */
+  const readIds = () => Object.keys(get("notifRead", {})).slice(-300);
   /** Take the parts of `remote` that are newer than this browser's. */
   function takePrefs(remote) {
     const rt = (remote && remote.t) || {};
     const lt = prefTimes();
     let took = false;
+    // Read notifications: read on any device means read everywhere (they never go back to unread).
+    if (Array.isArray(remote.read)) {
+      const read = get("notifRead", {});
+      const add = remote.read.filter((id) => typeof id === "string" && !read[id]);
+      if (add.length) { add.forEach((id) => { read[id] = true; }); set("notifRead", read); took = true; }
+    }
     if (remote.settings && typeof remote.settings === "object" && (rt.settings || 0) > (lt.settings || 0)) {
       set("settings", remote.settings);
       applyPrefs();
@@ -205,7 +213,9 @@
       const took = takePrefs(remote);
       const mine = localPrefs();
       const rt = remote.t || {};
-      if (PREF_PARTS.some((k) => (mine.t[k] || 0) > (rt[k] || 0))) await Mori.db.savePrefs(mine);
+      const theirsRead = new Set(Array.isArray(remote.read) ? remote.read : []);
+      const newRead = mine.read.some((id) => !theirsRead.has(id));
+      if (newRead || PREF_PARTS.some((k) => (mine.t[k] || 0) > (rt[k] || 0))) await Mori.db.savePrefs(mine);
       prefsAt = Date.now();
       return took;
     })().catch((err) => {
@@ -741,8 +751,8 @@
     return out.map((n) => Object.assign(n, { unread: !read[n.id] })).sort((a, b) => b.at - a.at);
   }
   const unreadNotifications = () => notifications().filter((n) => n.unread).length;
-  function markNotificationRead(id) { const r = get("notifRead", {}); r[id] = true; set("notifRead", r); }
-  function markAllNotificationsRead() { const r = get("notifRead", {}); notifications().forEach((n) => { r[n.id] = true; }); set("notifRead", r); }
+  function markNotificationRead(id) { const r = get("notifRead", {}); r[id] = true; set("notifRead", r); touchPref("read"); }
+  function markAllNotificationsRead() { const r = get("notifRead", {}); notifications().forEach((n) => { r[n.id] = true; }); set("notifRead", r); touchPref("read"); }
 
   /* ---------- Live updates (Supabase Realtime) ---------- */
   const announce = (detail) => document.dispatchEvent(new CustomEvent("mori:live", { detail }));

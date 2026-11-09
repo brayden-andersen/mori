@@ -762,7 +762,7 @@
     } else {
       updateBadges();
     }
-    if ((key === "network" || key === "links") && Mori.modal.isOpen("modal-notifications")) renderNotifications();
+    if ((key === "network" || key === "links" || key === "notifRead") && Mori.modal.isOpen("modal-notifications")) renderNotifications();
   });
 
   // Live updates: a short pop-up for requests, acceptances and messages.
