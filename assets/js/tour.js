@@ -194,7 +194,7 @@
     ],
     subscription: [
       { art: "plans", title: "The SandBox ladder", body: "Four plans, each a rung higher than the last. Everyone starts on Explorer, and it’s free for as long as you like." },
-      { art: "climb", title: "Climb as your project grows", body: "Move up for more projects, unlimited documents and bigger teams, or back down whenever you want. Your work always stays." },
+      { art: "climb", title: "Climb as your project grows", body: "Move up for your full launch path, team agreements and member pricing with partners, or back down whenever you want. Your work always stays." },
       { art: "billing", title: "Monthly or yearly", body: "Pay month to month, or yearly and get two months free. These prices are placeholders for now, and payments open soon." },
       { art: "ready", title: "You’re all set", body: "That’s the tour. When you’re ready, declare your first project and we’ll show you around its planner." },
     ],
