@@ -54,6 +54,13 @@
 .switch-line{ margin:4px 0 0; font-size:14px; color:var(--muted) }
 
 .l-hero-copy, .hero-art{ transform-origin: 50% 30% }
+
+/* Hero without the product preview: one centred column, with the moving
+   features (the marquee) right under "New to Sandbox?". Layout only. */
+.l-hero--solo{ grid-template-columns: minmax(0, 860px); justify-content:center; text-align:center }
+.l-hero--solo .l-hero-copy{ min-width:0 }
+.l-hero--solo .l-lead, .l-hero--solo .auth-stack{ margin-left:auto; margin-right:auto }
+.l-hero--solo .marquee{ margin-top:26px; padding-bottom:4px }
 .l-hero.is-receding .l-hero-copy, .l-hero.is-receding .hero-art{ will-change: transform, opacity }
 
 /* Floating product preview */
