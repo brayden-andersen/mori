@@ -206,7 +206,7 @@
     const owned = S.projects().filter((x) => x.owner);
     const lead = owned[0];
     const record = !S.settings().showRecord
-      ? `<p class="meta">Your milestone record is hidden. Turn it back on in Settings → Privacy.</p>`
+      ? `<p class="meta">Your work record is hidden. Turn it back on in Settings → Privacy.</p>`
       : lead
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
@@ -260,7 +260,7 @@
         ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
         <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
         <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
-        <section class="pf-sec"><h3>Milestone record</h3>${record}</section>
+        <section class="pf-sec"><h3>Work record</h3>${record}</section>
         <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }
@@ -584,12 +584,12 @@
             ${notifyRow("messages", "Messages", "A pop-up when a connection messages you. The Messages badge always shows unread conversations.")}
             ${notifyRow("requests", "Connection requests", "When founders or specialists want to connect, or accept your request.")}
             ${notifyRow("projects", "Projects and milestones", "Sprint progress and rungs reached on your projects.")}
-            ${notifyRow("announcements", "Sprints, rooms and insights", "Sprint lobbies, room events, badges and new insights.")}
+            ${notifyRow("announcements", "Sprints, rooms and insights", "Sprint lobbies, verified sprints and new insights.")}
             ${notifyRow("digest", "Weekly email digest", "A Sunday summary by email. Arrives with the Sandbox backend.")}
           `)}
           ${pane("privacy", `
             ${row("Profile visibility", "Who sees your full profile in the Network. Everyone else sees your name, role and headline.", segHTML("visibility", p.visibility, [["everyone", "Everyone"], ["connections", "Connections"]]))}
-            ${row("Show my milestone record", "Specialists and founders see the rungs you’ve reached. You can hide the whole record, but not single rungs.", switchHTML('data-setting="showRecord" aria-label="Show my milestone record"', st.showRecord))}
+            ${row("Show my work record", "Founders and specialists see the rungs you’ve reached and your verified sprints. You can hide the whole record, but not single parts of it.", switchHTML('data-setting="showRecord" aria-label="Show my work record"', st.showRecord))}
             ${row("Show “Open to build”", "Adds the open-to-build ring and tag to your profile.", switchHTML('data-profile="open" aria-label="Show open to build"', p.open))}
           `)}
         </div>

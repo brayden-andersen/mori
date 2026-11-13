@@ -180,7 +180,7 @@
   const SLIDES = {
     network: [
       { art: "orbit", title: "Welcome to the MORI Network", body: "Founders and specialists building in Indonesia, all in one place. This is where you find a co-founder, your first teammates and people who’ve done it before." },
-      { art: "discover", title: "Discover the right people", body: "Search names, skills or regions, then narrow it down by role, experience, industry and rating. People you’re already connected with stay out of the way." },
+      { art: "discover", title: "Discover the right people", body: "Search names, skills or regions, then narrow it down by role, experience, industry and verified sprints. People you’re already connected with stay out of the way." },
       { art: "connect", title: "Connect with a note", body: "Send a request with a line about what you’re building. A good note gets more yeses, and once they accept, you’re connected." },
       { art: "requests", title: "Requests and messages", body: "Requests for you wait at the top of this page. Accept one and you can message each other right away." },
       { art: "profile", title: "Let the right people find you", body: "Keep your headline and skills up to date from your profile. Choose who sees your full profile in Settings → Privacy, or go invisible." },

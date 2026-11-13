@@ -68,7 +68,7 @@ Mori.data = {
     { rung: 2, stage: "Solution tested",    proof: "A prototype, or a first sample for physical products, tested with five users.", time: "One or two sprints",  toolkit: "Prototype testing guide, pitch deck and financial model", opens: "A pitch-ready startup page." },
     { rung: 3, stage: "Demand shown",       proof: "A landing or pre-order page that reaches a sign-up target set in advance.", time: "One or two sprints",  toolkit: "Landing page and pricing guides",                         opens: "A demand figure on your startup page and higher placement in specialist searches." },
     { rung: 4, stage: "First version live", proof: "One working feature or product batch used by real users, with usage numbers.", time: "Two or more sprints", toolkit: "Founders’ agreement, NDA, IP assignment and project tools", opens: "Team roles shown on your startup page." },
-    { rung: 5, stage: "Early traction",     proof: "Repeat use or revenue for four weeks running.", time: "Ongoing",             toolkit: "Marketing, branding and go-to-market frameworks",         opens: "Eligibility for leaderboards and showcases." },
+    { rung: 5, stage: "Early traction",     proof: "Repeat use or revenue for four weeks running.", time: "Ongoing",             toolkit: "Marketing, branding and go-to-market frameworks",         opens: "Sessions with vetted mentors and investors, once they’re available." },
   ],
 
   /* Starter tasks on a newly declared project's board, by starting rung */
@@ -78,7 +78,7 @@ Mori.data = {
     ["Set a sign-up target", "Launch a landing page", "Share it with three communities"],
     ["Pick the one feature to ship", "Bring specialists onto the team", "Ship it to the first users"],
     ["Track weekly active use", "Talk to five repeat users", "Hit four straight weeks of use"],
-    ["Update the financial model", "Plan the go-to-market push", "Prepare for showcases"],
+    ["Update the financial model", "Plan the go-to-market push", "Write your first investor update"],
   ],
 
   /* ---------- Project planner ---------- */
