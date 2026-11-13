@@ -41,6 +41,8 @@ Each time a member arrives on the homepage fresh (after signing in, after reload
 
 ### Sign-up questions
 
+- **Member roles are Founder and Specialist only.** This is enforced in three places: `Mori.data.roles` (`assets/js/data.js`), `onboarding.js` (it ignores any other `joinRole`), and the database's `profiles_profile_type_check` constraint (`'Founder'` or `'Specialist'`). Mentors, investors and service providers never sign up: they join as vetted partners, by invitation or application (see `partners.html`).
+
 - **Date of birth** replaces age. It stays private: other members only ever see the age it works out to, and only if the member shows their age. On their birthday, the homepage says *Happy birthday*.
 - **Specialists** name their role on the next step (software engineer, UI/UX designer, graphic designer, product manager… or their own). It shows next to "Specialist" on their profile and card, and Discover can filter by it.
 - **Members who signed up before these questions** are sent through onboarding once, with their earlier answers filled in, the next time they open the site.

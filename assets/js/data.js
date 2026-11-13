@@ -10,7 +10,7 @@ window.Mori = window.Mori || {};
 
 Mori.data = {
   roles: {
-    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and I’m looking for people to build it with." },
+    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people." },
     specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture." },
   },
 
