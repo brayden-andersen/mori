@@ -167,7 +167,7 @@
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], "About Sandbox", "Contact Us", "Terms &amp; Policy"])}
+          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], "About Sandbox", ["Partners", "partners.html"], "Contact Us", "Terms &amp; Policy"])}
           ${col("productsTitle", "Products", ["Toolkits", ["Subscription Pricing", "subscription.html"], "Cancellation"])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>

@@ -61,6 +61,10 @@
 .l-hero--solo .l-hero-copy{ min-width:0 }
 .l-hero--solo .l-lead, .l-hero--solo .auth-stack{ margin-left:auto; margin-right:auto }
 .l-hero--solo .marquee{ margin-top:26px; padding-bottom:4px }
+/* Public pages without a hero (partners, legal): the first section clears the nav;
+   paragraphs in a row keep their spacing. Layout only. */
+.l-section.l-page-top{ padding-top: calc(var(--navH) + 64px) }
+.l-lead + .l-lead{ margin-top:14px }
 .l-hero.is-receding .l-hero-copy, .l-hero.is-receding .hero-art{ will-change: transform, opacity }
 
 /* Floating product preview */
