@@ -76,12 +76,9 @@
     },
     requests() {
       return `<div class="ta ta-requests"><div class="ta-col">
-        <div class="ta-card ta-row">${av("RK", 4, 38)}<div class="ta-copy"><b>Raka Pratama</b><span>Wants to connect · Fintech founder</span></div><span class="ta-btn ta-btn--ink ta-accept">Accept</span></div>
-        <div class="ta-chat">
-          <p class="ta-bub" style="--d:0">Thanks for connecting! Coffee this week?</p>
-          <p class="ta-bub ta-bub--me" style="--d:1">Yes! Thursday at 10 works for me.</p>
-          <p class="ta-bub ta-typing" style="--d:2"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i></p>
-        </div>
+        <div class="ta-card ta-row">${av("RK", 4, 38)}<div class="ta-copy"><b>Raka Pratama</b><span>Wants to connect · Fintech founder</span></div>
+          <span class="ta-btn ta-swap"><span class="ta-a">Accept</span><span class="ta-b">${icon("message")} Message</span>${cursor}</span></div>
+        <div class="ta-card ta-row">${av("DS", 2, 38)}<div class="ta-copy"><b>Dewi Saraswati</b><span>Wants to connect · Product designer</span></div><span class="ta-btn">Ignore</span><span class="ta-btn ta-btn--ink">Accept</span></div>
       </div></div>`;
     },
     profile() {
@@ -619,7 +616,7 @@
         { target: () => links("docs", "interviews", "canvas"), side: "right", before: openNav, title: "Write your own documents",
           body: "Documents is where your team writes: pitch drafts, research, meeting notes, from a blank page or a template. Log customer interviews and fill in your lean canvas here too." },
         { target: () => links("marketing", "metrics", "finance", "funding", "toolkits"), side: "right", before: openNav, title: "Grow, Money and Learn",
-          body: "Track campaigns and the numbers that matter, keep an eye on cash and runway, find grants and investors, and learn as you go with step-by-step toolkits." },
+          body: "Track campaigns and the numbers that matter, keep an eye on cash and runway, find programmes, grants and investors, and learn as you go with step-by-step toolkits." },
         { target: () => [$("#plTeam")], side: "right", before: () => page("people"), title: "Build it together",
           body: () => (team().length > 1
             ? "Your team lives on the People page. Everyone on it sees the same Mainframe, tasks and documents, and you can give each other tasks."
