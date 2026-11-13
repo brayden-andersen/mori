@@ -77,7 +77,7 @@
       </div>`,
     role: () => `
       <h1 class="grad-ink" tabindex="-1">You’re joining as…</h1>
-      <p class="ob-lead">Sandbox starts with two kinds of members. You can change this later.</p>
+      <p class="ob-lead">Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application. <a class="link-btn" href="partners.html">How partners join</a></p>
       <div class="ob-roles" role="radiogroup" aria-label="Role">
         ${Object.entries(D.roles).map(([k, r]) => `
           <label class="ob-option ${a.role === k ? "is-on" : ""}" style="--c1:${ROLE_TONES[k][0]};--c2:${ROLE_TONES[k][1]}">

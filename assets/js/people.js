@@ -42,13 +42,12 @@
 
   /** Region and age, for the small print under the headline (only what the member shows). */
   const whereLine = (p) => [p.region, p.age ? `${p.age} years old` : ""].filter(Boolean);
-  /** Bubbles under the actions: sprint rating, employment (if shown), and when they joined. */
+  /** Bubbles under the actions: verified sprints (sprint_reviews), employment (if shown), and when they joined. */
   function factPills(p) {
-    const rating = p.rating != null
-      ? `${Number(p.rating).toFixed(1)} sprint rating · ${p.reviews} review${p.reviews === 1 ? "" : "s"}`
-      : "No sprint rating yet";
+    const n = p.reviews || 0;
+    const sprints = n > 0 ? `${n} verified sprint${n === 1 ? "" : "s"}` : "No verified sprints yet";
     return `<div class="fact-pills">
-      <span class="fact-pill">${icon("star")}${esc(rating)}</span>
+      <span class="fact-pill">${icon("award")}${esc(sprints)}</span>
       ${p.employment ? `<span class="fact-pill">${icon("briefcase")}${esc(p.employment)}</span>` : ""}
       ${p.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined ${esc(joined(p.joinedAt))}</span>` : ""}
     </div>`;

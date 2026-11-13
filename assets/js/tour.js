@@ -76,12 +76,9 @@
     },
     requests() {
       return `<div class="ta ta-requests"><div class="ta-col">
-        <div class="ta-card ta-row">${av("RK", 4, 38)}<div class="ta-copy"><b>Raka Pratama</b><span>Wants to connect · Fintech founder</span></div><span class="ta-btn ta-btn--ink ta-accept">Accept</span></div>
-        <div class="ta-chat">
-          <p class="ta-bub" style="--d:0">Thanks for connecting! Coffee this week?</p>
-          <p class="ta-bub ta-bub--me" style="--d:1">Yes! Thursday at 10 works for me.</p>
-          <p class="ta-bub ta-typing" style="--d:2"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i></p>
-        </div>
+        <div class="ta-card ta-row">${av("RK", 4, 38)}<div class="ta-copy"><b>Raka Pratama</b><span>Wants to connect · Fintech founder</span></div>
+          <span class="ta-btn ta-swap"><span class="ta-a">Accept</span><span class="ta-b">${icon("message")} Message</span>${cursor}</span></div>
+        <div class="ta-card ta-row">${av("DS", 2, 38)}<div class="ta-copy"><b>Dewi Saraswati</b><span>Wants to connect · Product designer</span></div><span class="ta-btn">Ignore</span><span class="ta-btn ta-btn--ink">Accept</span></div>
       </div></div>`;
     },
     profile() {
@@ -180,7 +177,7 @@
   const SLIDES = {
     network: [
       { art: "orbit", title: "Welcome to the MORI Network", body: "Founders and specialists building in Indonesia, all in one place. This is where you find a co-founder, your first teammates and people who’ve done it before." },
-      { art: "discover", title: "Discover the right people", body: "Search names, skills or regions, then narrow it down by role, experience, industry and rating. People you’re already connected with stay out of the way." },
+      { art: "discover", title: "Discover the right people", body: "Search names, skills or regions, then narrow it down by role, experience, industry and verified sprints. People you’re already connected with stay out of the way." },
       { art: "connect", title: "Connect with a note", body: "Send a request with a line about what you’re building. A good note gets more yeses, and once they accept, you’re connected." },
       { art: "requests", title: "Requests and messages", body: "Requests for you wait at the top of this page. Accept one and you can message each other right away." },
       { art: "profile", title: "Let the right people find you", body: "Keep your headline and skills up to date from your profile. Choose who sees your full profile in Settings → Privacy, or go invisible." },
@@ -194,7 +191,7 @@
     ],
     subscription: [
       { art: "plans", title: "The SandBox ladder", body: "Four plans, each a rung higher than the last. Everyone starts on Explorer, and it’s free for as long as you like." },
-      { art: "climb", title: "Climb as your project grows", body: "Move up for more projects, unlimited documents and bigger teams, or back down whenever you want. Your work always stays." },
+      { art: "climb", title: "Climb as your project grows", body: "Move up for your full launch path, team agreements and member pricing with partners, or back down whenever you want. Your work always stays." },
       { art: "billing", title: "Monthly or yearly", body: "Pay month to month, or yearly and get two months free. These prices are placeholders for now, and payments open soon." },
       { art: "ready", title: "You’re all set", body: "That’s the tour. When you’re ready, declare your first project and we’ll show you around its planner." },
     ],
@@ -619,7 +616,7 @@
         { target: () => links("docs", "interviews", "canvas"), side: "right", before: openNav, title: "Write your own documents",
           body: "Documents is where your team writes: pitch drafts, research, meeting notes, from a blank page or a template. Log customer interviews and fill in your lean canvas here too." },
         { target: () => links("marketing", "metrics", "finance", "funding", "toolkits"), side: "right", before: openNav, title: "Grow, Money and Learn",
-          body: "Track campaigns and the numbers that matter, keep an eye on cash and runway, find grants and investors, and learn as you go with step-by-step toolkits." },
+          body: "Track campaigns and the numbers that matter, keep an eye on cash and runway, find programmes, grants and investors, and learn as you go with step-by-step toolkits." },
         { target: () => [$("#plTeam")], side: "right", before: () => page("people"), title: "Build it together",
           body: () => (team().length > 1
             ? "Your team lives on the People page. Everyone on it sees the same Mainframe, tasks and documents, and you can give each other tasks."

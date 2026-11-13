@@ -189,7 +189,7 @@
         <p class="pd-now"><b>Now:</b> ${esc(now.stage)}</p>
         ${p.rung < 5
           ? `<div class="pd-next"><b>Next: Rung ${next.rung} · ${esc(next.stage)}</b><br>${esc(next.proof)}</div>`
-          : `<div class="pd-next"><b>Top rung reached.</b> Eligible for leaderboards and showcases.</div>`}
+          : `<div class="pd-next"><b>Top rung reached.</b> Sessions with vetted mentors and investors open here once they’re available.</div>`}
       </section>
 
       <section class="pd-sec" id="pdTeam">${K.teamHTML(p)}</section>

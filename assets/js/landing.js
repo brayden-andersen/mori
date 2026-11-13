@@ -7,7 +7,7 @@
    • New members go to onboarding.html; returning members to their start page
    • Scroll scenes: the hero recedes and "How Sandbox works" pins while its
      three steps play
-   • Interactive milestone ladder, live message card, section scroll-spy
+   • Interactive milestone ladder, section scroll-spy
    ========================================================================== */
 (function () {
   "use strict";
@@ -222,42 +222,6 @@
   }
   setRung(0);
 
-  /* ---------- Hero: live message card ---------- */
-  const MSGS = [
-    { name: "Rahul P.", role: "Specialist", initials: "RP", a1: "#34d399", a2: "#49cbdf", text: "Shared notes on the pitch deck v3 — take a look!" },
-    { name: "Anna S.", role: "Specialist", initials: "AS", a1: "#7cafee", a2: "#979fef", text: "Free later for a 15-min sync about the specialist pool?" },
-    { name: "Sari K.", role: "Specialist", initials: "SK", a1: "#979fef", a2: "#49cbdf", text: "Your pricing page is close. Try anchoring on the annual plan." },
-    { name: "Lina W.", role: "Founder", initials: "LW", a1: "#eb8bbd", a2: "#f08a99", text: "Can you intro me to the Jakarta founders circle?" },
-  ];
-  let msgIndex = 0;
-  function cycleMessage() {
-    const card = $("#heroMsg");
-    if (!card || document.hidden || card.closest(".is-offscreen")) return;
-    const bubble = $(".bubble", card);
-    const typing = $(".typing", card);
-    bubble.classList.add("is-out");
-    setTimeout(() => {
-      bubble.hidden = true;
-      typing.hidden = false;
-      msgIndex = (msgIndex + 1) % MSGS.length;
-      const m = MSGS[msgIndex];
-      $(".msg-name", card).textContent = m.name;
-      $(".fc-person .meta", card).textContent = `${m.role} · just now`;
-      const av = $(".msg-av", card);
-      av.textContent = m.initials;
-      av.style.setProperty("--a1", m.a1);
-      av.style.setProperty("--a2", m.a2);
-      setTimeout(() => {
-        typing.hidden = true;
-        $(".msg-text", card).textContent = m.text;
-        bubble.hidden = false;
-        void bubble.offsetWidth;
-        bubble.classList.remove("is-out");
-      }, 1400);
-    }, 320);
-  }
-  if (!Mori.motion.reduced()) setInterval(cycleMessage, 5200);
-
   // The dots travelling along the constellation's lines (SVG animation) only run while it's on screen.
   const constellation = $(".const-lines");
   if (constellation && constellation.pauseAnimations) {
@@ -287,11 +251,11 @@
     queue();
   }
 
-  // The hero recedes: its words sink and fade, the product preview drifts after them.
+  // The hero recedes: its words sink and fade (a product preview, if there is one, drifts after them).
   const hero = $(".l-hero");
   const heroCopy = $(".l-hero-copy");
   const heroArt = $(".hero-art");
-  if (!calm && hero && heroCopy && heroArt) scenes.push({
+  if (!calm && hero && heroCopy) scenes.push({
     el: hero, last: -1,
     update(y) {
       const p = Math.round(clamp01(y / (this.height * 0.9)) * 1000) / 1000;
@@ -300,8 +264,10 @@
       hero.classList.toggle("is-receding", p > 0 && p < 1);
       heroCopy.style.opacity = p ? String(Math.max(0, 1 - p * 1.25)) : "";
       heroCopy.style.transform = p ? `translate3d(0, ${(p * 90).toFixed(1)}px, 0) scale(${(1 - p * 0.06).toFixed(4)})` : "";
-      heroArt.style.opacity = p ? String(Math.max(0, 1 - p * 1.05)) : "";
-      heroArt.style.transform = p ? `translate3d(0, ${(p * 40).toFixed(1)}px, 0) scale(${(1 - p * 0.05).toFixed(4)})` : "";
+      if (heroArt) {
+        heroArt.style.opacity = p ? String(Math.max(0, 1 - p * 1.05)) : "";
+        heroArt.style.transform = p ? `translate3d(0, ${(p * 40).toFixed(1)}px, 0) scale(${(1 - p * 0.05).toFixed(4)})` : "";
+      }
     },
   });
 

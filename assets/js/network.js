@@ -4,11 +4,14 @@
    Laid out like LinkedIn's "My network": "Manage my network" on the left;
    on the right, the requests you received sit on top of Discover, which
    lists everyone who has finished signing up, with a search, dropdown
-   filters (role, years of experience, region, sprint rating, industry) and
+   filters (role, years of experience, region, verified sprints, industry) and
    sorting. Sent requests and Messages (a live chat with your connections)
    open from the left. Profiles and the connect / accept / remove actions
    come from people.js. Views are routed by the hash so links can deep-link:
      #explore · #explore/<member id> · #requests · #sent · #messages · #messages/<member id>
+   Credibility is verified work only: a card shows how many sprints the
+   member's teammates confirmed (profiles.sprint_reviews); there are no
+   star ratings (profiles.sprint_rating is never shown).
    ========================================================================== */
 (function () {
   "use strict";
@@ -137,7 +140,7 @@
     else if (filters.role !== "all" && m.role !== filters.role) return false;
     if (filters.exp && m.experience !== filters.exp) return false;
     if (filters.region && m.region !== filters.region) return false;
-    if (filters.rating && !(m.rating != null && m.rating >= filters.rating)) return false;
+    if (filters.rating && (m.reviews || 0) < filters.rating) return false; // minimum verified sprints
     if (filters.industries.size && !m.industries.some((x) => filters.industries.has(x))) return false;
     if (filters.q) {
       const hay = [m.name, m.headline, m.bio, m.region, m.employment, m.specialty, roleLabel(m.role), openLabel(m), ...m.industries, ...m.skills, ...m.languages.map((l) => l.name)]
@@ -265,9 +268,10 @@
     }
   }
   function ratingFact(m) {
-    return m.rating != null
-      ? `<span>${icon("star")}${m.rating.toFixed(1)} sprint rating · ${m.reviews} review${m.reviews === 1 ? "" : "s"}</span>`
-      : `<span class="is-muted">${icon("star")}No sprint rating yet</span>`;
+    const n = m.reviews || 0;
+    return n > 0
+      ? `<span>${icon("award")}${n} verified sprint${n === 1 ? "" : "s"}</span>`
+      : `<span class="is-muted">${icon("award")}No verified sprints yet</span>`;
   }
   function personCard(m) {
     if (m.invisible) return invisibleCard(m);
@@ -364,8 +368,8 @@
     } else if (!pool.length) {
       showPeopleEmpty(`<span class="empty-ico">${icon("network")}</span><div>You’re connected with everyone so far</div><div class="meta">New founders and specialists appear here as they join. Your connections are under Manage my network.</div><button class="btn" type="button" data-connections>${icon("network")} See your connections</button>`);
     } else if (!list.length) {
-      const noRatings = filters.rating && !all.some((m) => m.rating != null);
-      showPeopleEmpty(`<span class="empty-ico">${icon("search")}</span><div>No one matches those filters</div><div class="meta">${noRatings ? "No one has a sprint rating yet. Ratings appear once members finish sprints." : "Try fewer filters or a different search."}</div><button class="btn" type="button" data-clear-filters>Clear filters</button>`);
+      const noRatings = filters.rating && !all.some((m) => (m.reviews || 0) > 0);
+      showPeopleEmpty(`<span class="empty-ico">${icon("search")}</span><div>No one matches those filters</div><div class="meta">${noRatings ? "No one has a verified sprint yet. They appear once sprints run." : "Try fewer filters or a different search."}</div><button class="btn" type="button" data-clear-filters>Clear filters</button>`);
     } else {
       showPeopleEmpty("");
     }
