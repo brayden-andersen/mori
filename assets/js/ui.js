@@ -369,7 +369,8 @@
       setTimeout(() => n.remove(), 300);
     }, opts.duration || 2400);
   }
-  const soon = (what) => toast(`${what} — coming soon`, { icon: "sparkle" });
+  /** The label every fictional person, project, partner and programme in the guest demo carries. */
+  const sampleTag = (title = "Fictional, for the demo") => `<span class="sample-tag" title="${esc(title)}">Sample</span>`;
 
   /* ---------- Full-screen loading screen (sign-in, onboarding, sign-out) ---------- */
   const loader = {
@@ -554,6 +555,6 @@
 
   hydrateIcons();
 
-  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, soon, loader, go, createModal, seg, placeGlider, measureNav, splitWords, squareImage, cropper, coverHTML, blobToDataUrl, themeToggle, setTheme, isDark };
+  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, loader, go, createModal, seg, placeGlider, measureNav, splitWords, squareImage, cropper, coverHTML, blobToDataUrl, themeToggle, setTheme, isDark, sampleTag };
   Mori.modal = Modal;
 })();

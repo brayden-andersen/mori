@@ -107,6 +107,10 @@
 
     session() { return Mori.store.read(SESSION_KEY, null); },
     isSignedIn() { return !!Mori.auth.session(); },
+    /** Exploring the demo as a guest: a sample founder, with sample data kept in this browser (guestdb.js). */
+    isGuest() { const s = Mori.auth.session(); return !!(s && s.provider === "guest"); },
+    /** Open the app as a guest, without an account. */
+    startGuest() { return Mori.auth.completeSignIn({ provider: "guest", name: "Guest" }, { onboarded: true }); },
 
     /** Merge changes into the current session (e.g. a new name, onboarding done). */
     updateSession(patch) {
@@ -152,8 +156,8 @@
      * questions are answered (from the database, or remembered for demo accounts).
      */
     completeSignIn(profile, opts = {}) {
-      const provider = profile.provider === "google" ? "google" : "demo";
-      const id = provider === "google" ? profile.id : "demo_" + slug(profile.email || profile.name);
+      const provider = profile.provider === "google" ? "google" : profile.provider === "guest" ? "guest" : "demo";
+      const id = provider === "google" ? profile.id : provider === "guest" ? "guest" : "demo_" + slug(profile.email || profile.name);
       const accounts = Mori.store.read(ACCOUNTS_KEY, {});
       const known = accounts[id];
       accounts[id] = Object.assign({ joinedAt: Date.now() }, known);

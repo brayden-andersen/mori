@@ -9,18 +9,22 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | Page | What it is |
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero ("SandBox turns ideas into viable businesses", one centred column with the moving marquee of features under *New to Sandbox? Join now*) recedes as you scroll, *What is Sandbox?* sums it up in one line and three before → after pairs, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Then the launch path, sprints, vetted partners and the milestone ladder. Sign in and join use Google. There are no simulated chats: messaging is real, on the Network page. |
-| `partners.html` | **Partners** (public, no sign-up): mentors, investors and service providers join as vetted partners, by invitation or application. Who partners are, how vetting works (identity, firm or track record, references, a signed partner agreement), how partners are paid, and an *Apply as a partner* button (coming soon until the application form exists). |
-| `legal.html` | **Terms, privacy and cookies** (public): a plain-language draft, not yet reviewed by a lawyer, with `#terms`, `#privacy` and `#cookies`. The privacy section describes what the code actually does. The sign-up screens and the footer link here. |
+| `partners.html` | **Partners** (public, no sign-up): mentors, investors and service providers join as vetted partners, by invitation or application. Who partners are, how vetting works (identity, firm or track record, references, a signed partner agreement), how partners are paid, and *Apply by email* (the application form comes with the partner directory). |
+| `legal.html` | **Terms, privacy, cookies and cancellation** (public): a plain-language draft, not yet reviewed by a lawyer, with `#terms`, `#privacy`, `#cookies` and `#cancellation`. The privacy section describes what the code actually does. The sign-up screens and the footer link here. |
+| `about.html` | **About SandBox** (public): the mission, the problem and what SandBox does, with a founder note still to be written. |
+| `contact.html` | **Contact** (public): one address for invites, partnering, problems and data requests. The address is `contactEmail` in `config.js`; a placeholder shows until it's set. |
+| `toolkits.html` | **Toolkits** (public): the planner's templates, each readable in full, with a way into the planner or the demo. |
+| `404.html` | **Page not found**, served by GitHub Pages for any missing address. |
 | `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
 | `home.html` | **Homepage**: greeting, entry cards, your pinned projects, your latest conversations, and *Insights are coming soon* where insights will go. It opens with a short welcome (see *Homepage: the opening* below). |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
 | `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* below. |
-| `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. Free: the MORI Network, sprints, the verified work record and the first stages of the launch path; paid plans add the full launch path, team agreements, the program navigator and compliance tracker (both coming soon) and member pricing with vetted partners. No plan buys visibility. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments open soon. In the Account menu and the footer. |
+| `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. Free: the MORI Network, sprints, the verified work record and the first stages of the launch path; paid plans add the full launch path, team agreements, the program navigator and compliance tracker (both coming soon) and member pricing with vetted partners. No plan buys visibility. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments aren't part of the demo. In the Account menu and the footer. |
 | `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. Settings has five sections: Account, Preferences (including *Take the tour* for the site tour), Privacy, Projects (what a project opens on, the planner's tools sidebar, which projects are pinned to the homepage, and the project tour; also under *Projects → Project settings* in the nav) and Notifications. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
-Nothing is pre-filled: projects appear once the member declares them, and the Network shows real members.
+For signed-in members nothing is pre-filled: projects appear once the member declares them, and the Network shows real members. The guest demo is the exception (see *The demo: guests and invites*).
 
 ### Guided tours
 
@@ -104,6 +108,23 @@ The sign-in flow works like this:
 3. New members go to onboarding, then to the MORI Network for the site tour; returning members go to their start page.
 4. Anyone who opens an app page before finishing onboarding is sent back to it.
 
+## The demo: guests and invites
+
+SandBox is a demo, shown in customer interviews and used by a small invited group. Two things make that work:
+
+- **Explore the demo** (on the landing page, in the join window, and as `index.html?demo=1` from the public pages) opens the app as a **guest**: a sample founder, Nadia Pratiwi, with sample members, connections, conversations, projects and documents already in place. Everyone and everything in it is fictional and carries a *Sample* label, and it all lives only in that browser. `assets/js/guestdb.js` stands in for Supabase with the same API (`Mori.db`), fed by `assets/js/sample.js`, so every page works exactly as it does for a signed-in member: guests can connect, message, declare projects, write documents and change widgets. A strip under the nav says so on every page, with *Reset the demo* (puts the sample data back the way it started) and *Leave the demo* (forgets it all). Signed-in members never see sample data.
+- **Sign-in is invite-only.** Only email addresses in the `public.invites` table can create an account: a database trigger (`private.require_invite`, in `supabase/migrations/20261114160000_invite_only_signup.sql`) refuses anyone else before an account or profile exists. Supabase sends them back to the landing page, which explains that sign-in is invite-only and offers the guest demo. Members who already have accounts aren't affected.
+
+**To invite someone:** in Supabase → Table Editor → `invites` → *Insert row*, with the Google address they'll sign in with, in lower case, and a note if you like. Or, in the SQL editor:
+
+```sql
+insert into public.invites (email, note) values ('name@example.com', 'interview, 20 Nov');
+```
+
+They can sign in straight away. Delete the row to withdraw an invite nobody has used yet. To open sign-up to everyone again, drop the trigger `require_invite_before_signup` on `auth.users`.
+
+The contact address for the Contact page, invite requests and partner applications is `contactEmail` in `assets/js/config.js`; a placeholder shows until it's set.
+
 ## Run it locally
 
 ```bash
@@ -156,6 +177,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261107155209_invisible_members.sql`: Invisible mode (the column, the directory and name-search rules, and the policy that refuses requests to invisible members).
 - `20261109000717_project_workspace_and_docs.sql`: the planner's `workspace` column, up to 100 tasks per project, and the `project_docs` table with its policies and trigger.
 - `20261109062222_member_prefs_sync.sql`: the `prefs` column on profiles, for settings, pins and the theme across devices.
+- `20261114160000_invite_only_signup.sql`: the `invites` table and the trigger that makes sign-in invite-only (see *The demo: guests and invites*).
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
@@ -167,6 +189,7 @@ To make a new database change, add the next migration file here and apply it to 
 
 ```
 index.html  onboarding.html  home.html  projects.html  project.html  network.html  subscription.html
+partners.html  legal.html  about.html  contact.html  toolkits.html  404.html
 assets/
   css/
     mori.css        design system: tokens, aura, nav, glass, chips, buttons, forms,
@@ -183,6 +206,9 @@ assets/
     db.js           Supabase: Google sign-in, profiles, photos, CVs, member directory, connection
                     requests, projects + co-founders, messages, Realtime subscription
     data.js         option lists (roles, regions, industries, languages, link types…), milestone ladder, the subscription plans (placeholders)
+    sample.js       the guest demo's fictional members, connections, conversations, projects, documents, sprints, partners and programmes (all labelled Sample)
+    guestdb.js      the guest demo's database: Mori.db with the same API as db.js, kept in this browser and seeded from sample.js
+    public.js       the public pages: the contact address, the toolkit library
     state.js        per-member state: profile, settings, projects, network, chat, notifications,
                     live updates (cached locally)
     ui.js           helpers, icons, avatars, photo cropping, toasts, modals, sliding highlights, loading screen

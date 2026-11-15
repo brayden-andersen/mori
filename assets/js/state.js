@@ -41,7 +41,10 @@
     invisible: false,               // hidden from the MORI Network
   };
   const SHOW_DEFAULT = PROFILE_BLANK.show;
-  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
+  // A database stands behind the member: Supabase for Google members, or the guest
+  // demo's in-browser copy (guestdb.js) for guests. Demo accounts (file://) have
+  // neither and keep everything local.
+  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && ((session().provider === "google" && Mori.auth.isUuid(session().id)) || (session().provider === "guest" && Mori.db.guest)));
 
   function profile() {
     const p = Object.assign({}, PROFILE_BLANK, get("profile", {}));

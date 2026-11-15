@@ -104,7 +104,7 @@
       <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
       <div class="pf-head">${avatar({ id: m.id, name: m.name }, 88)}</div>
       <div class="pf-body">
-        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
+        <h2 class="pf-name" id="mpTitle">${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</h2>
         <div class="fact-pills">${m.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined SandBox ${esc(joined(m.joinedAt))}</span>` : ""}</div>
         ${st === "pending" ? `<div class="mp-action"><div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div></div>` : ""}
         <section class="pf-sec"><p class="meta pf-invisible-note">${icon("shield")} ${esc(first(m.name))} is invisible on the MORI Network, so you can’t connect or see more of their profile.</p></section>
@@ -161,7 +161,7 @@
       <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
       <div class="pf-head">${avatar(m, 88, { ring: m.open })}</div>
       <div class="pf-body">
-        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
+        <h2 class="pf-name" id="mpTitle">${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</h2>
         ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
         ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
         <div class="chips">${roleChip(m.role, m.specialty)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>

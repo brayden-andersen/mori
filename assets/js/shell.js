@@ -6,7 +6,6 @@
    owns the account modals (Profile with photo and links, Settings,
    Notifications) and starts live updates for signed-in Google members.
      data-modal="profile|settings|notifications"  opens a modal
-     data-soon="Label"                           "coming soon" toast
      data-action="signout"                       signs out
    ========================================================================== */
 (function () {
@@ -14,7 +13,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, brandMark, googleG, avatar, ago, toast, soon, createModal, seg, placeGlider, roleChip, empty, loader } = Mori.ui;
+  const { $, $$, esc, icon, brandMark, googleG, avatar, ago, toast, createModal, seg, placeGlider, roleChip, empty, loader } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const page = document.body.dataset.page || "";
@@ -24,10 +23,10 @@
   function navHTML() {
     const s = S.session();
     const you = S.me();
-    const sub = s.email || (s.provider === "demo" ? "Demo account" : "");
+    const sub = s.email || (s.provider === "guest" ? "Sample founder · guest demo" : s.provider === "demo" ? "Demo account" : "");
     const link = (href, label, ic) => `<a class="drop-link" role="menuitem" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
     return `
-    <nav class="nav app-nav" id="topNav" aria-label="Main">
+    <nav class="nav app-nav${Mori.guest && Mori.guest.active ? " has-demo" : ""}" id="topNav" aria-label="Main">
       <div class="nav-inner">
         <a href="home.html" class="brand" aria-label="SandBox — go to your homepage">${brandMark()}<div class="brand-name">SandBox</div></a>
         <div class="menu" id="mainMenu">
@@ -65,13 +64,21 @@
               <a class="drop-link" role="menuitem" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
               <a class="drop-link" role="menuitem" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
               <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} Sign out</a>
+              <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
             </div>
           </div>
           <div class="item item--theme">${Mori.ui.themeToggle()}</div>
         </div>
-      </div>
+      </div>${demoBarHTML()}
     </nav>`;
+  }
+  /** Guests see where they are on every page, with a way to start the demo again or leave it. */
+  function demoBarHTML() {
+    if (!(Mori.guest && Mori.guest.active)) return "";
+    return `<div class="demo-bar" role="status">
+        <span class="demo-bar-text">${icon("sparkle")}<span class="demo-bar-long">You’re exploring a demo as a sample founder. Nothing you do here is saved beyond this browser.</span><span class="demo-bar-short">A demo: nothing you do here is saved beyond this browser.</span></span>
+        <span class="demo-bar-actions"><button class="link-btn" type="button" data-demo-reset>Reset the demo</button><button class="link-btn" type="button" data-action="signout">Leave the demo</button></span>
+      </div>`;
   }
 
   function closeMenus() {
@@ -161,14 +168,14 @@
     const slot = $('[data-shell="footer"]');
     if (!slot) return;
     const col = (id, title, items) =>
-      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map((t) => (Array.isArray(t) ? `<li><a href="${t[1]}"${t[2] ? " " + t[2] : ""}>${t[0]}</a></li>` : `<li><a href="#" data-soon="${t}">${t}</a></li>`)).join("")}</ul></nav>`;
+      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map(([label, href, attrs]) => `<li><a href="${href}"${attrs ? " " + attrs : ""}>${label}</a></li>`).join("")}</ul></nav>`;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], "About Sandbox", ["Partners", "partners.html"], "Contact Us", ["Terms &amp; Policy", "legal.html"]])}
-          ${col("productsTitle", "Products", ["Toolkits", ["Subscription Pricing", "subscription.html"], "Cancellation"])}
+          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about.html"], ["Partners", "partners.html"], ["Contact Us", "contact.html"], ["Terms &amp; Policy", "legal.html"]])}
+          ${col("productsTitle", "Products", [["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -244,7 +251,7 @@
         <button class="btn btn--sm" data-pf-edit>${icon("edit")} Edit profile</button>
       </div>
       <div class="pf-body">
-        <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}</h2>
+        <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}${s.provider === "guest" ? Mori.ui.sampleTag("A sample profile for the demo: change anything you like") : ""}</h2>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
         <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
         <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
@@ -560,11 +567,11 @@
             <div class="st-card">
               ${avatar(S.me(), 48)}
               <div class="st-card-copy"><b>${esc(S.me().name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
-              <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + "Demo"}</span>
+              <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + (s.provider === "guest" ? "Guest demo" : "Demo")}</span>
             </div>
-            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
-            ${row("Sign out", "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} Sign out</button>`)}
-            ${row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
+            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : s.provider === "guest" ? "Guest demo: you’re exploring as a sample founder, with sample members and projects kept in this browser. Sign-in is invite-only while SandBox is in testing." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
+            ${row(s.provider === "guest" ? "Leave the demo" : "Sign out", s.provider === "guest" ? "Forgets everything you did in the demo and goes back to the start page." : "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</button>`)}
+            ${s.provider === "guest" ? row("Reset the demo", "Puts the sample members, projects and conversations back the way they started.", `<button class="btn btn--sm btn--danger" data-demo-reset>${icon("refresh")} Reset the demo</button>`, "st-row--danger") : row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
@@ -638,7 +645,7 @@
 
     const reset = $("[data-reset]", panel);
     let armed = false;
-    reset.addEventListener("click", () => {
+    if (reset) reset.addEventListener("click", () => {
       if (!armed) {
         armed = true;
         reset.innerHTML = `${icon("refresh")} Tap again to confirm`;
@@ -747,8 +754,8 @@
     const m = e.target.closest("[data-modal]");
     if (m) { e.preventDefault(); openAccountModal(m.dataset.modal, m, m.dataset.tab); return; }
 
-    const later = e.target.closest("[data-soon]");
-    if (later) { e.preventDefault(); closeMenus(); soon(later.dataset.soon); return; }
+    const rd = e.target.closest("[data-demo-reset]");
+    if (rd) { if (Mori.people.confirmTap(rd, "Tap again to reset")) Mori.guest.reset(); return; }
 
     if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
   });

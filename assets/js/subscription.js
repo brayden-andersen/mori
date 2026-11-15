@@ -57,7 +57,7 @@
     const b = e.target.closest("[data-plan]");
     if (!b || b.tagName !== "BUTTON") return;
     const t = PLANS.tiers.find((x) => x.id === b.dataset.plan);
-    toast(`Payments open soon: we’ll let you know when you can move up to ${t ? t.name : "this plan"}.`, { icon: "card", duration: 3600 });
+    toast(`Payments aren’t part of this demo. Everyone is on Explorer for now, and ${t ? t.name + "’s" : "these"} prices are placeholders.`, { icon: "card", duration: 3800 });
   });
   render();
 })();

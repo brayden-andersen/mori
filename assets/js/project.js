@@ -153,7 +153,7 @@
     const created = new Date(p.createdAt || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     $("#plHead").innerHTML = `
       <div class="pl-head-main">
-        <div class="chips">${K.tagChips(p.tags)}</div>
+        <div class="chips">${K.tagChips(p.tags)}${p.sample ? Mori.ui.sampleTag("A sample project for the demo: change anything you like") : ""}</div>
         <h1 class="title pl-title" id="plTitle">${esc(p.name)}</h1>
         <p class="pl-section-label" id="plSection">${esc(T.label(section()))}</p>
         <p class="meta">Updated ${esc(humanizeDays(p.updated_days).toLowerCase())} · Created on ${esc(created)}</p>

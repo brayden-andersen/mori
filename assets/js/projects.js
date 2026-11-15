@@ -87,7 +87,7 @@
       : others.length ? `With ${esc(others.slice(0, 2).map((t) => first(t.person.name)).join(" and "))}${others.length > 2 ? ` +${others.length - 2}` : ""}` : "";
     return `
       <article class="pcard spotlight" data-open="${esc(p.id)}">
-        <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button></h4>
+        <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button>${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}</h4>
         <div class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</div>
         <div class="tags" style="margin-top:12px">${chips}</div>
         <div class="rung-row">${Mori.shell.ladderBar(p.rung)}<span class="meta">Rung ${p.rung} · ${esc(D.ladder[p.rung].stage)}</span></div>

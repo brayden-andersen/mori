@@ -141,6 +141,12 @@ html[data-theme="dark"] .cn-row{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .fpill{ color:#92a8e8; background:rgba(20,90,204,0.25); border:1px solid rgba(20,90,204,0.628) }
 html[data-theme="dark"] .fpill button{ background:rgba(20,90,204,0.334) }
 html[data-theme="dark"] .pf-invisible{ border-top:1px solid rgba(224,224,226,0.12) }
+html[data-theme="dark"] .demo-bar{ color:#f8d281; background:rgba(204,95,20,0.334); border-top:1px solid rgba(204,95,20,0.565) }
+html[data-theme="dark"] .demo-bar-text .ico{ color:#f8b382 }
+html[data-theme="dark"] .demo-bar .link-btn{ color:#f8ba81 }
+html[data-theme="dark"] .sample-tag{ color:#f8ba81; background:rgba(204,95,20,0.334); border:1px solid rgba(204,95,20,0.628) }
+html[data-theme="dark"] .toolkit-card summary{ color:#8ba5ef }
+html[data-theme="dark"] .toolkit-body blockquote{ border-left:2px solid rgba(227,228,230,0.15) }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }

@@ -282,7 +282,7 @@
       <article class="pcard person spotlight" data-person="${esc(m.id)}">
         <button class="person-top" type="button" data-view="${esc(m.id)}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar(m, 52, { ring: m.open })}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
         </button>
         <div class="chips">${roleChip(m.role, m.specialty)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
@@ -304,7 +304,7 @@
       <article class="pcard person is-invisible" data-person="${id}">
         <button class="person-top" type="button" data-view="${id}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar({ id: m.id, name: m.name }, 52)}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
         </button>
         <p class="person-note">${icon("shield")}Invisible on the MORI Network. You can’t connect with them.</p>
         <div class="pcard-actions">
