@@ -207,47 +207,95 @@
   }
 
   /* ---------- Opening (auth.js adds html.boot before the first paint) ----------
-     Only right after signing in: the welcome fades in, centred, then glides up
-     under the nav while the links and panels rise into place, about 0.6 s in
-     all. Nothing is locked: a click, key or scroll skips to the end. */
+     Only right after signing in, about 2.5 s in all:
+       1. the welcome fades in, word by word, alone at the centre of the screen;
+       2. a short hold;
+       3. it glides up to its place under the nav while the links, panels and
+          footer rise from the bottom of the screen into place below it.
+     Data that arrives before the glide is drawn while everything below the
+     welcome is still hidden; data that arrives during it waits until it ends,
+     so nothing pops in or jumps. Nothing is locked: a click, tap, key or
+     scroll skips to the end. */
+  const BOOT = {
+    wordsAt: 80,   // the first word starts fading in
+    wordMs: 620,   // each word's fade
+    wordSpan: 300, // the last word starts at most this long after the first
+    glideAt: 1050, // every word has arrived: the glide starts
+    glideMs: 1350, // the welcome's glide
+    riseMs: 1250,  // each panel's rise
+    riseGap: 60,   // panels set off one after another
+  };
+  let gliding = false;
+  let heldRender = false;
+  /** Redraw, unless the opening is mid-glide: then once it has finished. */
+  function requestRender() {
+    if (gliding) { heldRender = true; return; }
+    render();
+  }
+
   function openingRitual() {
     const root = document.documentElement;
     if (!root.classList.contains("boot")) return;
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
     splitWords(hello);
-    const vh = window.innerHeight;
-    const box = hello.getBoundingClientRect();
-    const dy = Math.round(vh / 2 - (box.top + box.height / 2));
-    hello.style.translate = `0 ${dy}px`;
+    const words = $$(".word", hello);
+    const gap = words.length > 1 ? Math.min(90, BOOT.wordSpan / (words.length - 1)) : 0;
+    words.forEach((w, i) => {
+      w.style.animationDuration = BOOT.wordMs + "ms";
+      w.style.animationDelay = Math.round(BOOT.wordsAt + i * gap) + "ms";
+    });
+    // Alone at the centre of the screen, and kept there until the glide: the nav is
+    // measured again once the font has loaded, which moves the page under it.
+    let dy = 0;
+    const centre = () => {
+      const b = hello.getBoundingClientRect();
+      dy = Math.round(window.innerHeight / 2 - (b.top - dy + b.height / 2));
+      hello.style.translate = `0 ${dy}px`;
+    };
+    centre();
     hello.classList.add("is-placed");
-    const rising = [$("#prompt"), $("#homeLinks")].concat($$("#homeGrid > section")).filter(Boolean);
+    let pin = 0;
+    const keepCentred = () => { centre(); pin = requestAnimationFrame(keepCentred); };
+    pin = requestAnimationFrame(keepCentred);
+
     const anims = [];
     let done = false;
     const finish = () => {
       if (done) return;
       done = true;
       clearTimeout(timer);
+      cancelAnimationFrame(pin);
       anims.forEach((a) => { try { a.finish(); } catch (e) { /* already done */ } });
       hello.style.translate = "";
+      hello.classList.add("is-shown"); // skipped early: every word at once
       anims.forEach((a) => a.cancel());
       root.classList.remove("boot");
       hello.classList.remove("is-placed");
       ["pointerdown", "keydown", "wheel", "touchstart"].forEach((t) => window.removeEventListener(t, finish, true));
+      gliding = false;
+      if (heldRender) { heldRender = false; render(); }
     };
     const glide = () => {
+      if (done) return;
+      cancelAnimationFrame(pin);
+      gliding = true;
       const ease = "cubic-bezier(.65,0,.35,1)";
-      anims.push(hello.animate([{ translate: `0 ${dy}px` }, { translate: "0 0" }], { duration: 300, easing: ease, fill: "forwards" }));
+      const vh = window.innerHeight;
+      // Where the welcome is now, to its place under the nav.
+      anims.push(hello.animate([{ translate: `0 ${dy}px` }, { translate: "0 0" }], { duration: BOOT.glideMs, easing: ease, fill: "forwards" }));
+      // Everything below it, from just under the bottom of the screen (or a little lower, if it starts out of sight).
+      const rising = [$("#prompt"), $("#homeLinks")].concat($$("#homeGrid > section"), [$(".footer")]).filter(Boolean);
       rising.forEach((el, i) => {
         const top = el.getBoundingClientRect().top;
-        const from = Math.min(Math.max(60, vh - top + 20), 320);
-        const k = Math.min(i, 4);
-        anims.push(el.animate([{ translate: `0 ${from}px` }, { translate: "0 0" }], { duration: 280 + k * 10, delay: 20 + k * 15, easing: ease, fill: "both" }));
-        anims.push(el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: 20 + k * 15, easing: "ease-out", fill: "both" }));
+        const from = top < vh ? Math.round(vh - top + 24) : 140;
+        const delay = 40 + Math.min(i, 5) * BOOT.riseGap;
+        anims.push(el.animate([{ translate: `0 ${from}px` }, { translate: "0 0" }], { duration: BOOT.riseMs, delay, easing: ease, fill: "both" }));
+        anims.push(el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: Math.round(BOOT.riseMs * 0.35), delay, easing: "ease-out", fill: "both" }));
       });
       Promise.all(anims.map((a) => a.finished)).then(finish, finish);
     };
-    const timer = setTimeout(glide, 120); // after the welcome has faded in
+    const timer = setTimeout(glide, BOOT.glideAt);
     ["pointerdown", "keydown", "wheel", "touchstart"].forEach((t) => window.addEventListener(t, finish, { capture: true, passive: true }));
   }
 
@@ -255,7 +303,7 @@
   openingRitual();
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
-    if (["network", "links", "messages", "projectsRemote", "projectsCreated", "projectOverrides", "workspace", "settings", "profile", "sprintSpots"].includes(key)) render();
+    if (["network", "links", "messages", "projectsRemote", "projectsCreated", "projectOverrides", "workspace", "settings", "profile", "sprintSpots"].includes(key)) requestRender();
   });
   // The ring and the launch path read the project's workspace: bring in the latest.
   const now = focusProject();

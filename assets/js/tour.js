@@ -295,8 +295,17 @@
   });
 
   /** Right after sign-up (settings.tour.site = "start"): four slides on whichever app page the member landed on. */
+  /** The homepage's opening (html.boot, about 2.5 s) finishes before a tour opens over it. */
+  const openingDone = () => new Promise((resolve) => {
+    const root = document.documentElement;
+    if (!root.classList.contains("boot")) { resolve(); return; }
+    const mo = new MutationObserver(() => { if (!root.classList.contains("boot")) { mo.disconnect(); resolve(); } });
+    mo.observe(root, { attributes: true, attributeFilter: ["class"] });
+  });
+
   async function startSite() {
     if (tour().site !== "start" || page === "project") return;
+    await openingDone();
     await wait(reduced() ? 150 : 520);
     await modalFree();
     if (tour().site === "start") openDeck("start");

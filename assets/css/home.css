@@ -9,12 +9,16 @@
 
 /* ===== Opening ritual (auth.js decides before the first paint, home.js plays it) =====
    Only the welcome shows, centred on the screen; then it glides up under the
-   nav while the cards and panels rise from the bottom of the screen. */
+   nav while the cards and panels rise from the bottom of the screen. The
+   scrollbar's space is kept, so panels passing below the fold never make the
+   page shift sideways. */
+html{ scrollbar-gutter: stable }
 html.boot .hello:not(.is-placed),
 html.boot #prompt,
 html.boot .home-links,
 html.boot .home-grid > section,
 html.boot .footer{ opacity:0 }
+.hello.split-words.is-shown .word{ animation:none; opacity:1; transform:none; filter:none }
 .prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
 
 /* ===== Secondary links under the greeting (Projects and the Network used to be big cards) ===== */

@@ -267,9 +267,9 @@
   }
 
   /* The homepage's opening: only on the first homepage right after signing in
-     (sign-in, the end of onboarding and the guest demo set a flag), under a
-     second, never on a reload. The welcome glides up while everything else
-     rises into place (home.js). */
+     (sign-in, the end of onboarding and the guest demo set a flag), never on a
+     reload. About 2.5 s: the welcome fades in at the centre, then glides up
+     while everything else rises into place (home.js). */
   const VISIT_KEY = "mori.inVisit";
   const session = (fn) => { try { return fn(); } catch (e) { return null; } };
   if (s && s.onboarded && root.getAttribute("data-auth") === "required") {

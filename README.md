@@ -37,7 +37,7 @@ For signed-in members nothing is pre-filled: projects appear once the member dec
 
 ### Homepage: the opening
 
-The first homepage after signing in (Google sign-in, the end of sign-up, or opening the guest demo) plays a short opening: *Welcome* shows at the centre, then glides up under the nav while the links and panels rise into place, in under 0.6 seconds. It plays once: a reload, a new tab or coming back from another page shows the content straight away. Nothing is locked while it plays, and any click, tap, key or scroll skips to the end. It's off when the device or **Settings → Preferences → Motion effects** asks for reduced motion. Sign-in sets `sessionStorage["mori.justSignedIn"]`; the first app page uses it up.
+The first homepage after signing in (Google sign-in, the end of sign-up, or opening the guest demo) plays an opening of about 2.5 seconds: *Welcome* fades in, word by word, alone at the centre of the screen, then glides up under the nav while the links, panels and footer rise from the bottom of the screen into place. Data that loads meanwhile is drawn before the glide or held until it ends, so nothing pops in. It plays once: a reload, a new tab or coming back from another page shows the content straight away. Nothing is locked while it plays, and any click, tap, key or scroll skips to the end. It's off when the device or **Settings → Preferences → Motion effects** asks for reduced motion. Sign-in sets `sessionStorage["mori.justSignedIn"]`; the first app page uses it up.
 
 ### Light and dark mode
 
@@ -194,7 +194,7 @@ npx playwright install chromium
 
 The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
 
-**Cache tags:** every page loads its CSS and JS with `?v=12`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
+**Cache tags:** every page loads its CSS and JS with `?v=13`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
 ## Supabase (sign-in, profiles, CVs, network)
 
