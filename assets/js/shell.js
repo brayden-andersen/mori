@@ -39,6 +39,7 @@
               ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
               <div class="drop-sep" role="separator"></div>
               ${link("projects.html", "All projects")}
+              ${link("directory.html", "Vetted partners")}
               <a class="drop-link" role="menuitem" href="#" data-modal="settings" data-tab="projects">Project settings</a>
             </div>
           </div>
@@ -176,7 +177,7 @@
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
           ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about.html"], ["Partners", "partners.html"], ["Contact Us", "contact.html"], ["Terms &amp; Policy", "legal.html"]])}
-          ${col("productsTitle", "Products", [["Sprints", "sprints.html"], ["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
+          ${col("productsTitle", "Products", [["Sprints", "sprints.html"], ["Partner directory", "directory.html"], ["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -261,23 +262,25 @@
       </div>
       <div class="pf-body">
         <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}${s.provider === "guest" ? Mori.ui.sampleTag("A sample profile for the demo: change anything you like") : ""}</h2>
+        <div class="chips">${roleChip(p.role, p.specialty)}</div>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
-        ${completeLine}
         <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
-        <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
-        ${Mori.people.factPills(seen)}
+        ${completeLine}
         ${hidden.length ? `<p class="meta pf-hidden">${icon("shield")} Hidden from your profile: ${esc(hidden.join(", "))}. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         ${p.invisible ? `<p class="meta pf-hidden pf-invisible-on">${icon("shield")} You’re invisible on the MORI Network: only people who search your full name can find you, and they see just your name and join date. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         <div class="pf-stats pf-stats--2">
           <button class="pf-stat pf-stat--link" type="button" data-connections aria-label="See your connections"><b data-count="${S.network.connections().length}">0</b><span>Connections ${icon("arrowRight")}</span></button>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
         </div>
-        <section class="pf-sec"><h3>About</h3><p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re working on.</span>'}</p></section>
-        <section class="pf-sec"><h3>Industry</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
-        ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
-        <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
+        <section class="pf-sec pf-open"><h3>${p.role === "founder" ? "Building and looking for" : "Looking for"}</h3>${p.open ? `<p class="pf-open-line"><span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span></p>` : `<p class="meta">You’re not open to build right now. <button class="link-btn" type="button" data-pf-edit>Change</button></p>`}<p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re building or looking for.</span>'}</p></section>
         <section class="pf-sec"><h3>Work record</h3>${record}${sprintLine}</section>
+        <section class="pf-sec"><h3>Skills and industries</h3><div class="tags">${(p.skills || []).map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("")}${(p.industries || []).map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("")}${!(p.skills || []).length && !(p.industries || []).length ? '<span class="meta">Add skills and up to three industries so founders and specialists can find you.</span>' : ""}</div></section>
+        <details class="pf-more" ${window.matchMedia("(min-width: 761px)").matches ? "open" : ""}><summary>${icon("chevronDown")} More: links, CV, languages</summary>
+          <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
+          ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
+          <section class="pf-sec">${Mori.people.factPills(seen)}</section>
+        </details>
+        ${S.network.available() && !p.invisible ? `<div class="pf-share-row">${Mori.people.shareBtn(s.id)}<span class="meta">Anyone signed in to SandBox can open it.</span></div>` : ""}
         <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }

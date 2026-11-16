@@ -80,16 +80,18 @@
     else if (activeTab === "messages") { renderChatList(); renderThread(); }
   }
 
+  /* A profile's address is #member/<id> (#explore/<id> still works): it opens over Discover. */
   function parseHash() {
     const [tab, sub] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+    if (tab === "member") return { tab: "explore", sub: sub || null };
     return { tab: TABS.includes(tab) ? tab : "explore", sub: sub || null };
   }
   function route() {
     const { tab, sub } = parseHash();
     showTab(tab);
     if (tab === "explore" && sub) {
-      Mori.people.openMember(sub, { onClose: () => { if (/^#explore\//.test(location.hash)) history.replaceState(null, "", "#explore"); } })
-        .then((ok) => { if (!ok) history.replaceState(null, "", "#explore"); });
+      const back = () => { if (/^#(explore|member)\//.test(location.hash)) history.replaceState(null, "", "#explore"); };
+      Mori.people.openMember(sub, { fromLink: true, onClose: back });
     }
     if (tab !== "messages") return;
     if (sub) openChat(sub);

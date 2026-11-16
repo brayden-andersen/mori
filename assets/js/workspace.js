@@ -60,6 +60,7 @@
       canvas: obj(w.canvas),
       ladder: { done: obj(obj(w.ladder).done) },
       launch: { done: obj(obj(w.launch).done) }, // launch-path steps ticked, keyed "<stage>.<item>"
+      compliance: { items: arr(obj(w.compliance).items) }, // recurring obligations: { id, name, every, due, done, note }
     };
   }
 

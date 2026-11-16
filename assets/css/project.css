@@ -523,3 +523,28 @@ button.wg-title:hover{ color:var(--ink-2) }
 .wg-stage > .ico{ width:16px; height:16px; color:#10b981 }
 .wg-stage-n{ flex:0 0 auto; width:16px; height:16px; display:grid; place-items:center; border-radius:5px; font-size:10.5px; font-weight:700; background: rgba(26,28,31,.08) }
 .wg-stage.is-done .wg-text{ color: var(--muted) }
+
+/* ===== Compliance tracker and program navigator ===== */
+.tool-plan{ display:flex; align-items:center; gap:6px; margin:-6px 0 16px; font-size:12.5px }
+.tool-plan .ico{ width:14px; height:14px; color:#8a5a00 }
+.tool-empty{ padding:26px 10px }
+.comp-row.is-done .tool-check-text{ color:var(--muted) }
+.comp-late{ color:#b80000; font-weight:600 }
+.tool-form{ display:grid; gap:12px }
+.tool-form-row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
+.prog-filters{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; margin-bottom:16px }
+.prog-filter{ min-width:170px; flex:1 }
+.prog-count{ flex-basis:100%; margin:0 }
+.prog-grid{ grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) }
+.prog-card{ display:grid; align-content:start; gap:8px }
+.prog-card .meta{ margin:0; line-height:1.5 }
+.prog-top{ display:flex; align-items:center; justify-content:space-between; gap:8px }
+.prog-card h3.prog-name{ margin:0; font-size:15.5px; font-weight:650; letter-spacing:-.01em; text-transform:none; color:var(--ink) }
+.prog-facts{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:0; font-size:12.5px; color:#414347 }
+.prog-facts span{ display:inline-flex; align-items:center; gap:5px }
+.prog-facts .ico{ width:13px; height:13px; color:var(--subtle) }
+.prog-card .btn, .prog-in{ justify-self:start }
+.prog-in{ color:#0f7a55; background: rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.30) }
+.prog-in .ico{ width:13px; height:13px }
+@media (max-width: 560px){ .tool-form-row{ grid-template-columns: 1fr } }
+.tool-check-text .sample-tag{ justify-self:start; align-self:start; width:fit-content }

@@ -796,3 +796,18 @@ html.theme-fade::view-transition-new(*){ animation: theme-in .5s cubic-bezier(.4
 .pf-sprints{ display:flex; align-items:flex-start; gap:8px; margin-top:10px !important }
 .pf-sprints .ico{ flex:0 0 auto; width:15px; height:15px; margin-top:3px; color: var(--mori-red) }
 .pf-sprints a{ color:#3d64d2; font-weight:600; text-decoration:none }
+
+/* Profile order: what they're building, the work record, then the rest (folded on phones) */
+.pf-open-line{ margin:0 0 8px !important }
+.pf-record-line{ display:flex; align-items:flex-start; gap:8px }
+.pf-record-line .ico{ flex:0 0 auto; width:15px; height:15px; margin-top:3px; color: var(--mori-red) }
+.pf-record-line a{ color:#3d64d2; font-weight:600; text-decoration:none }
+.pf-more{ margin-top:4px }
+.pf-more > summary{ display:inline-flex; align-items:center; gap:6px; padding:8px 0; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; list-style:none }
+.pf-more > summary::-webkit-details-marker{ display:none }
+.pf-more > summary .ico{ width:14px; height:14px; transition: transform .2s ease }
+.pf-more[open] > summary .ico{ transform: rotate(180deg) }
+.pf-share-row{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(26,28,31,.08) }
+.pf-share-row .ico{ width:14px; height:14px }
+.pf-unavailable{ display:grid; justify-items:start; gap:10px; padding-top:28px }
+.pf-unavailable .meta{ margin:0; line-height:1.55 }

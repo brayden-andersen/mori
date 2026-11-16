@@ -8,6 +8,11 @@
      data-message="<id>"     open the conversation with a connection
      data-member-cv="<id>"   open a connection's CV
      data-connections        open the Connections window
+     data-copy-profile="<id>" copy the address of a member's profile
+   Every profile has an address, network.html#member/<id> (profileUrl). It
+   opens the same window, built from what member_directory() and
+   find_member() return, so invisible and connections-only profiles stay as
+   private as they are.
    Rows inside .req (the Requests tab) are animated by network.js instead.
    ========================================================================== */
 (function () {
@@ -28,6 +33,20 @@
   const openLabel = (m) => (m.open ? D.openTypes[m.openType] || "Open to build" : "");
   const joined = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "");
   const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return "Link"; } };
+
+  /** The shareable address of a member's profile. */
+  const profileUrl = (id) => new URL("network.html#member/" + encodeURIComponent(id), location.href).href;
+  const wide = () => window.matchMedia("(min-width: 761px)").matches;
+  async function copyProfile(id) {
+    const url = profileUrl(id);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Profile link copied", { icon: "link" });
+    } catch (e) {
+      window.prompt("Copy this link to the profile:", url); // clipboard blocked: let them copy it by hand
+    }
+  }
+  const shareBtn = (id) => `<button class="btn btn--sm btn--ghost pf-share" type="button" data-copy-profile="${esc(id)}">${icon("link")} Copy profile link</button>`;
 
   /** LinkedIn and extra links as buttons. */
   function linkButtons(p) {
@@ -146,15 +165,23 @@
       ? (docs ? "" : `<span class="meta">${esc(first(m.name))} hasn’t added a CV or links yet.</span>`)
       : `<span class="meta">CVs are shared with connections.</span>`;
 
+    const n = m.reviews || 0;
+    const record = `<section class="pf-sec"><h3>Work record</h3><p class="pf-record-line">${icon("award")} <span>${n ? `<b>${n} verified sprint${n === 1 ? "" : "s"}</b>, confirmed by teammates.` : "No verified sprints yet. The first sprints haven’t run."} <a href="sprints.html">See the sprints</a></span></p></section>`;
+    const lookingFor = open || m.bio
+      ? `<section class="pf-sec pf-open"><h3>${m.role === "founder" ? "Building and looking for" : "Looking for"}</h3>${open ? `<p class="pf-open-line"><span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span></p>` : ""}${m.bio && !m.limited ? `<p>${esc(m.bio)}</p>` : ""}</section>`
+      : "";
+    const more = [
+      m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : "",
+      `<section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`,
+      `<section class="pf-sec">${factPills(m)}</section>`,
+    ].join("");
     const details = m.limited
-      ? `${factPills(m)}<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their industries, languages and links.</p></section>`
+      ? `${lookingFor}${record}<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their skills, industries, languages and links.</p></section>`
       : `
-        ${factPills(m)}
-        ${m.bio ? `<section class="pf-sec"><h3>About</h3><p>${esc(m.bio)}</p></section>` : ""}
-        ${m.industries.length ? `<section class="pf-sec"><h3>Industry</h3><div class="tags">${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
-        ${m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : ""}
-        ${m.skills.length ? `<section class="pf-sec"><h3>Skills</h3><div class="tags">${list(m.skills)}</div></section>` : ""}
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`;
+        ${lookingFor}
+        ${record}
+        ${m.skills.length || m.industries.length ? `<section class="pf-sec"><h3>Skills and industries</h3><div class="tags">${list(m.skills)}${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
+        <details class="pf-more" ${wide() ? "open" : ""}><summary>${icon("chevronDown")} More: links, CV, languages</summary>${more}</details>`;
 
     return `
       ${Mori.ui.coverHTML(m.cover)}
@@ -162,11 +189,12 @@
       <div class="pf-head">${avatar(m, 88, { ring: m.open })}</div>
       <div class="pf-body">
         <h2 class="pf-name" id="mpTitle">${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</h2>
+        <div class="chips">${roleChip(m.role, m.specialty)}</div>
         ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
         ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
-        <div class="chips">${roleChip(m.role, m.specialty)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         <div class="mp-action">${action}</div>
         ${details}
+        <div class="pf-share-row">${shareBtn(m.id)}</div>
       </div>`;
   }
   const memberKey = (m) => N.status(m.id) + JSON.stringify(m);
@@ -189,13 +217,18 @@
   }
   /** Open a member's profile. Resolves false if they can't be found. */
   async function openMember(id, opts = {}) {
+    if (id && id === S.session().id && Mori.shell) { Mori.shell.openModal("profile", opts.opener); return true; }
     let m = N.member(id);
     if (!m && N.available()) {
       // Not in the local copy: they may have joined since.
       await N.refresh({ force: true }).catch(() => {});
       m = N.member(id);
     }
-    if (!m) { toast("That member couldn’t be found", { icon: "x" }); return false; }
+    if (!m) {
+      if (opts.fromLink) unavailable(opts);
+      else toast("That member couldn’t be found", { icon: "x" });
+      return false;
+    }
     const wasOpen = Mori.modal.isOpen("memberModal");
     renderMember(m);
     $("#memberModal .modal").scrollTop = 0;
@@ -210,6 +243,23 @@
     }
     return true;
   }
+  /** A profile address that shows nothing: the member is invisible, has left, or the link is wrong. */
+  function unavailable(opts) {
+    const root = createModal("memberModal", { label: "Member profile", panelCls: "modal--profile modal--member" });
+    const panel = $(".modal", root);
+    panel.setAttribute("aria-labelledby", "mpTitle");
+    panel.innerHTML = `
+      ${Mori.ui.coverHTML("")}
+      <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      <div class="pf-body pf-unavailable">
+        <h2 class="pf-name" id="mpTitle">This profile isn’t available</h2>
+        <p class="meta">${N.available() ? "The member may be invisible on the MORI Network, may have left, or the link may be incomplete." : "Member profiles need a Google sign-in. Demo accounts stay on this device; the guest demo has sample members."}</p>
+        <a class="btn" href="#explore">${icon("compass")} Discover members</a>
+      </div>`;
+    shownMember = null;
+    if (!Mori.modal.isOpen("memberModal")) Mori.modal.open("memberModal", { onClose: opts.onClose });
+  }
+
   /** Keep an open profile in step with new data, without wiping a note being typed. */
   function refreshMember() {
     if (!shownMember || !Mori.modal.isOpen("memberModal")) return;
@@ -298,11 +348,12 @@
 
   /* ---------- Actions (delegated) ---------- */
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections]");
+    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections],[data-copy-profile]");
     if (!t) return;
     const d = t.dataset;
     if ("connections" in d) { e.preventDefault(); openConnections(t); return; }
     if (d.view) { e.preventDefault(); openMember(d.view, { opener: t }); return; }
+    if (d.copyProfile) { e.preventDefault(); copyProfile(d.copyProfile); return; }
     if (d.message) { e.preventDefault(); message(d.message); return; }
     if (d.memberCv) { openCv(d.memberCv); return; }
     if (t.closest(".req")) return; // the Requests tab animates its own rows
@@ -325,5 +376,5 @@
     if (Mori.modal.isOpen("connectionsModal")) renderConnections();
   });
 
-  Mori.people = { openMember, openConnections, message, linkButtons, factPills, whereLine, busy, fail, confirmTap, signInAgain };
+  Mori.people = { openMember, openConnections, message, linkButtons, factPills, whereLine, busy, fail, confirmTap, signInAgain, profileUrl, copyProfile, shareBtn };
 })();

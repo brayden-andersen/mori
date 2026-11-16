@@ -9,7 +9,8 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | Page | What it is |
 | --- | --- |
 | `index.html` | **Landing page**, laid out like a professional network's landing page, with a few scroll scenes in the spirit of a product page: the hero ("SandBox turns ideas into viable businesses", one centred column with the moving marquee of features under *New to Sandbox? Join now*) recedes as you scroll, *What is Sandbox?* sums it up in one line and three before → after pairs, and *How Sandbox works* pins while its three steps (find your people, build your idea, earn the spotlight) play on a product screen. Then the launch path, sprints, vetted partners and the milestone ladder. Sign in and join use Google. There are no simulated chats: messaging is real, on the Network page. |
-| `partners.html` | **Partners** (public, no sign-up): mentors, investors and service providers join as vetted partners, by invitation or application. Who partners are, how vetting works (identity, firm or track record, references, a signed partner agreement), how partners are paid, and *Apply by email* (the application form comes with the partner directory). |
+| `partners.html` | **Partners** (public, no sign-up): mentors, investors and service providers join as vetted partners, by invitation or application. Who partners are, how vetting works (identity, firm or track record, references, a signed partner agreement), how partners are paid, and **the partner application** (`#apply`): identity, firm or track record, references, services and consent. It checks the answers in place, then shows the application ready to send and opens an email draft to `contactEmail` in `config.js`. Nothing is stored. |
+| `directory.html` | **Vetted partners** (members): notaries, lawyers, accountants, tax advisers and designers, with placeholder member prices and the referral fee stated. A service in the address (`directory.html#notary`) filters it; the launch path links there. Only sample partners exist yet, so only the guest demo lists them; members see that the first partners haven't been listed. `[BRAYDEN: real partners and member prices]` |
 | `legal.html` | **Terms, privacy, cookies and cancellation** (public): a plain-language draft, not yet reviewed by a lawyer, with `#terms`, `#privacy`, `#cookies` and `#cancellation`. The privacy section describes what the code actually does. The sign-up screens and the footer link here. |
 | `about.html` | **About SandBox** (public): the mission, the problem and what SandBox does, with a founder note still to be written. |
 | `contact.html` | **Contact** (public): one address for invites, partnering, problems and data requests. The address is `contactEmail` in `config.js`; a placeholder shows until it's set. |
@@ -18,10 +19,10 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `onboarding.html` | **Sign-up**, short: name (region optional) · founder or specialist, with a line on what each changes · a specialist's role · one industry · *Where are you right now?* (an idea and need a team, skills and want to join, a prototype to make real). Only the name and the role are required; every other step has *Skip for now*. The answer picks the first page: declare a project, Discover, or declare at rung 2. A `?next=` deep link wins over it. **Complete your profile** is the same page with `?edit=1`: every step, including date of birth, experience and employment (*Details*), LinkedIn or CV, and languages. |
 | `home.html` | **Homepage**, in two versions. A new or empty account gets *Start here* (the first step for their situation), *Complete your profile*, the launch path, upcoming sprints and people to meet. An account with projects, connections or conversations gets *Continue where you left off* (the pinned or latest project and its next launch-path step), *Needs your attention* (requests, unread messages, overdue tasks), upcoming sprints and the profile nudge while it's incomplete. Projects, the MORI Network and Plans are small links under the greeting. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
-| `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, **launch path**, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* and *The launch path* below. |
+| `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, **launch path**, **compliance tracker**, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities, **program navigator** and toolkits. See *Projects* and *The launch path* below. |
 | `sprints.html` | **Sprints**: your spots, the lobbies by niche, what starts next and how sprints work (`sprints.html`); a lobby with its upcoming and past sprints (`#lobby/<id>`); a sprint with its brief, dates, team size, how teams form, what gets verified and how badges are earned, and **Save my spot** (`#sprint/<id>`). The first sprints haven't run yet and the page says so. See *Sprints* below. |
 | `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. Free: the MORI Network, sprints, the verified work record and the first stages of the launch path; paid plans add the full launch path, team agreements, the program navigator and compliance tracker (both coming soon) and member pricing with vetted partners. No plan buys visibility. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments aren't part of the demo. In the Account menu and the footer. |
-| `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
+| `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. Every profile has an address, `network.html#member/<id>`, that opens it over Discover (see *Profiles* below). |
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. Settings has five sections: Account, Preferences (including *Take the tour* for the site tour), Privacy, Projects (what a project opens on, the planner's tools sidebar, which projects are pinned to the homepage, and the project tour; also under *Projects → Project settings* in the nav) and Notifications. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
@@ -130,6 +131,17 @@ Each project has a **Launch path** page in the planner (`project.html?id=…#lau
 select sprint_id, count(*) from public.sprint_spots group by sprint_id order by 2 desc;
 ```
 
+## Profiles
+
+- **Every profile has an address**, `network.html#member/<id>`, and a *Copy profile link* button; yours is in your own profile. The address opens the same window as a click in Discover, built only from what `member_directory()` and `find_member()` return, so invisible members and connections-only profiles are exactly as private as before. An address that can't be shown (an invisible member, someone who left, a wrong link) says so and shows nothing else. Signed out, the address survives signing in.
+- **The order** is the same on yours and on other members': name, role or specialty and headline; what they're building or looking for; the work record (verified sprints and rungs); skills and industries; then links, CV, languages and the rest, folded away on phones.
+
+## Program navigator and compliance tracker
+
+- **Program navigator** (planner, under Money): grants, incubators and competitions filtered by rung (starting on the project's), sector and region, with a live count. *Add to Funding opportunities* puts one in the project's funding pipeline. The entries are sample ones (`programs` in `sample.js`), so only the guest demo lists them. `[BRAYDEN: real list later]`
+- **Compliance tracker** (planner, under Plan): the recurring obligations a team adds after registration, each with how often it comes round and its next date. Ticking one moves it to its next date; overdue ones show on the homepage. It claims nothing about the law: which obligations apply is for a vetted partner to confirm. The guest demo's sample project has three sample obligations.
+- The subscription page lists both as part of Builder and Founder Pro. In the demo every member can use them, and each page says so. The launch path is the one tool with plan limits.
+
 ## The demo: guests and invites
 
 SandBox is a demo, shown in customer interviews and used by a small invited group. Two things make that work:
@@ -221,6 +233,7 @@ assets/
     subscription.css the subscription ladder
     tour.css        the guided tours: slideshow, its animated pictures, the spotlight
     sprints.css     the sprints page
+    directory.css   the partner directory
     projects.css    Projects page, plus the parts the planner shares (preview, team, pickers)
     project.css     the project planner
     dark.css        dark mode, generated by tools/make_dark_css.py (don't edit by hand)
@@ -233,7 +246,7 @@ assets/
                     the launch path stages (marked [BRAYDEN: final stage list]) and the sprint catalogue
     sample.js       the guest demo's fictional members, connections, conversations, projects, documents, sprints, partners and programmes (all labelled Sample)
     guestdb.js      the guest demo's database: Mori.db with the same API as db.js, kept in this browser and seeded from sample.js
-    public.js       the public pages: the contact address, the toolkit library
+    public.js       the public pages: the contact address, the toolkit library, the partner application
     state.js        per-member state: profile, settings, projects, network, chat, notifications,
                     live updates (cached locally)
     ui.js           helpers, icons, avatars, photo cropping, toasts, modals, sliding highlights, loading screen
@@ -247,6 +260,7 @@ assets/
     planner-tools.js the tool pages: tasks, GTM checklist, ladder, launch path, people, interviews,
                     lean canvas, marketing, metrics, finance, funding, toolkits
     sprints.js      the sprints page: lobbies, sprint pages, Save my spot
+    directory.js    the partner directory
     planner-docs.js the documents: list and editor (formatting, autosave, Word download, sanitising)
     tour.js         the guided tours: the site tour (four slides after sign-up)
                     and the first-project tour (a spotlight over the planner)

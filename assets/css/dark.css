@@ -151,6 +151,8 @@ html[data-theme="dark"] .pf-complete-bar{ background:rgba(227,228,230,0.1) }
 html[data-theme="dark"] .pf-complete-bar i{ background:linear-gradient(90deg, #b75512, #880d12) }
 html[data-theme="dark"] .pf-complete a{ color:#8ba5ef }
 html[data-theme="dark"] .pf-sprints a{ color:#8ba5ef }
+html[data-theme="dark"] .pf-record-line a{ color:#8ba5ef }
+html[data-theme="dark"] .pf-share-row{ border-top:1px solid rgba(227,228,230,0.08) }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }
@@ -219,6 +221,9 @@ html[data-theme="dark"] .orbit-slot .avatar{ box-shadow:0 0 0 3px #1b1b1b, 0 8px
 html[data-theme="dark"] .orbit-core{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 16px 32px rgba(0,0,0,0.656) }
 html[data-theme="dark"] .auth-mark{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 16px 30px rgba(0,0,0,0.608) }
 html[data-theme="dark"] .demo-badge{ color:#eea58b; background:rgba(204,95,20,0.292); border:1px solid rgba(204,95,20,0.67) }
+html[data-theme="dark"] .field-error{ color:#ff5c5c }
+html[data-theme="dark"] .input[aria-invalid="true"], html[data-theme="dark"] .select[aria-invalid="true"], html[data-theme="dark"] .textarea[aria-invalid="true"]{ border-color:#951a15; box-shadow:0 0 0 3px rgba(178,31,26,0.15) }
+html[data-theme="dark"] .ap-summary{ color:#f88189; background:rgba(226,32,32,0.08); border:1px solid rgba(226,32,32,0.25) }
 
 /* ---- onboarding.css ---- */
 html[data-theme="dark"] .ob-progress{ background:rgba(227,228,230,0.08) }
@@ -414,6 +419,10 @@ html[data-theme="dark"] .launch-stage.is-locked .launch-n{ background:rgba(227,2
 html[data-theme="dark"] .launch-legal{ color:#f8ca81; background:rgba(204,95,20,0.25); border:1px solid rgba(204,95,20,0.628) }
 html[data-theme="dark"] .wg-stage > .ico{ color:#81f8d1 }
 html[data-theme="dark"] .wg-stage-n{ background:rgba(227,228,230,0.08) }
+html[data-theme="dark"] .tool-plan .ico{ color:#f8cf81 }
+html[data-theme="dark"] .comp-late{ color:#ff5c5c }
+html[data-theme="dark"] .prog-facts{ color:#d4d5d7 }
+html[data-theme="dark"] .prog-in{ color:#81f8cf; background:rgba(20,204,143,0.25); border:1px solid rgba(20,204,143,0.67) }
 
 /* ---- network.css ---- */
 html[data-theme="dark"] .net-manage-title{ border-bottom:1px solid rgba(224,224,226,0.12) }
@@ -532,6 +541,11 @@ html[data-theme="dark"] .sp-kind-ico{ color:#ffffff }
 html[data-theme="dark"] .sp-kind{ color:#ffffff }
 html[data-theme="dark"] .sp-facts{ color:#d4d5d7 }
 html[data-theme="dark"] .sp-saved{ color:#81f8cf }
+
+/* ---- directory.css ---- */
+html[data-theme="dark"] .dir-ico{ color:#ffffff; background:linear-gradient(135deg, #1355c3, #4814c2) }
+html[data-theme="dark"] .dir-vetted{ color:#81f8cf; background:rgba(20,204,143,0.25); border:1px solid rgba(20,204,143,0.67) }
+html[data-theme="dark"] .dir-services .ico{ color:#81f8d1 }
 
 /* ---- hand-tuned (tools/dark-overrides.css) ---- */
 /* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */

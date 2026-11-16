@@ -137,7 +137,7 @@
     }
     return panel("peoplePanel", "People to meet", ["network.html#explore", "Discover"], `
       <div class="people-row">${people.map((m) => `
-        <a class="card spotlight person-mini" href="network.html#explore/${encodeURIComponent(m.id)}">
+        <a class="card spotlight person-mini" href="network.html#member/${encodeURIComponent(m.id)}">
           ${avatar(m, 44)}
           <div><b>${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</b><span class="meta">${esc(m.specialty || (D.roles[m.role] ? D.roles[m.role].label : ""))}${m.region ? ` · ${esc(m.region)}` : ""}</span>${m.headline ? `<span class="meta person-mini-line">${esc(m.headline)}</span>` : ""}</div>
         </a>`).join("")}</div>`);
@@ -175,6 +175,10 @@
     if (requests.length) rows.push(`<a class="attn-row" href="network.html#requests"><span class="attn-ico">${icon("inbox")}</span><div><b>${requests.length} connection request${requests.length === 1 ? "" : "s"}</b><span class="meta">${esc(requests.slice(0, 2).map((r) => r.person.name).join(", "))}${requests.length > 2 ? ` and ${requests.length - 2} more` : ""}</span></div><span class="go">${icon("arrowRight")}</span></a>`);
     threads.slice(0, 3).forEach((t) => rows.push(`<a class="attn-row" href="network.html#messages/${encodeURIComponent(t.id)}"><span class="attn-ico">${icon("message")}</span><div><b>${esc(t.person.name)}</b><span class="meta">${esc(t.last.body.length > 80 ? t.last.body.slice(0, 79) + "…" : t.last.body)} · ${esc(ago(t.at))}</span></div><span class="go">${icon("arrowRight")}</span></a>`));
     if (overdue.length) rows.push(`<a class="attn-row" href="project.html?id=${encodeURIComponent(overdue[0].p.id)}#tasks"><span class="attn-ico is-late">${icon("clock")}</span><div><b>${overdue.length} overdue task${overdue.length === 1 ? "" : "s"}</b><span class="meta">${esc(overdue[0].t.text)}${overdue.length > 1 ? ` and ${overdue.length - 1} more` : ""} · ${esc(overdue[0].p.name)}</span></div><span class="go">${icon("arrowRight")}</span></a>`);
+    // Obligations in a project's compliance tracker whose date has passed
+    const lateDuties = [];
+    S.projects().forEach((p) => W.get(p.id).compliance.items.forEach((x) => { if (!x.done && x.due && x.due < today) lateDuties.push({ p, x }); }));
+    if (lateDuties.length) rows.push(`<a class="attn-row" href="project.html?id=${encodeURIComponent(lateDuties[0].p.id)}#compliance"><span class="attn-ico is-late">${icon("shield")}</span><div><b>${lateDuties.length} overdue obligation${lateDuties.length === 1 ? "" : "s"}</b><span class="meta">${esc(lateDuties[0].x.name)}${lateDuties.length > 1 ? ` and ${lateDuties.length - 1} more` : ""} · ${esc(lateDuties[0].p.name)}</span></div><span class="go">${icon("arrowRight")}</span></a>`);
     if (onlyIfAny && !rows.length) return ""; // a new account gets it only when something is waiting
     const body = rows.length ? `<div class="attn-list">${rows.join("")}</div>` : emptyState("check", "You’re all caught up", "No requests waiting, nothing unread and nothing overdue.", `<a class="btn" href="network.html#explore">${icon("compass")} Meet more members</a>`);
     return panel("attentionPanel", "Needs your attention", ["network.html#messages", "Open messages"], body);
@@ -190,7 +194,7 @@
     const c = S.profileCompleteness();
     const key = JSON.stringify([active, p && [p.id, p.name, p.focus, p.overall, p.pinned, p.updatedAt], l && [l.ticked, l.next && l.next.text], c.pct, S.settings().situation,
       S.network.incoming().map((r) => r.link.id), S.chat.threads().map((t) => [t.id, t.unread, t.last && t.last.id]), S.network.members().length, S.network.connections().length,
-      S.projects().map((x) => x.tasks.filter((t) => !t.done && t.due && t.due < todayISO()).length), S.sprints.spots().map((x) => x.id)]);
+      S.projects().map((x) => x.tasks.filter((t) => !t.done && t.due && t.due < todayISO()).length), S.projects().map((x) => W.get(x.id).compliance.items.filter((i) => !i.done && i.due && i.due < todayISO()).length), S.sprints.spots().map((x) => x.id)]);
     if (key === lastKey) return;
     lastKey = key;
     $("#prompt").textContent = active ? "Pick up where you left off." : "Let’s get you started.";

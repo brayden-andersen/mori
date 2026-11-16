@@ -159,6 +159,12 @@
       },
       ladder: { done: {} },
       launch: { done: { "idea.0": true, "idea.1": true, "structure.0": true } }, // part way through choosing a structure
+      // Sample obligations: neutral names, no claims about what the law requires.
+      compliance: { items: [
+        { id: "cm-1", name: "Monthly bookkeeping close", every: "month", due: inDays(6), done: false, note: "With the accountant", sample: true },
+        { id: "cm-2", name: "Quarterly review with a tax adviser", every: "quarter", due: inDays(24), done: false, note: "", sample: true },
+        { id: "cm-3", name: "Renew the domain and business email", every: "year", due: inDays(-2), done: false, note: "", sample: true },
+      ] },
     },
     "p-rantang": { layout: [], roles: [], finance: { currency: "IDR", start: 0, entries: [] }, marketing: { campaigns: [] }, gtm: { done: {}, custom: [] }, funding: { items: [] }, metrics: { items: [] }, interviews: { items: [] }, canvas: {}, ladder: { done: {} } },
     "p-kebundata": {

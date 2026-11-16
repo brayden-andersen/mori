@@ -220,6 +220,23 @@ Mori.data = {
     { id: "agritech", name: "Agritech", blurb: "Tools for farmers, fishers and the people who buy from them." },
     { id: "creative", name: "Creative & media", blurb: "Content, brands and the tools creators use." },
   ],
+  /* Vetted partners by service, for the partner directory (directory.html) and the launch path. */
+  partnerKinds: {
+    notary: { label: "Notaries", one: "Notary", icon: "file" },
+    legal: { label: "Lawyers", one: "Lawyer", icon: "shield" },
+    accounting: { label: "Accountants", one: "Accountant", icon: "wallet" },
+    tax: { label: "Tax advisers", one: "Tax adviser", icon: "coins" },
+    design: { label: "Designers", one: "Designer", icon: "sparkle" },
+  },
+  /* The program navigator's kinds, and the funding pipeline kind each becomes. */
+  programKinds: {
+    grant: { label: "Grant", funding: "grant" },
+    incubator: { label: "Incubator", funding: "accelerator" },
+    competition: { label: "Competition", funding: "competition" },
+  },
+  /* The compliance tracker: how often an obligation comes round. */
+  complianceRepeats: { month: "Every month", quarter: "Every quarter", year: "Every year", once: "Once" },
+
   /* The five kinds of sprint, as the landing page describes them. Each counts toward a rung. */
   sprintKinds: {
     problem: { name: "Problem sprint", rung: 1, icon: "target", c1: "#7cafee", c2: "#5e92e8", blurb: "Talk to 8–10 people who have the problem, then decide what to build." },
@@ -253,9 +270,9 @@ Mori.data = {
       { id: "explorer", name: "Explorer", rung: 1, monthly: 0, tagline: "Find your people and start your launch path.",
         perks: ["MORI Network: discover, connect and message", "Sprints and your verified work record", "1 project with its Mainframe and tools", "The first stages of your launch path", "Starter templates: problem brief and interview script"] },
       { id: "builder", name: "Builder", rung: 2, monthly: 49000, tagline: "For founders building in earnest.", popular: true,
-        perks: ["Everything in Explorer", "Your full launch path", "Team agreements: founders’ agreement, equity and vesting, NDA and IP", "Program navigator (coming soon)", "Up to 5 projects, 5 people each, unlimited documents"] },
+        perks: ["Everything in Explorer", "Your full launch path", "Team agreements: founders’ agreement, equity and vesting, NDA and IP", "Program navigator: grants, incubators and competitions", "Up to 5 projects, 5 people each, unlimited documents"] },
       { id: "founder", name: "Founder Pro", rung: 3, monthly: 129000, tagline: "Register, stay compliant and grow.",
-        perks: ["Everything in Builder", "Member pricing with vetted partners", "Compliance tracker (coming soon)", "Unlimited projects and teammates", "Funding deadlines and reminders", "Word and PDF exports"] },
+        perks: ["Everything in Builder", "Member pricing with vetted partners", "Compliance tracker", "Unlimited projects and teammates", "Funding deadlines and reminders", "Word and PDF exports"] },
       { id: "studio", name: "Studio", rung: 4, monthly: 349000, tagline: "For campus incubators and entrepreneurship programmes.",
         perks: ["Everything in Founder Pro", "Run a cohort of teams in one place", "Cohort progress across projects", "Your programme’s own templates"] },
     ],
@@ -269,8 +286,8 @@ Mori.data = {
       ["Documents", ["5", "Unlimited", "Unlimited", "Unlimited"]],
       ["Launch path", ["First stages", "Full", "Full", "Full"]],
       ["Team agreements", [false, true, true, true]],
-      ["Program navigator (soon)", [false, true, true, true]],
-      ["Compliance tracker (soon)", [false, false, true, true]],
+      ["Program navigator", [false, true, true, true]],
+      ["Compliance tracker", [false, false, true, true]],
       ["Member pricing with vetted partners", [false, false, true, true]],
       ["Cohorts", [false, false, false, true]],
     ],

@@ -17,7 +17,7 @@
   const Mori = window.Mori;
   const session = Mori.auth.session();
   const active = !!(session && session.provider === "guest");
-  Mori.guest = { active, reset, seed, SEED_VERSION: 2 }; // 2: launch-path progress and a saved sprint spot
+  Mori.guest = { active, reset, seed, SEED_VERSION: 3 }; // 2: launch-path progress and a saved sprint spot · 3: sample obligations
   if (!active) return;
 
   const S = Mori.sample;
