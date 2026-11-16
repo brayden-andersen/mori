@@ -307,7 +307,7 @@
     /** Upload a CV to cvs/<user id>/…; returns { path, name }. Replaces the previous file. */
     async uploadCv(file, previousPath) {
       const { c, id } = await signedIn();
-      const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
+      const safe = file.name.replace(/[^\w.-]+/g, "_").slice(-80);
       const path = `${id}/${Date.now()}-${safe}`;
       const { error } = await c.storage.from("cvs").upload(path, file, { contentType: file.type, upsert: false });
       fail(error);

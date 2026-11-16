@@ -19,7 +19,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, avatarStack, ago, toast, createModal, seg } = Mori.ui;
+  const { $, $$, esc, icon, avatarStack, ago, toast, createModal, seg } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const P = D.planner;

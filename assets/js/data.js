@@ -8,7 +8,7 @@
    ========================================================================== */
 window.Mori = window.Mori || {};
 
-Mori.data = {
+window.Mori.data = {
   roles: {
     founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people.", what: "You can declare projects, add co-founders and get a launch path for your business." },
     specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture.", what: "Founders find you by your role; you join projects and build a verified work record." },

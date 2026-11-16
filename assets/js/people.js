@@ -20,7 +20,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, ago, toast, roleChip, createModal, loader } = Mori.ui;
+  const { $, esc, icon, avatar, ago, toast, roleChip, createModal, loader } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
@@ -28,7 +28,6 @@
   const LINK_TYPES = Object.fromEntries(D.linkTypes.map((t) => [t.id, t]));
 
   const first = (name) => String(name || "").split(/\s+/)[0];
-  const dash = (s) => String(s || "").replace(/(\d)-(\d)/, "$1–$2");
   const roleLabel = (role) => (D.roles[role] ? D.roles[role].label : "Member");
   const openLabel = (m) => (m.open ? D.openTypes[m.openType] || "Open to build" : "");
   const joined = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "");

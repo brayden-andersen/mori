@@ -165,7 +165,25 @@ The contact address for the Contact page, invite requests and partner applicatio
 python3 -m http.server 4173
 ```
 
-Then open <http://localhost:4173>.
+Then open <http://localhost:4173>. (`npm run serve` does the same on port 4180, and serves `404.html` for missing addresses, as GitHub Pages does.)
+
+## Checks: lint, HTML validation and tests
+
+The site has no build step; these tools only check it. Install them once (Node 20 or newer):
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+- `npm run lint`: ESLint (`eslint.config.mjs`) on the site's scripts, `tools/` and `tests/`. The vendored Supabase library is skipped.
+- `npm run validate`: html-validate (`.htmlvalidate.json`, its recommended rules) on every page. Self-closing `<link/>` and `<meta/>` are allowed.
+- `npm test`: ten Playwright tests in `tests/demo.spec.mjs`, run against the guest demo, so they need no Supabase project or Google account; requests to Supabase are blocked. They cover: the guest demo and its reset; sign-up showing only once and the homepage opening at once on a reload; a deep link surviving sign-in; Escape closing a dialog with focus back on what opened it; menus with the keyboard; Projects and Discover filters, chips, live counts and pagination; no sideways scrolling at 360 px; no "coming soon" anywhere; hostile text staying text under the Content-Security-Policy.
+- `npm run check`: all three. GitHub runs the same on every push and pull request (`.github/workflows/checks.yml`).
+
+The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
+
+**Cache tags:** every page loads its CSS and JS with `?v=12`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
 ## Supabase (sign-in, profiles, CVs, network)
 
@@ -236,8 +254,8 @@ To make a new database change, add the next migration file here and apply it to 
 ## Project structure
 
 ```
-index.html  onboarding.html  home.html  projects.html  project.html  network.html  subscription.html
-partners.html  legal.html  about.html  contact.html  toolkits.html  404.html
+index.html  onboarding.html  home.html  projects.html  project.html  network.html  sprints.html
+directory.html  subscription.html  partners.html  legal.html  about.html  contact.html  toolkits.html  404.html
 assets/
   css/
     mori.css        design system: tokens, aura, nav, glass, chips, buttons, forms,
@@ -288,6 +306,13 @@ tools/
   make_dark_css.py  builds assets/css/dark.css from the light stylesheets
   dark-overrides.css hand-tuned dark values (aura images, base colour, logo)
   make_aura.py      renders the background aura images (needs numpy and Pillow)
+  set_csp.py        writes the Content-Security-Policy tag into every page
+  rls-check.mjs     the two-account row-level security check (needs two test accounts' tokens)
+tests/
+  demo.spec.mjs     the ten browser tests (guest demo)
+  serve.mjs         a small static server for the tests and for local use
+package.json · eslint.config.mjs · .htmlvalidate.json · playwright.config.mjs   the checks (npm install)
+.github/workflows/checks.yml   runs them on GitHub
 supabase/
   config.toml       read by Supabase's GitHub integration and the Supabase CLI
   migrations/       every database change, in order

@@ -331,7 +331,7 @@
 
     // A new project opens straight on its Mainframe; the planner shows the note once it's there.
     const created = (id, name, note, first) => {
-      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) {}
+      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) { /* private mode: the planner just won't show the note */ }
       Mori.modal.close({ restoreFocus: false });
       Mori.ui.go("project.html?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
     };

@@ -19,7 +19,7 @@
   if (Mori.redirecting) return;
 
   const { $, $$, esc, icon, avatar, ago, toast, roleChip } = Mori.ui;
-  const { busy, fail } = Mori.people;
+  const { fail } = Mori.people;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
@@ -556,12 +556,12 @@
     };
     $("#chatList").innerHTML = list.length
       ? list.map((t) => `
-          <button class="chat-item ${t.id === activeChat ? "is-on" : ""} ${t.unread ? "is-unread" : ""}" type="button" role="listitem" data-chat="${esc(t.id)}">
+          <li><button class="chat-item ${t.id === activeChat ? "is-on" : ""} ${t.unread ? "is-unread" : ""}" type="button" data-chat="${esc(t.id)}">
             ${avatar(t.person, 42, { ring: t.person.open })}
             <span class="chat-copy"><b>${esc(t.person.name)}</b><span class="preview">${preview(t)}</span></span>
-            <span class="chat-meta">${t.last ? esc(shortAgo(t.at)) : "New"}${t.unread ? `<span class="unread-dot" aria-label="${t.unread} unread"></span>` : ""}</span>
-          </button>`).join("")
-      : `<div class="chat-none meta">${loadState === "off" ? "Sign in with Google to message members." : all.length ? "No conversations match." : "Your connections appear here once a request is accepted."}</div>`;
+            <span class="chat-meta">${t.last ? esc(shortAgo(t.at)) : "New"}${t.unread ? `<span class="unread-dot"><span class="sr-only">${t.unread} unread</span></span>` : ""}</span>
+          </button></li>`).join("")
+      : `<li class="chat-none meta">${loadState === "off" ? "Sign in with Google to message members." : all.length ? "No conversations match." : "Your connections appear here once a request is accepted."}</li>`;
   }
 
   function chatIntro() {

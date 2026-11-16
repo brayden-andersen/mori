@@ -18,7 +18,6 @@
   const { $, $$, esc, icon, ago, toast } = Mori.ui;
   const S = Mori.state;
   const W = Mori.workspace;
-  const K = Mori.projectKit;
 
   /* ---------- Clean HTML ---------- */
   const ALLOWED = { P: [], H1: [], H2: [], H3: [], STRONG: [], B: [], EM: [], I: [], U: [], S: [], STRIKE: [], UL: [], OL: [], LI: [], BLOCKQUOTE: [], BR: [], A: ["href"], HR: [], DIV: [], SPAN: [] };

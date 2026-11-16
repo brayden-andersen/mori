@@ -188,3 +188,7 @@ span.btn.is-done{ cursor:default; transform:none }
 .explore-filters .select{ min-width:150px; max-width:230px }
 
 .explore-count{ margin:10px 0 0; font-size:13px }
+
+/* The conversations are a list of buttons */
+ul.chat-list{ list-style:none }
+.chat-list > li{ display:block }

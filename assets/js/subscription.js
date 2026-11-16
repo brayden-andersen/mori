@@ -11,7 +11,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, toast, seg } = Mori.ui;
+  const { $, esc, icon, toast, seg } = Mori.ui;
   const PLANS = Mori.data.plans;
   const CURRENT = "explorer";
   let billing = "monthly";

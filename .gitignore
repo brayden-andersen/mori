@@ -1,0 +1,4 @@
+# Tooling (npm install), and what the test runner leaves behind
+node_modules/
+test-results/
+playwright-report/

@@ -10,23 +10,23 @@
   <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
   <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/mori.css?v=11" />
-  <link rel="stylesheet" href="assets/css/network.css?v=11" />
-  <link rel="stylesheet" href="assets/css/tour.css?v=11" />
-  <link rel="stylesheet" href="assets/css/dark.css?v=11" />
-  <script src="assets/js/config.js?v=11"></script>
-  <script src="assets/js/auth.js?v=11"></script>
-  <script defer src="assets/js/data.js?v=11"></script>
-  <script defer src="assets/js/state.js?v=11"></script>
-  <script defer src="assets/js/ui.js?v=11"></script>
-  <script defer src="assets/js/motion.js?v=11"></script>
-  <script defer src="assets/js/db.js?v=11"></script>
-  <script defer src="assets/js/sample.js?v=11"></script>
-  <script defer src="assets/js/guestdb.js?v=11"></script>
-  <script defer src="assets/js/shell.js?v=11"></script>
-  <script defer src="assets/js/people.js?v=11"></script>
-  <script defer src="assets/js/network.js?v=11"></script>
-  <script defer src="assets/js/tour.js?v=11"></script>
+  <link rel="stylesheet" href="assets/css/mori.css?v=12" />
+  <link rel="stylesheet" href="assets/css/network.css?v=12" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=12" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=12" />
+  <script src="assets/js/config.js?v=12"></script>
+  <script src="assets/js/auth.js?v=12"></script>
+  <script defer src="assets/js/data.js?v=12"></script>
+  <script defer src="assets/js/state.js?v=12"></script>
+  <script defer src="assets/js/ui.js?v=12"></script>
+  <script defer src="assets/js/motion.js?v=12"></script>
+  <script defer src="assets/js/db.js?v=12"></script>
+  <script defer src="assets/js/sample.js?v=12"></script>
+  <script defer src="assets/js/guestdb.js?v=12"></script>
+  <script defer src="assets/js/shell.js?v=12"></script>
+  <script defer src="assets/js/people.js?v=12"></script>
+  <script defer src="assets/js/network.js?v=12"></script>
+  <script defer src="assets/js/tour.js?v=12"></script>
 </head>
 <body data-page="network">
   <div class="aura" aria-hidden="true"></div>
@@ -61,7 +61,7 @@
 
       <div class="net-main">
         <!-- ===== Discover, with requests on top ===== -->
-        <div class="net-pane" data-pane="explore" aria-label="Discover">
+        <div class="net-pane" data-pane="explore">
           <section class="panel net-requests" id="requestsBox" aria-labelledby="recvTitle">
             <div class="panel-head"><h3 id="recvTitle">Requests</h3><button class="link-btn" type="button" id="recvMore" hidden>Show all</button></div>
             <div class="req-list" id="recvList"></div>
@@ -116,7 +116,7 @@
         </div>
 
         <!-- ===== Sent requests ===== -->
-        <div class="net-pane" data-pane="sent" aria-label="Sent requests" hidden>
+        <div class="net-pane" data-pane="sent" hidden>
           <section class="panel" aria-labelledby="sentTitle">
             <div class="panel-head"><h3 id="sentTitle">Sent requests</h3><span class="meta" id="sentCount"></span></div>
             <div class="req-list" id="sentList"></div>
@@ -124,15 +124,15 @@
         </div>
 
         <!-- ===== Messages: live chat with your connections ===== -->
-        <div class="net-pane" data-pane="messages" aria-label="Messages" hidden>
+        <div class="net-pane" data-pane="messages" hidden>
           <section class="panel chat" id="chat" aria-label="Conversations">
-            <aside class="chat-side">
+            <div class="chat-side">
               <label class="search" aria-label="Search conversations">
                 <i class="ico" data-icon="search"></i>
                 <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
               </label>
-              <div class="chat-list" id="chatList" role="list"></div>
-            </aside>
+              <ul class="chat-list" id="chatList" aria-label="Conversations"></ul>
+            </div>
             <div class="chat-main" id="chatMain"></div>
           </section>
         </div>

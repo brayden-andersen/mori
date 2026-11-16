@@ -42,8 +42,8 @@ const check = (label, ok, detail = "") => { results.push({ label, ok, detail });
 const headers = (token, extra = {}) => Object.assign({ apikey: KEY, "Content-Type": "application/json" }, token ? { Authorization: `Bearer ${token}` } : {}, extra);
 async function call(method, path, token, body, extra) {
   const res = await fetch(URL_ + path, { method, headers: headers(token, extra), body: body === undefined ? undefined : JSON.stringify(body) });
-  let data = null;
   const text = await res.text();
+  let data;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
   return { status: res.status, ok: res.ok, data };
 }

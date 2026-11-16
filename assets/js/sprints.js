@@ -164,7 +164,6 @@
   }
 
   /* ---------- Routing ---------- */
-  let shown = "";
   function render({ moved = false } = {}) {
     const [kind, id] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
     const route = kind === "lobby" && id ? ["lobby", id] : kind === "sprint" && id ? ["sprint", id] : ["", ""];
@@ -176,7 +175,6 @@
       title.focus({ preventScroll: true });
     }
     if (Mori.motion) Mori.motion.refresh(view);
-    shown = route.join("/");
   }
   window.addEventListener("hashchange", () => render({ moved: true }));
   document.addEventListener("mori:change", (e) => { if (e.detail && ["sprintSpots", "settings"].includes(e.detail.key)) render(); });
