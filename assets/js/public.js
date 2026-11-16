@@ -93,7 +93,7 @@
       $("#apMail").href = href;
       $("#apDoneTo").textContent = to
         ? `Your email app should open with it, addressed to ${to}. If it didn’t, use the button below or copy the text.`
-        : "The partner address isn’t set yet [BRAYDEN: address]: copy the application and send it to the address on the Contact page.";
+        : "The partner address isn’t set yet: copy the application and send it to the address on the Contact page.";
       form.hidden = true;
       const done = $("#applyDone");
       done.hidden = false;

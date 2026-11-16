@@ -180,7 +180,7 @@ window.Mori.data = {
      [BRAYDEN: final stage list] */
   launchPath: {
     disclaimer: "Guidance, not legal advice. Have a vetted partner check it before you rely on it.",
-    review: "[BRAYDEN: verify]",
+    review: "Not yet checked by a lawyer.",
     unlock: { plan: "builder", text: "Opens with Builder, which includes your full launch path." },
     stages: [
       { id: "idea", title: "Declare the idea", rung: 0, free: true,
@@ -205,7 +205,7 @@ window.Mori.data = {
         blurb: "The licences and certifications your sector needs. For food and drink: from October 2026, halal certification is required for food and drink products of micro and small businesses, and the government runs a free self-declare scheme for them.",
         items: ["List the licences and certifications your sector needs", "Confirm them with a vetted partner"], templates: ["licences"], partner: "legal" },
       { id: "hires", title: "First hires", rung: 5, legal: true,
-        blurb: "The first people the company employs. [BRAYDEN: what this stage should cover]",
+        blurb: "The first people the company employs: which roles come first, and an employment contract a lawyer has checked.",
         items: ["Decide the first roles to hire for", "Have a vetted lawyer check the employment contract"], templates: [], partner: "legal" },
     ],
   },
