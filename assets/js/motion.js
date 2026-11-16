@@ -227,13 +227,11 @@
   /* ---------- Re-rendered lists: staggered entrance ---------- */
   function enter(container, selector) {
     if (!container) return;
-    const items = selector ? container.querySelectorAll(selector) : container.children;
-    Array.from(items).forEach((el, i) => {
-      el.style.setProperty("--i", i);
-      el.classList.remove("enter");
-      void el.offsetWidth;
-      el.classList.add("enter");
-    });
+    const items = Array.from(selector ? container.querySelectorAll(selector) : container.children);
+    if (!items.length) return;
+    items.forEach((el, i) => { el.style.setProperty("--i", i); el.classList.remove("enter"); });
+    void container.offsetWidth; // one reflow restarts every item's animation
+    items.forEach((el) => el.classList.add("enter"));
   }
 
   function refresh(scope = document) {
@@ -241,9 +239,20 @@
     observeOnce(scope);
   }
 
+  /* ---------- Pause decorative loops while they're off-screen ---------- */
+  function pauseOffscreen() {
+    const els = document.querySelectorAll("[data-pause-offscreen]");
+    if (!els.length || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => en.target.classList.toggle("is-offscreen", !en.isIntersecting));
+    }, { rootMargin: "120px 0px" });
+    els.forEach((el) => io.observe(el));
+  }
+
   function init() {
     parallaxLayers = Array.from(document.querySelectorAll("[data-parallax]"));
     refresh(document);
+    pauseOffscreen();
     onScroll();
     root.classList.add("motion-ready");
   }

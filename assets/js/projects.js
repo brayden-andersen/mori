@@ -2,22 +2,24 @@
    Mori: Sandbox — Projects page
    --------------------------------------------------------------------------
    Search / tag filters / sort / pagination from the draft, plus:
-   • a project drawer (sprint milestones, milestone ladder, team)
-   • "New Project" → declare a project, saved for this member
-   • deep links: projects.html?open=p1 and projects.html?new=1
+   • a project preview (its board at a glance, milestone ladder, team);
+     the preview opens the full project planner (project.html?id=<id>)
+   • "New Project" → declare a project; founders can add people from their
+     connections, and everyone on the team sees the project
+   • deep links: projects.html?open=<id> and projects.html?new=1
    ========================================================================== */
 (function () {
   "use strict";
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, humanizeDays, toast, soon, createModal } = Mori.ui;
+  const { $, $$, esc, icon, avatarStack, humanizeDays, toast, createModal } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
-  const HUES = ["orange", "blue", "emerald", "teal", "purple", "gray"];
+  const N = S.network;
+  const K = Mori.projectKit;
+  const { first, teamOf } = K;
   const PAGE_SIZE = 6;
-
-  $$("i[data-icon]").forEach((el) => { el.outerHTML = icon(el.dataset.icon); });
 
   const grid = $("#grid");
   const empty = $("#empty");
@@ -30,7 +32,8 @@
 
   const activeTags = new Set();
   let currentPage = 1;
-  let highlightId = null;
+  // Google members' projects come from Supabase: wait for the first load before saying "none yet".
+  let loaded = !N.available() || S.projects().length > 0;
 
   /* ---------- Filters ---------- */
   function buildChips() {
@@ -76,23 +79,39 @@
 
   /* ---------- Grid ---------- */
   function cardHTML(p) {
-    const chips = (p.tags || []).map((t, i) => `<span class="badge badge--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
+    const chips = K.tagChips(p.tags, "badge");
+    const others = teamOf(p).filter((t) => !t.you);
+    const owner = others.find((t) => t.role === "Owner");
+    const teamLine = !p.owner && owner
+      ? `Co-founder · ${esc(owner.person.name)}’s project`
+      : others.length ? `With ${esc(others.slice(0, 2).map((t) => first(t.person.name)).join(" and "))}${others.length > 2 ? ` +${others.length - 2}` : ""}` : "";
     return `
-      <article class="pcard spotlight ${p.id === highlightId ? "is-new" : ""}" data-open="${esc(p.id)}">
-        <h4>${esc(p.name)}</h4>
+      <article class="pcard spotlight" data-open="${esc(p.id)}">
+        <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button></h4>
         <div class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</div>
         <div class="tags" style="margin-top:12px">${chips}</div>
         <div class="rung-row">${Mori.shell.ladderBar(p.rung)}<span class="meta">Rung ${p.rung} · ${esc(D.ladder[p.rung].stage)}</span></div>
-        <div class="pcard-actions">
-          <button class="btn" type="button" data-settings="${esc(p.id)}">Settings</button>
-          <button class="btn" type="button" data-open="${esc(p.id)}">Open</button>
-        </div>
+        ${teamLine ? `<div class="pcard-team">${avatarStack(others.map((t) => t.person), 24)}<span class="meta">${teamLine}</span></div>` : ""}
       </article>`;
   }
 
   function render() {
-    const filtered = applyFilters(S.projects());
-    countMeta.textContent = `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`;
+    const all = S.projects();
+    const filtered = applyFilters(all);
+    if (!all.length && !loaded) {
+      countMeta.textContent = "Loading your projects…";
+      grid.innerHTML = "";
+      empty.hidden = true;
+      pager.hidden = true;
+      return;
+    }
+    countMeta.textContent = all.length
+      ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`
+      : "No projects yet";
+    $("#emptyTitle").textContent = all.length ? "No projects match your filters." : "Declare your first project";
+    $("#emptySub").textContent = all.length
+      ? "Try clearing filters or creating a new project."
+      : "Put your idea in a form a specialist can judge in two minutes, then plan it here with your team.";
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -120,68 +139,48 @@
   $("#prevPage").addEventListener("click", () => { currentPage = Math.max(1, currentPage - 1); render(); });
   $("#nextPage").addEventListener("click", () => { currentPage += 1; render(); });
 
-  // The whole card is clickable for pointer users; keyboard users get the "Open" button.
+  // The whole card opens the preview; keyboard users reach it through the title button.
   grid.addEventListener("click", (e) => {
-    if (e.target.closest("[data-settings]")) { soon("Project settings"); return; }
     const open = e.target.closest("[data-open]");
-    if (open) openProject(open.dataset.open, open.closest("button") || open.querySelector("button[data-open]") || open);
+    if (open) openProject(open.dataset.open, open.querySelector("button[data-open]") || open.closest("button") || open);
   });
 
-  /* ---------- Project drawer ---------- */
-  const hint = (p) => (p.progress === 100 ? "Ready to post proof for the next rung." : `${p.milestones.length - p.doneCount} to go this sprint.`);
-
+  /* ---------- Project preview ---------- */
   function setOpenParam(id) {
     const u = new URL(location.href);
     if (id) u.searchParams.set("open", id); else u.searchParams.delete("open");
     history.replaceState(null, "", u.pathname + u.search + u.hash);
   }
 
-  function burst(el) {
-    if (!el || !el.animate || Mori.motion.reduced()) return;
-    const r = el.getBoundingClientRect();
-    const colors = ["#f97316", "#3b82f6", "#10b981", "#8b5cf6", "#f472b6", "#facc15"];
-    for (let i = 0; i < 18; i++) {
-      const s = document.createElement("span");
-      s.className = "confetti";
-      s.style.left = r.left + r.width / 2 + "px";
-      s.style.top = r.top + r.height / 2 + "px";
-      s.style.background = colors[i % colors.length];
-      document.body.appendChild(s);
-      const a = (Math.PI * 2 * i) / 18 + Math.random() * 0.4;
-      const d = 60 + Math.random() * 70;
-      s.animate(
-        [
-          { transform: "translate(-50%,-50%) scale(1) rotate(0deg)", opacity: 1 },
-          { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(.4) rotate(${Math.round(Math.random() * 360)}deg)`, opacity: 0 },
-        ],
-        { duration: 900 + Math.random() * 400, easing: "cubic-bezier(.16,1,.3,1)" }
-      ).onfinish = () => s.remove();
-    }
+  /** The board at a glance: each column's count and first few tasks. */
+  function boardPeek(p) {
+    const c = K.counts(p);
+    return ["todo", "doing", "done"].map((st) => {
+      const ts = p.tasks.filter((t) => t.status === st);
+      const lines = ts.slice(0, 3).map((t) => `<span class="pd-line">${esc(t.text)}</span>`).join("") + (ts.length > 3 ? `<span class="pd-more">+${ts.length - 3} more</span>` : "");
+      return `<div class="pd-col pd-col--${st}"><span class="pd-col-h">${K.STATUS[st]}<b>${c[st]}</b></span>${lines || '<span class="pd-line is-empty">Nothing yet</span>'}</div>`;
+    }).join("");
   }
 
   function drawerHTML(p) {
     const now = D.ladder[p.rung];
     const next = D.ladder[Math.min(p.rung + 1, 5)];
-    const team = (p.team || []).map(S.person).filter(Boolean);
-    const chips = p.tags.map((t, i) => `<span class="chip chip--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
+    const url = K.plannerUrl(p.id);
     return `
       <button class="icon-btn modal-x" data-close aria-label="Close project">${icon("x")}</button>
-      <div class="pd-head">
-        <div class="chips">${chips}</div>
-        <h2 id="pdTitle">${esc(p.name)}</h2>
-        <p class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</p>
-      </div>
-
-      <section class="pd-sec">
-        <div class="pd-progress">
-          <div class="progress-wrapper"><div class="progress-circle" id="pdRing" data-percent="${p.progress}"><div class="progress-inner"></div><div class="progress-label">0%</div></div></div>
-          <div>
-            <b class="pd-big" id="pdDone">${p.doneCount} of ${p.milestones.length}</b>
-            <div class="meta">sprint milestones done</div>
-            <div class="pd-hint" id="pdHint">${esc(hint(p))}</div>
-          </div>
+      <a class="pd-sheet spotlight" href="${url}" aria-label="Open the project planner for ${esc(p.name)}">
+        <div class="pd-head">
+          <div class="chips">${K.tagChips(p.tags)}</div>
+          <h2 id="pdTitle">${esc(p.name)}</h2>
+          <p class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</p>
         </div>
-      </section>
+        <div class="pd-board" id="pdBoard" aria-hidden="true">${boardPeek(p)}</div>
+        <div class="pd-open-row">
+          <span class="pd-bar" aria-hidden="true"><i id="pdBar" style="width:${p.progress}%"></i></span>
+          <span class="meta" id="pdDone">${p.doneCount} of ${p.tasks.length} tasks done</span>
+          <span class="pd-go">Open planner ${icon("arrowRight")}</span>
+        </div>
+      </a>
 
       <section class="pd-sec pd-ladder">
         <h3>Milestone ladder <span>Rung ${p.rung} of 5</span></h3>
@@ -189,82 +188,87 @@
         <div class="ladder-labels" aria-hidden="true">${D.ladder.map((r) => `<span class="${r.rung === p.rung ? "is-now" : ""}">${r.rung}</span>`).join("")}</div>
         <p class="pd-now"><b>Now:</b> ${esc(now.stage)}</p>
         ${p.rung < 5
-          ? `<div class="pd-next"><b>Next: Rung ${next.rung} · ${esc(next.stage)}</b><br>${esc(next.proof)} <span class="meta">(${esc(next.time)})</span></div>`
-          : `<div class="pd-next"><b>Top rung reached.</b> Eligible for leaderboards and showcases.</div>`}
+          ? `<div class="pd-next"><b>Next: Rung ${next.rung} · ${esc(next.stage)}</b><br>${esc(next.proof)}</div>`
+          : `<div class="pd-next"><b>Top rung reached.</b> Sessions with vetted mentors and investors open here once they’re available.</div>`}
       </section>
 
-      <section class="pd-sec">
-        <h3>This sprint <span id="pdCount">${p.doneCount}/${p.milestones.length}</span></h3>
-        <ul class="ms-list">
-          ${p.milestones.map((m, i) => `<li><label class="ms"><input type="checkbox" data-ms="${i}" ${m.done ? "checked" : ""}><span class="ms-box">${icon("check")}</span><span class="ms-text">${esc(m.text)}</span></label></li>`).join("")}
-        </ul>
-      </section>
-
-      <section class="pd-sec">
-        <h3>Team <span>${team.length ? `${team.length} member${team.length === 1 ? "" : "s"}` : "Just you"}</span></h3>
-        ${team.length
-          ? `<div class="team">${team.map((t) => `<div class="team-row">${avatar(t, 36)}<div><b>${esc(t.name)}</b><span class="meta">${esc(t.title)}</span></div><a class="btn btn--sm btn--ghost" href="network.html#messages/${esc(t.id)}">${icon("message")} Message</a></div>`).join("")}</div>`
-          : `<p class="meta">Invite builders from the Network to join this project.</p>`}
-      </section>
+      <section class="pd-sec" id="pdTeam">${K.teamHTML(p)}</section>
 
       <div class="pd-actions">
-        <a class="btn btn--ink" href="network.html#explore">${icon("userPlus")} Find builders</a>
-        <button class="btn" type="button" data-pd-settings>${icon("sliders")} Project settings</button>
+        <a class="btn btn--ink" href="${url}">${icon("layers")} Open project planner</a>
+        <a class="btn" href="network.html#explore">${icon("userPlus")} Find specialists</a>
+        <button class="btn" type="button" data-pd-pin aria-pressed="${p.pinned}">${icon("pin")} <span>${p.pinned ? "Unpin from home" : "Pin to home"}</span></button>
       </div>`;
   }
 
+  let openId = null;
   function openProject(id, opener) {
     const p = S.project(id);
     if (!p) { toast("That project couldn’t be found", { icon: "x" }); setOpenParam(null); return; }
     const root = createModal("projectDrawer", { label: "Project details", cls: "modal-root--drawer", panelCls: "modal--drawer" });
     const panel = $(".modal", root);
+    if (!panel.dataset.bound) {
+      panel.dataset.bound = "1";
+      K.bindTeam(panel, () => S.project(openId), {
+        onAdded: (ids, added) => openProject(added.id), // the Add window replaced the preview: bring it back
+        onLeft: (left) => { Mori.modal.close(); toast(`You left “${left.name}”`, { icon: "x" }); },
+      });
+      panel.addEventListener("click", (e) => {
+        const pin = e.target.closest("[data-pd-pin]");
+        if (!pin) return;
+        const u = S.togglePin(openId);
+        if (!u) return;
+        pin.setAttribute("aria-pressed", String(u.pinned));
+        pin.querySelector("span").textContent = u.pinned ? "Unpin from home" : "Pin to home";
+        toast(u.pinned ? `“${u.name}” is pinned to your homepage` : `“${u.name}” unpinned`, { icon: "pin" });
+      });
+    }
     panel.setAttribute("aria-labelledby", "pdTitle");
     panel.innerHTML = drawerHTML(p);
     panel.scrollTop = 0;
-
-    $$("[data-ms]", panel).forEach((cb) =>
-      cb.addEventListener("change", () => {
-        const u = S.toggleMilestone(p.id, Number(cb.dataset.ms));
-        if (!u) return;
-        Mori.motion.setRing($("#pdRing", panel), u.progress);
-        $("#pdDone", panel).textContent = `${u.doneCount} of ${u.milestones.length}`;
-        $("#pdCount", panel).textContent = `${u.doneCount}/${u.milestones.length}`;
-        $("#pdHint", panel).textContent = hint(u);
-        if (u.progress === 100 && cb.checked) {
-          burst($("#pdRing", panel));
-          toast("Sprint milestones complete. Time to post your proof!", { icon: "award" });
-        }
-      })
-    );
-    $("[data-pd-settings]", panel).addEventListener("click", () => soon("Project settings"));
+    openId = id;
     Mori.motion.refresh(panel);
 
     Mori.modal.open("projectDrawer", {
       opener,
-      onClose: () => { setOpenParam(null); render(); },
+      onClose: () => { openId = null; setOpenParam(null); render(); },
     });
     setOpenParam(id);
   }
+  /** Keep the open preview's board, progress and team in step with new data. */
+  function refreshDrawer() {
+    if (!openId || !Mori.modal.isOpen("projectDrawer")) return;
+    const p = S.project(openId);
+    const panel = $("#projectDrawer .modal");
+    if (!p) { Mori.modal.close(); toast("You’re no longer on that project", { icon: "x" }); return; }
+    $("#pdBoard", panel).innerHTML = boardPeek(p);
+    $("#pdBar", panel).style.width = p.progress + "%";
+    $("#pdDone", panel).textContent = `${p.doneCount} of ${p.tasks.length} tasks done`;
+    $("#pdTeam", panel).innerHTML = K.teamHTML(p);
+  }
 
   /* ---------- Declare a new project ---------- */
+
   function openNewProject(opener) {
     const root = createModal("newProjectModal", { label: "Declare a new project", panelCls: "modal--new" });
     const panel = $(".modal", root);
     const chosen = new Set();
+    const cofounders = new Set();
+    const offerPicker = N.available() && S.profile().role === "founder" && N.connections().length > 0;
     let rung = 0;
     panel.setAttribute("aria-labelledby", "npTitle");
     panel.innerHTML = `
       <div class="modal-head">
-        <div><h2 id="npTitle">Declare a new project</h2><p class="meta">Put your idea in a form a builder can judge in two minutes.</p></div>
+        <div><h2 id="npTitle">Declare a new project</h2><p class="meta">Put your idea in a form a specialist can judge in two minutes.</p></div>
         <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
       </div>
       <form class="modal-body np-form" id="npForm" novalidate>
         <label class="field"><span>Project name</span><input class="input" name="name" maxlength="60" placeholder="e.g. Warung Pay" required autofocus></label>
         <label class="field"><span>Current focus <em class="hint">optional</em></span><input class="input" name="focus" maxlength="80" placeholder="e.g. Interview 10 warung owners"></label>
-        <div class="field">
-          <span>Tags</span>
-          <div class="filters" id="npTags">${S.allTags().map((t) => `<button type="button" class="fchip" data-np-tag="${esc(t)}" data-active="false">${esc(t)}</button>`).join("")}</div>
-          <div class="np-addtag"><input class="input" id="npNewTag" maxlength="20" placeholder="Add your own tag and press Enter" aria-label="Add a tag"></div>
+        ${K.tagFieldHTML(chosen)}
+        <div class="field np-cofounders">
+          <span>Team <em class="hint">optional · from your connections</em></span>
+          ${offerPicker ? K.pickerHTML() : `<p class="meta np-co-note">${K.noPickerNote()}</p>`}
         </div>
         <div class="field">
           <span>Where are you on the milestone ladder?</span>
@@ -280,6 +284,7 @@
       </div>`;
 
     const form = $("#npForm", panel);
+    if (offerPicker) K.bindPicker($(".np-cofounders", panel), cofounders);
     const describe = () => {
       const r = D.ladder[rung];
       $("#npRungDesc", panel).innerHTML = `<b>Rung ${r.rung} · ${esc(r.stage)}.</b> ${esc(r.proof)}`;
@@ -292,15 +297,15 @@
         describe();
       })
     );
-    $("#npTags", panel).addEventListener("click", (e) => {
-      const b = e.target.closest("[data-np-tag]");
-      if (!b) return;
-      const t = b.dataset.npTag;
-      if (chosen.has(t)) chosen.delete(t); else chosen.add(t);
-      b.dataset.active = String(chosen.has(t));
-    });
+    K.bindTagField(form, chosen);
 
-    const create = () => {
+    // A new project opens straight on its Mainframe; the planner shows the note once it's there.
+    const created = (id, name, note, first) => {
+      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) {}
+      Mori.modal.close({ restoreFocus: false });
+      Mori.ui.go("project.html?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
+    };
+    const create = async () => {
       const nameInput = form.elements.name;
       const name = nameInput.value.trim();
       if (!name) {
@@ -311,35 +316,24 @@
         toast("Give your project a name", { icon: "edit" });
         return;
       }
-      const id = S.createProject({ name, focus: form.elements.focus.value, tags: Array.from(chosen), rung });
-      Mori.modal.close({ restoreFocus: false });
-      q.value = "";
-      activeTags.clear();
-      sortBy.value = "updated_desc";
-      currentPage = 1;
-      highlightId = id;
-      buildChips();
-      render();
-      highlightId = null;
-      toast(`“${name}” declared`, { icon: "check" });
-      setTimeout(() => {
-        const card = grid.querySelector(`.pcard[data-open="${CSS.escape(id)}"]`);
-        if (card) card.scrollIntoView({ behavior: Mori.motion.reduced() ? "auto" : "smooth", block: "center" });
-      }, 120);
+      const btn = $("#npCreate", panel);
+      if (btn.disabled) return;
+      btn.disabled = true;
+      const first = !S.projects().some((p) => p.owner); // your first project gets a short tour of the planner
+      try {
+        const id = await S.createProject({ name, focus: form.elements.focus.value, tags: Array.from(chosen), rung, cofounders: Array.from(cofounders) });
+        created(id, name, { text: cofounders.size ? `“${name}” declared with ${cofounders.size} ${cofounders.size === 1 ? "person" : "people"} on the team` : `“${name}” declared`, icon: "check" }, first);
+      } catch (err) {
+        btn.disabled = false;
+        if (err.projectId) { created(err.projectId, name, { text: err.message, icon: "x", duration: 5000 }, first); return; }
+        Mori.people.fail(err);
+      }
     };
 
-    $("#npNewTag", panel).addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      const t = e.target.value.trim().replace(/\s+/g, " ").slice(0, 20);
-      if (!t) return;
-      chosen.add(t);
-      const existing = panel.querySelector(`[data-np-tag="${CSS.escape(t)}"]`);
-      if (existing) existing.dataset.active = "true";
-      else $("#npTags", panel).insertAdjacentHTML("beforeend", `<button type="button" class="fchip enter" data-np-tag="${esc(t)}" data-active="true">${esc(t)}</button>`);
-      e.target.value = "";
+    form.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.name) { e.preventDefault(); create(); }
+      if (e.key === "Enter" && e.target.matches("[data-co-q]")) e.preventDefault();
     });
-    form.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.name && e.target.id !== "npNewTag") { e.preventDefault(); create(); } });
     form.addEventListener("submit", (e) => { e.preventDefault(); create(); });
     $("#npCreate", panel).addEventListener("click", create);
     form.elements.name.addEventListener("input", () => form.elements.name.classList.remove("is-invalid"));
@@ -355,10 +349,23 @@
   $("#newProjectBtn").addEventListener("click", (e) => openNewProject(e.currentTarget));
   document.addEventListener("click", (e) => { const b = e.target.closest("[data-new-project]"); if (b) openNewProject(b); });
 
+  // Projects shared with you, co-founders' changes and team names arrive in the background.
+  document.addEventListener("mori:change", (e) => {
+    const key = e.detail && e.detail.key;
+    if (!["projectsRemote", "projectsCreated", "projectOverrides", "network"].includes(key)) return;
+    if (key !== "projectOverrides" && !Mori.modal.isOpen("newProjectModal")) { buildChips(); render(); }
+    refreshDrawer();
+  });
+
   /* ---------- Boot ---------- */
   buildChips();
   render();
   const params = new URLSearchParams(location.search);
-  if (params.get("open")) setTimeout(() => openProject(params.get("open")), 250);
-  else if (params.get("new")) setTimeout(() => openNewProject($("#newProjectBtn")), 250);
+  const ready = N.available() ? S.refreshProjects().catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else toast("Couldn’t load your projects: " + err.message, { icon: "x" }); }) : Promise.resolve();
+  ready.then(() => {
+    loaded = true;
+    render();
+    if (params.get("open")) openProject(params.get("open"));
+    else if (params.get("new")) openNewProject($("#newProjectBtn"));
+  });
 })();

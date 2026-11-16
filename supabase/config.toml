@@ -1,0 +1,10 @@
+# Supabase settings for the Sandbox project (project ref ovchugvbujrqkowjalfx).
+# Supabase's GitHub integration reads this folder. migrations/ holds every
+# database change in order, with the same version numbers as the project's
+# migration history, so changes that are already live are never re-applied.
+# Settings not listed here use the Supabase CLI defaults.
+project_id = "mori"
+
+[db]
+# Same major version as the live database.
+major_version = 17
