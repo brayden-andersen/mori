@@ -151,9 +151,9 @@
     const l = launchNext(p);
     const tag = p.tags && p.tags.length ? p.tags[0] : "Idea";
     return panel("continuePanel", "Continue where you left off", ["projects.html", "All projects"], `
-      <article class="pin spotlight continue-pin" tabindex="0" role="button" data-project="${esc(p.id)}" aria-label="Open ${esc(p.name)}">
+      <article class="pin spotlight continue-pin" data-project="${esc(p.id)}">
         <div class="pin-left">
-          <h4>${esc(p.name)}${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}</h4>
+          <h4><a class="continue-name" href="project.html?id=${encodeURIComponent(p.id)}">${esc(p.name)}</a>${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}</h4>
           <div class="chips"><span class="chip">${esc(tag)}</span>${p.pinned ? `<span class="chip chip--gray">${icon("pin")} Pinned</span>` : ""}</div>
           <div class="caption">${esc(p.focus)}</div>
           ${l.next && l.next.open ? `<p class="meta continue-next">${icon("briefcase")}<span>Next on the launch path: <b>${esc(l.next.text)}</b></span><a href="project.html?id=${encodeURIComponent(p.id)}#launch" data-stop>Open the launch path</a></p>` : ""}
@@ -264,7 +264,7 @@
 
   /* Click + keyboard */
   document.addEventListener("click", (e) => {
-    if (e.target.closest("a[data-stop]")) return; // a link inside the tile goes where it says
+    if (e.target.closest("a")) return; // a link inside the tile goes where it says
     const pin = e.target.closest(".pin[data-project]");
     if (pin) { location.href = "project.html?id=" + encodeURIComponent(pin.dataset.project); return; }
   });

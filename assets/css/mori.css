@@ -9,7 +9,7 @@
 /* ---------- 1. Tokens ---------- */
 :root{
   --bg:#efeff0;                   /* a touch darker than white */
-  --ink:#1a1c1f; --ink-2:#2a2c2f; --muted:#55575b; --subtle:#75777a;
+  --ink:#1a1c1f; --ink-2:#2a2c2f; --muted:#55575b; --subtle:#6a6c70; /* 5.3:1 on white, 4.9:1 on the lightest panels */
   --line:#e8e8e8;
   --panel-shadow: 0 8px 24px rgba(26,28,31,0.06);
   --lift-shadow: 0 12px 28px rgba(26,28,31,.10);
@@ -102,7 +102,7 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
   position:absolute; left:0; top:0; width:0; height:40px; border-radius:12px; pointer-events:none; z-index:1; opacity:0;
   background: rgba(255,255,255,.36); border:1px solid rgba(39,39,42,.30);
   box-shadow: 0 6px 16px rgba(26,28,31,.06), inset 0 1px 0 rgba(255,255,255,.6);
-  transition: transform .45s var(--ease-out), width .45s var(--ease-out), opacity .25s ease;
+  transition: transform .2s var(--ease-out), width .2s var(--ease-out), opacity .15s ease;
 }
 .nav-btn{
   display:inline-flex; align-items:center; gap:10px;
@@ -127,13 +127,19 @@ code{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.92
   box-shadow:0 18px 36px rgba(26,28,31,0.12), 0 2px 6px rgba(26,28,31,0.06);
   padding:6px;
   opacity:0; transform: translateY(8px); visibility:hidden; pointer-events:none;
-  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  transition: opacity .15s ease, transform .15s ease, visibility 0s linear .15s; /* hidden only once it has faded out */
   z-index:10;
 }
 .item.account .dropdown{ left:auto; right:0 }
-.item:hover .dropdown, .item:focus-within .dropdown, .item.is-open .dropdown{ opacity:1; transform: translateY(0); visibility:visible; pointer-events:auto; }
-.dropdown > *{ opacity:0; transform: translateY(5px); transition: opacity .25s ease, transform .35s var(--ease-out); transition-delay: calc(var(--i,0) * 26ms) }
-.item:hover .dropdown > *, .item:focus-within .dropdown > *, .item.is-open .dropdown > *{ opacity:1; transform:none }
+@media (hover: hover){ .item:hover .dropdown{ opacity:1; transform: translateY(0); visibility:visible; pointer-events:auto; } }
+.item.is-open .dropdown{ opacity:1; transform: translateY(0); visibility:visible; pointer-events:auto; transition-delay: 0s; }
+@media (hover: hover){ .item:hover .dropdown{ transition-delay: 0s } } /* visible at once, so Tab reaches its links */
+/* The button that opens Projects and Network for the keyboard and touch: a small chevron under the link */
+.nav-more{ position:absolute; z-index:21; left:50%; bottom:-4px; width:28px; height:18px; margin-left:-14px; display:grid; place-items:center; padding:0; border:0; border-radius:8px; background:transparent; color:var(--muted); cursor:pointer; opacity:0; transition: opacity .15s ease }
+.nav-more .ico{ width:14px; height:14px; transition: transform .15s ease }
+.item:hover .nav-more, .nav-more:focus-visible, .item.is-open .nav-more{ opacity:1 }
+.item.is-open .nav-more .ico{ transform: rotate(180deg) }
+@media (hover: none){ .nav-more{ opacity:.7 } }
 .drop-link{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; color:inherit; text-decoration:none; font-size:13px; }
 .drop-link .ico{ width:16px; height:16px; opacity:.72 }
 .drop-link:hover{
@@ -336,7 +342,7 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 .seg{ position:relative; display:inline-flex; padding:3px; gap:2px; border-radius:12px; background: rgba(26,28,31,.05); border:1px solid rgba(26,28,31,.06); isolation:isolate }
 .seg button{ position:relative; z-index:1; appearance:none; border:0; background:transparent; padding:7px 12px; border-radius:9px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; transition: color .2s ease; white-space:nowrap }
 .seg button.is-on{ color:var(--ink); font-weight:600 }
-.seg-glider{ position:absolute; z-index:0; top:3px; bottom:3px; left:0; width:0; border-radius:9px; background:#fff; box-shadow: 0 2px 8px rgba(26,28,31,.10); transition: transform .45s var(--ease-out), width .45s var(--ease-out) }
+.seg-glider{ position:absolute; z-index:0; top:3px; bottom:3px; left:0; width:0; border-radius:9px; background:#fff; box-shadow: 0 2px 8px rgba(26,28,31,.10); transition: transform .2s var(--ease-out), width .45s var(--ease-out) }
 .seg--sm button{ padding:6px 10px; font-size:12px }
 
 /* ---------- 10. Page header, subnav, grid (drafts' projects page) ---------- */
@@ -382,7 +388,7 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 .footer-col li{ margin:8px 0; }
 .footer-col a{ text-decoration:none; color:#414347; font-size:14px; transition: color .15s ease; display:inline-block }
 .footer-col a:hover{ color:#1a1c1f; }
-.footer-bottom{ margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(26,28,31,0.08); text-align:center; color:#75777a; font-size:12px; }
+.footer-bottom{ margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(26,28,31,0.08); text-align:center; color:var(--subtle); font-size:12px; }
 .footer-kanji{ display:inline-block; margin-left:4px; font-size:13px; opacity:.7 }
 
 /* ---------- 13. Modals & drawers ---------- */
@@ -496,7 +502,7 @@ a.card, a.nav-btn, a.drop-link{ text-decoration:none; }
 .saved-pill.is-on{ opacity:1; transform:none }
 .st{ display:grid; grid-template-columns: 190px 1fr; min-height:440px; border-top:1px solid rgba(26,28,31,.06) }
 .st-nav{ display:flex; flex-direction:column; gap:4px; padding:14px 12px; border-right:1px solid rgba(26,28,31,.06) }
-.st-tab{ appearance:none; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:1px solid transparent; background:transparent; font-size:14px; font-weight:500; color:var(--muted); cursor:pointer; text-align:left; transition: background .2s ease, color .2s ease, transform .3s var(--ease-out) }
+.st-tab{ appearance:none; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:1px solid transparent; background:transparent; font-size:14px; font-weight:500; color:var(--muted); cursor:pointer; text-align:left; transition: background .15s ease, color .15s ease, transform .18s var(--ease-out) }
 .st-tab:hover{ background: rgba(255,255,255,.7); transform: translateX(2px) }
 .st-tab.is-on{ background:#fff; color:var(--ink); border-color:#e8e8e8; box-shadow: var(--panel-shadow) }
 .st-tab .ico{ width:17px; height:17px }
@@ -811,3 +817,51 @@ html.theme-fade::view-transition-new(*){ animation: theme-in .5s cubic-bezier(.4
 .pf-share-row .ico{ width:14px; height:14px }
 .pf-unavailable{ display:grid; justify-items:start; gap:10px; padding-top:28px }
 .pf-unavailable .meta{ margin:0; line-height:1.55 }
+
+/* Phones: the nav is icons only; its menus are reached from the pages themselves */
+@media (max-width: 760px){ .nav-more{ display:none } }
+
+/* A failure that stays until dismissed (toasts are for things that worked) */
+.problem{ position:fixed; z-index:3001; left:50%; bottom:22px; transform:translateX(-50%); display:flex; align-items:flex-start; gap:10px; max-width: min(560px, calc(100vw - 32px)); padding:12px 14px; border-radius:14px; font-size:14px; line-height:1.45; color:#7d0a10; background:#fff3f2; border:1px solid rgba(184,0,0,.30); box-shadow: 0 14px 34px rgba(26,28,31,.16) }
+.problem[hidden]{ display:none }
+.problem > .ico{ flex:0 0 auto; width:17px; height:17px; margin-top:2px; color:#b80000 }
+.problem-text{ flex:1 }
+.problem-x{ flex:0 0 auto; font-weight:600; color:#7d0a10 }
+/* Field errors */
+.field-error{ display:block; margin-top:5px; font-size:12.5px; font-weight:600; color:#b80000 }
+.field-error[hidden]{ display:none }
+.input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"]{ border-color:#d0302a; box-shadow: 0 0 0 3px rgba(208,48,42,.12) }
+
+/* ===== Touch screens: every target at least 44 px =====
+   Controls grow to 44 px; text links and small controls get a bigger tap
+   area through padding, with a matching negative margin so nothing moves. */
+@media (pointer: coarse){
+  .btn, .nav-btn, .manage-item, .home-link, .select, .input, .plan-cta, .pl-add-input, .pl-team-peek, .st-tab, .search, .tool-check, .ap-check, .wg-check{ min-height:44px }
+  .btn--sm, .btn--pill, .select--sm{ min-height:44px }
+  .icon-btn{ min-width:44px; min-height:44px }
+  .fchip{ min-height:44px; display:inline-flex; align-items:center }
+  .seg button{ min-height:40px }
+  .wg-check{ display:flex; align-items:center }
+  .link-btn, .panel-link, .wg-link, .wg-title, .pcard-open, .req-name, .continue-name, .task-open, .brand, .crumbs a, .meta > a, summary{ padding-block:14px; margin-block:-14px }
+  .task-check{ padding:12px; margin:-12px }
+  .footer-col li a{ display:inline-flex; align-items:center; min-height:44px }
+  .footer-col ul{ gap:0 }
+}
+@media (pointer: coarse){
+  .brand{ min-width:44px; min-height:44px; justify-content:center }
+  .crumbs a{ padding-inline:6px; margin-inline:-6px }
+  .wg-title, .wg-link, .pcard-open, .req-name{ padding-block:14px !important; margin-block:-14px !important }
+  .task-open{ min-height:44px; display:flex; flex-direction:column; justify-content:center }
+  .search input{ min-height:44px }
+  .ap-check input{ width:22px; height:22px; margin:0 }
+  .seg button{ min-height:44px }
+}
+
+/* App pages: the nav's usual height before it's measured (members, and guests with the demo bar), so nothing jumps */
+html[data-auth="required"]{ --navH: 86px }
+@media (max-width: 760px){ html[data-auth="required"]{ --navH: 78px } }
+html[data-auth="required"].is-guest{ --navH: 119px }
+@media (max-width: 900px){ html[data-auth="required"].is-guest{ --navH: 142px } }
+@media (max-width: 760px){ html[data-auth="required"].is-guest{ --navH: 136px } }
+@media (max-width: 440px){ html[data-auth="required"].is-guest{ --navH: 125px } }
+@media (max-width: 400px){ html[data-auth="required"].is-guest{ --navH: 142px } }

@@ -2,6 +2,7 @@
 <html lang="en" data-auth="onboarding">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SandBox • Set up your profile</title>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
@@ -34,8 +35,8 @@
       </span>
       <div class="ob-top-right">
         <span id="obCount" aria-live="polite">Step 1 of 4</span>
-        <button class="btn btn--sm btn--ghost" type="button" id="obSignOut"><i data-icon="logout"></i> Sign out</button>
-        <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode"><i data-icon="moon"></i><i data-icon="sun"></i></button>
+        <button class="btn btn--sm btn--ghost" type="button" id="obSignOut"><i class="ico" data-icon="logout"></i> Sign out</button>
+        <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode"><i class="ico" data-icon="moon"></i><i class="ico" data-icon="sun"></i></button>
       </div>
     </div>
   </nav>
@@ -48,7 +49,7 @@
       <div id="obBody"></div>
       <p class="ob-error" id="obError" role="alert"></p>
       <div class="ob-actions">
-        <button class="btn" type="button" id="obBack"><i data-icon="chevronLeft"></i> Back</button>
+        <button class="btn" type="button" id="obBack"><i class="ico" data-icon="chevronLeft"></i> Back</button>
         <button class="link-btn" type="button" id="obSkip" hidden>Skip for now</button>
         <button class="btn btn--ink btn--lg magnetic" type="submit" id="obNext">Continue</button>
       </div>

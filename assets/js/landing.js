@@ -91,7 +91,7 @@
       await db.signInWithGoogle(params.get("next")); // the browser now leaves for Google
     } catch (err) {
       loader.hide();
-      toast(err.message || "Google sign-in failed.", { icon: "x", duration: 4000 });
+      Mori.ui.problem(err.message || "Google sign-in failed.");
     }
   }
 
@@ -127,7 +127,7 @@
     } catch (err) {
       loader.hide();
       history.replaceState(null, "", location.pathname);
-      toast(err.message || "Sign-in failed.", { icon: "x", duration: 4500 });
+      Mori.ui.problem(err.message || "Sign-in failed.");
     }
   }
 

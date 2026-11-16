@@ -51,10 +51,13 @@
   /** LinkedIn and extra links as buttons. */
   function linkButtons(p) {
     const out = [];
-    if (p.linkedin) out.push(`<a class="btn btn--sm" href="${esc(p.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>`);
+    const li = Mori.ui.safeUrl(p.linkedin);
+    if (li) out.push(`<a class="btn btn--sm" href="${esc(li)}" target="_blank" rel="noopener noreferrer">${icon("link")} LinkedIn</a>`);
     (p.links || []).forEach((l) => {
       const t = LINK_TYPES[l.type] || LINK_TYPES.other;
-      out.push(`<a class="btn btn--sm" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">${icon(t.icon)} ${esc(t.id === "other" ? host(l.url) : t.label)}</a>`);
+      const url = Mori.ui.safeUrl(l && l.url);
+      if (!url) return; // only https:// links are shown
+      out.push(`<a class="btn btn--sm" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="${esc(url)}">${icon(t.icon)} ${esc(t.id === "other" ? host(url) : t.label)}</a>`);
     });
     return out.join("");
   }
@@ -81,7 +84,7 @@
   }
   function fail(err) {
     if (err && err.code === "signed-out") { signInAgain(err.message); return; }
-    toast((err && err.message) || "Something went wrong. Please try again.", { icon: "x", duration: 3800 });
+    Mori.ui.problem((err && err.message) || "Something went wrong. Please try again.");
   }
   /** Disable the button while the change is saved; views re-render when it lands. */
   function busy(btn, work, done) {
@@ -215,6 +218,7 @@
     }
     return root;
   }
+  let shownTitle = ""; // the page's title, put back when the profile closes
   /** Open a member's profile. Resolves false if they can't be found. */
   async function openMember(id, opts = {}) {
     if (id && id === S.session().id && Mori.shell) { Mori.shell.openModal("profile", opts.opener); return true; }
@@ -226,10 +230,13 @@
     }
     if (!m) {
       if (opts.fromLink) unavailable(opts);
-      else toast("That member couldn’t be found", { icon: "x" });
+      else Mori.ui.problem("That member couldn’t be found. They may have left SandBox.");
       return false;
     }
     const wasOpen = Mori.modal.isOpen("memberModal");
+    const pageTitle = wasOpen ? (shownTitle || document.title) : document.title;
+    shownTitle = pageTitle;
+    document.title = `SandBox • ${m.name}`; // the profile's own title while it's open
     renderMember(m);
     $("#memberModal .modal").scrollTop = 0;
     if (!wasOpen) {
@@ -237,6 +244,7 @@
         opener: opts.opener,
         onClose: () => {
           shownMember = null;
+          if (shownTitle) { document.title = shownTitle; shownTitle = ""; }
           if (opts.onClose) opts.onClose();
         },
       });

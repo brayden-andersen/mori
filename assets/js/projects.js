@@ -38,7 +38,7 @@
   /* ---------- Filters ---------- */
   function buildChips() {
     filterChips.innerHTML = S.allTags()
-      .map((t) => `<button class="fchip" type="button" data-tag="${esc(t)}" data-active="${activeTags.has(t)}">${esc(t)}</button>`)
+      .map((t) => `<button class="fchip" type="button" data-tag="${esc(t)}" data-active="${activeTags.has(t)}" aria-pressed="${activeTags.has(t)}">${esc(t)}</button>`)
       .join("");
   }
   filterChips.addEventListener("click", (e) => {
@@ -47,13 +47,38 @@
     const tag = chip.dataset.tag;
     if (activeTags.has(tag)) activeTags.delete(tag); else activeTags.add(tag);
     chip.dataset.active = String(activeTags.has(tag));
+    chip.setAttribute("aria-pressed", String(activeTags.has(tag)));
     currentPage = 1;
     render();
+  });
+  /** Every filter that's on, as a chip you can remove; Reset clears them all. */
+  const SORTS = { updated_asc: "Least recently updated", name_asc: "Name A–Z", name_desc: "Name Z–A" };
+  function renderActive() {
+    const box = $("#pjActive");
+    const chips = [];
+    if (q.value.trim()) chips.push(["q", `Search: “${q.value.trim()}”`]);
+    activeTags.forEach((t) => chips.push(["tag:" + t, t]));
+    if (SORTS[sortBy.value]) chips.push(["sort", `Sorted: ${SORTS[sortBy.value]}`]);
+    box.innerHTML = chips.map(([k, label]) => `<span class="fpill">${esc(label)}<button type="button" data-drop-pj="${esc(k)}" aria-label="Remove: ${esc(label)}">${icon("x")}</button></span>`).join("")
+      + (chips.length ? `<button class="link-btn" type="button" data-clear-all>Reset</button>` : "");
+    box.hidden = !chips.length;
+  }
+  $("#pjActive").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-drop-pj]");
+    if (!b) return;
+    const k = b.dataset.dropPj;
+    if (k === "q") q.value = "";
+    else if (k === "sort") sortBy.value = "updated_desc";
+    else { activeTags.delete(k.slice(4)); buildChips(); }
+    currentPage = 1;
+    render();
+    const next = $("[data-drop-pj], [data-clear-all]", $("#pjActive")) || q;
+    next.focus();
   });
   $("#clearFilters").addEventListener("click", () => {
     q.value = "";
     activeTags.clear();
-    $$(".fchip", filterChips).forEach((c) => { c.dataset.active = "false"; });
+    $$(".fchip", filterChips).forEach((c) => { c.dataset.active = "false"; c.setAttribute("aria-pressed", "false"); });
     sortBy.value = "updated_desc";
     currentPage = 1;
     render();
@@ -105,8 +130,9 @@
       pager.hidden = true;
       return;
     }
+    renderActive();
     countMeta.textContent = all.length
-      ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`
+      ? (filtered.length === all.length ? `${all.length} project${all.length === 1 ? "" : "s"}` : `${filtered.length} of ${all.length} projects match`) + (filtered.length > PAGE_SIZE ? ` · ${PAGE_SIZE} per page` : "")
       : "No projects yet";
     $("#emptyTitle").textContent = all.length ? "No projects match your filters." : "Declare your first project";
     $("#emptySub").textContent = all.length
@@ -208,7 +234,7 @@
   let openId = null;
   function openProject(id, opener) {
     const p = S.project(id);
-    if (!p) { toast("That project couldn’t be found", { icon: "x" }); setOpenParam(null); return; }
+    if (!p) { Mori.ui.problem("That project couldn’t be found"); setOpenParam(null); return; }
     const root = createModal("projectDrawer", { label: "Project details", cls: "modal-root--drawer", panelCls: "modal--drawer" });
     const panel = $(".modal", root);
     if (!panel.dataset.bound) {
@@ -244,7 +270,7 @@
     if (!openId || !Mori.modal.isOpen("projectDrawer")) return;
     const p = S.project(openId);
     const panel = $("#projectDrawer .modal");
-    if (!p) { Mori.modal.close(); toast("You’re no longer on that project", { icon: "x" }); return; }
+    if (!p) { Mori.modal.close(); Mori.ui.problem("You’re no longer on that project"); return; }
     $("#pdBoard", panel).innerHTML = boardPeek(p);
     $("#pdBar", panel).style.width = p.progress + "%";
     $("#pdDone", panel).textContent = `${p.doneCount} of ${p.tasks.length} tasks done`;
@@ -313,11 +339,8 @@
       const nameInput = form.elements.name;
       const name = nameInput.value.trim();
       if (!name) {
-        nameInput.classList.remove("is-invalid");
-        void nameInput.offsetWidth;
-        nameInput.classList.add("is-invalid");
+        Mori.ui.fieldError(nameInput, "Give your project a name.", () => (nameInput.value.trim() ? "" : "Give your project a name."));
         nameInput.focus();
-        toast("Give your project a name", { icon: "edit" });
         return;
       }
       const btn = $("#npCreate", panel);
@@ -366,7 +389,7 @@
   buildChips();
   render();
   const params = new URLSearchParams(location.search);
-  const ready = N.available() ? S.refreshProjects().catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else toast("Couldn’t load your projects: " + err.message, { icon: "x" }); }) : Promise.resolve();
+  const ready = N.available() ? S.refreshProjects().catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else Mori.ui.problem("Couldn’t load your projects: " + err.message); }) : Promise.resolve();
   ready.then(() => {
     loaded = true;
     render();

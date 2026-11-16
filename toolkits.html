@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SandBox • Toolkits</title>
   <meta name="description" content="SandBox’s templates, from problem brief to sector licences. Open them in your planner as documents your team can edit." />
@@ -49,7 +50,7 @@
       <div class="l-actions">
         <a class="btn btn--pill btn--blue" href="index.html">Join SandBox</a>
       </div>
-      <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode"><i data-icon="moon"></i><i data-icon="sun"></i></button>
+      <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark mode" title="Switch to dark mode"><i class="ico" data-icon="moon"></i><i class="ico" data-icon="sun"></i></button>
       </div>
     </div>
   </nav>

@@ -46,7 +46,9 @@
   const manageItems = $$(".manage-item[data-tab]");
   let activeTab = null; // the pane on screen: explore · sent · messages
 
+  const TAB_TITLES = { explore: "Discover", requests: "Requests", sent: "Sent requests", messages: "Messages" };
   function showTab(tab) {
+    document.title = `SandBox • MORI Network · ${TAB_TITLES[tab] || "Discover"}`;
     const pane = tab === "requests" ? "explore" : tab; // requests sit on top of Discover
     manageItems.forEach((t) => {
       const on = t.dataset.tab === tab;
@@ -244,19 +246,31 @@
   indPanel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showIndustries(false); indToggle.focus(); } });
   document.addEventListener("click", (e) => { if (!indPanel.hidden && !indFilter.contains(e.target)) showIndustries(false); });
 
+  /** Every filter that's on, as a chip you can remove, and one reset for them all. */
   function renderActiveFilters() {
     const box = $("#activeFilters");
-    const pills = Array.from(filters.industries).map((x) =>
-      `<span class="fpill">${esc(x)}<button type="button" data-drop-industry="${esc(x)}" aria-label="Remove ${esc(x)}">${icon("x")}</button></span>`).join("");
-    box.innerHTML = pills + (filtersOn() ? `<button class="link-btn" type="button" data-clear-filters>Clear all filters</button>` : "");
-    box.hidden = !filtersOn();
+    const chosen = (sel) => (sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : "");
+    const chips = [];
+    if (filters.q) chips.push(["q", `Search: “${filters.q}”`]);
+    if (filters.role !== "all") chips.push(["role", chosen(roleSel)]);
+    if (filters.exp) chips.push(["exp", `${chosen(expSel)} experience`]);
+    if (filters.region) chips.push(["region", chosen(regionSel)]);
+    if (filters.rating) chips.push(["rating", `${chosen(ratingSel)} verified sprints`]);
+    Array.from(filters.industries).forEach((x) => chips.push(["industry:" + x, x]));
+    box.innerHTML = chips.map(([k, label]) => `<span class="fpill">${esc(label)}<button type="button" data-drop-filter="${esc(k)}" aria-label="Remove filter: ${esc(label)}">${icon("x")}</button></span>`).join("")
+      + (chips.length ? `<button class="link-btn" type="button" data-clear-filters>Reset filters</button>` : "");
+    box.hidden = !chips.length;
   }
   $("#activeFilters").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-drop-industry]");
+    const b = e.target.closest("[data-drop-filter]");
     if (!b) return;
-    filters.industries.delete(b.dataset.dropIndustry);
-    setIndustryToggle();
+    const k = b.dataset.dropFilter;
+    if (k.startsWith("industry:")) { filters.industries.delete(k.slice(9)); setIndustryToggle(); }
+    else Object.assign(filters, { q: { q: "" }, role: { role: "all" }, exp: { exp: "" }, region: { region: "" }, rating: { rating: 0 } }[k]);
+    syncControls();
     renderPeople();
+    const next = $("[data-drop-filter], [data-clear-filters]", $("#activeFilters")) || peopleQ; // keep the keyboard in the same place
+    next.focus();
   });
 
   /* ---------- Explore: member cards ---------- */
@@ -361,6 +375,8 @@
     const found = q ? N.found().filter((m) => normName(m.name) === q && !pool.some((p) => p.id === m.id)) : [];
     const list = found.concat(pool.filter(matches).sort(newestFirst));
     grid.innerHTML = list.map(personCard).join("");
+    // A result count while filtering, announced as it changes; Discover shows no member count otherwise.
+    $("#peopleCount").textContent = pool.length && filtersOn() ? `${list.length} ${list.length === 1 ? "person matches" : "people match"}` : "";
     const ids = list.map((m) => m.id).join(",");
     if (ids !== shownIds) Mori.motion.enter(grid);
     shownIds = ids;
@@ -476,7 +492,7 @@
     void row.offsetWidth;
     row.classList.add("is-leaving");
     $$("button", row).forEach((b) => { b.disabled = true; });
-    const wait = new Promise((r) => setTimeout(r, Mori.motion.reduced() ? 0 : 430));
+    const wait = new Promise((r) => setTimeout(r, Mori.motion.reduced() ? 0 : 210)); // the row's leave transition (network.css)
     Promise.allSettled([Promise.resolve().then(work), wait]).then(([res]) => {
       holdRequests--;
       renderTab();
@@ -648,7 +664,7 @@
     input.value = "";
     C.send(activeChat, text).catch((err) => {
       if (err && err.code === "signed-out") fail(err);
-      else toast(N.status(activeChat) === "connected" ? "Your message wasn’t sent. Try again." : "You’re no longer connected, so the message wasn’t sent.", { icon: "x", duration: 3600 });
+      else Mori.ui.problem(N.status(activeChat) === "connected" ? "Your message wasn’t sent. Try again." : "You’re no longer connected, so the message wasn’t sent.");
     });
     scrollChat(true);
   }
@@ -667,7 +683,7 @@
       return;
     }
     const retry = e.target.closest("[data-retry-msg]");
-    if (retry) { C.retry(retry.dataset.retryMsg).catch(() => toast("Still couldn’t send it. Check your connection.", { icon: "x" })); return; }
+    if (retry) { C.retry(retry.dataset.retryMsg).catch(() => Mori.ui.problem("Still couldn’t send it. Check your connection.")); return; }
     const discard = e.target.closest("[data-discard-msg]");
     if (discard) C.discard(discard.dataset.discardMsg);
   });
@@ -710,7 +726,7 @@
         loadError = err;
         loadState = N.members().length ? "ready" : "error";
         renderTab();
-        if (loadState === "ready") toast("Couldn’t refresh the network. Showing what was loaded before.", { icon: "x" });
+        if (loadState === "ready") Mori.ui.problem("Couldn’t refresh the network. Showing what was loaded before.");
       }
     );
     C.refresh({ force }).catch(() => {});

@@ -117,7 +117,7 @@
   /** Wire a tag field inside `box`; `chosen` is a Set of tags. */
   function bindTagField(box, chosen) {
     const list = $("[data-tag-list]", box);
-    const full = () => { toast(`Up to ${MAX_TAGS} tags`, { icon: "x" }); };
+    const full = () => { Mori.ui.problem(`Up to ${MAX_TAGS} tags`); };
     list.addEventListener("click", (e) => {
       const b = e.target.closest("[data-tag-pick]");
       if (!b) return;

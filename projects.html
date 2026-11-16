@@ -2,6 +2,7 @@
 <html lang="en" data-auth="required">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SandBox • Projects</title>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
@@ -41,16 +42,16 @@
           <a href="home.html">Home</a> <span class="sep">/</span> <span>Projects</span>
         </nav>
         <h1 class="title" id="pageTitle">Projects</h1>
-        <p class="meta" id="countMeta" data-reveal="fade" style="--reveal-delay:200ms">Loading…</p>
+        <p class="meta" id="countMeta" aria-live="polite" data-reveal="fade" style="--reveal-delay:200ms">Loading…</p>
       </div>
-      <button class="btn magnetic" type="button" id="newProjectBtn" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="plus"></i> New Project</button>
+      <button class="btn magnetic" type="button" id="newProjectBtn" data-reveal="fade" style="--reveal-delay:260ms"><i class="ico" data-icon="plus"></i> New Project</button>
     </header>
 
     <!-- Sticky subnav: search / filters / sort -->
     <section class="subnav" aria-label="Project controls" data-reveal style="--reveal-delay:120ms">
       <div class="subgrid">
         <label class="search" aria-label="Search projects">
-          <i data-icon="search"></i>
+          <i class="ico" data-icon="search"></i>
           <input type="search" id="q" placeholder="Search by name, focus, or tag…" autocomplete="off"/>
         </label>
 
@@ -66,10 +67,12 @@
         </div>
 
         <div class="subnav-actions">
-          <button class="btn" type="button" id="clearFilters">Clear</button>
+          <button class="btn" type="button" id="clearFilters">Reset</button>
         </div>
       </div>
     </section>
+
+    <div class="explore-active pj-active" id="pjActive" hidden></div>
 
     <!-- Results -->
     <section class="panel" aria-labelledby="projectsTitle" data-reveal style="--reveal-delay:200ms">
@@ -77,7 +80,7 @@
       <div class="grid" id="grid"></div>
 
       <div id="empty" class="empty" hidden>
-        <span class="empty-ico"><i data-icon="search"></i></span>
+        <span class="empty-ico"><i class="ico" data-icon="search"></i></span>
         <div id="emptyTitle">No projects match your filters.</div>
         <div class="meta" id="emptySub">Try clearing filters or creating a new project.</div>
         <div><button class="btn" type="button" data-new-project>Create project</button></div>

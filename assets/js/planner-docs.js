@@ -37,7 +37,7 @@
         Array.from(n.attributes).forEach((a) => { if (!ALLOWED[tag].includes(a.name.toLowerCase())) n.removeAttribute(a.name); });
         if (tag === "A") {
           const href = (n.getAttribute("href") || "").trim();
-          if (/^(https?:|mailto:)/i.test(href)) { n.setAttribute("href", href); n.setAttribute("target", "_blank"); n.setAttribute("rel", "noopener noreferrer"); } else n.removeAttribute("href");
+          if (/^(https:|mailto:)/i.test(href)) { n.setAttribute("href", href); n.setAttribute("target", "_blank"); n.setAttribute("rel", "noopener noreferrer"); } else n.removeAttribute("href");
         }
         walk(n);
       });
@@ -111,7 +111,7 @@
     view.innerHTML = `<div class="doc-loading meta">${cached ? "" : "Opening the document…"}</div>`;
     let d = cached;
     try { d = await W.docs.open(ctx.pid, id); } catch (err) { if (!d) { Mori.people.fail(err); ctx.go("docs"); return; } }
-    if (!d) { toast("That document isn’t there any more", { icon: "x" }); ctx.go("docs"); return; }
+    if (!d) { Mori.ui.problem("That document isn’t there any more"); ctx.go("docs"); return; }
     if (view.dataset.section !== "docs" || ctx.route() !== "docs/" + id) return; // moved on meanwhile
     view.innerHTML = `
       <div class="doc-top">
@@ -205,7 +205,7 @@
       const url = e.target.elements.url.value.trim();
       e.target.hidden = true;
       restore();
-      if (!/^(https?:\/\/.+|mailto:.+)/i.test(url)) { toast("Links need to start with https:// or mailto:", { icon: "link" }); return; }
+      if (!Mori.ui.safeUrl(url, { mailto: true })) { Mori.ui.problem("Links need to start with https:// or mailto:"); return; }
       if (window.getSelection().isCollapsed) document.execCommand("insertHTML", false, `<a href="${esc(url)}">${esc(url)}</a>`);
       else document.execCommand("createLink", false, url);
       schedule();

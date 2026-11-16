@@ -17,14 +17,14 @@
   const S = Mori.state;
   const D = Mori.data;
   const page = document.body.dataset.page || "";
-  const section = page === "project" ? "projects" : page; // the planner lives under Projects
+  const section = page === "project" || page === "directory" ? "projects" : page; // the planner and the partner directory live under Projects
 
   /* ---------- Nav ---------- */
   function navHTML() {
     const s = S.session();
     const you = S.me();
     const sub = s.email || (s.provider === "guest" ? "Sample founder · guest demo" : s.provider === "demo" ? "Demo account" : "");
-    const link = (href, label, ic) => `<a class="drop-link" role="menuitem" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
+    const link = (href, label, ic) => `<a class="drop-link" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
     return `
     <nav class="nav app-nav${Mori.guest && Mori.guest.active ? " has-demo" : ""}" id="topNav" aria-label="Main">
       <div class="nav-inner">
@@ -33,40 +33,42 @@
           <span class="menu-glider" aria-hidden="true"></span>
           <div class="item"><a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
           <div class="item">
-            <a class="nav-btn" href="projects.html" data-nav="projects" aria-haspopup="true">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
-            <div class="dropdown" role="menu" aria-label="Projects">
+            <a class="nav-btn" href="projects.html" data-nav="projects">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
+            <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddProjects" aria-label="Projects menu">${icon("chevronDown")}</button>
+            <div class="dropdown" id="ddProjects">
               <div class="drop-label">Pinned</div>
               ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
-              <div class="drop-sep" role="separator"></div>
+              <div class="drop-sep" aria-hidden="true"></div>
               ${link("projects.html", "All projects")}
               ${link("directory.html", "Vetted partners")}
-              <a class="drop-link" role="menuitem" href="#" data-modal="settings" data-tab="projects">Project settings</a>
+              <a class="drop-link" href="#" data-modal="settings" data-tab="projects">Project settings</a>
             </div>
           </div>
           <div class="item">
-            <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
-            <div class="dropdown" role="menu" aria-label="Network">
+            <a class="nav-btn" href="network.html" data-nav="network">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
+            <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddNetwork" aria-label="Network menu">${icon("chevronDown")}</button>
+            <div class="dropdown" id="ddNetwork">
               ${link("network.html#explore", "Discover", "compass")}
-              <a class="drop-link" role="menuitem" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="#" data-connections>${icon("network")} Connections</a>
+              <a class="drop-link" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
+              <a class="drop-link" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
+              <a class="drop-link" href="#" data-connections>${icon("network")} Connections</a>
             </div>
           </div>
           <div class="item"><a class="nav-btn" href="sprints.html" data-nav="sprints">${icon("zap", "ico nav-ico")}<span class="nav-label">Sprints</span></a></div>
           <div class="item account">
-            <button class="nav-btn account-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+            <button class="nav-btn account-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddAccount" aria-label="Account menu">
               <span class="nav-label acct-label">Account</span>
               <span class="pfp-wrap">${avatar(you, 24)}<span class="pfp-dot" hidden></span></span>
             </button>
-            <div class="dropdown" role="menu" aria-label="Account">
+            <div class="dropdown" id="ddAccount">
               <div class="drop-head">${avatar(you, 36)}<div><b>${esc(you.name)}</b><span>${esc(sub)}</span></div></div>
-              <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="#" data-modal="profile">${icon("user")} Profile</a>
-              <a class="drop-link" role="menuitem" href="#" data-modal="settings">${icon("sliders")} Settings</a>
-              <a class="drop-link" role="menuitem" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
-              <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
+              <div class="drop-sep" aria-hidden="true"></div>
+              <a class="drop-link" href="#" data-modal="profile">${icon("user")} Profile</a>
+              <a class="drop-link" href="#" data-modal="settings">${icon("sliders")} Settings</a>
+              <a class="drop-link" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
+              <a class="drop-link" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
+              <div class="drop-sep" aria-hidden="true"></div>
+              <a class="drop-link" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
             </div>
           </div>
           <div class="item item--theme">${Mori.ui.themeToggle()}</div>
@@ -83,11 +85,15 @@
       </div>`;
   }
 
-  function closeMenus() {
+  /** Close the open nav menu; with { focus: true }, focus goes back to the button that opened it. */
+  function closeMenus(opts = {}) {
     $$(".item.is-open").forEach((it) => {
       it.classList.remove("is-open");
-      const t = $(".account-toggle", it);
-      if (t) t.setAttribute("aria-expanded", "false");
+      const t = $("[data-menu-toggle]", it);
+      if (t) {
+        t.setAttribute("aria-expanded", "false");
+        if (opts.focus) t.focus();
+      }
     });
   }
 
@@ -104,14 +110,18 @@
     if (active) { active.classList.add("is-active"); active.setAttribute("aria-current", "page"); }
     $$(".dropdown", nav).forEach((d) => Array.from(d.children).forEach((c, i) => c.style.setProperty("--i", i)));
 
-    const acct = $(".item.account", nav);
-    const toggle = $(".account-toggle", acct);
-    toggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const open = !acct.classList.contains("is-open");
-      closeMenus();
-      acct.classList.toggle("is-open", open);
-      toggle.setAttribute("aria-expanded", String(open));
+    // Menus are disclosures: the button shows or hides a list of links. Tab moves through
+    // them, Escape closes the menu and returns to its button, and leaving it closes it.
+    $$("[data-menu-toggle]", nav).forEach((toggle) => {
+      const item = toggle.closest(".item");
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = !item.classList.contains("is-open");
+        closeMenus();
+        item.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+      item.addEventListener("focusout", (e) => { if (item.classList.contains("is-open") && e.relatedTarget && !item.contains(e.relatedTarget)) closeMenus(); });
     });
 
     // Glass pill follows the hovered nav item and rests on the current page.
@@ -153,15 +163,26 @@
     }
   }
 
-  /* ---------- Instant page changes: prerender linked app pages on hover (Chrome / Edge) ---------- */
+  /* ---------- Instant page changes: prefetch and prerender linked app pages (Chrome / Edge) ----------
+     Nothing at all when the browser asks to save data. On phones and tablets
+     (no hover, or a narrow screen) only a light prefetch of the link being
+     pressed: no prerendering, which would spend data and battery on pages
+     that may never be opened. */
   function speculate() {
     if (!(HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules"))) return;
+    const conn = navigator.connection || {};
+    if (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "")) return;
+    const phone = window.matchMedia("(hover: none), (max-width: 760px)").matches;
+    const links = 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="sprints.html"], a[href^="directory.html"], a[href^="subscription.html"]';
+    const rules = phone
+      ? { prefetch: [{ source: "document", where: { selector_matches: links }, eagerness: "conservative" }] }
+      : {
+          prefetch: [{ source: "document", where: { selector_matches: links }, eagerness: "eager" }],
+          prerender: [{ source: "document", where: { selector_matches: links }, eagerness: "moderate" }],
+        };
     const s = document.createElement("script");
     s.type = "speculationrules";
-    s.textContent = JSON.stringify({
-      prefetch: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "eager" }],
-      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "moderate" }],
-    });
+    s.textContent = JSON.stringify(rules);
     document.head.appendChild(s);
   }
 
@@ -229,19 +250,19 @@
     const docs = Mori.people.linkButtons(p) + (p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "");
     const google = s.provider === "google" && /^https:/.test(s.picture || "") && s.picture !== p.photo ? s.picture : "";
     const photoMenu = [
-      `<button class="drop-link" type="button" role="menuitem" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
-      google ? `<button class="drop-link" type="button" role="menuitem" data-photo="google">${googleG()} Use my Google photo</button>` : "",
-      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="adjust">${icon("search")} Adjust or resize</button>` : "",
-      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
+      `<button class="drop-link" type="button" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
+      google ? `<button class="drop-link" type="button" data-photo="google">${googleG()} Use my Google photo</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" data-photo="adjust">${icon("search")} Adjust or resize</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
     ].join("");
     const coverMenu = [
-      `<button class="drop-link" type="button" role="menuitem" data-cover="upload">${icon("upload")} ${p.cover ? "Upload a new image" : "Upload an image"}</button>`,
-      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="adjust">${icon("search")} Adjust or resize</button>` : "",
-      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="remove">${icon("x")} Use the default banner</button>` : "",
+      `<button class="drop-link" type="button" data-cover="upload">${icon("upload")} ${p.cover ? "Upload a new image" : "Upload an image"}</button>`,
+      p.cover ? `<button class="drop-link" type="button" data-cover="adjust">${icon("search")} Adjust or resize</button>` : "",
+      p.cover ? `<button class="drop-link" type="button" data-cover="remove">${icon("x")} Use the default banner</button>` : "",
     ].join("");
     const coverControls = `
-      <button class="pf-cover-btn" type="button" data-pf-cover aria-haspopup="menu" aria-expanded="false">${icon("camera")} ${p.cover ? "Edit banner" : "Add a banner"}</button>
-      <div class="pf-photo-menu pf-cover-menu" role="menu" aria-label="Profile banner" hidden>${coverMenu}</div>
+      <button class="pf-cover-btn" type="button" data-pf-cover aria-expanded="false" aria-controls="pfCoverMenu">${icon("camera")} ${p.cover ? "Edit banner" : "Add a banner"}</button>
+      <div class="pf-photo-menu pf-cover-menu" id="pfCoverMenu" hidden>${coverMenu}</div>
       <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-cover-file hidden>`;
 
     const done = S.profileCompleteness(p);
@@ -254,8 +275,8 @@
       <div class="pf-head">
         <div class="pf-photo">
           ${avatar(S.me(), 88, { ring: p.open })}
-          <button class="icon-btn pf-photo-btn" type="button" data-pf-photo aria-haspopup="menu" aria-expanded="false" aria-label="Change profile photo">${icon("camera")}</button>
-          <div class="pf-photo-menu" role="menu" aria-label="Profile photo" hidden>${photoMenu}</div>
+          <button class="icon-btn pf-photo-btn" type="button" data-pf-photo aria-expanded="false" aria-controls="pfPhotoMenu" aria-label="Change profile photo">${icon("camera")}</button>
+          <div class="pf-photo-menu" id="pfPhotoMenu" hidden>${photoMenu}</div>
           <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-photo-file hidden>
         </div>
         <button class="btn btn--sm" data-pf-edit>${icon("edit")} Edit profile</button>
@@ -333,7 +354,8 @@
       if (!raw) continue;
       let url;
       try { url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : "https://" + raw); } catch (e) { url = null; }
-      if (!url || !/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) {
+      if (url && url.protocol === "http:") url.protocol = "https:"; // links are shown as https:// only
+      if (!url || url.protocol !== "https:" || !url.hostname.includes(".")) {
         const err = new Error(`“${raw}” doesn’t look like a web address.`);
         err.field = $("[data-link-url]", row);
         throw err;
@@ -367,7 +389,7 @@
     try {
       crop = await Mori.ui.cropper($("#pfCrop", panel), src, { aspect: c.aspect, round: c.round, outW: c.outW });
     } catch (err) {
-      toast(err.message, { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.message);
       back();
       return;
     }
@@ -381,7 +403,7 @@
         await c.apply(await crop.toBlob());
         toast(c.done, { icon: "check" });
       } catch (err) {
-        toast(err.code === "signed-out" ? err.message : "Couldn’t save it: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+        Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t save it: " + (err.message || "please try again."));
       }
       crop.destroy();
       if (Mori.modal.isOpen("modal-profile")) back();
@@ -394,13 +416,13 @@
       await S.setCover(null);
       toast("Back to the default banner", { icon: "check" });
     } catch (err) {
-      toast(err.code === "signed-out" ? err.message : "Couldn’t change your banner: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t change your banner: " + (err.message || "please try again."));
     }
     if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
   }
   async function changePhoto(choice, panel, file) {
     if (choice === "upload") {
-      try { checkImage(file); } catch (err) { toast(err.message, { icon: "x", duration: 4200 }); return; }
+      try { checkImage(file); } catch (err) { Mori.ui.problem(err.message); return; }
       openCropper("photo", file);
       return;
     }
@@ -416,7 +438,7 @@
         toast("Back to the default icon", { icon: "check" });
       }
     } catch (err) {
-      toast(err.code === "signed-out" ? err.message : "Couldn’t change your photo: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t change your photo: " + (err.message || "please try again."));
     }
     if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
   }
@@ -430,7 +452,7 @@
       if (win) win.location = url; else location.href = url;
     } catch (err) {
       if (win) win.close();
-      toast(err.message || "Couldn’t open your CV.", { icon: "x" });
+      Mori.ui.problem(err.message || "Couldn’t open your CV.");
     }
   }
 
@@ -462,6 +484,8 @@
         else changePhoto(b.dataset.photo, panel);
       });
       panel.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".pf-photo")) showMenu(false); });
+      menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showMenu(false); photoBtn.focus(); } });
+      menu.addEventListener("focusout", (e) => { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== photoBtn) showMenu(false); });
       fileInput.addEventListener("change", () => { const f = fileInput.files && fileInput.files[0]; if (f) changePhoto("upload", panel, f); });
       const coverBtn = $("[data-pf-cover]", panel);
       const coverMenu = $(".pf-cover-menu", panel);
@@ -480,6 +504,8 @@
         else changeCover(b.dataset.cover);
       });
       panel.addEventListener("click", (e) => { if (!coverMenu.hidden && !e.target.closest(".pf-cover")) showCoverMenu(false); });
+      coverMenu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showCoverMenu(false); coverBtn.focus(); } });
+      coverMenu.addEventListener("focusout", (e) => { if (e.relatedTarget && !coverMenu.contains(e.relatedTarget) && e.relatedTarget !== coverBtn) showCoverMenu(false); });
       coverFile.addEventListener("change", () => { const f = coverFile.files && coverFile.files[0]; if (f) changeCover("upload", f); });
       Mori.motion.refresh(panel);
       return el;
@@ -509,8 +535,8 @@
       const btn = $("[data-pf-save]", panel);
       let links;
       try { links = readLinks(form); } catch (err) {
-        toast(err.message, { icon: "x", duration: 3600 });
-        if (err.field) err.field.focus();
+        if (err.field) { Mori.ui.fieldError(err.field, err.message, () => { try { readLinks(form); return ""; } catch (e) { return e.field === err.field ? e.message : ""; } }); err.field.focus(); }
+        else Mori.ui.problem(err.message);
         return;
       }
       btn.disabled = true;
@@ -528,7 +554,7 @@
         const nowInvisible = !!form.elements.invisible.checked;
         toast(nowInvisible !== wasInvisible ? (nowInvisible ? "You’re invisible on the MORI Network" : "You’re visible on the MORI Network again") : "Profile updated", { icon: "check" });
       } catch (err) {
-        toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 });
+        Mori.ui.problem("Saved on this device, but not to your account: " + err.message);
       }
       renderProfile("view");
     };
@@ -634,7 +660,7 @@
     const segs = $$(".seg[data-setting]", panel).map((s) => seg(s, (v) => {
       if (s.dataset.setting === "visibility") {
         // Stored on the profile so the Network can respect it.
-        S.saveProfile({ visibility: v }).then(saved, (err) => toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 }));
+        S.saveProfile({ visibility: v }).then(saved, (err) => Mori.ui.problem("Saved on this device, but not to your account: " + err.message));
         return;
       }
       S.saveSettings({ [s.dataset.setting]: v });
@@ -772,7 +798,7 @@
 
     if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $(".item.is-open")) closeMenus({ focus: true }); });
   // The nav shows your photo, name and pinned projects: rebuild it when any of those change.
   const navKey = () => JSON.stringify([S.me(), S.pinnedProjects().map((p) => [p.id, p.name])]);
   let lastNav = "";

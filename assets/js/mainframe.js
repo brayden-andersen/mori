@@ -358,7 +358,7 @@
           ${t.section ? `<button class="wg-title" type="button" data-wgo="${t.section}" aria-label="Open ${esc(TYPES[w.type].name)}">${esc(t.name)}</button>` : `<span class="wg-title">${esc(t.name)}</span>`}
           <span class="wg-tools">
             <button class="wg-tool wg-grip" type="button" data-wdrag aria-label="Move ${esc(titleOf(w, ctx))}" title="Drag to move">${icon("grip")}</button>
-            <button class="wg-tool" type="button" data-wmenu="${esc(w.id)}" aria-label="Options for ${esc(titleOf(w, ctx))}" title="Options">${icon("more")}</button>
+            <button class="wg-tool" type="button" data-wmenu="${esc(w.id)}" aria-expanded="false" aria-label="Options for ${esc(titleOf(w, ctx))}" title="Options">${icon("more")}</button>
           </span>
         </header>
         <div class="wg-body">${t.render(ctx, w)}</div>
@@ -679,7 +679,15 @@
   }
 
   /* ---------- A widget's options menu ---------- */
-  function closeMenu() { const m = $(".wg-pop"); if (m) m.remove(); document.removeEventListener("pointerdown", outside, true); }
+  function closeMenu(opts = {}) {
+    const m = $(".wg-pop");
+    if (m) {
+      const btn = $(`[data-wmenu="${CSS.escape(m.dataset.for)}"]`);
+      m.remove();
+      if (btn) { btn.setAttribute("aria-expanded", "false"); if (opts.focus) btn.focus(); }
+    }
+    document.removeEventListener("pointerdown", outside, true);
+  }
   const outside = (e) => { if (!e.target.closest(".wg-pop") && !e.target.closest("[data-wmenu]")) closeMenu(); };
   function openMenu(btn) {
     const open = $(".wg-pop");
@@ -689,8 +697,10 @@
     const pop = document.createElement("div");
     pop.className = "wg-pop";
     pop.dataset.for = id;
-    pop.setAttribute("role", "menu");
-    pop.innerHTML = `<button type="button" role="menuitem" data-pop="edit">${icon("sliders")} Style and size</button><button type="button" role="menuitem" data-pop="remove">${icon("trash")} Remove</button>`;
+    pop.id = "wgPop";
+    btn.setAttribute("aria-expanded", "true");
+    btn.setAttribute("aria-controls", "wgPop");
+    pop.innerHTML = `<button type="button" data-pop="edit">${icon("sliders")} Style and size</button><button type="button" data-pop="remove">${icon("trash")} Remove</button>`;
     btn.closest(".wg").appendChild(pop);
     pop.addEventListener("click", (e) => {
       const b = e.target.closest("[data-pop]");
@@ -698,6 +708,8 @@
       if (b.dataset.pop === "edit") { closeMenu(); openGallery(btn, { edit: id }); return; }
       if (Mori.people.confirmTap(b, "Tap again to remove")) { closeMenu(); removeWidget(id); toast("Widget removed", { icon: "trash" }); }
     });
+    pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeMenu({ focus: true }); } });
+    pop.addEventListener("focusout", (e) => { if (e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== btn) closeMenu(); });
     setTimeout(() => document.addEventListener("pointerdown", outside, true), 0);
     $("button", pop).focus();
   }

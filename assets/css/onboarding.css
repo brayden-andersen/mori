@@ -11,8 +11,9 @@
 .ob-steps li{ font-size:12px; text-align:center; color:var(--subtle); transition: color .3s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .ob-steps li.is-done{ color:#065f46 }
 .ob-steps li.is-on{ color:var(--ink); font-weight:600 }
-.ob-steps li[role="button"]{ cursor:pointer }
-.ob-steps li[role="button"]:hover{ color:var(--ink) }
+.ob-step-btn{ all:unset; display:block; width:100%; cursor:pointer; overflow:hidden; text-overflow:ellipsis; border-radius:6px }
+.ob-step-btn:hover{ color:var(--ink) }
+.ob-step-btn:focus-visible{ box-shadow: 0 0 0 3px rgba(94,146,232,.35) }
 
 /* Card + steps */
 /* The questions sit straight on the page background, like the rest of the site's pages */

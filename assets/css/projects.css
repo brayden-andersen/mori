@@ -119,3 +119,5 @@
 .pcard{ cursor:pointer }
 .pcard-open{ all:unset; cursor:pointer; color:inherit; font:inherit }
 .pcard-open:focus-visible{ outline:none; text-decoration:underline; text-underline-offset:3px }
+
+.pj-active{ margin:-4px 0 0 }

@@ -548,3 +548,6 @@ button.wg-title:hover{ color:var(--ink-2) }
 .prog-in .ico{ width:13px; height:13px }
 @media (max-width: 560px){ .tool-form-row{ grid-template-columns: 1fr } }
 .tool-check-text .sample-tag{ justify-self:start; align-self:start; width:fit-content }
+
+/* Touch screens: 44 px targets in the planner */
+@media (pointer: coarse){ .task-open{ min-height:44px; align-content:center } .wg-title{ padding-block:15px !important; margin-block:-15px !important } }

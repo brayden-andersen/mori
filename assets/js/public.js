@@ -55,7 +55,8 @@
     }
     const names = Array.from(form.elements).filter((el) => el.name).map((el) => el.name);
     form.addEventListener("input", (e) => { if (e.target.name && e.target.getAttribute("aria-invalid") === "true") show(e.target.name, problem(e.target.name)); });
-    form.addEventListener("change", (e) => { if (e.target.name && e.target.getAttribute("aria-invalid") === "true") show(e.target.name, problem(e.target.name)); });
+    // Not on blur for text fields: a message disappearing then would move the button being clicked.
+    form.addEventListener("change", (e) => { const t = e.target; if (t.name && (t.tagName === "SELECT" || t.type === "checkbox") && t.getAttribute("aria-invalid") === "true") show(t.name, problem(t.name)); });
 
     const v = (name) => fieldOf(name).value.trim();
     function text() {

@@ -35,7 +35,7 @@
   .manage-item{ flex:0 0 auto; padding:9px 12px; margin:0; gap:8px }
   .manage-item > span:first-of-type{ flex:none }
 }
-.net-pane.pane-in{ animation: fade-up .5s var(--ease-out) both }
+.net-pane.pane-in{ animation: fade-up .2s var(--ease-out) both }
 
 /* ---------- Explore: search, sort and filters ---------- */
 .explore-top{ display:grid; grid-template-columns: minmax(0,1fr); gap:12px; align-items:center }
@@ -101,7 +101,7 @@ span.btn.is-done{ cursor:default; transform:none }
 /* ---------- Requests ---------- */
 .req-list{ display:grid; gap:10px }
 .req{ display:grid; grid-template-columns: auto minmax(0,1fr) auto; align-items:start; gap:14px; padding:16px; border-radius:16px; background:#fff; border:1px solid #e8e8e8; box-shadow: var(--panel-shadow); overflow:hidden;
-  transition: opacity .35s ease, transform .45s var(--ease-out), max-height .45s var(--ease-out), padding .45s var(--ease-out), margin .45s var(--ease-out) }
+  transition: opacity .18s ease, transform .2s var(--ease-out), max-height .2s var(--ease-out), padding .2s var(--ease-out), margin .2s var(--ease-out) }
 .req.is-leaving{ opacity:0; transform: translateX(30px) scale(.98); max-height:0 !important; padding-top:0; padding-bottom:0; margin-bottom:-10px; border-width:0 }
 .req-av, .req-name{ appearance:none; padding:0; border:0; background:none; font:inherit; color:inherit; cursor:pointer }
 .req-av{ display:inline-grid; border-radius:50% }
@@ -124,7 +124,7 @@ span.btn.is-done{ cursor:default; transform:none }
 .chat-list{ display:flex; flex-direction:column; gap:4px; min-height:0; overflow:auto; margin:0 -4px; padding:0 4px 4px }
 .chat-none{ padding:18px 8px; line-height:1.5 }
 .chat-item{ appearance:none; width:100%; display:grid; grid-template-columns: auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:10px; border-radius:14px; border:1px solid transparent; background:transparent; font: inherit; text-align:left; color:inherit; cursor:pointer;
-  transition: background .2s ease, border-color .2s ease, transform .35s var(--ease-out), box-shadow .2s ease }
+  transition: background .15s ease, border-color .15s ease, transform .18s var(--ease-out), box-shadow .15s ease }
 .chat-item:hover{ background: rgba(255,255,255,.78); transform: translateX(2px) }
 .chat-item.is-on{ background:#fff; border-color:#e8e8e8; box-shadow: var(--panel-shadow) }
 .chat-copy{ min-width:0 }
@@ -186,3 +186,5 @@ span.btn.is-done{ cursor:default; transform:none }
   .ind-panel{ width: calc(100vw - 48px) }
 }
 .explore-filters .select{ min-width:150px; max-width:230px }
+
+.explore-count{ margin:10px 0 0; font-size:13px }

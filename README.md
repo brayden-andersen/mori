@@ -212,13 +212,26 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261109000717_project_workspace_and_docs.sql`: the planner's `workspace` column, up to 100 tasks per project, and the `project_docs` table with its policies and trigger.
 - `20261109062222_member_prefs_sync.sql`: the `prefs` column on profiles, for settings, pins and the theme across devices.
 - `20261114160000_invite_only_signup.sql`: the `invites` table and the trigger that makes sign-in invite-only (see *The demo: guests and invites*).
-- `20261116090000_sprint_spots.sql`: the `sprint_spots` table for *Save my spot*, with its own-rows-only policies (see *Sprints*).
+- `20261116090000_sprint_spots.sql`: the `sprint_spots` table for *Save my spot*, with its own-rows-only policies (see *Sprints*). **Not applied yet.**
+- `20261116100000_security_notes.sql`: comments explaining why `member_directory()` and `find_member()` are SECURITY DEFINER, and an explicit deny-all policy on `invites`. No behaviour changes. **Not applied yet.**
+
+**To apply a migration by hand:** Supabase → SQL editor → paste the file's contents → *Run*. Each file is safe to run twice.
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
 **The "Supabase Preview" check on GitHub** comes from Supabase Branching, which creates a temporary copy of the database for each pull request. It needs the Pro plan, and the organization is on the free plan, so the check shows *Skipped*. That is expected. The live site doesn't use it: it talks to the Sandbox project directly through `config.js`.
 
 **Demo mode:** when the site is opened straight from disk (`file://`), "Continue with Google" opens a demo sign-in instead. Onboarding and everything else work with data kept in the browser; CVs keep their file name only.
+
+## Security and accessibility
+
+- **Row-level security, checked from outside:** `tools/rls-check.mjs` uses two test accounts' access tokens and calls the REST API directly. Account B must not read or change account A's private profile fields, CV, messages, projects, documents, connections or sprint spots, and anonymous callers must get nothing. How to get the tokens and run it is at the top of the file. The same rules were checked inside the database on 16 Nov 2026, impersonating one real member against another.
+- **SECURITY DEFINER functions:** `member_directory()` and `find_member()` are flagged by the Supabase advisor on purpose. They set a fixed, empty `search_path`, only signed-in members can call them, and they return only the fields a member chose to show. `20261116100000_security_notes.sql` writes this down on the functions.
+- **No unsafe HTML:** every value from a member goes into the page through `esc()` or `textContent`. Links from members (LinkedIn, profile links, funding links, links in documents) are shown only if they start with `https://` (`mailto:` too, in documents). Photos load only from `https://`, `data:` or `blob:` addresses. A test fills a name, headline, project, task, message, document, obligation and links with script-carrying strings and checks nothing runs.
+- **Content-Security-Policy** (a `<meta>` tag on every page, since GitHub Pages can't set headers): scripts, styles, fonts and pages from this site only; data from the Supabase project (REST, storage, realtime); images also from Google profile photos. No inline scripts, apart from the 404 page's base-path snippet, allowed by its hash. Google sign-in is a redirect through Supabase, so it needs nothing more. **If you change `supabaseUrl` in `config.js`** or an inline script, run `python3 tools/set_csp.py` to rewrite the tags.
+- **Menus are disclosures:** a button with `aria-expanded` shows a list of links. Tab moves through them, Escape closes the menu and returns to its button, and no arrow keys are needed. Projects and Network keep their links, with a small toggle beside each for the keyboard and touch.
+- **Errors:** a form shows each error under its field, tied to it with `aria-describedby`, until it's fixed. Something that fails in the background (a save, a sign-in, a load) shows an alert that stays until it's dismissed. Toasts only confirm things that worked.
+- **Checked on 16 Nov 2026:** axe finds no serious or critical issues on any page, dialog or error state, in light and dark mode. Nothing overflows at 200% zoom. On touch screens every control is at least 44 px (`@media (pointer: coarse)` in `mori.css`). Repeated actions (tabs, filters, menus, planner pages) animate for 200 ms at most.
 
 ## Project structure
 
@@ -282,7 +295,10 @@ supabase/
 
 ## Performance notes
 
-- **Prerendering:** on signed-in pages, hovering a nav link prerenders the page (Chrome / Edge Speculation Rules), so the click feels instant. Other browsers get a quick cross-fade without blur.
+- **Prerendering:** on signed-in pages, hovering a nav link prerenders the page (Chrome / Edge Speculation Rules), so the click feels instant. Other browsers get a quick cross-fade without blur. Phones and tablets only prefetch the link being pressed, and never prerender; with Save-Data on, or on 2G, nothing is fetched ahead.
+- **No jumps while loading:** the nav and the guest demo bar are drawn by script after the first paint, so app pages reserve their height from the start (estimates in `mori.css`, then the height last measured at that width, applied in `auth.js` before the page paints). Icon placeholders carry the icon's class, so they take its size before the icon arrives.
+- **Mobile Lighthouse (16 Nov 2026, local server, guest demo):** landing page 97, home 100, Network 82, a project's Mainframe 98. The local server doesn't compress files; GitHub Pages does, which helps further. Network's remaining layout shift comes from its first render of the requests and Discover lists.
+- **The background aura** is one image per theme and shape: 225–405 KB (WebP), only the one for the current theme and screen shape loads. They're dithered on purpose (smooth gradients in Safari), which is what keeps them from getting smaller.
 - **Animations run on the GPU:** loops (pulsing dots, rings, floating cards, the landing's scroll scenes) only change `transform` and `opacity`. Nothing animates `box-shadow`, blur or layout on every frame. The landing's scroll scenes use one passive scroll listener, update at most once per frame, and measure positions only on load and resize.
 - **Frosted blur only where it's needed:** the nav (once you scroll), sticky bars, the modal backdrop and toasts. The floating landing cards and the background use none, and the nav is fully transparent at the top of the page.
 - **Animations rest off-screen:** the hero, marquee, orbit, constellation and spinning band pause when they're out of view.

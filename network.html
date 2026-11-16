@@ -2,6 +2,7 @@
 <html lang="en" data-auth="required">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SandBox • MORI Network</title>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
@@ -42,7 +43,7 @@
         <h1 class="title">MORI Network</h1>
         <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders and specialists who have joined Sandbox.</p>
       </div>
-      <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i data-icon="userPlus"></i> Find a co-founder</button>
+      <button class="btn magnetic" type="button" id="findCofounder" data-reveal="fade" style="--reveal-delay:260ms"><i class="ico" data-icon="userPlus"></i> Find a co-founder</button>
     </header>
 
     <div class="net-layout">
@@ -50,11 +51,11 @@
       <aside class="panel net-manage" aria-labelledby="manageTitle">
         <h2 class="net-manage-title" id="manageTitle">Manage my network</h2>
         <nav class="manage-list" aria-label="Manage my network">
-          <a class="manage-item" href="#explore" data-tab="explore"><i data-icon="compass"></i><span>Discover</span></a>
-          <a class="manage-item" href="#requests" data-tab="requests"><i data-icon="inbox"></i><span>Requests</span><span class="manage-badge" data-badge="requests" hidden></span></a>
-          <a class="manage-item" href="#messages" data-tab="messages"><i data-icon="message"></i><span>Messages</span><span class="manage-badge" data-badge="messages" hidden></span></a>
-          <a class="manage-item" href="#" data-connections><i data-icon="network"></i><span>Connections</span><span class="manage-num" id="mConnections"></span></a>
-          <a class="manage-item" href="#sent" data-tab="sent"><i data-icon="send"></i><span>Sent requests</span><span class="manage-num" id="mSent"></span></a>
+          <a class="manage-item" href="#explore" data-tab="explore"><i class="ico" data-icon="compass"></i><span>Discover</span></a>
+          <a class="manage-item" href="#requests" data-tab="requests"><i class="ico" data-icon="inbox"></i><span>Requests</span><span class="manage-badge" data-badge="requests" hidden></span></a>
+          <a class="manage-item" href="#messages" data-tab="messages"><i class="ico" data-icon="message"></i><span>Messages</span><span class="manage-badge" data-badge="messages" hidden></span></a>
+          <a class="manage-item" href="#" data-connections><i class="ico" data-icon="network"></i><span>Connections</span><span class="manage-num" id="mConnections"></span></a>
+          <a class="manage-item" href="#sent" data-tab="sent"><i class="ico" data-icon="send"></i><span>Sent requests</span><span class="manage-num" id="mSent"></span></a>
         </nav>
       </aside>
 
@@ -70,7 +71,7 @@
             <div class="panel-head"><h3 id="peopleTitle">Discover</h3></div>
             <div class="explore-top">
               <label class="search" aria-label="Search members">
-                <i data-icon="search"></i>
+                <i class="ico" data-icon="search"></i>
                 <input type="search" id="peopleQ" placeholder="Search names, skills or regions…" autocomplete="off">
               </label>
             </div>
@@ -101,12 +102,13 @@
                 <span class="fgroup-label" id="indLabel">Industry</span>
                 <button class="select select--sm ind-toggle" type="button" id="indToggle" aria-expanded="false" aria-controls="indPanel" aria-describedby="indLabel">Any industry</button>
                 <div class="ind-panel" id="indPanel" role="group" aria-labelledby="indLabel" hidden>
-                  <label class="search search--sm" aria-label="Search industries"><i data-icon="search"></i><input type="search" id="indQ" placeholder="Search industries" autocomplete="off"></label>
+                  <label class="search search--sm" aria-label="Search industries"><i class="ico" data-icon="search"></i><input type="search" id="indQ" placeholder="Search industries" autocomplete="off"></label>
                   <ul class="ind-list" id="indList"></ul>
                 </div>
               </div>
             </div>
             <div class="explore-active" id="activeFilters" hidden></div>
+            <p class="meta explore-count" id="peopleCount" aria-live="polite"></p>
 
             <div class="grid people-grid" id="peopleGrid"></div>
             <div class="empty" id="peopleEmpty" hidden></div>
@@ -126,7 +128,7 @@
           <section class="panel chat" id="chat" aria-label="Conversations">
             <aside class="chat-side">
               <label class="search" aria-label="Search conversations">
-                <i data-icon="search"></i>
+                <i class="ico" data-icon="search"></i>
                 <input type="search" id="chatQ" placeholder="Search conversations" autocomplete="off">
               </label>
               <div class="chat-list" id="chatList" role="list"></div>

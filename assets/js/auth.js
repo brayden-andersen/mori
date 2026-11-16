@@ -279,6 +279,17 @@
     if (justIn && !document.prerendering) session(() => sessionStorage.removeItem(SIGNED_IN_KEY)); // the first app page uses it up
     session(() => sessionStorage.setItem(VISIT_KEY, "1"));
   }
+  /* Reserve the nav's height before the first paint. The nav (and a guest's
+     demo bar) is drawn by shell.js after the page has painted, so without
+     this the page would jump down when it appears. ui.js remembers the
+     height it measured for this width; until then the CSS has estimates. */
+  if (s && s.provider === "guest") root.classList.add("is-guest");
+  session(() => {
+    const seen = JSON.parse(localStorage.getItem("mori.navH") || "{}");
+    const h = seen[(s && s.provider === "guest" ? "g" : "m") + window.innerWidth];
+    if (h && root.getAttribute("data-auth") === "required") root.style.setProperty("--navH", h + "px");
+  });
+
   // Google is redirecting back: show the sign-in screen, not the landing page.
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
   if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index.html")) root.classList.add("is-signing-in");

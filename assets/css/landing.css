@@ -446,3 +446,4 @@
 .ap-done-actions{ display:flex; flex-wrap:wrap; align-items:center; gap:10px }
 .ap-done:focus{ outline:none }
 @media (max-width: 640px){ .ap-grid{ grid-template-columns: 1fr } .ap-form, .ap-done{ padding:18px } .ap-actions .btn{ width:100% } }
+@media (pointer: coarse){ .ap-check input{ width:24px; height:24px; margin-top:0 } }

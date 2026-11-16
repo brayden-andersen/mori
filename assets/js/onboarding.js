@@ -201,7 +201,7 @@
 
   const key = (n) => steps()[n][0];
   function renderSteps() {
-    $("#obSteps").innerHTML = steps().map(([, label], i) => `<li ${editing || updating ? `role="button" tabindex="0" data-goto="${i}"` : ""}>${label}</li>`).join("");
+    $("#obSteps").innerHTML = steps().map(([, label], i) => `<li>${editing || updating ? `<button type="button" class="ob-step-btn" data-goto="${i}">${label}</button>` : label}</li>`).join("");
   }
 
   function show(n, dir = 1) {
@@ -408,7 +408,7 @@
   const WIRE = { industries: wireIndustries, cv: wireCv, languages: wireLanguages };
 
   /* ---------- Save ---------- */
-  const linkedinUrl = (v) => { const t = v.trim(); return t && !/^https?:\/\//i.test(t) ? "https://" + t : t; };
+  const linkedinUrl = (v) => { const t = v.trim().replace(/^http:\/\//i, "https://"); return t && !/^https:\/\//i.test(t) ? "https://" + t : t; };
 
   async function finish() {
     const nextBtn = $("#obNext");
@@ -491,9 +491,18 @@
     e.preventDefault();
     const problem = VALIDATE[key(step)]();
     if (problem) {
-      flash(problem[1]);
       const field = problem[0] && form.elements[problem[0]];
-      if (field) field.focus();
+      if (field && field.nodeType === 1) {
+        const k = key(step);
+        Mori.ui.fieldError(field, problem[1], () => { const p = VALIDATE[k](); return p && p[0] === problem[0] ? p[1] : ""; });
+        field.focus();
+      } else {
+        flash(problem[1]); // a choice (role, specialty…): the message sits under the choices until one is made
+        const group = $(".ob-step [role=radiogroup], .ob-step .ob-roles, .ob-step .ob-chips", body);
+        if (group) group.setAttribute("aria-describedby", "obError");
+        const first = $(".ob-step input", body);
+        if (first) first.focus();
+      }
       return;
     }
     if (step === steps().length - 1) finish();

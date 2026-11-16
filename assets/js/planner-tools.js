@@ -113,10 +113,10 @@
     const fresh = before.size === 0;
     $$(".task[data-task]", view).forEach((el, i) => {
       const r0 = before.get(el.dataset.task);
-      if (!r0) { el.animate([{ opacity: 0, transform: "translateY(8px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 360, delay: fresh ? Math.min(i * 25, 200) : 0, easing: EASE, fill: "backwards" }); return; }
+      if (!r0) { el.animate([{ opacity: 0, transform: "translateY(8px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 200, delay: fresh ? Math.min(i * 25, 200) : 0, easing: EASE, fill: "backwards" }); return; }
       const r1 = el.getBoundingClientRect();
       if (Math.abs(r0.left - r1.left) < 1 && Math.abs(r0.top - r1.top) < 1) return;
-      el.animate([{ transform: `translate(${r0.left - r1.left}px, ${r0.top - r1.top}px)` }, { transform: "none" }], { duration: 420, easing: EASE });
+      el.animate([{ transform: `translate(${r0.left - r1.left}px, ${r0.top - r1.top}px)` }, { transform: "none" }], { duration: 200, easing: EASE });
     });
   }
   function openTask(ctx, id, opener) {
@@ -153,7 +153,7 @@
     const text = form.elements.text;
     const save = () => {
       const value = text.value.trim().replace(/\s+/g, " ");
-      if (!value) { text.classList.remove("is-invalid"); void text.offsetWidth; text.classList.add("is-invalid"); text.focus(); return; }
+      if (!value) { Mori.ui.fieldError(text, "Say what the task is.", () => (text.value.trim() ? "" : "Say what the task is.")); text.focus(); return; }
       const { saved } = S.updateTask(ctx.pid, id, { text: value, status: $("#tkStatus", panel).dataset.value, assignee: form.elements.assignee.value || null, due: form.elements.due.value || null });
       Mori.modal.close();
       saved.catch(failed);
@@ -410,7 +410,7 @@
     const cur = ws.finance.currency;
     view.innerHTML = `
       <div class="tool-grid tool-grid--side">
-        ${card("Your pipeline", `${items.length ? `<ul class="tool-entries">${items.map((x) => `<li><div><b>${esc(x.name)}</b><span class="meta">${esc(P.fundingKinds[x.kind] || "Other")}${x.amount ? ` · ${W.fmtMoney(x.amount, cur, { compact: true })}` : ""}${x.deadline ? ` · deadline ${esc(dayLabel(x.deadline))}` : ""}${x.link ? ` · <a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">link</a>` : ""}</span>${x.note ? `<p>${esc(x.note)}</p>` : ""}</div>
+        ${card("Your pipeline", `${items.length ? `<ul class="tool-entries">${items.map((x) => `<li><div><b>${esc(x.name)}</b><span class="meta">${esc(P.fundingKinds[x.kind] || "Other")}${x.amount ? ` · ${W.fmtMoney(x.amount, cur, { compact: true })}` : ""}${x.deadline ? ` · deadline ${esc(dayLabel(x.deadline))}` : ""}${Mori.ui.safeUrl(x.link) ? ` · <a href="${esc(Mori.ui.safeUrl(x.link))}" target="_blank" rel="noopener noreferrer">link</a>` : ""}</span>${x.note ? `<p>${esc(x.note)}</p>` : ""}</div>
             <select class="select select--sm" data-fund-status="${esc(x.id)}" aria-label="Status of ${esc(x.name)}">${Object.entries(P.fundingStatus).map(([k, v]) => `<option value="${k}" ${x.status === k ? "selected" : ""}>${v}</option>`).join("")}</select>${removeBtn(`data-fund-x="${esc(x.id)}"`, "Remove")}</li>`).join("")}</ul>` : `<p class="meta">Keep every grant, competition, accelerator and investor you’re going after in one place, with its deadline.</p>`}
           <form class="tool-form" data-fund-add autocomplete="off">
             <input class="input" name="name" maxlength="80" placeholder="Name of the programme or investor" required aria-label="Name">
@@ -657,7 +657,7 @@
         if (!item.name || !item.due) return;
         added("compliance", (x) => { x.items = x.items.concat([item]); return x; });
       } else if (form.matches("[data-fund-add]")) {
-        const link = /^https?:\/\//i.test(d.link || "") ? d.link.trim().slice(0, 300) : "";
+        const link = Mori.ui.safeUrl((d.link || "").trim().replace(/^http:\/\//i, "https://")).slice(0, 300);
         const item = { id: uid("u"), name: (d.name || "").trim().slice(0, 80), kind: d.kind, amount: Math.max(0, Number(d.amount) || 0), deadline: d.deadline || "", status: "researching", link, note: "" };
         if (!item.name) return;
         added("funding", (x) => { x.items = x.items.concat([item]); return x; });
