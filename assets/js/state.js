@@ -66,8 +66,19 @@
     const [, m, d] = String(p.birthDate || "").split("-").map(Number);
     return !!m && on.getMonth() + 1 === m && on.getDate() === d;
   };
-  /** Has the member answered the current sign-up questions? */
-  const profileComplete = (p = profile()) => !!(p.birthDate && p.region && (p.role !== "specialist" || p.specialty));
+  /** Has the member answered what sign-up requires? Only the role: everything else is "Complete your profile". */
+  const profileComplete = (p = profile()) => !!p.role;
+  /** How complete the profile is, and what's still missing (the gentle nudge on the homepage and the profile). */
+  function profileCompleteness(p = profile()) {
+    const checks = [
+      ["your region", !!p.region], ["your date of birth", !!p.birthDate], ["an industry", (p.industries || []).length > 0],
+      ["your experience", !!p.experience], ["your employment status", !!p.employment], ["a headline", !!p.headline],
+      ["a LinkedIn page or CV", !!(p.linkedin || p.cvPath || p.cvName)], ["your languages", (p.languages || []).some((l) => l.name && l.level)], ["a photo", !!p.photo],
+    ];
+    if (p.role === "specialist") checks.unshift(["your specialty", !!p.specialty]);
+    const missing = checks.filter(([, ok]) => !ok).map(([label]) => label);
+    return { pct: Math.round(((checks.length - missing.length) / checks.length) * 100), missing };
+  }
   const fullName = (p = profile(), s = session()) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;
   /** You, shaped like a member, for avatars and headers. */
   const self = () => ({ id: me(), name: fullName(), picture: profile().photo || "" });
@@ -118,6 +129,7 @@
     showRecord: true,            // show milestone record on the profile
     projectStart: "mainframe",   // a project opens on: mainframe | tasks
     projectSidebar: true,        // the planner's tools sidebar is shown
+    situation: "",               // from sign-up: idea | skills | prototype (picks the first action and the homepage's Start here)
     tour: {},                    // guided tours: { site: network|projects|subscription|done|skipped, project: <id>|done|skipped }
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
   };
@@ -817,7 +829,7 @@
 
   Mori.state = {
     session, ladder: D.ladder,
-    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete,
+    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete, profileCompleteness,
     settings, saveSettings, applyPrefs, syncPrefs, touchPref,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,

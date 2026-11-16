@@ -443,7 +443,7 @@
     const incoming = N.incoming();
     title.textContent = incoming.length ? `Requests (${incoming.length})` : "Requests";
     const shown = showAllRequests ? incoming : incoming.slice(0, REQUESTS_SHOWN);
-    recv.innerHTML = incoming.length ? shown.map(receivedRow).join("") : `<p class="meta req-none">No requests waiting. When founders or specialists want to connect, they’ll show up here.</p>`;
+    recv.innerHTML = incoming.length ? shown.map(receivedRow).join("") : `<p class="meta req-none">No requests waiting. When founders or specialists want to connect, they’ll show up here. <a class="link-btn" href="#explore">Discover members</a></p>`;
     if (incoming.length > REQUESTS_SHOWN) { more.hidden = false; more.textContent = showAllRequests ? "Show less" : `Show all ${incoming.length}`; }
     const ids = shown.map((x) => x.link.id).join(",");
     if (ids !== shownRequests) Mori.motion.enter(recv);

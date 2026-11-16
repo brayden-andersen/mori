@@ -786,3 +786,9 @@ html.theme-fade::view-transition-new(*){ animation: theme-in .5s cubic-bezier(.4
 .toolkit-body h2{ margin:14px 0 4px; font-size:14px; letter-spacing:.01em }
 .toolkit-body p, .toolkit-body ul, .toolkit-body ol{ margin:4px 0 }
 .toolkit-body blockquote{ margin:6px 0; padding-left:10px; border-left:2px solid rgba(26,28,31,.15); color:var(--muted) }
+
+/* Profile completeness (the gentle nudge) */
+.pf-complete{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 0 }
+.pf-complete-bar{ display:inline-block; width:90px; height:5px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.1) }
+.pf-complete-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #e78440, #c8141a) }
+.pf-complete a{ color:#3d64d2; font-weight:600; text-decoration:none }

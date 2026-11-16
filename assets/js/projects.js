@@ -110,8 +110,12 @@
       : "No projects yet";
     $("#emptyTitle").textContent = all.length ? "No projects match your filters." : "Declare your first project";
     $("#emptySub").textContent = all.length
-      ? "Try clearing filters or creating a new project."
+      ? "Try fewer filters, or clear them."
       : "Put your idea in a form a specialist can judge in two minutes, then plan it here with your team.";
+    const emptyBtn = $("#empty button");
+    emptyBtn.textContent = all.length ? "Clear filters" : "Create project";
+    emptyBtn.toggleAttribute("data-new-project", !all.length);
+    emptyBtn.toggleAttribute("data-clear-all", !!all.length);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -255,7 +259,7 @@
     const chosen = new Set();
     const cofounders = new Set();
     const offerPicker = N.available() && S.profile().role === "founder" && N.connections().length > 0;
-    let rung = 0;
+    let rung = Math.max(0, Math.min(5, Number(new URLSearchParams(location.search).get("rung")) || 0)); // ?rung= preselects the stage
     panel.setAttribute("aria-labelledby", "npTitle");
     panel.innerHTML = `
       <div class="modal-head">
@@ -273,7 +277,7 @@
         <div class="field">
           <span>Where are you on the milestone ladder?</span>
           <div class="np-rungs" role="radiogroup" aria-label="Starting rung">
-            ${D.ladder.map((r) => `<button type="button" class="np-rung" role="radio" data-np-rung="${r.rung}" aria-checked="${r.rung === 0}" title="${esc(r.stage)}">${r.rung}</button>`).join("")}
+            ${D.ladder.map((r) => `<button type="button" class="np-rung" role="radio" data-np-rung="${r.rung}" aria-checked="${r.rung === rung}" title="${esc(r.stage)}">${r.rung}</button>`).join("")}
           </div>
           <p class="np-rung-desc" id="npRungDesc"></p>
         </div>
@@ -348,6 +352,7 @@
 
   $("#newProjectBtn").addEventListener("click", (e) => openNewProject(e.currentTarget));
   document.addEventListener("click", (e) => { const b = e.target.closest("[data-new-project]"); if (b) openNewProject(b); });
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-clear-all]")) $("#clearFilters").click(); });
 
   // Projects shared with you, co-founders' changes and team names arrive in the background.
   document.addEventListener("mori:change", (e) => {

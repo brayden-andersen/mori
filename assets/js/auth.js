@@ -76,6 +76,7 @@
 
   /* ---------- Session ---------- */
   const SESSION_KEY = "mori.session.v1";
+  const SIGNED_IN_KEY = "mori.justSignedIn"; // set by sign-in, onboarding and the guest demo; the homepage's opening plays once on it
   const ACCOUNTS_KEY = "mori.accounts.v1";
   const PENDING_DRAFT_KEY = "mori.pendingOnboardingDraft";
   const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -110,7 +111,9 @@
     /** Exploring the demo as a guest: a sample founder, with sample data kept in this browser (guestdb.js). */
     isGuest() { const s = Mori.auth.session(); return !!(s && s.provider === "guest"); },
     /** Open the app as a guest, without an account. */
-    startGuest() { return Mori.auth.completeSignIn({ provider: "guest", name: "Guest" }, { onboarded: true }); },
+    startGuest() { Mori.auth.markSignedIn(); return Mori.auth.completeSignIn({ provider: "guest", name: "Guest" }, { onboarded: true }); },
+    /** Someone has just signed in (or finished sign-up): the next homepage plays its short opening. */
+    markSignedIn() { try { sessionStorage.setItem(SIGNED_IN_KEY, "1"); } catch (e) { /* storage blocked */ } },
 
     /** Merge changes into the current session (e.g. a new name, onboarding done). */
     updateSession(patch) {
@@ -263,18 +266,17 @@
     motion = st.motion || "system";
   }
 
-  /* The homepage's opening ritual: on a fresh start (signing in, a new tab, a
-     reload, or a tab the browser had unloaded) the homepage opens with just the
-     welcome, centred, which then glides up while everything else rises into
-     place (home.js). Moving between pages during a visit doesn't replay it. */
+  /* The homepage's opening: only on the first homepage right after signing in
+     (sign-in, the end of onboarding and the guest demo set a flag), under a
+     second, never on a reload. The welcome glides up while everything else
+     rises into place (home.js). */
   const VISIT_KEY = "mori.inVisit";
   const session = (fn) => { try { return fn(); } catch (e) { return null; } };
   if (s && s.onboarded && root.getAttribute("data-auth") === "required") {
-    const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
-    const type = entry ? entry.type : "navigate";
-    const fresh = !session(() => sessionStorage.getItem(VISIT_KEY)) || type === "reload" || document.wasDiscarded;
+    const justIn = session(() => sessionStorage.getItem(SIGNED_IN_KEY)) === "1";
     const calm = motion === "reduced" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if (pageName() === "home.html" && fresh && !calm && !document.prerendering) root.classList.add("boot");
+    if (pageName() === "home.html" && justIn && !calm && !document.prerendering) root.classList.add("boot");
+    if (justIn && !document.prerendering) session(() => sessionStorage.removeItem(SIGNED_IN_KEY)); // the first app page uses it up
     session(() => sessionStorage.setItem(VISIT_KEY, "1"));
   }
   // Google is redirecting back: show the sign-in screen, not the landing page.

@@ -10,49 +10,90 @@
 /* ===== Opening ritual (auth.js decides before the first paint, home.js plays it) =====
    Only the welcome shows, centred on the screen; then it glides up under the
    nav while the cards and panels rise from the bottom of the screen. */
-html.boot body{ overflow:hidden }
 html.boot .hello:not(.is-placed),
 html.boot #prompt,
-html.boot .sections > *,
-html.boot .wrap--home > section.panel,
+html.boot .home-links,
+html.boot .home-grid > section,
 html.boot .footer{ opacity:0 }
 .prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
-.sections{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; margin-top:28px; isolation:isolate; }
+
+/* ===== Secondary links under the greeting (Projects and the Network used to be big cards) ===== */
+.home-links{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:22px }
+.home-link{ display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px; font-size:14px; font-weight:500; color:var(--ink); text-decoration:none; background: rgba(255,255,255,.62); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow); transition: transform .15s ease, box-shadow .15s ease }
+.home-link:hover{ transform: translateY(-1px); box-shadow: var(--lift-shadow) }
+.home-link .ico{ width:16px; height:16px; color:var(--subtle) }
+.home-link-badge{ min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:11px; font-weight:600; line-height:18px; text-align:center; color:#fff; background: var(--mori-red) }
+
+/* ===== The two homepages ===== */
+.home-grid{ display:grid; gap:18px }
+.home-grid > .panel{ margin:0 }
+.panel--compact .nudge p{ margin-top:6px }
+/* Start here */
+.start-grid{ display:grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap:14px }
+.start-main{ display:grid; justify-items:start; gap:8px; padding:22px; text-decoration:none; color:inherit }
+.start-main h4{ margin:0; font-size:19px; letter-spacing:-.01em }
+.start-main .meta{ margin:0; line-height:1.5 }
+.start-main .btn{ margin-top:6px; pointer-events:none }
+.start-ico{ display:grid; place-items:center; width:40px; height:40px; border-radius:13px; color:#fff; background: linear-gradient(135deg, #c8141a, #8f0710) }
+.start-ico .ico{ width:19px; height:19px }
+.start-ico--sm{ width:34px; height:34px; border-radius:11px; background: linear-gradient(135deg, #5e92e8, #9b79ea) }
+.start-ico--sm .ico{ width:16px; height:16px }
+.start-rest{ display:grid; gap:12px }
+.start-alt{ display:flex; align-items:center; gap:12px; padding:14px 16px; text-decoration:none; color:inherit }
+.start-alt b{ display:block; font-size:14px }
+.start-alt .meta{ font-size:12.5px }
+/* Complete your profile */
+.nudge-bar{ height:8px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.08) }
+.nudge-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #e78440, #c8141a) }
+.nudge-bar--tall{ width:140px; flex:0 0 auto; align-self:center }
+.nudge .meta{ margin:10px 0 0; line-height:1.5 }
+/* Launch path and continue */
+.launch-next{ display:flex; align-items:center; justify-content:space-between; gap:20px; text-decoration:none; color:inherit }
+.launch-next h4{ margin:4px 0 6px; font-size:17px }
+.launch-guide{ color:#8a5a00 }
+.continue-pin{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding:22px }
+.continue-pin .pin-left{ flex:1; min-width:0 }
+.continue-pin h4{ margin:0 0 6px }
+.continue-pin .caption{ margin-top:10px; font-size:13px; color:#55575b; font-style:italic }
+.continue-next{ margin:10px 0 0; display:flex; align-items:center; gap:6px; flex-wrap:wrap }
+.continue-next .ico{ width:14px; height:14px; color: var(--mori-red) }
+.continue-pin .pin-separator{ width:1px; background:#e8e8e8; align-self:stretch; margin-left:16px; margin-right:8px }
+/* Needs attention */
+.attn-list{ display:grid; gap:8px }
+.attn-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
+.attn-row:hover{ transform: translateY(-1px); box-shadow: var(--panel-shadow) }
+.attn-row > div{ flex:1; min-width:0; display:grid }
+.attn-row b{ font-size:14px }
+.attn-row .meta{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.attn-ico{ display:grid; place-items:center; width:34px; height:34px; border-radius:11px; color:#fff; background: linear-gradient(135deg, #5e92e8, #9b79ea); flex:0 0 auto }
+.attn-ico.is-late{ background: linear-gradient(135deg, #f0442c, #b80000) }
+.attn-ico .ico{ width:16px; height:16px }
+.attn-row .go .ico{ width:16px; height:16px; color:var(--subtle) }
+/* Sprints */
+.sprints-note{ margin:0 0 12px; line-height:1.5 }
+.sprint-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px }
+.sprint-list li{ display:flex; align-items:center; gap:14px; padding:11px 14px; border-radius:14px; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08) }
+.sprint-list b{ display:block; font-size:14px }
+.sprint-when{ flex:0 0 auto; min-width:52px; padding:5px 9px; border-radius:10px; font-size:12px; font-weight:600; text-align:center; color:#9a0b11; background: rgba(184,0,0,.08) }
+/* People to meet */
+.people-row{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px }
+.person-mini{ display:flex; align-items:flex-start; gap:12px; padding:14px 16px; text-decoration:none; color:inherit }
+.person-mini > div{ min-width:0; display:grid; gap:2px }
+.person-mini b{ font-size:14px }
+.person-mini-line{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.empty--unbuilt{ opacity:.85 }
 
 /* ===== Panels ===== */
 .panel-link .go .ico{ width:15px; height:15px }
-#insights{ scroll-margin-top: calc(var(--navH) + 90px) }
-
-/* Recent messages: unread pulse */
-.msg.is-unread h4{ display:flex; align-items:center; gap:8px }
-.msg.is-unread h4::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--mori-red) }
-.msg .chip{ max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block }
-
 /* Empty panels: one centred prompt across the whole row */
-.pins > .home-empty{ grid-column: 1 / -1; flex:1; padding:28px 10px }
+.home-empty{ padding:24px 10px }
 .home-empty .btn{ margin-top:4px }
 
-/* ===== Pinned projects panel (one wide tile, 50% width) — from the draft ===== */
-.panel#pinnedPanel .pins{ display:flex; gap:24px; }
-.panel#pinnedPanel .pin{
-  flex: 0 0 50%;              /* half of the wrapping width */
-  display:flex; align-items:center; justify-content:space-between; gap:24px; padding:22px;
-}
-.panel#pinnedPanel .pin-left{ flex:1; min-width:0; }
-.panel#pinnedPanel .pin h4{ margin:0 0 6px; }
-.panel#pinnedPanel .chip{ background: rgba(231,132,64,.10); border:1px solid rgba(231,132,64,.28); color:#81381f; }
-.panel#pinnedPanel .caption{ margin-top:10px; font-size:13px; color:#55575b; font-style:italic; }
-.panel#pinnedPanel .pin-separator{ width:1px; background:#e8e8e8; align-self:stretch; margin-left:16px; margin-right:8px; }
-.panel#pinnedPanel .pin:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
+/* The continue tile's ring gives a small pop on hover */
+.continue-pin:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
 @keyframes ring-pop{ 40%{ transform: scale(1.06) } }
 
-/* ===== Insights: not here yet ===== */
-.insights-soon{ display:grid; place-items:center; align-content:center; gap:10px; min-height:190px; text-align:center }
-.insights-soon p{ margin:0; font-size:15px; font-weight:550; color:var(--muted) }
-.insights-soon-ico .ico{ width:22px; height:22px; color:var(--subtle) }
-
-@media (max-width: 760px){ .panel#pinnedPanel .pin{ flex-basis:100% } }
+@media (max-width: 760px){ .start-grid, .people-row{ grid-template-columns: 1fr } .continue-pin{ flex-direction:column; align-items:flex-start } .continue-pin .pin-separator{ display:none } .launch-next{ flex-direction:column; align-items:flex-start } .nudge-bar--tall{ width:100% } }
 @media (max-width: 640px){
-  .sections{ grid-template-columns: 1fr }
   .hero{ padding-top: 28px; }
 }

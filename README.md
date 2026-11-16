@@ -15,8 +15,8 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `contact.html` | **Contact** (public): one address for invites, partnering, problems and data requests. The address is `contactEmail` in `config.js`; a placeholder shows until it's set. |
 | `toolkits.html` | **Toolkits** (public): the planner's templates, each readable in full, with a way into the planner or the demo. |
 | `404.html` | **Page not found**, served by GitHub Pages for any missing address. |
-| `onboarding.html` | **Sign-up questions** for new members: name, date of birth and region · founder or specialist · a specialist's role (software engineer, UI/UX designer…, or their own) · years of experience and employment status · up to 3 industries (popular picks + searchable full list) · LinkedIn and/or CV upload · languages. Reopen it with `onboarding.html?edit=1` to update answers. |
-| `home.html` | **Homepage**: greeting, entry cards, your pinned projects, your latest conversations, and *Insights are coming soon* where insights will go. It opens with a short welcome (see *Homepage: the opening* below). |
+| `onboarding.html` | **Sign-up**, short: name (region optional) · founder or specialist, with a line on what each changes · a specialist's role · one industry · *Where are you right now?* (an idea and need a team, skills and want to join, a prototype to make real). Only the name and the role are required; every other step has *Skip for now*. The answer picks the first page: declare a project, Discover, or declare at rung 2. A `?next=` deep link wins over it. **Complete your profile** is the same page with `?edit=1`: every step, including date of birth, experience and employment (*Details*), LinkedIn or CV, and languages. |
+| `home.html` | **Homepage**, in two versions. A new or empty account gets *Start here* (the first step for their situation), *Complete your profile*, the launch path, upcoming sprints and people to meet. An account with projects, connections or conversations gets *Continue where you left off* (the pinned or latest project and its next launch-path step), *Needs your attention* (requests, unread messages, overdue tasks), upcoming sprints and the profile nudge while it's incomplete. Projects, the MORI Network and Plans are small links under the greeting. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
 | `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* below. |
 | `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. Free: the MORI Network, sprints, the verified work record and the first stages of the launch path; paid plans add the full launch path, team agreements, the program navigator and compliance tracker (both coming soon) and member pricing with vetted partners. No plan buys visibility. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments aren't part of the demo. In the Account menu and the footer. |
@@ -28,14 +28,14 @@ For signed-in members nothing is pre-filled: projects appear once the member dec
 
 ### Guided tours
 
-- **The site tour** starts as soon as a new member finishes the sign-up questions: instead of the homepage they land on the **MORI Network** (Discover), where a slideshow opens in a modal: finding people, connecting with a note, requests and messages, and their profile. *Next: Projects* takes them to the **Projects** gallery, where the slides show how to declare a first project (name and focus, tags and rung, co-founders, the planner) without asking them to make one. *Next: Plans* ends on the **subscription ladder**: the plans, climbing up or down, monthly or yearly, and a last slide that offers *Start my first project* (the new project form) or their homepage.
+- **The site tour** opens right after sign-up, on whichever page the first step led to: four slides in a modal. *Find your people*, *Build it in the planner*, *Make it real, stage by stage* (the launch path) and *Earn it with verified work*. It doesn't sell a plan. The last slide's *Let's go* closes it where the member is.
 - **The project tour** starts when a member declares their **first project**, which (like every new project) opens straight on its Mainframe. A spotlight walks through the sidebar's tools (Plan; Build with their own documents, interviews and the lean canvas; Grow, Money and Learn), then the **People** page (the team, adding people from their connections, the roles the team needs, the team in the header), then back to the **Mainframe** to show how widgets work: what they are (with *Add starter widgets* for an empty Mainframe), *Add widget*, and *Edit Mainframe*, which it turns on so they can move and resize widgets right there. On phones the tools drawer opens and closes along the way.
-- Every slide's picture is a small animated demo drawn in CSS (with reduced motion it just shows how it ends). Both tours can be skipped at any step (*Skip tour*, or Escape) and taken again from **Settings → Preferences / Projects → Take the tour**; the footer's *Sandbox Guide* starts the site tour too. If a member leaves the site tour half way, a small *Continue* pill waits on the other pages.
+- Every slide's picture is a small animated demo drawn in CSS (with reduced motion it just shows how it ends). Both tours can be skipped at any step (*Skip tour*, or Escape) and taken again from **Settings → Preferences / Projects → Take the tour**; the footer's *Sandbox Guide* starts the site tour too, on the page you're on (from a project page, on the homepage).
 - Where a member is in each tour is kept with their settings (`settings.tour`), so it follows them to other devices, and a skipped tour stays skipped. The code is `assets/js/tour.js` and `assets/css/tour.css`.
 
 ### Homepage: the opening
 
-Each time a member arrives on the homepage fresh (after signing in, after reloading, or when the browser had unloaded the tab), it plays a short opening, on desktop and phones alike: only *Welcome* shows, fading in at the centre of the screen; after about a second it glides up to its place under the nav while the prompt, the entry cards, the pinned projects and the rest glide up from the bottom of the screen into place, about 2.5 seconds in all. Any click, tap, key or scroll skips it. Moving between pages within a visit doesn't replay it, and it's off when the device or **Settings → Preferences → Motion effects** asks for reduced motion.
+The first homepage after signing in (Google sign-in, the end of sign-up, or opening the guest demo) plays a short opening: *Welcome* shows at the centre, then glides up under the nav while the links and panels rise into place, in under 0.6 seconds. It plays once: a reload, a new tab or coming back from another page shows the content straight away. Nothing is locked while it plays, and any click, tap, key or scroll skips to the end. It's off when the device or **Settings → Preferences → Motion effects** asks for reduced motion. Sign-in sets `sessionStorage["mori.justSignedIn"]`; the first app page uses it up.
 
 ### Light and dark mode
 
@@ -105,8 +105,8 @@ Projects are saved to Supabase for members signed in with Google (projects made 
 The sign-in flow works like this:
 1. "Continue with Google" shows a loading screen and goes to Google.
 2. Google returns the member to `index.html?auth=callback`, which keeps showing the loading screen.
-3. New members go to onboarding, then to the MORI Network for the site tour; returning members go to their start page.
-4. Anyone who opens an app page before finishing onboarding is sent back to it.
+3. New members go to the short sign-up, then to the first step for their situation (or to the page they were trying to open), where the site tour waits; returning members go to their start page.
+4. Anyone who opens an app page without a role on their profile is sent to sign-up, and comes back to that page afterwards. Members who signed up before the questions changed are not sent back: the homepage and their profile show what's missing instead.
 
 ## The demo: guests and invites
 
@@ -206,6 +206,7 @@ assets/
     db.js           Supabase: Google sign-in, profiles, photos, CVs, member directory, connection
                     requests, projects + co-founders, messages, Realtime subscription
     data.js         option lists (roles, regions, industries, languages, link types…), milestone ladder, the subscription plans (placeholders)
+                    the launch path stages (marked [BRAYDEN: final stage list]) and the sprint catalogue
     sample.js       the guest demo's fictional members, connections, conversations, projects, documents, sprints, partners and programmes (all labelled Sample)
     guestdb.js      the guest demo's database: Mori.db with the same API as db.js, kept in this browser and seeded from sample.js
     public.js       the public pages: the contact address, the toolkit library
@@ -222,7 +223,7 @@ assets/
     planner-tools.js the tool pages: tasks, GTM checklist, ladder, people, interviews, lean canvas,
                     marketing, metrics, finance, funding, toolkits
     planner-docs.js the documents: list and editor (formatting, autosave, Word download, sanitising)
-    tour.js         the guided tours: the site tour (a slideshow on Network, Projects and Subscription)
+    tour.js         the guided tours: the site tour (four slides after sign-up)
                     and the first-project tour (a spotlight over the planner)
     landing.js · onboarding.js · home.js · projects.js · network.js · subscription.js
   vendor/supabase-2.58.0.js

@@ -1,13 +1,9 @@
 /* ==========================================================================
    Mori: Sandbox — guided tours (every app page)
    --------------------------------------------------------------------------
-   • The site tour starts right after a member first signs up. A slideshow
-     in a modal on three pages in turn:
-       1. the MORI Network (Discover): finding people, connecting, requests,
-          messages and your profile;
-       2. Projects: how to start a first project, shown in the slides and
-          never forced;
-       3. the subscription ladder, ending with "start your first project".
+   • The site tour starts right after a member first signs up: four slides
+     in a modal on whichever page their first step opened (find your people,
+     build it in the planner, make it real, earn it with verified work).
    • The project tour starts when a member declares their first project and
      lands on its Mainframe. A spotlight walks through the sidebar's tools
      (documents among them), the People page (the team, adding people, the
@@ -169,31 +165,13 @@
   /* =====================================================================
      The site tour
      ===================================================================== */
-  const CHAPTERS = [
-    { id: "network", label: "MORI Network", url: "network.html#explore" },
-    { id: "projects", label: "Projects", url: "projects.html" },
-    { id: "subscription", label: "Plans", url: "subscription.html" },
-  ];
+  const CHAPTERS = [{ id: "start", label: "Sandbox tour", url: "home.html" }];
   const SLIDES = {
-    network: [
-      { art: "orbit", title: "Welcome to the MORI Network", body: "Founders and specialists building in Indonesia, all in one place. This is where you find a co-founder, your first teammates and people who’ve done it before." },
-      { art: "discover", title: "Discover the right people", body: "Search names, skills or regions, then narrow it down by role, experience, industry and verified sprints. People you’re already connected with stay out of the way." },
-      { art: "connect", title: "Connect with a note", body: "Send a request with a line about what you’re building. A good note gets more yeses, and once they accept, you’re connected." },
-      { art: "requests", title: "Requests and messages", body: "Requests for you wait at the top of this page. Accept one and you can message each other right away." },
-      { art: "profile", title: "Let the right people find you", body: "Keep your headline and skills up to date from your profile. Choose who sees your full profile in Settings → Privacy, or go invisible." },
-    ],
-    projects: [
-      { art: "gallery", title: "Your projects live here", body: "Every project you declare or join shows in this gallery. Pin the ones you’re working on and they’ll wait for you on your homepage." },
-      { art: "declare", title: "Declare a project in a minute", body: "Press New project, give it a name and say what you’re focused on right now. That’s all it takes to start." },
-      { art: "ladder", title: "Tag it, and find your rung", body: "Tags say what it is. The milestone ladder says how far along it is, from Idea declared to Early traction, and what proof the next rung needs." },
-      { art: "team", title: "Bring in your co-founders", body: "Add co-founders from your connections when you declare it, or any time later. The whole team works from the same planner." },
-      { art: "planner", title: "Then build it in the planner", body: "A project opens on its Mainframe, with tasks, documents, finance, funding and more a click away. No rush: start your first one whenever you’re ready." },
-    ],
-    subscription: [
-      { art: "plans", title: "The SandBox ladder", body: "Four plans, each a rung higher than the last. Everyone starts on Explorer, and it’s free for as long as you like." },
-      { art: "climb", title: "Climb as your project grows", body: "Move up for your full launch path, team agreements and member pricing with partners, or back down whenever you want. Your work always stays." },
-      { art: "billing", title: "Monthly or yearly", body: "Pay month to month, or yearly and get two months free. These prices are placeholders for now, and payments open soon." },
-      { art: "ready", title: "You’re all set", body: "That’s the tour. When you’re ready, declare your first project and we’ll show you around its planner." },
+    start: [
+      { art: "orbit", title: "Find your people", body: "Founders and specialists building in Indonesia, in one network. Search by role, skill or region, connect with a note, and message once you’re connected." },
+      { art: "planner", title: "Build it in the planner", body: "Declare a project and it opens on its Mainframe: tasks, documents, finance, metrics and more, shared with your co-founders." },
+      { art: "ladder", title: "Make it real, stage by stage", body: "Your launch path lists what Indonesia asks of your business: team agreements, a legal structure, the NIB, licences, tax. Vetted notaries, lawyers and accountants do the regulated work." },
+      { art: "team", title: "Earn it with verified work", body: "Sprints your teammates confirm and rungs you reach with proof make up your work record. No ratings, no leaderboards, nothing to buy." },
     ],
   };
 
@@ -229,7 +207,7 @@
     const next = CHAPTERS[deck.ch + 1];
     const keepFocus = root.contains(document.activeElement) && document.activeElement.matches("[data-tour-next], [data-tour-back], [data-tour-go]");
 
-    $(".tour-chapters", root).innerHTML = CHAPTERS.map((c, k) => `<li class="${k < deck.ch ? "is-done" : k === deck.ch ? "is-on" : ""}"${k === deck.ch ? ' aria-current="step"' : ""}><i></i><span>${esc(c.label)}</span></li>`).join("");
+    $(".tour-chapters", root).innerHTML = CHAPTERS.length > 1 ? CHAPTERS.map((c, k) => `<li class="${k < deck.ch ? "is-done" : k === deck.ch ? "is-on" : ""}"${k === deck.ch ? ' aria-current="step"' : ""}><i></i><span>${esc(c.label)}</span></li>`).join("") : `<li class="is-on"><i></i><span>${esc(CHAPTERS[0].label)}</span></li>`;
     $(".tour-skip", root).hidden = end;
     const art = $(".tour-art", root);
     art.innerHTML = ART[s.art]();
@@ -242,14 +220,12 @@
       if (dir && !reduced()) { void el.offsetWidth; el.classList.add(dir > 0 ? "is-next" : "is-prev"); }
     });
     $(".tour-dots", root).innerHTML = list.map((_, k) => `<button type="button" class="tour-dot ${k === deck.i ? "is-on" : ""}" data-tour-go="${k}" aria-label="Slide ${k + 1} of ${list.length}"${k === deck.i ? ' aria-current="step"' : ""}></button>`).join("");
-    const hasProjects = S.projects().length > 0;
     const primary = end
-      ? `<button class="btn" type="button" data-tour-home>${icon("home")} My homepage</button>
-         <button class="btn btn--ink" type="button" data-tour-start-project>${hasProjects ? `${icon("projects")} My projects` : `${icon("plus")} Start my first project`}</button>`
+      ? `<button class="btn btn--ink" type="button" data-tour-done>Let’s go ${icon("arrowRight")}</button>`
       : `<button class="btn btn--ink" type="button" data-tour-next>${last ? `Next: ${esc(next.label)}` : "Next"} ${icon("arrowRight")}</button>`;
     $(".tour-actions", root).innerHTML = `${deck.i > 0 && !end ? `<button class="btn" type="button" data-tour-back>${icon("chevronLeft")} Back</button>` : ""}${primary}`;
     if (keepFocus || dir === 0) {
-      const f = $("[data-tour-next], [data-tour-start-project]", root);
+      const f = $("[data-tour-next], [data-tour-done]", root);
       if (f && Mori.modal.isOpen("tourModal")) f.focus({ preventScroll: true });
     }
   }
@@ -277,7 +253,6 @@
   }
   function skipSite() {
     setTour({ site: "skipped" });
-    hidePill();
     toast("Tour skipped. Take it again any time from Settings → Preferences.", { icon: "compass", duration: 4200 });
   }
 
@@ -300,7 +275,7 @@
     closeDeck();
     setTour({ site: "done" });
     if (url) Mori.ui.go(url, title, sub);
-    else toast("That’s the tour. Welcome to Sandbox!", { icon: "check" });
+    else toast("That’s the tour. Take it again any time from Settings → Preferences.", { icon: "check" });
   }
 
   function onDeckClick(e) {
@@ -310,11 +285,7 @@
     const dot = e.target.closest("[data-tour-go]");
     if (dot) { const to = Number(dot.dataset.tourGo); if (to !== deck.i) { const d = to - deck.i; deck.i = to; drawSlide(d > 0 ? 1 : -1); } return; }
     if (e.target.closest("[data-tour-skip]")) { deck = null; closeDeck(); skipSite(); return; }
-    if (e.target.closest("[data-tour-home]")) { finishSite("home.html", "Welcome to Sandbox", "Opening your homepage…"); return; }
-    if (e.target.closest("[data-tour-start-project]")) {
-      if (S.projects().length) finishSite("projects.html", "Your projects", "");
-      else finishSite("projects.html?new=1", "Your first project", "Opening the new project form…");
-    }
+    if (e.target.closest("[data-tour-done]")) finishSite();
   }
   document.addEventListener("keydown", (e) => {
     if (!deck || !Mori.modal.isOpen("tourModal")) return;
@@ -323,33 +294,12 @@
     else if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
   });
 
-  /* A tour that's under way, seen from another page: carry on, or stop. */
-  function showPill(chapter) {
-    if ($("#tourPill")) return;
-    const el = document.createElement("div");
-    el.id = "tourPill";
-    el.className = "tour-pill";
-    el.setAttribute("role", "region");
-    el.setAttribute("aria-label", "Sandbox tour");
-    el.innerHTML = `<span class="tour-pill-ico">${icon("compass")}</span><span class="tour-pill-copy"><b>Sandbox tour</b><span>Next: ${esc(chapter.label)}</span></span>
-      <button class="btn btn--sm btn--ink" type="button" data-pill-go>Continue</button>
-      <button class="icon-btn" type="button" data-pill-x aria-label="Skip the tour">${icon("x")}</button>`;
-    document.body.appendChild(el);
-    el.addEventListener("click", (e) => {
-      if (e.target.closest("[data-pill-go]")) Mori.ui.go(chapter.url, chapter.label, `Sandbox tour · ${CHAPTERS.indexOf(chapter) + 1} of ${CHAPTERS.length}`);
-      else if (e.target.closest("[data-pill-x]")) skipSite();
-    });
-  }
-  function hidePill() { const el = $("#tourPill"); if (el) el.remove(); }
-
+  /** Right after sign-up (settings.tour.site = "start"): four slides on whichever app page the member landed on. */
   async function startSite() {
-    const t = tour();
-    const chapter = CHAPTERS.find((c) => c.id === t.site);
-    if (!chapter) return;
-    if (chapter.id !== page) { if (page !== "project") showPill(chapter); return; }
+    if (tour().site !== "start" || page === "project") return;
     await wait(reduced() ? 150 : 520);
     await modalFree();
-    if (tour().site === chapter.id) openDeck(chapter.id);
+    if (tour().site === "start") openDeck("start");
   }
 
   /* =====================================================================
@@ -694,10 +644,9 @@
       Mori.ui.go(`project.html?id=${encodeURIComponent(p.id)}#mainframe`, p.name, "Project tour");
       return;
     }
-    setTour({ site: "network" });
-    hidePill();
-    if (page === "network") setTimeout(() => openDeck("network"), 320);
-    else Mori.ui.go(CHAPTERS[0].url, CHAPTERS[0].label, `Sandbox tour · 1 of ${CHAPTERS.length}`);
+    setTour({ site: "start" });
+    if (page !== "project") setTimeout(() => openDeck("start"), 320);
+    else Mori.ui.go("home.html", "Sandbox tour", "");
   });
 
   if (page === "project") startProject(false);

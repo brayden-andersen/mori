@@ -10,8 +10,8 @@ window.Mori = window.Mori || {};
 
 Mori.data = {
   roles: {
-    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people." },
-    specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture." },
+    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people.", what: "You can declare projects, add co-founders and get a launch path for your business." },
+    specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture.", what: "Founders find you by your role; you join projects and build a verified work record." },
   },
 
   openTypes: { cofound: "Open to co-found", join: "Open to join a team" },
@@ -167,6 +167,54 @@ Mori.data = {
         body: "<p><em>Guidance, not legal advice. Have a vetted partner check it before you rely on it.</em></p><h2>Your sector</h2><ul><li>What you sell:</li><li>Who you sell to:</li><li>Licences or certifications you think you need:</li></ul><h2>Food and drink</h2><ul><li>From October 2026, halal certification is required for food and drink products of micro and small businesses.</li><li>The government runs a free self-declare scheme for micro and small businesses.</li></ul><h2>Next step</h2><p>Your launch path will list your sector’s requirements; until then, confirm them with a vetted partner.</p>" },
     ],
   },
+
+  /* The launch path: what it takes to make a startup legally and practically
+     real in Indonesia, stage by stage. Every legal step is guidance, not legal
+     advice, and stays marked for review until Brayden has checked it.
+     Progress is kept per project in its workspace (launch.done, keyed
+     "<stage>.<item index>"). The free plan opens the first stages; the rest
+     come with Builder (the split on the subscription page).
+     [BRAYDEN: final stage list] */
+  launchPath: {
+    disclaimer: "Guidance, not legal advice. Have a vetted partner check each step before you rely on it. [BRAYDEN: verify]",
+    stages: [
+      { id: "idea", title: "Declare the idea", rung: 0, free: true, blurb: "Say what you’re building and who it’s for.",
+        items: ["Write the one-page problem brief", "Name the role you need on the team"], templates: ["brief"] },
+      { id: "team", title: "Team agreements", rung: 1, free: true, legal: true, blurb: "Agree who owns what before anyone builds more. Under Indonesian law, in Bahasa Indonesia, reviewed by a lawyer.",
+        items: ["Agree roles, time and equity (founders’ agreement)", "Agree vesting, with a cliff", "Assign the intellectual property to the company"], templates: ["agreement", "equity", "ndaip"], partner: "legal" },
+      { id: "structure", title: "Choose a legal structure", rung: 2, legal: true, blurb: "A PT Perorangan is for one founder, an Indonesian citizen, with a micro or small business. A team needs a regular PT or a CV.",
+        items: ["Decide between a PT Perorangan, a PT and a CV", "Check that the name is free to use"], templates: ["registration"], partner: "notary" },
+      { id: "registration", title: "Register and get an NIB", rung: 3, legal: true, blurb: "The NIB, issued through OSS, is the business’s basic legal identity, and some financing (such as KUR) asks for it.",
+        items: ["Register the business", "Get the NIB through OSS"], templates: ["registration"], partner: "notary" },
+      { id: "licences", title: "Sector licences", rung: 3, legal: true, blurb: "What your sector requires. From October 2026 food and drink products of micro and small businesses need halal certification; the government runs a free self-declare scheme.",
+        items: ["List the licences your sector needs", "Apply for them (or the free halal self-declare scheme, if it applies)"], templates: ["licences"], partner: "legal" },
+      { id: "tax", title: "Tax registration", rung: 3, legal: true, blurb: "A registered company needs its own tax number (NPWP).",
+        items: ["Get the company NPWP", "Set up the monthly and annual filings"], templates: ["registration"], partner: "tax" },
+      { id: "bank", title: "Business bank account", rung: 4, blurb: "Keep the company’s money apart from your own.",
+        items: ["Open the account", "Move the company’s money into it"], templates: [], partner: "accounting" },
+      { id: "hires", title: "First hires", rung: 4, legal: true, blurb: "Contracts, and the obligations that come with employing people.",
+        items: ["Write the first employment contract", "Check the hiring requirements that apply to you"], templates: [], partner: "legal" },
+    ],
+  },
+
+  /* Sprints: two-week online sprints by niche. The first ones haven't run yet.
+     Dates are days from today, so the list always looks current.
+     [BRAYDEN: the niches and the first sprint topics] */
+  sprintLobbies: [
+    { id: "fintech", name: "Fintech & payments", blurb: "Payments, lending and bookkeeping for small businesses." },
+    { id: "food", name: "Food science & F&B", blurb: "New products, packaging and kitchens that scale." },
+    { id: "robotics", name: "Robotics & hardware", blurb: "Devices, sensors and the firmware behind them." },
+    { id: "agritech", name: "Agritech", blurb: "Tools for farmers, fishers and the people who buy from them." },
+    { id: "creative", name: "Creative & media", blurb: "Content, brands and the tools creators use." },
+  ],
+  sprints: [
+    { id: "fin-problem", lobby: "fintech", kind: "problem", title: "Problem sprint · Credit between small shops and their regulars", startsIn: 12, teamSize: "3 to 4", brief: "Talk to 8 to 10 warung owners about how they handle credit, then decide what to build." },
+    { id: "food-problem", lobby: "food", kind: "problem", title: "Problem sprint · Office lunches that don’t go stale", startsIn: 9, teamSize: "3 to 4", brief: "Interview office managers and the people who eat at their desks." },
+    { id: "agri-demand", lobby: "agritech", kind: "demand", title: "Demand sprint · Pre-orders from farmer groups", startsIn: 19, teamSize: "3 to 4", brief: "Launch a page and hit a sign-up target you set in advance." },
+    { id: "fin-proto", lobby: "fintech", kind: "prototype", title: "Prototype sprint · Record a payment in one tap", startsIn: 26, teamSize: "3 to 4", brief: "Put a clickable prototype in front of five shop owners and change it between each one." },
+    { id: "robot-proto", lobby: "robotics", kind: "prototype", title: "Prototype sprint · A sensor a farmer can install alone", startsIn: 33, teamSize: "3 to 4", brief: "Build one sample, test it in a field, write down what broke." },
+    { id: "creative-build", lobby: "creative", kind: "build", title: "Build sprint · A creator’s first paid product", startsIn: 40, teamSize: "3 to 4", brief: "Ship one feature to real users and show the usage numbers." },
+  ],
 
   /* Subscription ladder. PLACEHOLDER prices and perks: to be replaced with the
      final ones. `monthly` is in rupiah; yearly billing is ten months' price. */

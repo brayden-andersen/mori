@@ -59,6 +59,7 @@
       interviews: { items: arr(obj(w.interviews).items) },
       canvas: obj(w.canvas),
       ladder: { done: obj(obj(w.ladder).done) },
+      launch: { done: obj(obj(w.launch).done) }, // launch-path steps ticked, keyed "<stage>.<item>"
     };
   }
 

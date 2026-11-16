@@ -147,6 +147,9 @@ html[data-theme="dark"] .demo-bar .link-btn{ color:#f8ba81 }
 html[data-theme="dark"] .sample-tag{ color:#f8ba81; background:rgba(204,95,20,0.334); border:1px solid rgba(204,95,20,0.628) }
 html[data-theme="dark"] .toolkit-card summary{ color:#8ba5ef }
 html[data-theme="dark"] .toolkit-body blockquote{ border-left:2px solid rgba(227,228,230,0.15) }
+html[data-theme="dark"] .pf-complete-bar{ background:rgba(227,228,230,0.1) }
+html[data-theme="dark"] .pf-complete-bar i{ background:linear-gradient(90deg, #b75512, #880d12) }
+html[data-theme="dark"] .pf-complete a{ color:#8ba5ef }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }
@@ -242,11 +245,23 @@ html[data-theme="dark"] .ob-actions{ border-top:1px solid rgba(227,228,230,0.06)
 @media (max-width: 640px){
 html[data-theme="dark"] .ob-steps li{ background:rgba(227,228,230,0.08) }
 }
+html[data-theme="dark"] .ob-role-what{ border-top:1px dashed rgba(227,228,230,0.14) }
 
 /* ---- home.css ---- */
-html[data-theme="dark"] .panel#pinnedPanel .chip{ background:rgba(204,95,20,0.25); border:1px solid rgba(204,95,20,0.628); color:#eea58b }
-html[data-theme="dark"] .panel#pinnedPanel .caption{ color:#bfc0c2 }
-html[data-theme="dark"] .panel#pinnedPanel .pin-separator{ background:#2b2b2b }
+html[data-theme="dark"] .home-link{ background:rgba(27,27,27,0.62); border:1px solid rgba(224,224,226,0.3) }
+html[data-theme="dark"] .home-link-badge{ color:#ffffff }
+html[data-theme="dark"] .start-ico{ color:#ffffff; background:linear-gradient(135deg, #880d12, #790c13) }
+html[data-theme="dark"] .start-ico--sm{ background:linear-gradient(135deg, #1355c3, #4814c2) }
+html[data-theme="dark"] .nudge-bar{ background:rgba(227,228,230,0.08) }
+html[data-theme="dark"] .nudge-bar i{ background:linear-gradient(90deg, #b75512, #880d12) }
+html[data-theme="dark"] .launch-guide{ color:#f8cf81 }
+html[data-theme="dark"] .continue-pin .caption{ color:#bfc0c2 }
+html[data-theme="dark"] .continue-pin .pin-separator{ background:#2b2b2b }
+html[data-theme="dark"] .attn-row{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .attn-ico{ color:#ffffff; background:linear-gradient(135deg, #1355c3, #4814c2) }
+html[data-theme="dark"] .attn-ico.is-late{ background:linear-gradient(135deg, #b02511, #e22020) }
+html[data-theme="dark"] .sprint-list li{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .sprint-when{ color:#f88186; background:rgba(226,32,32,0.08) }
 
 /* ---- projects.css ---- */
 html[data-theme="dark"] .pagebtn{ border:1px solid #2b2b2b; background:#1b1b1b }
@@ -497,7 +512,6 @@ html[data-theme="dark"] .coach-spot{ box-shadow:0 0 0 2px rgba(27,27,27,0.9), 0 
 html[data-theme="dark"] .coach-pop{ background:linear-gradient(to bottom right, #202022, #1b1b1b); border:1px solid rgba(224,224,226,0.22); box-shadow:0 24px 60px rgba(0,0,0,0.752), 0 2px 8px rgba(0,0,0,0.272) }
 html[data-theme="dark"] .coach-art .ta{ background:radial-gradient(110% 90% at 88% 0%, rgba(204,20,26,0.25), rgba(204,20,26,0.04) 62%), linear-gradient(to bottom right, #232325, #1e1e1e); border:1px solid rgba(227,228,230,0.07) }
 html[data-theme="dark"] .coach-tip{ background:rgba(227,228,230,0.04) }
-html[data-theme="dark"] .tour-pill{ border:1px solid rgba(227,228,230,0.12); box-shadow:0 16px 36px rgba(0,0,0,0.464) }
 
 /* ---- hand-tuned (tools/dark-overrides.css) ---- */
 /* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */

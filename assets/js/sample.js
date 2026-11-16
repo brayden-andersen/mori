@@ -185,28 +185,9 @@
       "<h2>Headline</h2><p>Your group’s harvest, on one page.</p><h2>Who it’s for</h2><p>Farmer groups (kelompok tani) in Sleman and Bantul.</p><h2>The offer</h2><p>Record yields and prices for a season free. Pay per group after that.</p><h2>Call to action</h2><p>Put your group’s name down for the first season.</p>", m("lina"), 3),
   ];
 
-  /* ---------- Sprints (lobbies by niche), for sprints.html ---------- */
-  // [BRAYDEN: list] The niches and the first sprint topics are placeholders.
-  const lobbies = [
-    { id: "fintech", name: "Fintech & payments", blurb: "Payments, lending and bookkeeping for small businesses.", sample: true },
-    { id: "food", name: "Food science & F&B", blurb: "New products, packaging and kitchens that scale.", sample: true },
-    { id: "robotics", name: "Robotics & hardware", blurb: "Devices, sensors and the firmware behind them.", sample: true },
-    { id: "agritech", name: "Agritech", blurb: "Tools for farmers, fishers and the people who buy from them.", sample: true },
-    { id: "creative", name: "Creative & media", blurb: "Content, brands and the tools creators use.", sample: true },
-  ];
-  const sprint = (id, lobby, kind, title, startsIn, brief) => ({
-    id: "s-" + id, lobby, kind, title, starts: inDays(startsIn), ends: inDays(startsIn + 14), teamSize: "3 to 4", status: startsIn >= 0 ? "upcoming" : "past", brief, sample: true,
-    verified: ["The deliverable, confirmed by every teammate", "Who did what, in the team’s own words"],
-  });
-  const sprints = [
-    sprint("fin-problem", "fintech", "problem", "Problem sprint · Credit between small shops and their regulars", 12, "Talk to 8 to 10 warung owners about how they handle credit, then decide what to build."),
-    sprint("fin-proto", "fintech", "prototype", "Prototype sprint · Record a payment in one tap", 26, "Put a clickable prototype in front of five shop owners and change it between each one."),
-    sprint("food-problem", "food", "problem", "Problem sprint · Office lunches that don’t go stale", 9, "Interview office managers and the people who eat at their desks."),
-    sprint("agri-demand", "agritech", "demand", "Demand sprint · Pre-orders from farmer groups", 19, "Launch a page and hit a sign-up target you set in advance."),
-    sprint("robot-proto", "robotics", "prototype", "Prototype sprint · A sensor a farmer can install alone", 33, "Build one sample, test it in a field, write down what broke."),
-    sprint("creative-build", "creative", "build", "Build sprint · A creator’s first paid product", 40, "Ship one feature to real users and show the usage numbers."),
-    sprint("fin-past", "fintech", "problem", "Problem sprint · Paying suppliers on time", -30, "The first fintech problem sprint. Its teams went on to two prototypes."),
-  ];
+  /* ---------- Sprints: the catalogue is SandBox's own (data.js), not sample data ---------- */
+  const lobbies = Mori.data.sprintLobbies;
+  const sprints = Mori.data.sprints;
 
   /* ---------- Vetted partners (sample entries only), for the partner directory ---------- */
   // [BRAYDEN: real partners and member prices] Prices are placeholders.

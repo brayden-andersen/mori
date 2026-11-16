@@ -117,7 +117,7 @@ span.btn.is-done{ cursor:default; transform:none }
 .req-empty{ padding:26px 10px }
 .req-loading{ padding:22px 6px }
 
-/* ---------- Messages: connections list + "coming soon" ---------- */
+/* ---------- Messages: connections list + conversation ---------- */
 .chat{ display:grid; grid-template-columns: 320px minmax(0,1fr); padding:0; overflow:hidden; height: calc(100vh - var(--chatTop, 190px) - 18px); min-height:440px; max-height:820px }
 @supports (height: 100dvh){ .chat{ height: calc(100dvh - var(--chatTop, 190px) - 18px) } }
 .chat-side{ display:flex; flex-direction:column; gap:12px; min-height:0; padding:14px; border-right:1px solid rgba(26,28,31,.06) }

@@ -7,7 +7,7 @@
 /* Progress */
 .ob-progress{ height:6px; border-radius:6px; overflow:hidden; background: rgba(26,28,31,.08) }
 .ob-progress span{ display:block; height:100%; width: var(--p, 16.6%); border-radius:6px; background: var(--brand-grad); transition: width .6s var(--ease-out) }
-.ob-steps{ list-style:none; display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:6px; margin:12px 0 20px; padding:0 }
+.ob-steps{ list-style:none; display:grid; grid-template-columns: repeat(auto-fit, minmax(0,1fr)); gap:6px; margin:12px 0 20px; padding:0 }
 .ob-steps li{ font-size:12px; text-align:center; color:var(--subtle); transition: color .3s ease; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
 .ob-steps li.is-done{ color:#065f46 }
 .ob-steps li.is-on{ color:var(--ink); font-weight:600 }
@@ -104,3 +104,11 @@
   .ob-lang .select[data-level]{ grid-column:1; grid-row:2 }
   .ob-lang .icon-btn{ grid-column:2; grid-row: 1 / span 2 }
 }
+
+/* M2: what each role changes; the situation step; a Skip for optional steps */
+.ob-role-what{ display:block; padding-top:8px; border-top:1px dashed rgba(26,28,31,.14); font-size:12.5px; line-height:1.45; color:var(--ink-2) }
+.ob-situations{ grid-template-columns: repeat(3, minmax(0,1fr)) }
+.ob-situations .ob-option b{ font-size:15px; line-height:1.3 }
+#obSkip{ margin-left:auto; margin-right:10px }
+#obSkip[hidden]{ display:none }
+@media (max-width: 760px){ .ob-situations{ grid-template-columns: 1fr } }

@@ -292,14 +292,6 @@ html[data-motion="reduced"] .ta-mini-w{ left: calc(8px + (100% - 34px) / 4 + 6px
 .coach-actions{ display:flex; gap:8px; margin-left:auto }
 .coach-actions .btn .ico{ width:14px; height:14px }
 
-/* ---------- 4. Carry on ---------- */
-.tour-pill{ position:fixed; z-index:1400; left:16px; bottom:16px; display:flex; align-items:center; gap:10px; max-width: calc(100vw - 32px); padding:8px 8px 8px 12px; border-radius:16px;
-  background: var(--glass-menu); border:1px solid rgba(26,28,31,.12); box-shadow: 0 16px 36px rgba(26,28,31,.16); animation: ta-up .45s var(--ease-out) both }
-.tour-pill-ico .ico{ width:18px; height:18px; color: var(--mori-red) }
-.tour-pill-copy{ display:grid; gap:1px; min-width:0; margin-right:4px }
-.tour-pill-copy b{ font-size:13px }
-.tour-pill-copy span{ font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-
 @media (max-width: 560px){
   .tour-root{ padding:12px }
   .tour-art{ height:196px; margin:14px 14px 0 }

@@ -26,6 +26,7 @@
       session.onboarded ? `Welcome back, ${session.givenName}` : `Welcome, ${session.givenName}`,
       session.onboarded ? "Opening your Sandbox…" : "Let’s set up your profile…"
     );
+    Mori.auth.markSignedIn();
     location.replace(Mori.auth.landingUrl(session));
   }
   const rememberRole = (role) => {

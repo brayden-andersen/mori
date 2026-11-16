@@ -238,6 +238,10 @@
       <div class="pf-photo-menu pf-cover-menu" role="menu" aria-label="Profile banner" hidden>${coverMenu}</div>
       <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-cover-file hidden>`;
 
+    const done = S.profileCompleteness(p);
+    const completeLine = done.pct < 100
+      ? `<p class="meta pf-complete"><span class="pf-complete-bar" aria-hidden="true"><i style="width:${done.pct}%"></i></span>Profile ${done.pct}% complete · <a href="onboarding.html?edit=1">Add ${esc(done.missing.slice(0, 2).join(" and "))}</a></p>`
+      : "";
     return `
       ${Mori.ui.coverHTML(p.cover, coverControls)}
       ${closeBtn("Close profile")}
@@ -253,6 +257,7 @@
       <div class="pf-body">
         <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}${s.provider === "guest" ? Mori.ui.sampleTag("A sample profile for the demo: change anything you like") : ""}</h2>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
+        ${completeLine}
         <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
         <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
         ${Mori.people.factPills(seen)}
@@ -796,7 +801,7 @@
     S.syncProfile().then((changed) => {
       if (!changed) return;
       if (S.session().provider === "google" && !S.profileComplete()) {
-        // New sign-up questions (date of birth, a specialist's role): ask once, answers filled in.
+        // The profile has no role (it shouldn't happen): ask the sign-up questions once, answers filled in.
         Mori.auth.updateSession({ onboarded: false });
         const here = location.pathname.split("/").pop() || "home.html";
         location.replace("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));

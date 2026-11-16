@@ -99,9 +99,8 @@
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.created_at) || 0,
       show: { age: r.show_age === true, region: r.show_region !== false, employment: r.show_employment !== false, languages: r.show_languages !== false },
-      // Older rows predate the current questions (date of birth, a specialist's role):
-      // those members go through onboarding again, with their answers filled in.
-      onboarded: !!(r.onboarding_completed && r.birth_date && r.region && (role !== "specialist" || r.specialty)),
+      // Sign-up requires the role; everything else is "Complete your profile" later.
+      onboarded: !!(r.onboarding_completed && role),
     };
   }
   function toRow(id, p) {
