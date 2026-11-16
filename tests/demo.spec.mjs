@@ -33,11 +33,21 @@ test("the guest demo opens with labelled sample data, and resets", async ({ page
   await expect(page.locator("#grid")).not.toContainText("My own idea");
 });
 
-test("sign-up shows once, and the homepage then opens straight away", async ({ page }) => {
+test("sign-up asks for an 18+ date of birth, shows once, and the homepage then opens straight away", async ({ page }) => {
   await page.evaluate(() => Mori.auth.completeSignIn({ provider: "demo", name: "Eka Putri" }, { onboarded: false }));
   await page.goto("/home.html");
   await page.waitForURL(/onboarding\.html/); // not signed up yet: sign-up first
-  await page.click("#obNext"); // the name is filled in
+  await page.click("#obNext"); // the name is filled in; the date of birth isn't
+  const birth = page.locator('input[name="birthDate"]');
+  await expect(birth).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator(".field-error").first()).toContainText("18 and over");
+  const seventeen = new Date();
+  seventeen.setFullYear(seventeen.getFullYear() - 17);
+  await birth.fill(seventeen.toISOString().slice(0, 10));
+  await page.click("#obNext");
+  await expect(page.locator(".field-error").first()).toContainText("18 and over"); // too young: refused
+  await birth.fill("1995-04-12");
+  await page.click("#obNext");
   await page.click('.ob-option:has(input[value="founder"])');
   await page.click("#obNext");
   await page.click("#obSkip"); // industry
@@ -112,7 +122,7 @@ test("Projects: filters show as chips, the count is announced, pagination stays 
   await expect(page.locator("#q")).toHaveValue("");
 });
 
-test("Discover: filters show as chips with a live count, and one reset", async ({ page }) => {
+test("Discover: filters show as chips with a live count, one reset; report, block and unblock", async ({ page }) => {
   await openDemo(page);
   await page.goto("/network.html#explore");
   await expect(page.locator("#peopleCount")).toHaveText(""); // no member count unless filtering
@@ -124,6 +134,24 @@ test("Discover: filters show as chips with a live count, and one reset", async (
   await expect(page.locator("#roleSel")).toHaveValue("all");
   await page.click("#activeFilters [data-clear-filters]");
   await expect(page.locator("#activeFilters")).toBeHidden();
+
+  // Report a member, blocking them too: they leave Discover, and Settings → Privacy can unblock them.
+  const card = page.locator("#peopleGrid button.btn[data-view]").first();
+  const id = await card.getAttribute("data-view");
+  await card.click();
+  await page.click("#memberModal [data-report]");
+  await page.click('#reportModal button[type="submit"]');
+  await expect(page.locator("#rpReasonError")).toBeVisible(); // a reason is needed
+  await page.click('.rp-reason:has(input[value="spam"])');
+  await page.click('#reportModal button[type="submit"]');
+  await expect(page.locator("#reportModal .rp-done")).toContainText("nothing is sent"); // the demo sends nothing
+  await page.click("#reportModal .modal-foot [data-close]");
+  await expect(page.locator(`#peopleGrid [data-view="${id}"]`)).toHaveCount(0);
+  await page.evaluate(() => Mori.shell.openModal("settings", null, "privacy"));
+  await page.click(`#stBlocks [data-unblock="${id}"]`);
+  await expect(page.locator("#stBlocks")).toContainText("You haven’t blocked anyone");
+  await page.keyboard.press("Escape");
+  await expect(page.locator(`#peopleGrid [data-view="${id}"]`).first()).toBeVisible();
 });
 
 test("no sideways scrolling on a 360 px phone", async ({ browser }) => {

@@ -66,8 +66,11 @@
     const [, m, d] = String(p.birthDate || "").split("-").map(Number);
     return !!m && on.getMonth() + 1 === m && on.getDate() === d;
   };
-  /** Has the member answered what sign-up requires? Only the role: everything else is "Complete your profile". */
-  const profileComplete = (p = profile()) => !!p.role;
+  /** Members must be 18 or older (the database enforces it too). */
+  const MIN_AGE = 18;
+  const isAdult = (p = profile()) => !!p.birthDate && ageOn(p.birthDate) >= MIN_AGE;
+  /** Has the member answered what sign-up requires? The role and an 18+ date of birth: everything else is "Complete your profile". */
+  const profileComplete = (p = profile()) => !!p.role && isAdult(p);
   /** How complete the profile is, and what's still missing (the gentle nudge on the homepage and the profile). */
   function profileCompleteness(p = profile()) {
     const checks = [
@@ -821,8 +824,51 @@
 
   /** Forget what this browser cached about other members (on sign-out). */
   function forgetPrivate() {
-    ["members", "links", "messages", "projectsRemote"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
+    ["members", "links", "messages", "projectsRemote", "blocks"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
   }
+
+  /* ---------- Blocks and reports ----------
+     Google members: member_blocks and member_reports in Supabase. Only the
+     blocker sees a block; blocking ends any connection, and the two stop
+     seeing and reaching each other. A report goes to SandBox and can't be read
+     back. Guests: the guest database in this browser. */
+  const REPORT_REASONS = [
+    ["spam", "Spam or unwanted requests"],
+    ["harassment", "Harassment or bullying"],
+    ["fake", "A fake profile or pretending to be someone"],
+    ["scam", "A scam, or asking for money or equity"],
+    ["inappropriate", "Inappropriate photo or content"],
+    ["other", "Something else"],
+  ];
+  const safety = {
+    available: remoteEnabled,
+    REPORT_REASONS,
+    blocks: () => (remoteEnabled() ? get("blocks", []) : []),
+    isBlocked: (id) => safety.blocks().some((b) => b.id === id),
+    refresh: refresher(async () => { set("blocks", await Mori.db.myBlocks()); }),
+    async block(id) {
+      const who = network.member(id);
+      const before = safety.blocks();
+      set("blocks", [{ id, name: who ? who.name : "Member", picture: (who && who.picture) || "", at: Date.now() }].concat(before.filter((b) => b.id !== id)));
+      try { await Mori.db.block(id); } catch (err) { set("blocks", before); throw err; }
+      // They leave your network at once (the database has already ended any connection).
+      put("links", network.links().filter((l) => l.from !== id && l.to !== id));
+      put("members", network.members().filter((m) => m.id !== id));
+      foundMembers.delete(id);
+      emit("network");
+      network.refresh({ force: true }).catch(() => {});
+    },
+    async unblock(id) {
+      const before = safety.blocks();
+      set("blocks", before.filter((b) => b.id !== id));
+      try { await Mori.db.unblock(id); } catch (err) { set("blocks", before); throw err; }
+      network.refresh({ force: true }).catch(() => {});
+    },
+    report(id, reason, details) {
+      if (!REPORT_REASONS.some(([k]) => k === reason)) return Promise.reject(new Error("Choose a reason for the report."));
+      return Mori.db.report(id, reason, String(details || "").trim().slice(0, 2000));
+    },
+  };
 
   /* ---------- Sprints: the spots you've saved ----------
      Google members: a row each in sprint_spots (Supabase; row-level security
@@ -858,11 +904,11 @@
 
   Mori.state = {
     session, ladder: D.ladder,
-    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete, profileCompleteness,
+    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete, profileCompleteness, MIN_AGE, isAdult,
     settings, saveSettings, applyPrefs, syncPrefs, touchPref,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
     updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS, ladderProgress,
-    network, chat, sprints, live, forgetPrivate, reset,
+    network, chat, sprints, safety, live, forgetPrivate, reset,
   };
 })();

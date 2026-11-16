@@ -608,8 +608,9 @@
               <div class="st-card-copy"><b>${esc(S.me().name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
               <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + (s.provider === "guest" ? "Guest demo" : "Demo")}</span>
             </div>
-            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : s.provider === "guest" ? "Guest demo: you’re exploring as a sample founder, with sample members and projects kept in this browser. Sign-in is invite-only while SandBox is in testing." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
+            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : s.provider === "guest" ? "Guest demo: you’re exploring as a sample founder, with sample members and projects kept in this browser. Anyone 18 or over can join with a Google account from the start page." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
             ${row(s.provider === "guest" ? "Leave the demo" : "Sign out", s.provider === "guest" ? "Forgets everything you did in the demo and goes back to the start page." : "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</button>`)}
+            ${s.provider === "google" ? row("Sign out of all devices", "Ends your SandBox sessions on every phone and computer, this one included. Other devices are signed out within the hour, when their sign-in next refreshes. Use it if you signed in on a device that isn’t yours, or think someone else has.", `<button class="btn btn--sm" type="button" data-action="signout-all">${icon("logout")} Sign out everywhere</button>`) : ""}
             ${s.provider === "guest" ? row("Reset the demo", "Puts the sample members, projects and conversations back the way they started.", `<button class="btn btn--sm btn--danger" data-demo-reset>${icon("refresh")} Reset the demo</button>`, "st-row--danger") : row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
@@ -637,9 +638,30 @@
             ${row("Profile visibility", "Who sees your full profile in the Network. Everyone else sees your name, role and headline.", segHTML("visibility", p.visibility, [["everyone", "Everyone"], ["connections", "Connections"]]))}
             ${row("Show my work record", "Founders and specialists see the rungs you’ve reached and your verified sprints. You can hide the whole record, but not single parts of it.", switchHTML('data-setting="showRecord" aria-label="Show my work record"', st.showRecord))}
             ${row("Show “Open to build”", "Adds the open-to-build ring and tag to your profile.", switchHTML('data-profile="open" aria-label="Show open to build"', p.open))}
+            ${S.safety.available() ? `<div class="st-row st-row--list"><div class="st-copy"><h4>Blocked members</h4><p>People you blocked can’t see you on the MORI Network, send you requests or message you, and you don’t see them. They aren’t told. To block or report someone, use the buttons at the foot of their profile.</p></div><div class="st-blocks" id="stBlocks" tabindex="-1">${blocksHTML()}</div></div>` : ""}
           `)}
         </div>
       </div>`;
+  }
+
+  /** Settings → Privacy: the members you blocked, each with Unblock. */
+  function blocksHTML() {
+    const list = S.safety.blocks();
+    if (!list.length) return `<p class="meta">You haven’t blocked anyone.</p>`;
+    return `<ul class="st-block-list">${list.map((b) => `
+      <li class="st-block">${avatar({ id: b.id, name: b.name, picture: b.picture }, 32)}<span class="st-block-name">${esc(b.name)}</span>
+        <button class="btn btn--sm" type="button" data-unblock="${esc(b.id)}" aria-label="Unblock ${esc(b.name)}">Unblock</button></li>`).join("")}</ul>`;
+  }
+  function wireBlocks(panel) {
+    const box = $("#stBlocks", panel);
+    if (!box) return;
+    box.addEventListener("click", (e) => {
+      const ub = e.target.closest("[data-unblock]");
+      if (!ub) return;
+      const b = S.safety.blocks().find((x) => x.id === ub.dataset.unblock);
+      Mori.people.busy(ub, () => S.safety.unblock(ub.dataset.unblock), () => toast(`You unblocked ${b ? b.name : "them"}`, { icon: "check" }));
+    });
+    S.safety.refresh().catch(() => {}); // the list as the database has it
   }
 
   function renderSettings(tab = "account") {
@@ -647,6 +669,7 @@
     const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "stTitle");
     panel.innerHTML = settingsHTML(tab);
+    wireBlocks(panel);
 
     const pill = $(".saved-pill", panel);
     let pillTimer = 0;
@@ -777,10 +800,19 @@
     Mori.modal.open("modal-" + which, { opener: opener || undefined });
   }
 
-  async function signOut() {
+  async function signOut(everywhere = false) {
+    if (everywhere) {
+      // Every session ends in Supabase first; if that fails, stay signed in here and say so.
+      loader.show("Signing out everywhere", "Ending your sessions on every device…");
+      try { await Mori.db.signOut(true); } catch (err) {
+        loader.hide();
+        Mori.ui.problem("Couldn’t sign out your other devices. Check your connection and try again.");
+        return;
+      }
+    }
     Mori.modal.close({ restoreFocus: false });
     loader.show("Signing out", "See you soon…");
-    await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
+    if (!everywhere) await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
     S.forgetPrivate(); // other members' details and messages don't stay on this device
     Mori.auth.clearSession();
     location.replace("index.html?signedout=1");
@@ -797,6 +829,8 @@
     if (rd) { if (Mori.people.confirmTap(rd, "Tap again to reset")) Mori.guest.reset(); return; }
 
     if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
+    const all = e.target.closest('[data-action="signout-all"]');
+    if (all) { e.preventDefault(); if (Mori.people.confirmTap(all, "Tap again to sign out everywhere")) signOut(true); }
   });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $(".item.is-open")) closeMenus({ focus: true }); });
   // The nav shows your photo, name and pinned projects: rebuild it when any of those change.
@@ -811,6 +845,12 @@
       updateBadges();
     }
     if ((key === "network" || key === "links" || key === "notifRead") && Mori.modal.isOpen("modal-notifications")) renderNotifications();
+    if (key === "blocks" && $("#stBlocks")) {
+      const box = $("#stBlocks");
+      const hadFocus = box.contains(document.activeElement) || document.activeElement === document.body;
+      box.innerHTML = blocksHTML();
+      if (hadFocus && Mori.modal.isOpen("modal-settings")) ($("[data-unblock]", box) || box).focus(); // an unblocked row is gone: keep focus in the list
+    }
   });
 
   // Live updates: a short pop-up for requests, acceptances and messages.
@@ -835,7 +875,7 @@
     S.syncProfile().then((changed) => {
       if (!changed) return;
       if (S.session().provider === "google" && !S.profileComplete()) {
-        // The profile has no role (it shouldn't happen): ask the sign-up questions once, answers filled in.
+        // No role, or no 18+ date of birth (members who joined before it was required): ask the sign-up questions once, answers filled in.
         Mori.auth.updateSession({ onboarded: false });
         const here = location.pathname.split("/").pop() || "home.html";
         location.replace("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));

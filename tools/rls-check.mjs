@@ -5,8 +5,9 @@
    Signs in as nobody: it uses two members' access tokens and calls the
    Supabase REST API directly, the way a curious member could. Account B must
    not be able to read or change account A's private profile fields, CV,
-   messages, projects, documents, connections or sprint spots, and an
-   anonymous caller must get nothing.
+   messages, projects, documents, connections, sprint spots or blocks, nor
+   block or report as A, nor read reports, and an anonymous caller must get
+   nothing.
 
    Use two invited test accounts that have finished sign-up and are NOT
    connected to each other. Before running, give account A some private data:
@@ -97,11 +98,16 @@ check("B can't send a message as A", !(await call("POST", "/rest/v1/messages", B
 check("B can't create a project owned by A", !(await call("POST", "/rest/v1/projects", B_TOKEN, { owner_id: A, name: "rls-check" }, ret)).ok);
 check("B can't change A's projects", !aProjects.length || denied(await call("PATCH", `/rest/v1/projects?id=in.(${aProjects.join(",")})`, B_TOKEN, { name: "rls-check" }, ret)));
 if (spots.status !== 404) check("B can't save a sprint spot for A", !(await call("POST", "/rest/v1/sprint_spots", B_TOKEN, { member_id: A, sprint_id: "rls-check" }, ret)).ok);
+check("B can't see who A blocked", denied(await call("GET", `/rest/v1/member_blocks?select=blocked_id&blocker_id=eq.${A}`, B_TOKEN)));
+check("B can't block someone as A", !(await call("POST", "/rest/v1/member_blocks", B_TOKEN, { blocker_id: A, blocked_id: B })).ok);
+check("B can't report someone as A", !(await call("POST", "/rest/v1/member_reports", B_TOKEN, { reporter_id: A, reported_id: B, reason: "spam", details: "rls-check" })).ok);
+check("Nobody signed in can read reports", !(await call("GET", "/rest/v1/member_reports?select=id", B_TOKEN)).ok);
 
 /* ---------- Anonymous ---------- */
 check("Anonymous callers can't read profiles", denied(await call("GET", `/rest/v1/profiles?select=id`, null)));
 check("Anonymous callers can't use the member directory", !(await call("POST", "/rest/v1/rpc/member_directory", null, {})).ok);
 check("Anonymous callers can't read messages", denied(await call("GET", `/rest/v1/messages?select=id`, null)));
+check("Anonymous callers can't list blocks", !(await call("POST", "/rest/v1/rpc/my_blocks", null, {})).ok);
 
 const failed = results.filter((r) => !r.ok);
 console.log(failed.length ? `\n${failed.length} of ${results.length} checks FAILED` : `\nAll ${results.length} checks passed`);

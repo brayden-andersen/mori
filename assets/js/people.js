@@ -9,6 +9,7 @@
      data-member-cv="<id>"   open a connection's CV
      data-connections        open the Connections window
      data-copy-profile="<id>" copy the address of a member's profile
+     data-report / data-block="<id>"  report or block a member (Settings → Privacy unblocks)
    Every profile has an address, network.html#member/<id> (profileUrl). It
    opens the same window, built from what member_directory() and
    find_member() return, so invisible and connections-only profiles stay as
@@ -46,6 +47,12 @@
     }
   }
   const shareBtn = (id) => `<button class="btn btn--sm btn--ghost pf-share" type="button" data-copy-profile="${esc(id)}">${icon("link")} Copy profile link</button>`;
+  /** Report and Block at the foot of a profile (members with a network: Google sign-in and the guest demo). */
+  const safetyBtns = (id) => (S.safety.available() ? `
+    <span class="pf-safety">
+      <button class="btn btn--sm btn--ghost" type="button" data-report="${esc(id)}">${icon("flag")} Report</button>
+      <button class="btn btn--sm btn--ghost" type="button" data-block="${esc(id)}">${icon("ban")} Block</button>
+    </span>` : "");
 
   /** LinkedIn and extra links as buttons. */
   function linkButtons(p) {
@@ -129,6 +136,7 @@
         <div class="fact-pills">${m.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined SandBox ${esc(joined(m.joinedAt))}</span>` : ""}</div>
         ${st === "pending" ? `<div class="mp-action"><div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div></div>` : ""}
         <section class="pf-sec"><p class="meta pf-invisible-note">${icon("shield")} ${esc(first(m.name))} is invisible on the MORI Network, so you can’t connect or see more of their profile.</p></section>
+        <div class="pf-share-row">${safetyBtns(m.id)}</div>
       </div>`;
   }
 
@@ -196,7 +204,7 @@
         ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
         <div class="mp-action">${action}</div>
         ${details}
-        <div class="pf-share-row">${shareBtn(m.id)}</div>
+        <div class="pf-share-row">${shareBtn(m.id)}${safetyBtns(m.id)}</div>
       </div>`;
   }
   const memberKey = (m) => N.status(m.id) + JSON.stringify(m);
@@ -353,11 +361,104 @@
     N.refresh().catch(() => {});
   }
 
+  /* ---------- Report and block ---------- */
+  function blockMember(id, btn) {
+    const p = N.member(id);
+    const name = p ? p.name : "this member";
+    busy(btn, () => S.safety.block(id), () => {
+      if (Mori.modal.isOpen("memberModal")) Mori.modal.close();
+      toast(`You blocked ${name}. You won’t see or hear from each other on SandBox.`, { icon: "ban" });
+    });
+  }
+
+  function openReport(id) {
+    const m = N.member(id);
+    if (!m) return;
+    const guest = S.session().provider === "guest";
+    const root = createModal("reportModal", { label: "Report a member", panelCls: "modal--new modal--report" });
+    const panel = $(".modal", root);
+    panel.setAttribute("aria-labelledby", "rpTitle");
+    panel.innerHTML = `
+      <div class="modal-head">
+        <div><h2 id="rpTitle">Report ${esc(m.name)}</h2><p class="meta">Your report goes to SandBox, never to ${esc(first(m.name))}.${guest ? " In the demo, nothing is sent." : ""}</p></div>
+        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      </div>
+      <form class="modal-body np-form rp-form" id="rpForm" novalidate>
+        <fieldset class="rp-reasons" aria-describedby="rpReasonError">
+          <legend>What’s wrong?</legend>
+          ${S.safety.REPORT_REASONS.map(([k, label]) => `<label class="rp-reason"><input type="radio" name="reason" value="${k}"><span>${esc(label)}</span></label>`).join("")}
+          <p class="field-error" id="rpReasonError" role="alert" hidden></p>
+        </fieldset>
+        <label class="field"><span>What happened? <em class="hint">optional</em></span><textarea class="textarea" name="details" maxlength="2000" rows="4" placeholder="What they did, and where: a message, a connection request, their profile."></textarea></label>
+        <label class="rp-also"><input type="checkbox" name="block" checked><span>Also block ${esc(first(m.name))}, so you stop seeing and hearing from each other</span></label>
+      </form>
+      <div class="modal-foot">
+        <button class="btn" type="button" data-close>Cancel</button>
+        <button class="btn btn--ink" type="submit" form="rpForm">${icon("flag")} Send report</button>
+      </div>`;
+    const form = $("#rpForm", panel);
+    const reasonError = $("#rpReasonError", panel);
+    form.addEventListener("change", (e) => { if (e.target.name === "reason") reasonError.hidden = true; });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const picked = $('input[name="reason"]:checked', form);
+      if (!picked) {
+        reasonError.textContent = "Choose what’s wrong.";
+        reasonError.hidden = false;
+        $('input[name="reason"]', form).focus();
+        return;
+      }
+      const reason = picked.value;
+      const details = form.elements.details.value;
+      const alsoBlock = form.elements.block.checked;
+      busy($('button[type="submit"]', panel), async () => {
+        await S.safety.report(id, reason, details);
+        if (alsoBlock) await S.safety.block(id);
+      }, () => reported(panel, m, reason, details, alsoBlock, guest));
+    });
+    Mori.modal.open("reportModal"); // focus goes back to whatever opened the profile
+  }
+
+  /** The report is saved: say what happens next, and email it to SandBox so it's seen straight away. */
+  function reported(panel, m, reason, details, blocked, guest) {
+    const mail = (window.MORI_CONFIG || {}).contactEmail;
+    const label = (S.safety.REPORT_REASONS.find(([k]) => k === reason) || [reason, reason])[1];
+    const body = [
+      "Member report",
+      "",
+      `Member: ${m.name}`,
+      `Profile: ${profileUrl(m.id)}`,
+      `Reason: ${label}`,
+      `What happened: ${String(details || "").trim() || "(not given)"}`,
+      "",
+      `Reported by: ${S.me().name} (${profileUrl(S.me().id)})`,
+    ].join("\n");
+    const href = !guest && mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox report: " + m.name)}&body=${encodeURIComponent(body.slice(0, 1800))}` : "";
+    panel.innerHTML = `
+      <div class="modal-head">
+        <div><h2 id="rpTitle" tabindex="-1">Thanks for telling us</h2></div>
+        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      </div>
+      <div class="modal-body rp-done">
+        <p>${guest ? "This is the demo, so the report stays in this browser and nothing is sent." : `Your report about ${esc(m.name)} is saved for SandBox to review. ${esc(first(m.name))} won’t know you reported them.`}</p>
+        ${blocked ? `<p class="meta">You also blocked ${esc(first(m.name))}. You can unblock them in Settings → Privacy.</p>` : ""}
+        ${href ? `<p class="meta">Your email app should open with the report addressed to SandBox, so we see it straight away. If it didn’t, use the button.</p>` : ""}
+      </div>
+      <div class="modal-foot">
+        ${href ? `<a class="btn" href="${esc(href)}">${icon("mail")} Email the report</a>` : ""}
+        <button class="btn btn--ink" type="button" data-close>Done</button>
+      </div>`;
+    $("#rpTitle", panel).focus();
+    if (href) location.href = href; // opens the email draft; the page stays put
+  }
+
   /* ---------- Actions (delegated) ---------- */
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections],[data-copy-profile]");
+    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections],[data-copy-profile],[data-report],[data-block]");
     if (!t) return;
     const d = t.dataset;
+    if (d.report) { e.preventDefault(); openReport(d.report); return; }
+    if (d.block) { e.preventDefault(); if (confirmTap(t, "Tap again to block")) blockMember(d.block, t); return; }
     if ("connections" in d) { e.preventDefault(); openConnections(t); return; }
     if (d.view) { e.preventDefault(); openMember(d.view, { opener: t }); return; }
     if (d.copyProfile) { e.preventDefault(); copyProfile(d.copyProfile); return; }

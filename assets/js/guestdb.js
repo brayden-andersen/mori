@@ -73,7 +73,8 @@
   const projects = () => read("projects", []);
   const workspaces = () => read("workspaces", {});
   const docs = () => read("docs", []);
-  const members = () => S.members;
+  const blocked = () => new Set(read("blocks", []).map((b) => b.id));
+  const members = () => S.members.filter((m) => !blocked().has(m.id)); // blocked members leave the demo network, as they do in Supabase
   const member = (id) => members().find((m) => m.id === id) || null;
   const visibleMember = (id) => { const m = member(id); return m && !m.invisible ? m : null; };
   const project = (id) => projects().find((p) => p.id === id) || null;
@@ -98,7 +99,7 @@
     async uploadPhoto(blob) { return Mori.ui.blobToDataUrl(blob); },
     async removePhoto() { return soon(); },
     async uploadCv(file) { return soon({ path: "guest/" + file.name, name: file.name }); },
-    async cvLink() { throw err("CVs aren’t stored in the demo. Sign in with an invited account to upload yours."); },
+    async cvLink() { throw err("CVs aren’t stored in the demo. Sign in with Google to upload yours."); },
 
     /* ---------- Members and connection requests ---------- */
     async members() { return soon(clone(members().filter((m) => !m.invisible))); },
@@ -123,6 +124,21 @@
       return soon(clone(next));
     },
     async deleteConnection(linkId) { write("links", links().filter((x) => x.id !== linkId)); return soon(); },
+
+    /* ---------- Blocks and reports (kept in this browser; nothing is sent) ---------- */
+    async myBlocks() { return soon(clone(read("blocks", []))); },
+    async block(memberId) {
+      const m = S.members.find((x) => x.id === memberId);
+      const list = read("blocks", []).filter((b) => b.id !== memberId);
+      write("blocks", [{ id: memberId, name: m ? m.name : "Member", picture: (m && m.picture) || "", at: Date.now() }].concat(list));
+      write("links", links().filter((l) => l.from !== memberId && l.to !== memberId));
+      return soon();
+    },
+    async unblock(memberId) { write("blocks", read("blocks", []).filter((b) => b.id !== memberId)); return soon(); },
+    async report(memberId, reason, details) {
+      write("reports", read("reports", []).concat({ id: memberId, reason, details: String(details || ""), at: Date.now() }));
+      return soon();
+    },
 
     /* ---------- Projects ---------- */
     async projects() { return soon(clone(projects().filter(onTeam)).sort((a, b) => b.createdAt - a.createdAt)); },

@@ -815,6 +815,21 @@ html.theme-fade::view-transition-new(*){ animation: theme-in .5s cubic-bezier(.4
 .pf-more[open] > summary .ico{ transform: rotate(180deg) }
 .pf-share-row{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(26,28,31,.08) }
 .pf-share-row .ico{ width:14px; height:14px }
+.pf-safety{ display:flex; flex-wrap:wrap; gap:6px; margin-left:auto }
+.pf-safety .btn{ color:var(--ink-2) }
+/* Report a member */
+.rp-reasons{ border:0; margin:0; padding:0; display:grid; gap:8px }
+.rp-reasons legend{ padding:0; margin-bottom:8px; font-size:13px; font-weight:600; color:var(--ink-2) }
+.rp-reason{ display:flex; align-items:center; gap:10px; min-height:44px; padding:6px 12px; border:1px solid rgba(26,28,31,.12); border-radius:12px; cursor:pointer; font-size:14px }
+.rp-reason:has(input:checked){ border-color:#1a1c1f; box-shadow:0 0 0 1px #1a1c1f inset }
+.rp-reason input, .rp-also input{ width:18px; height:18px; flex:none; accent-color:#1a1c1f }
+.rp-also{ display:flex; align-items:flex-start; gap:10px; min-height:44px; padding-top:4px; font-size:14px; cursor:pointer }
+.rp-done p{ margin:0 0 10px }
+/* Settings → Privacy: blocked members */
+.st-blocks{ width:100%; outline:none }
+.st-block-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px }
+.st-block{ display:flex; align-items:center; gap:10px }
+.st-block-name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600 }
 .pf-unavailable{ display:grid; justify-items:start; gap:10px; padding-top:28px }
 .pf-unavailable .meta{ margin:0; line-height:1.55 }
 

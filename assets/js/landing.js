@@ -102,12 +102,13 @@
     if (problem) {
       loader.hide();
       history.replaceState(null, "", location.pathname);
-      // Sign-in is invite-only: for an account that isn't on the invite list the database refuses to
-      // create the account ("Database error saving new user"), so nothing was saved for them.
+      // The database checks every new account (a Google-verified email, not banned, and on the invite list
+      // while sign-up is invite-only). When it refuses, Supabase reports "Database error saving new user"
+      // and nothing is saved. It doesn't say why, so neither do we.
       const code = params.get("error_code") || hash.get("error_code") || "";
-      const uninvited = /database error saving new user|invite/i.test(problem) || /unexpected_failure/i.test(code);
-      if (!uninvited) $("#authFailed").textContent = problem.replace(/\+/g, " ");
-      openAuth("join", { view: uninvited ? "invite" : "failed" });
+      const refused = /database error saving new user|invite/i.test(problem) || /unexpected_failure/i.test(code);
+      if (!refused) $("#authFailed").textContent = problem.replace(/\+/g, " ");
+      openAuth("join", { view: refused ? "refused" : "failed" });
       return;
     }
     loader.show("Signing you in", "Checking your Google account…");
@@ -145,9 +146,9 @@
     startDemo();
   });
   if (params.get("demo") === "1") startDemo(); // linked from the public pages
-  // "Ask for an invite" goes to the contact address when there is one, else the Contact page.
-  const ask = $("#inviteAsk");
-  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox invite")}` : "contact.html"; }
+  // "Write to us" after a refused sign-up goes to the contact address when there is one, else the Contact page.
+  const ask = $("#refusedAsk");
+  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox sign-up")}` : "contact.html"; }
 
   $("#demoForm").addEventListener("submit", (e) => {
     e.preventDefault();

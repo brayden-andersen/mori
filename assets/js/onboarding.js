@@ -70,22 +70,24 @@
     `<option value="" disabled ${a.region ? "" : "selected"}>Choose your region</option>` +
     D.regions.map((g) => `<optgroup label="${esc(g.group)}">${g.items.map((r) => `<option ${r === a.region ? "selected" : ""}>${esc(r)}</option>`).join("")}</optgroup>`).join("");
 
-  // Born at least 16 years ago, at most 80.
+  // Born at least 18 years ago (the database refuses anyone younger), at most 100.
   const today = new Date();
   const isoDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const MAX_BIRTH = isoDay(new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()));
-  const MIN_BIRTH = isoDay(new Date(today.getFullYear() - 81, today.getMonth(), today.getDate() + 1));
+  const MAX_BIRTH = isoDay(new Date(today.getFullYear() - S.MIN_AGE, today.getMonth(), today.getDate()));
+  const MIN_BIRTH = isoDay(new Date(today.getFullYear() - 101, today.getMonth(), today.getDate() + 1));
   const isSpecialty = (v) => D.specialties.includes(v);
 
   const STEP_HTML = {
     about: () => `
       <h1 class="grad-ink" tabindex="-1">${editing ? "Your details" : updating ? "A few new questions" : "Welcome! Tell us about you"}</h1>
-      <p class="ob-lead">${updating ? "Your answers are filled in: check them and continue." : editing ? "This is how founders and specialists see you on Sandbox." : "Just your name and where you are. Everything else can wait."}</p>
+      <p class="ob-lead">${updating ? "Your answers are filled in: check them and continue." : editing ? "This is how founders and specialists see you on Sandbox." : "Your name, your date of birth and where you are. Everything else can wait."}</p>
       <div class="ob-grid">
         <label class="field"><span>First name</span><input class="input" name="firstName" value="${esc(a.firstName)}" maxlength="40" autocomplete="given-name"></label>
         <label class="field"><span>Last name <em class="hint">optional</em></span><input class="input" name="lastName" value="${esc(a.lastName)}" maxlength="40" autocomplete="family-name"></label>
+        <label class="field"><span>Date of birth <em class="hint">private · you must be 18 or older</em></span><input class="input" name="birthDate" type="date" min="${MIN_BIRTH}" max="${MAX_BIRTH}" value="${esc(a.birthDate)}" autocomplete="bday" required aria-describedby="obBirthNote"></label>
         <label class="field"><span>Region <em class="hint">optional</em></span><select class="select" name="region">${regionOptions()}</select></label>
-      </div>`,
+      </div>
+      <p class="meta ob-birth-note" id="obBirthNote">SandBox is for people aged 18 and over. Only you see your date of birth; your age shows on your profile only if you choose.</p>`,
     role: () => `
       <h1 class="grad-ink" tabindex="-1">You’re joining as…</h1>
       <p class="ob-lead">Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application. <a class="link-btn" href="partners.html">How partners join</a></p>
@@ -110,10 +112,7 @@
       <label class="field ob-other" ${a.specialty && !isSpecialty(a.specialty) ? "" : "hidden"}><span>Your role</span><input class="input" name="specialtyOther" maxlength="60" placeholder="e.g. Supply chain analyst" value="${esc(a.specialty && !isSpecialty(a.specialty) ? a.specialty : "")}"></label>`,
     details: () => `
       <h1 class="grad-ink" tabindex="-1">A little more about you</h1>
-      <p class="ob-lead">All optional. Your date of birth stays private; your experience helps founders and specialists find the right match.</p>
-      <div class="ob-grid">
-        <label class="field"><span>Date of birth <em class="hint">private · we’ll wish you a happy birthday</em></span><input class="input" name="birthDate" type="date" min="${MIN_BIRTH}" max="${MAX_BIRTH}" value="${esc(a.birthDate)}" autocomplete="bday"></label>
-      </div>
+      <p class="ob-lead">All optional. Your experience helps founders and specialists find the right match.</p>
       <span class="ob-label" id="expLabel">Years of experience</span>
       <div class="ob-choices" role="radiogroup" aria-labelledby="expLabel">${choices("experience", D.experience)}</div>
       <span class="ob-label" id="empLabel">Status of employment</span>
@@ -168,12 +167,17 @@
 
   /* ---------- Validation (returns [fieldName|null, message] or null) ---------- */
   const age = () => (a.birthDate ? S.ageOn(a.birthDate) : null);
-  const badBirth = () => (a.birthDate && (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate) || !(age() >= 16 && age() <= 80)));
+  const birthProblem = () => {
+    if (!a.birthDate) return "Add your date of birth. SandBox is for people aged 18 and over.";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate) || !(age() <= 100)) return "Check your date of birth.";
+    if (!(age() >= S.MIN_AGE)) return "SandBox is for people aged 18 and over, so we can’t create an account for you yet.";
+    return "";
+  };
   const VALIDATE = {
-    about: () => (!a.firstName.trim() ? ["firstName", "Add your first name."] : null),
+    about: () => (!a.firstName.trim() ? ["firstName", "Add your first name."] : birthProblem() ? ["birthDate", birthProblem()] : null),
     role: () => (!a.role ? [null, "Choose Founder or Specialist."] : null),
     specialty: () => ($('input[name="specialtyPick"][value="other"]:checked') && !String(a.specialty || "").trim() ? ["specialtyOther", "Write your role, or pick one from the list."] : null),
-    details: () => (badBirth() ? ["birthDate", "Sandbox is for members aged 16 to 80. Check your date of birth, or leave it out."] : null),
+    details: () => null,
     industries: () => null,
     situation: () => null,
     cv: () => (a.linkedin.trim() && !/^(https?:\/\/)?([\w-]+\.)*linkedin\.com\/\S+/i.test(a.linkedin.trim()) ? ["linkedin", "That doesn’t look like a LinkedIn link."] : null),
@@ -182,7 +186,6 @@
   /** Skipping a step leaves whatever was half-filled out of the answers. */
   const SCRUB = {
     specialty: () => { if (!isSpecialty(a.specialty) && $('input[name="specialtyPick"][value="other"]:checked')) a.specialty = ""; },
-    details: () => { if (badBirth()) a.birthDate = ""; },
     cv: () => { if (VALIDATE.cv()) a.linkedin = ""; },
     languages: () => { a.languages = a.languages.filter((l) => l.name && l.level); },
   };
@@ -482,7 +485,15 @@
       }
       nextBtn.disabled = false;
       loader.hide();
-      flash(err.message || "Couldn’t save your answers. Please try again.");
+      const msg = String(err.message || "");
+      if (/too_young|birth_date_required/.test(msg)) {
+        show(0, -1);
+        const field = form.elements.birthDate;
+        Mori.ui.fieldError(field, /too_young/.test(msg) ? "SandBox is for people aged 18 and over, so we can’t create an account for you yet." : "Add your date of birth to finish signing up.", () => birthProblem());
+        field.focus();
+        return;
+      }
+      flash(msg || "Couldn’t save your answers. Please try again.");
     }
   }
 

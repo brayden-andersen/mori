@@ -13,7 +13,7 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `directory.html` | **Vetted partners** (members): notaries, lawyers, accountants, tax advisers and designers, with placeholder member prices and the referral fee stated. A service in the address (`directory.html#notary`) filters it; the launch path links there. Only sample partners exist yet, so only the guest demo lists them; members see that the first partners haven't been listed. `[BRAYDEN: real partners and member prices]` |
 | `legal.html` | **Terms, privacy, cookies and cancellation** (public): a plain-language draft, not yet reviewed by a lawyer, with `#terms`, `#privacy`, `#cookies` and `#cancellation`. The privacy section describes what the code actually does. The sign-up screens and the footer link here. |
 | `about.html` | **About SandBox** (public): the mission, the problem and what SandBox does, with a founder note still to be written. |
-| `contact.html` | **Contact** (public): one address for invites, partnering, problems and data requests. The address is `contactEmail` in `config.js`; a placeholder shows until it's set. |
+| `contact.html` | **Contact** (public): one address for joining, partnering, reports, problems and data requests. The address is `contactEmail` in `config.js`. |
 | `toolkits.html` | **Toolkits** (public): the planner's templates, each readable in full, with a way into the planner or the demo. |
 | `404.html` | **Page not found**, served by GitHub Pages for any missing address. |
 | `onboarding.html` | **Sign-up**, short: name (region optional) · founder or specialist, with a line on what each changes · a specialist's role · one industry · *Where are you right now?* (an idea and need a team, skills and want to join, a prototype to make real). Only the name and the role are required; every other step has *Skip for now*. The answer picks the first page: declare a project, Discover, or declare at rung 2. A `?next=` deep link wins over it. **Complete your profile** is the same page with `?edit=1`: every step, including date of birth, experience and employment (*Details*), LinkedIn or CV, and languages. |
@@ -26,7 +26,7 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 
 **Profile**, **Settings** and **Notifications** are modals in the Account menu. Settings has five sections: Account, Preferences (including *Take the tour* for the site tour), Privacy, Projects (what a project opens on, the planner's tools sidebar, which projects are pinned to the homepage, and the project tour; also under *Projects → Project settings* in the nav) and Notifications. The profile shows the onboarding answers, your photo and your links. Notifications come from connection requests: someone asking to connect, or accepting your request. The **Connections** window opens from the Network menu or from the Connections count on your profile.
 
-For signed-in members nothing is pre-filled: projects appear once the member declares them, and the Network shows real members. The guest demo is the exception (see *The demo: guests and invites*).
+For signed-in members nothing is pre-filled: projects appear once the member declares them, and the Network shows real members. The guest demo is the exception (see *The demo: guests and sign-up*).
 
 ### Guided tours
 
@@ -142,22 +142,33 @@ select sprint_id, count(*) from public.sprint_spots group by sprint_id order by 
 - **Compliance tracker** (planner, under Plan): the recurring obligations a team adds after registration, each with how often it comes round and its next date. Ticking one moves it to its next date; overdue ones show on the homepage. It claims nothing about the law: which obligations apply is for a vetted partner to confirm. The guest demo's sample project has three sample obligations.
 - The subscription page lists both as part of Builder and Founder Pro. In the demo every member can use them, and each page says so. The launch path is the one tool with plan limits.
 
-## The demo: guests and invites
+## The demo: guests and sign-up
 
-SandBox is a demo, shown in customer interviews and used by a small invited group. Two things make that work:
+SandBox is a demo, shown in customer interviews and open to anyone 18 or over with a Google account.
 
 - **Explore the demo** (on the landing page, in the join window, and as `index.html?demo=1` from the public pages) opens the app as a **guest**: a sample founder, Nadia Pratiwi, with sample members, connections, conversations, projects and documents already in place. Everyone and everything in it is fictional and carries a *Sample* label, and it all lives only in that browser. `assets/js/guestdb.js` stands in for Supabase with the same API (`Mori.db`), fed by `assets/js/sample.js`, so every page works exactly as it does for a signed-in member: guests can connect, message, declare projects, write documents and change widgets. A strip under the nav says so on every page, with *Reset the demo* (puts the sample data back the way it started) and *Leave the demo* (forgets it all). Signed-in members never see sample data.
-- **Sign-in is invite-only.** Only email addresses in the `public.invites` table can create an account: a database trigger (`private.require_invite`, in `supabase/migrations/20261114160000_invite_only_signup.sql`) refuses anyone else before an account or profile exists. Supabase sends them back to the landing page, which explains that sign-in is invite-only and offers the guest demo. Members who already have accounts aren't affected.
+- **Anyone can sign up with Google.** A database trigger (`private.check_signup()` on `auth.users`, in `supabase/migrations/20261116120000_open_google_signin.sql`) checks every new account before it exists: it must come from Google sign-in (never email and password, anonymous sign-in or another provider, even if one is switched on by mistake), Google must have verified its email address, and the address mustn't be on the blocklist. If it's refused, Supabase sends the person back to the landing page, which says the account couldn't be created and offers the guest demo. Accounts that already exist aren't affected.
+- **18 and over.** Sign-up asks for a date of birth on its first step, and the database refuses one under 18 (`private.check_member_age()`). Only the member sees it; others see an age only if the member chooses to show it. Members who joined before this rule and have no date of birth are asked for one the next time they open SandBox; until they add it they don't appear in the MORI Network and can't browse it or send requests.
+- **Block and report.** Every profile has *Report* and *Block* at its foot. Blocking ends any connection or request between the two members, and neither can see the other in the network, send a request or send a message; only the blocker knows. *Settings → Privacy → Blocked members* lists them, with *Unblock*. A report (a reason and, optionally, what happened) is saved to `public.member_reports`, which members can write to but never read, and the reporter's email app opens with the report addressed to `contactEmail`, so it's seen straight away. *Also block* is ticked by default. In the guest demo both stay in the browser and nothing is sent.
 
-**To invite someone:** in Supabase → Table Editor → `invites` → *Insert row*, with the Google address they'll sign in with, in lower case, and a note if you like. Or, in the SQL editor:
+**Managing sign-up** (Supabase → SQL editor):
 
 ```sql
+-- Back to invite-only (and open again with false). The invite list is public.invites:
+update private.signup_settings set invite_only = true;
 insert into public.invites (email, note) values ('name@example.com', 'interview, 20 Nov');
+
+-- Stop a Google account from ever creating an account:
+insert into private.signup_blocklist (email, reason) values ('name@example.com', 'spam, 20 Nov');
+
+-- Reports waiting for you, and marking one done:
+select r.id, r.created_at, r.reason, r.details, r.reported_id, r.reporter_id from public.member_reports r where r.status = 'open' order by r.created_at;
+update public.member_reports set status = 'closed' where id = 1;
 ```
 
-They can sign in straight away. Delete the row to withdraw an invite nobody has used yet. To open sign-up to everyone again, drop the trigger `require_invite_before_signup` on `auth.users`.
+To remove someone who already has an account: add their address to the blocklist, then delete the user in Authentication → Users. Their profile, projects, messages and connections go with it. Emails are lower case in both lists.
 
-The contact address for the Contact page, invite requests and partner applications is `contactEmail` in `assets/js/config.js`; a placeholder shows until it's set.
+The contact address for the Contact page, refused sign-ups, partner applications and member reports is `contactEmail` in `assets/js/config.js`.
 
 ## Run it locally
 
@@ -229,11 +240,12 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261107155209_invisible_members.sql`: Invisible mode (the column, the directory and name-search rules, and the policy that refuses requests to invisible members).
 - `20261109000717_project_workspace_and_docs.sql`: the planner's `workspace` column, up to 100 tasks per project, and the `project_docs` table with its policies and trigger.
 - `20261109062222_member_prefs_sync.sql`: the `prefs` column on profiles, for settings, pins and the theme across devices.
-- `20261114160000_invite_only_signup.sql`: the `invites` table and the trigger that makes sign-in invite-only (see *The demo: guests and invites*).
-- `20261116090000_sprint_spots.sql`: the `sprint_spots` table for *Save my spot*, with its own-rows-only policies (see *Sprints*). **Not applied yet.**
-- `20261116100000_security_notes.sql`: comments explaining why `member_directory()` and `find_member()` are SECURITY DEFINER, and an explicit deny-all policy on `invites`. No behaviour changes. **Not applied yet.**
+- `20261114160000_invite_only_signup.sql`: the `invites` table and the first sign-up trigger (invite-only), replaced by the next-but-two.
+- `20261116090000_sprint_spots.sql`: the `sprint_spots` table for *Save my spot*, with its own-rows-only policies (see *Sprints*).
+- `20261116100000_security_notes.sql`: comments explaining why `member_directory()` and `find_member()` are SECURITY DEFINER, and an explicit deny-all policy on `invites`.
+- `20261116120000_open_google_signin.sql`: open Google sign-up with its checks and the invite-only switch, the blocklist, 18 and over, blocks (`member_blocks`, `my_blocks()`) and reports (`member_reports`), and the directory and request rules that go with them (see *The demo: guests and sign-up*).
 
-**To apply a migration by hand:** Supabase → SQL editor → paste the file's contents → *Run*. Each file is safe to run twice.
+The last three were applied together on 16 Nov 2026, as one migration named `sprint_spots_security_notes_open_google_signin`. **To apply a migration by hand:** Supabase → SQL editor → paste the file's contents → *Run*. Each file is safe to run twice.
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
@@ -243,13 +255,25 @@ To make a new database change, add the next migration file here and apply it to 
 
 ## Security and accessibility
 
-- **Row-level security, checked from outside:** `tools/rls-check.mjs` uses two test accounts' access tokens and calls the REST API directly. Account B must not read or change account A's private profile fields, CV, messages, projects, documents, connections or sprint spots, and anonymous callers must get nothing. How to get the tokens and run it is at the top of the file. The same rules were checked inside the database on 16 Nov 2026, impersonating one real member against another.
-- **SECURITY DEFINER functions:** `member_directory()` and `find_member()` are flagged by the Supabase advisor on purpose. They set a fixed, empty `search_path`, only signed-in members can call them, and they return only the fields a member chose to show. `20261116100000_security_notes.sql` writes this down on the functions.
+- **Google sign-in:** the PKCE flow (the sign-in code is swapped for a session in the browser, and it's removed from the address straight after); Google shares only name, email address and photo; the address a member returns to after signing in must be one of the site's own pages; only Google accounts with an email Google has verified can create an account, checked in the database (see *The demo: guests and sign-up*). *Sign out* ends the session in this browser and clears other members' details from it; *Settings → Account → Sign out of all devices* ends every session the account has (other devices within the hour, when their sign-in next refreshes).
+- **Row-level security, checked from outside:** `tools/rls-check.mjs` uses two test accounts' access tokens and calls the REST API directly. Account B must not read or change account A's private profile fields, CV, messages, projects, documents, connections, sprint spots or blocks, can't block or report as A, and can't read reports; anonymous callers must get nothing. How to get the tokens and run it is at the top of the file. On 16 Nov 2026 the same rules, plus the sign-up checks, the age rule and blocking, were checked inside the database by impersonating real members (39 checks, all passed, every change rolled back).
+- **SECURITY DEFINER functions:** `member_directory()`, `find_member()` and `my_blocks()` are flagged by the Supabase advisor on purpose. They set a fixed, empty `search_path`, only signed-in members can call them, and they return only the fields a member chose to show (`my_blocks()`: only your own blocks, with a name and photo). The directory and name search answer only members who are 18 or over and never cross a block. Comments on each function say so. The advisor's *Leaked password protection* warning doesn't apply: there are no passwords.
 - **No unsafe HTML:** every value from a member goes into the page through `esc()` or `textContent`. Links from members (LinkedIn, profile links, funding links, links in documents) are shown only if they start with `https://` (`mailto:` too, in documents). Photos load only from `https://`, `data:` or `blob:` addresses. A test fills a name, headline, project, task, message, document, obligation and links with script-carrying strings and checks nothing runs.
 - **Content-Security-Policy** (a `<meta>` tag on every page, since GitHub Pages can't set headers): scripts, styles, fonts and pages from this site only; data from the Supabase project (REST, storage, realtime); images also from Google profile photos. No inline scripts, apart from the 404 page's base-path snippet, allowed by its hash. Google sign-in is a redirect through Supabase, so it needs nothing more. **If you change `supabaseUrl` in `config.js`** or an inline script, run `python3 tools/set_csp.py` to rewrite the tags.
 - **Menus are disclosures:** a button with `aria-expanded` shows a list of links. Tab moves through them, Escape closes the menu and returns to its button, and no arrow keys are needed. Projects and Network keep their links, with a small toggle beside each for the keyboard and touch.
 - **Errors:** a form shows each error under its field, tied to it with `aria-describedby`, until it's fixed. Something that fails in the background (a save, a sign-in, a load) shows an alert that stays until it's dismissed. Toasts only confirm things that worked.
 - **Checked on 16 Nov 2026:** axe finds no serious or critical issues on any page, dialog or error state, in light and dark mode. Nothing overflows at 200% zoom. On touch screens every control is at least 44 px (`@media (pointer: coarse)` in `mori.css`). Repeated actions (tabs, filters, menus, planner pages) animate for 200 ms at most.
+
+### Settings only you can change
+
+These live in the Supabase and Google dashboards, not in this repository. For a public launch they should look like this:
+
+- **Supabase → Authentication → Sign In / Providers:** Google on; Email, Phone and Anonymous sign-ins off. (The database refuses anything but Google anyway; turning them off means nobody even gets that far.)
+- **Supabase → Authentication → URL Configuration:** *Site URL* is the live address. *Redirect URLs* lists only the addresses that serve the site, such as `https://<you>.github.io/mori/**`; remove `localhost` entries when you aren't developing.
+- **Supabase → Authentication → Sessions:** keep refresh-token rotation and reuse detection on (the default), and the access token lifetime at an hour or less.
+- **Google Cloud → Google Auth Platform (OAuth consent screen):** publishing status **In production**. While it says *Testing*, only the test users listed there can sign in, so open sign-up won't work for anyone else. Give it the app name, a support email, the home page, the privacy policy (`legal.html#privacy`) and the terms (`legal.html#terms`). Ask only for the `openid`, `email` and `profile` scopes.
+- **Google Cloud → Credentials → the OAuth client:** the only authorised redirect URI is `https://ovchugvbujrqkowjalfx.supabase.co/auth/v1/callback`. The client secret lives only in Supabase; if it was ever shared, make a new one.
+- **Legal:** the legal page is a draft. Have a lawyer check it, the privacy policy above all, against Indonesia's Personal Data Protection Law before inviting the public.
 
 ## Project structure
 

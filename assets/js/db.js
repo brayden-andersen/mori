@@ -99,8 +99,8 @@
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.created_at) || 0,
       show: { age: r.show_age === true, region: r.show_region !== false, employment: r.show_employment !== false, languages: r.show_languages !== false },
-      // Sign-up requires the role; everything else is "Complete your profile" later.
-      onboarded: !!(r.onboarding_completed && role),
+      // Sign-up requires the role and a date of birth (18+, checked by the database); the rest is "Complete your profile" later.
+      onboarded: !!(r.onboarding_completed && role && r.birth_date),
     };
   }
   function toRow(id, p) {
@@ -283,6 +283,38 @@
     async dropSpot(sprintId) {
       const { c, id } = await signedIn();
       const { error } = await c.from("sprint_spots").delete().eq("member_id", id).eq("sprint_id", sprintId);
+      fail(error);
+    },
+
+    /* ---------- Blocks and reports ---------- */
+    /** The members you blocked, newest first: [{ id, name, picture, at }]. Only you see your blocks. */
+    async myBlocks() {
+      const { c } = await signedIn();
+      const { data, error } = await c.rpc("my_blocks");
+      fail(error);
+      return (data || []).map((r) => ({
+        id: r.id,
+        name: [r.first_name, r.last_name].filter(Boolean).join(" ").trim() || "Member",
+        picture: https(r.avatar_url),
+        at: Date.parse(r.blocked_at) || Date.now(),
+      }));
+    },
+    /** Block a member. The database ends any connection or request between you; neither can reach the other. */
+    async block(memberId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_blocks").insert({ blocker_id: id, blocked_id: memberId });
+      if (error && error.code === "23505") return; // already blocked
+      fail(error);
+    },
+    async unblock(memberId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_blocks").delete().eq("blocker_id", id).eq("blocked_id", memberId);
+      fail(error);
+    },
+    /** Report a member to SandBox. Reports can't be read back through the API; they're read in the dashboard. */
+    async report(memberId, reason, details) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_reports").insert({ reporter_id: id, reported_id: memberId, reason, details: details || null });
       fail(error);
     },
 
@@ -544,8 +576,14 @@
     linkFromRow,
     messageFromRow,
 
-    async signOut() {
+    /** Sign out of this browser, or with everywhere = true, of every device (it ends all the account's sessions). */
+    async signOut(everywhere = false) {
       if (!enabled) return;
+      if (everywhere) {
+        const { error } = await (await client()).auth.signOut({ scope: "global" });
+        if (error) throw error;
+        return;
+      }
       if (clientPromise) {
         try { await (await client()).auth.signOut({ scope: "local" }); return; } catch (e) { /* fall through */ }
       }
