@@ -57,6 +57,7 @@ html.boot .footer{ opacity:0 }
 .continue-pin .caption{ margin-top:10px; font-size:13px; color:#55575b; font-style:italic }
 .continue-next{ margin:10px 0 0; display:flex; align-items:center; gap:6px; flex-wrap:wrap }
 .continue-next .ico{ width:14px; height:14px; color: var(--mori-red) }
+.continue-next a{ color:#3d64d2; font-weight:600; text-decoration:none }
 .continue-pin .pin-separator{ width:1px; background:#e8e8e8; align-self:stretch; margin-left:16px; margin-right:8px }
 /* Needs attention */
 .attn-list{ display:grid; gap:8px }
@@ -72,7 +73,13 @@ html.boot .footer{ opacity:0 }
 /* Sprints */
 .sprints-note{ margin:0 0 12px; line-height:1.5 }
 .sprint-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px }
-.sprint-list li{ display:flex; align-items:center; gap:14px; padding:11px 14px; border-radius:14px; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08) }
+.sprint-list li{ display:block }
+.sprint-link{ display:flex; align-items:center; gap:14px; padding:11px 14px; border-radius:14px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
+.sprint-link:hover{ transform: translateY(-1px); box-shadow: var(--panel-shadow) }
+.sprint-link > div{ flex:1; min-width:0 }
+.sprint-saved{ flex:0 0 auto; color:#0f7a55; background: rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.30) }
+.sprint-saved .ico{ width:13px; height:13px }
+@media (max-width: 560px){ .sprint-saved{ display:none } }
 .sprint-list b{ display:block; font-size:14px }
 .sprint-when{ flex:0 0 auto; min-width:52px; padding:5px 9px; border-radius:10px; font-size:12px; font-weight:600; text-align:center; color:#9a0b11; background: rgba(184,0,0,.08) }
 /* People to meet */

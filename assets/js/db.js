@@ -266,6 +266,26 @@
       fail(error);
     },
 
+    /** The sprint spots you've saved, oldest first: [{ id, at }]. Row-level security returns only your own rows. */
+    async sprintSpots() {
+      const { c, id } = await signedIn();
+      const { data, error } = await c.from("sprint_spots").select("sprint_id, created_at").eq("member_id", id).order("created_at");
+      fail(error);
+      return (data || []).map((r) => ({ id: r.sprint_id, at: Date.parse(r.created_at) || Date.now() }));
+    },
+    /** Save your spot in a sprint (saving it twice is fine). */
+    async saveSpot(sprintId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("sprint_spots").insert({ member_id: id, sprint_id: sprintId });
+      if (error && error.code === "23505") return; // already saved
+      fail(error);
+    },
+    async dropSpot(sprintId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("sprint_spots").delete().eq("member_id", id).eq("sprint_id", sprintId);
+      fail(error);
+    },
+
     /** Upload a square photo to avatars/<user id>/…; returns its public URL. */
     async uploadPhoto(blob, prefix = "") {
       const { c, id } = await signedIn();

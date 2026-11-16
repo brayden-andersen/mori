@@ -150,6 +150,7 @@ html[data-theme="dark"] .toolkit-body blockquote{ border-left:2px solid rgba(227
 html[data-theme="dark"] .pf-complete-bar{ background:rgba(227,228,230,0.1) }
 html[data-theme="dark"] .pf-complete-bar i{ background:linear-gradient(90deg, #b75512, #880d12) }
 html[data-theme="dark"] .pf-complete a{ color:#8ba5ef }
+html[data-theme="dark"] .pf-sprints a{ color:#8ba5ef }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }
@@ -256,11 +257,13 @@ html[data-theme="dark"] .nudge-bar{ background:rgba(227,228,230,0.08) }
 html[data-theme="dark"] .nudge-bar i{ background:linear-gradient(90deg, #b75512, #880d12) }
 html[data-theme="dark"] .launch-guide{ color:#f8cf81 }
 html[data-theme="dark"] .continue-pin .caption{ color:#bfc0c2 }
+html[data-theme="dark"] .continue-next a{ color:#8ba5ef }
 html[data-theme="dark"] .continue-pin .pin-separator{ background:#2b2b2b }
 html[data-theme="dark"] .attn-row{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
 html[data-theme="dark"] .attn-ico{ color:#ffffff; background:linear-gradient(135deg, #1355c3, #4814c2) }
 html[data-theme="dark"] .attn-ico.is-late{ background:linear-gradient(135deg, #b02511, #e22020) }
-html[data-theme="dark"] .sprint-list li{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .sprint-link{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .sprint-saved{ color:#81f8cf; background:rgba(20,204,143,0.25); border:1px solid rgba(20,204,143,0.67) }
 html[data-theme="dark"] .sprint-when{ color:#f88186; background:rgba(226,32,32,0.08) }
 
 /* ---- projects.css ---- */
@@ -405,6 +408,12 @@ html[data-theme="dark"] .pl-skel{ background:rgba(227,228,230,0.07) }
 html[data-theme="dark"] .pl-nav, html[data-theme="dark"] .pl-shell.is-collapsed .pl-nav{ box-shadow:18px 0 40px rgba(0,0,0,0.512); border-right:1px solid rgba(227,228,230,0.08) }
 html[data-theme="dark"] .pl-scrim{ background:rgba(227,228,230,0.34) }
 }
+html[data-theme="dark"] .launch-n{ color:#ffffff; background:linear-gradient(135deg, #1355c3, #4814c2) }
+html[data-theme="dark"] .launch-stage.is-done .launch-n{ background:linear-gradient(135deg, #199a6b, #0c7c57) }
+html[data-theme="dark"] .launch-stage.is-locked .launch-n{ background:rgba(227,228,230,0.28) }
+html[data-theme="dark"] .launch-legal{ color:#f8ca81; background:rgba(204,95,20,0.25); border:1px solid rgba(204,95,20,0.628) }
+html[data-theme="dark"] .wg-stage > .ico{ color:#81f8d1 }
+html[data-theme="dark"] .wg-stage-n{ background:rgba(227,228,230,0.08) }
 
 /* ---- network.css ---- */
 html[data-theme="dark"] .net-manage-title{ border-bottom:1px solid rgba(224,224,226,0.12) }
@@ -512,6 +521,17 @@ html[data-theme="dark"] .coach-spot{ box-shadow:0 0 0 2px rgba(27,27,27,0.9), 0 
 html[data-theme="dark"] .coach-pop{ background:linear-gradient(to bottom right, #202022, #1b1b1b); border:1px solid rgba(224,224,226,0.22); box-shadow:0 24px 60px rgba(0,0,0,0.752), 0 2px 8px rgba(0,0,0,0.272) }
 html[data-theme="dark"] .coach-art .ta{ background:radial-gradient(110% 90% at 88% 0%, rgba(204,20,26,0.25), rgba(204,20,26,0.04) 62%), linear-gradient(to bottom right, #232325, #1e1e1e); border:1px solid rgba(227,228,230,0.07) }
 html[data-theme="dark"] .coach-tip{ background:rgba(227,228,230,0.04) }
+
+/* ---- sprints.css ---- */
+html[data-theme="dark"] .sp-note{ color:#d4d5d7; background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.1) }
+html[data-theme="dark"] .sp-when{ color:#f88186; background:rgba(226,32,32,0.08) }
+html[data-theme="dark"] .sp-saved-chip{ color:#81f8cf; background:rgba(20,204,143,0.25); border:1px solid rgba(20,204,143,0.67) }
+html[data-theme="dark"] .sp-lobby-count{ color:#f88186 }
+html[data-theme="dark"] .sp-kindcard{ background:rgba(27,27,27,0.55); border:1px solid rgba(227,228,230,0.08) }
+html[data-theme="dark"] .sp-kind-ico{ color:#ffffff }
+html[data-theme="dark"] .sp-kind{ color:#ffffff }
+html[data-theme="dark"] .sp-facts{ color:#d4d5d7 }
+html[data-theme="dark"] .sp-saved{ color:#81f8cf }
 
 /* ---- hand-tuned (tools/dark-overrides.css) ---- */
 /* Dark mode, hand-tuned. make_dark_css.py appends this to the generated rules. */

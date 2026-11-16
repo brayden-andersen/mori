@@ -824,6 +824,35 @@
     ["members", "links", "messages", "projectsRemote"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
   }
 
+  /* ---------- Sprints: the spots you've saved ----------
+     Google members: a row each in sprint_spots (Supabase; row-level security
+     lets a member insert, read and delete only their own rows, so Brayden can
+     count interest). Guests: the guest database in this browser. Demo
+     accounts: this browser only. A spot is { id: sprint id, at }. */
+  const tableMissing = (err) => !!err && (["42P01", "PGRST205"].includes(err.code) || /sprint_spots/.test(err.message || "") && /relation|table|schema cache/i.test(err.message || ""));
+  const sprints = {
+    spots: () => get("sprintSpots", []),
+    has: (id) => sprints.spots().some((x) => x.id === id),
+    refresh: refresher(async () => {
+      try { set("sprintSpots", await Mori.db.sprintSpots()); }
+      catch (err) { if (!tableMissing(err)) throw err; } // the table isn't there yet: keep this browser's copy
+    }),
+    save(id) {
+      if (sprints.has(id)) return Promise.resolve();
+      const before = sprints.spots();
+      set("sprintSpots", before.concat([{ id, at: Date.now() }]));
+      if (!remoteEnabled()) return Promise.resolve();
+      return Mori.db.saveSpot(id).catch((err) => { if (tableMissing(err)) return; set("sprintSpots", before); throw err; });
+    },
+    drop(id) {
+      const before = sprints.spots();
+      if (!before.some((x) => x.id === id)) return Promise.resolve();
+      set("sprintSpots", before.filter((x) => x.id !== id));
+      if (!remoteEnabled()) return Promise.resolve();
+      return Mori.db.dropSpot(id).catch((err) => { if (tableMissing(err)) return; set("sprintSpots", before); throw err; });
+    },
+  };
+
   /** Clear everything stored in this browser for the member and start again. */
   function reset() { Mori.store.clearUser(); emit("reset"); }
 
@@ -834,6 +863,6 @@
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
     updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS, ladderProgress,
-    network, chat, live, forgetPrivate, reset,
+    network, chat, sprints, live, forgetPrivate, reset,
   };
 })();

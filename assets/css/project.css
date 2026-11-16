@@ -494,3 +494,32 @@ button.wg-title:hover{ color:var(--ink-2) }
   .tool-tr [data-label]::before{ content: attr(data-label); font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--subtle) }
   .tool-tr .select--sm, .tool-tr .input--sm{ justify-self:start; max-width:100% }
 }
+
+/* ===== Launch path: stages from a declared idea to a registered company ===== */
+.launch-stages{ list-style:none; margin:0; padding:0; display:grid; gap:14px }
+.launch-stage{ display:grid; gap:10px; scroll-margin-top: calc(var(--navH) + 20px) }
+.launch-head{ display:flex; align-items:flex-start; gap:12px }
+.launch-head > div{ flex:1; min-width:0; display:grid; gap:3px }
+.launch-stage .launch-head h3{ margin:0; font-size:16.5px; font-weight:650; letter-spacing:-.01em; text-transform:none; color:var(--ink) }
+.launch-n{ flex:0 0 auto; display:grid; place-items:center; width:30px; height:30px; border-radius:10px; font-size:13px; font-weight:700; color:#fff; background: linear-gradient(135deg, #5e92e8, #9b79ea) }
+.launch-n .ico{ width:15px; height:15px }
+.launch-stage.is-done .launch-n{ background: linear-gradient(135deg, #34d399, #10b981) }
+.launch-stage.is-locked .launch-n{ background: rgba(26,28,31,.28) }
+.launch-rung{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px }
+.launch-rung .ico{ width:13px; height:13px; color: var(--mori-red) }
+.launch-count{ flex:0 0 auto; font-size:12.5px; font-weight:600; color:var(--muted) }
+.launch-blurb{ margin:0; line-height:1.55 }
+.launch-legal{ display:flex; align-items:flex-start; gap:8px; margin:0; padding:9px 12px; border-radius:12px; font-size:12.5px; line-height:1.5; color:#7a4b00; background: rgba(231,132,64,.10); border:1px solid rgba(231,132,64,.28) }
+.launch-legal .ico{ flex:0 0 auto; width:15px; height:15px; margin-top:2px }
+.launch-review{ font-weight:600 }
+.launch-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:8px }
+.launch-lock{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted) }
+.launch-lock .ico{ width:15px; height:15px }
+.launch-stage.is-locked .tool-checks{ opacity:.55 }
+.tool-check:has(input:disabled){ cursor:not-allowed }
+/* The launch path widget's stage list */
+.wg-stage{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:13px }
+.wg-stage .wg-text{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.wg-stage > .ico{ width:16px; height:16px; color:#10b981 }
+.wg-stage-n{ flex:0 0 auto; width:16px; height:16px; display:grid; place-items:center; border-radius:5px; font-size:10.5px; font-weight:700; background: rgba(26,28,31,.08) }
+.wg-stage.is-done .wg-text{ color: var(--muted) }

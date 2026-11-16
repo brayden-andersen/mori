@@ -792,3 +792,7 @@ html.theme-fade::view-transition-new(*){ animation: theme-in .5s cubic-bezier(.4
 .pf-complete-bar{ display:inline-block; width:90px; height:5px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.1) }
 .pf-complete-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #e78440, #c8141a) }
 .pf-complete a{ color:#3d64d2; font-weight:600; text-decoration:none }
+/* The work record's sprints line */
+.pf-sprints{ display:flex; align-items:flex-start; gap:8px; margin-top:10px !important }
+.pf-sprints .ico{ flex:0 0 auto; width:15px; height:15px; margin-top:3px; color: var(--mori-red) }
+.pf-sprints a{ color:#3d64d2; font-weight:600; text-decoration:none }

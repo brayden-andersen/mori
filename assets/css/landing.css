@@ -420,3 +420,7 @@
   .modal--auth{ padding:30px 20px 24px }
 }
 @media (max-width: 380px){ .landing-nav .brand-name{ display:none } }
+
+/* A link under a section's cards */
+.l-more{ margin-top:28px }
+.l-more .btn .ico{ width:15px; height:15px }

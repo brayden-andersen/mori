@@ -18,7 +18,8 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `onboarding.html` | **Sign-up**, short: name (region optional) · founder or specialist, with a line on what each changes · a specialist's role · one industry · *Where are you right now?* (an idea and need a team, skills and want to join, a prototype to make real). Only the name and the role are required; every other step has *Skip for now*. The answer picks the first page: declare a project, Discover, or declare at rung 2. A `?next=` deep link wins over it. **Complete your profile** is the same page with `?edit=1`: every step, including date of birth, experience and employment (*Details*), LinkedIn or CV, and languages. |
 | `home.html` | **Homepage**, in two versions. A new or empty account gets *Start here* (the first step for their situation), *Complete your profile*, the launch path, upcoming sprints and people to meet. An account with projects, connections or conversations gets *Continue where you left off* (the pinned or latest project and its next launch-path step), *Needs your attention* (requests, unread messages, overdue tasks), upcoming sprints and the profile nudge while it's incomplete. Projects, the MORI Network and Plans are small links under the greeting. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
-| `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* below. |
+| `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, **launch path**, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities and toolkits. See *Projects* and *The launch path* below. |
+| `sprints.html` | **Sprints**: your spots, the lobbies by niche, what starts next and how sprints work (`sprints.html`); a lobby with its upcoming and past sprints (`#lobby/<id>`); a sprint with its brief, dates, team size, how teams form, what gets verified and how badges are earned, and **Save my spot** (`#sprint/<id>`). The first sprints haven't run yet and the page says so. See *Sprints* below. |
 | `subscription.html` | **Subscription**: the SandBox ladder of plans (Explorer, Builder, Founder Pro, Studio), each card a step higher than the last on wide screens, with monthly or yearly billing (two months free), a comparison table and a few questions. Free: the MORI Network, sprints, the verified work record and the first stages of the launch path; paid plans add the full launch path, team agreements, the program navigator and compliance tracker (both coming soon) and member pricing with vetted partners. No plan buys visibility. **Prices and perks are placeholders** (`plans` in `assets/js/data.js`); everyone is on Explorer, and choosing another plan says payments aren't part of the demo. In the Account menu and the footer. |
 | `network.html` | **MORI Network** (the nav and links still say *Network*), laid out like LinkedIn's *My network*: **Manage my network** on the left (Discover, Requests, Messages, Connections, Sent requests); on the right, the requests you received sit on top of **Discover**, the members who signed up. |
 
@@ -108,6 +109,27 @@ The sign-in flow works like this:
 3. New members go to the short sign-up, then to the first step for their situation (or to the page they were trying to open), where the site tour waits; returning members go to their start page.
 4. Anyone who opens an app page without a role on their profile is sent to sign-up, and comes back to that page afterwards. Members who signed up before the questions changed are not sent back: the homepage and their profile show what's missing instead.
 
+## The launch path
+
+Each project has a **Launch path** page in the planner (`project.html?id=…#launch`): eight stages from a declared idea to a registered, operating company in Indonesia (declare the idea, choose a structure, register and get an NIB, a company tax number, a business bank account, team agreements, sector licences, first hires). `[BRAYDEN: final stage list]`
+
+- Each stage shows the **rung** of the milestone ladder it belongs to, a short explanation, a checklist, buttons for its **toolkit templates** (each starts a document) and **Get help from a vetted partner** (to `partners.html#<kind>` until the partner directory exists).
+- Its legal wording is taken from the existing toolkit checklists in `data.js`; nothing new is claimed. Every legal stage says *Guidance, not legal advice* and carries `[BRAYDEN: verify]` until it has been checked.
+- **Plan limits:** Explorer, the plan everyone is on in the demo (`plans.current` in `data.js`), opens the first three stages. The others show what they hold and say they open with Builder, which includes the full launch path, linking to the plans.
+- Ticks are kept in the project's workspace (`launch.done`), so the whole team sees them. The **Launch path** Mainframe widget shows the next step, which you can tick there, or every stage; new projects' starter widgets include it. The homepage shows the next step on the project you're working on.
+
+## Sprints
+
+`sprints.html` lists two-week online sprints by niche. The lobbies, sprints and how they work are SandBox's own (`sprintLobbies`, `sprints`, `sprintKinds` and `sprintHow` in `data.js`). Dates count from today, so the list always looks current. `[BRAYDEN: the lobbies and the first sprint topics; how teams form]`
+
+- **Save my spot** keeps a member's spot. Google members' spots go into the `sprint_spots` table, where row-level security lets a member insert, read and delete only their own rows. Guests keep theirs in the browser with the rest of the demo, and demo accounts in this browser. Until the table exists, Google members' spots stay in their browser.
+- Saved spots show on the sprints page and the homepage. The nav, the footer, the landing page's sprints section and the profile's work record link to the page.
+- **To count interest**, in Supabase → SQL editor:
+
+```sql
+select sprint_id, count(*) from public.sprint_spots group by sprint_id order by 2 desc;
+```
+
 ## The demo: guests and invites
 
 SandBox is a demo, shown in customer interviews and used by a small invited group. Two things make that work:
@@ -178,6 +200,7 @@ The client library is vendored at `assets/vendor/supabase-2.58.0.js`, so there's
 - `20261109000717_project_workspace_and_docs.sql`: the planner's `workspace` column, up to 100 tasks per project, and the `project_docs` table with its policies and trigger.
 - `20261109062222_member_prefs_sync.sql`: the `prefs` column on profiles, for settings, pins and the theme across devices.
 - `20261114160000_invite_only_signup.sql`: the `invites` table and the trigger that makes sign-in invite-only (see *The demo: guests and invites*).
+- `20261116090000_sprint_spots.sql`: the `sprint_spots` table for *Save my spot*, with its own-rows-only policies (see *Sprints*).
 
 To make a new database change, add the next migration file here and apply it to the project. If you turn on **Deploy to production** in Supabase → Project Settings → Integrations → GitHub, merging into `main` applies new migration files automatically.
 
@@ -197,6 +220,7 @@ assets/
     landing.css · onboarding.css · home.css · network.css
     subscription.css the subscription ladder
     tour.css        the guided tours: slideshow, its animated pictures, the spotlight
+    sprints.css     the sprints page
     projects.css    Projects page, plus the parts the planner shares (preview, team, pickers)
     project.css     the project planner
     dark.css        dark mode, generated by tools/make_dark_css.py (don't edit by hand)
@@ -220,8 +244,9 @@ assets/
     project.js      the project planner: its pages, header, overall progress and sidebar
     workspace.js    a project's workspace (Mainframe layout + tool data) and documents, saved with version checks
     mainframe.js    the Mainframe: widgets, the widget drawer, drag to move and resize
-    planner-tools.js the tool pages: tasks, GTM checklist, ladder, people, interviews, lean canvas,
-                    marketing, metrics, finance, funding, toolkits
+    planner-tools.js the tool pages: tasks, GTM checklist, ladder, launch path, people, interviews,
+                    lean canvas, marketing, metrics, finance, funding, toolkits
+    sprints.js      the sprints page: lobbies, sprint pages, Save my spot
     planner-docs.js the documents: list and editor (formatting, autosave, Word download, sanitising)
     tour.js         the guided tours: the site tour (four slides after sign-up)
                     and the first-project tour (a spotlight over the planner)

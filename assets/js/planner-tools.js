@@ -1,7 +1,7 @@
 /* ==========================================================================
    Mori: Sandbox — the planner's tools (the sections in its left sidebar)
    --------------------------------------------------------------------------
-   Plan:   Daily tasks · GTM checklist · Milestone ladder
+   Plan:   Daily tasks · GTM checklist · Milestone ladder · Launch path
    Team:   People
    Build:  Documents (planner-docs.js) · Customer interviews · Lean canvas
    Grow:   Marketing · Metrics
@@ -33,6 +33,7 @@
     { id: "tasks", label: "Daily tasks", icon: "checklist" },
     { id: "gtm", label: "GTM checklist", icon: "rocket" },
     { id: "ladder", label: "Milestone ladder", icon: "ladder" },
+    { id: "launch", label: "Launch path", icon: "briefcase" },
     { group: "Team" },
     { id: "people", label: "People", icon: "network" },
     { group: "Build" },
@@ -422,6 +423,40 @@
   }
 
   /* =====================================================================
+     Launch path: from a declared idea to a registered, operating company
+     ===================================================================== */
+  function launchStageHTML(st, p) {
+    const LP = D.launchPath;
+    const reached = p.rung >= st.rung;
+    const tools = st.open
+      ? st.templates.map((id) => P.templates.find((t) => t.id === id)).filter(Boolean).map((t) => `<button class="btn btn--sm" type="button" data-template="${esc(t.id)}">${icon("file")} ${esc(t.name)}</button>`).join("")
+        + (st.partner ? `<a class="btn btn--sm" href="partners.html#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
+      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription.html">See the plans</a>`;
+    return `
+      <li class="pl-card tool-card launch-stage${st.complete ? " is-done" : ""}${st.open ? "" : " is-locked"}" id="launch-${esc(st.id)}">
+        <div class="launch-head">
+          <span class="launch-n" aria-hidden="true">${st.complete ? icon("check") : st.index + 1}</span>
+          <div><h3>${esc(st.title)}</h3><span class="meta launch-rung">${icon("ladder")} Rung ${st.rung} · ${esc(D.ladder[st.rung].stage)}${reached ? " · your project is here or past it" : ""}</span></div>
+          <span class="launch-count">${st.ticked}/${st.items.length}</span>
+        </div>
+        <p class="meta launch-blurb">${esc(st.blurb)}</p>
+        ${st.legal ? `<p class="launch-legal">${icon("alert")} <span>${esc(LP.disclaimer)} <b class="launch-review">${esc(LP.review)}</b></span></p>` : ""}
+        <div class="tool-checks">${st.items.map((x) => `<div class="tool-check-row">${checkbox(`data-launch="${esc(x.key)}"${st.open ? "" : " disabled"}`, x.done, esc(x.text))}</div>`).join("")}</div>
+        ${tools ? `<div class="launch-tools">${tools}</div>` : ""}
+      </li>`;
+  }
+  function renderLaunch(view, { p, ws }) {
+    const L = W.launch(ws);
+    const next = !L.next ? "Every step is done."
+      : L.next.open ? `Next: <b>${esc(L.next.item.text)}</b> · ${esc(L.next.stage.title)}`
+      : `Every step your plan opens is done. ${esc(D.launchPath.unlock.text)}`;
+    view.innerHTML = `
+      <div class="tool-intro">${bar(L.pct)}<p class="meta"><b>${L.ticked} of ${L.total}</b> launch steps done. ${next}</p></div>
+      <p class="meta tool-lead">From a declared idea to a registered, operating company in Indonesia. Each stage shows the rung of the milestone ladder it belongs to; ${esc(p.name)} is on rung ${p.rung}. Templates start a document your team can edit.</p>
+      <ol class="launch-stages">${L.stages.map((st) => launchStageHTML(st, p)).join("")}</ol>`;
+  }
+
+  /* =====================================================================
      Toolkits: start a document from a template
      ===================================================================== */
   function renderToolkits(view) {
@@ -442,7 +477,7 @@
      Drawing and events
      ===================================================================== */
   const RENDER = {
-    tasks: renderTasks, gtm: renderGtm, ladder: renderLadder, people: renderPeople, interviews: renderInterviews,
+    tasks: renderTasks, gtm: renderGtm, ladder: renderLadder, launch: renderLaunch, people: renderPeople, interviews: renderInterviews,
     canvas: renderCanvas, marketing: renderMarketing, metrics: renderMetrics, finance: renderFinance, funding: renderFunding, toolkits: renderToolkits,
   };
   function render(id, view, ctx) {
@@ -531,6 +566,17 @@
       if (t.matches("[data-task-done]")) { S.toggleTask(ctx.pid, t.dataset.taskDone).saved.catch(failed); return; }
       if (t.matches('[data-fin-add] [name="kind"]')) { t.form.elements.category.innerHTML = P.financeCategories[t.value === "in" ? "in" : "out"].map((x) => `<option>${esc(x)}</option>`).join(""); return; }
       if (t.matches("[data-gtm]")) { const key = t.dataset.gtm; const on = t.checked; change("gtm", (g) => { if (on) g.done[key] = true; else delete g.done[key]; return g; }); return; }
+      if (t.matches("[data-launch]")) {
+        const key = t.dataset.launch;
+        const on = t.checked;
+        const st = D.launchPath.stages.find((x) => key.startsWith(x.id + "."));
+        if (!st || !W.launchOpen(st)) { t.checked = !on; return; }
+        change("launch", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }).then(() => {
+          const now = W.launch(W.get(ctx.pid)).stages.find((x) => x.id === st.id);
+          if (on && now && now.complete) toast(`Stage done: ${st.title}`, { icon: "award" });
+        });
+        return;
+      }
       if (t.matches("[data-step]")) { const key = t.dataset.step; const on = t.checked; change("ladder", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }); return; }
       if (t.matches("[data-pl-rung]")) { const r = Number(t.value); S.updateProject(ctx.pid, { rung: r }).saved.then(() => toast(`Now on rung ${r} · ${D.ladder[r].stage}`, { icon: "ladder" }), failed); return; }
       if (t.matches("[data-role-fill]")) { const id = t.dataset.roleFill; const on = t.checked; change("roles", (r) => r.map((x) => (x.id === id ? Object.assign({}, x, { filled: on }) : x))); return; }

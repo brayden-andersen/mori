@@ -51,6 +51,7 @@
               <a class="drop-link" role="menuitem" href="#" data-connections>${icon("network")} Connections</a>
             </div>
           </div>
+          <div class="item"><a class="nav-btn" href="sprints.html" data-nav="sprints">${icon("zap", "ico nav-ico")}<span class="nav-label">Sprints</span></a></div>
           <div class="item account">
             <button class="nav-btn account-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
               <span class="nav-label acct-label">Account</span>
@@ -175,7 +176,7 @@
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
           ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about.html"], ["Partners", "partners.html"], ["Contact Us", "contact.html"], ["Terms &amp; Policy", "legal.html"]])}
-          ${col("productsTitle", "Products", [["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
+          ${col("productsTitle", "Products", [["Sprints", "sprints.html"], ["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -217,6 +218,10 @@
       : lead
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
+    const spots = S.sprints.spots().length;
+    const sprintLine = S.settings().showRecord
+      ? `<p class="meta pf-sprints">${icon("zap")} <span><b>Verified sprints:</b> none yet. The first sprints haven’t run; ${spots ? `you’ve saved ${spots === 1 ? "a spot" : `${spots} spots`}.` : "save a spot to join the first teams."} <a href="sprints.html">${spots ? "Your sprints" : "See the sprints"}</a></span></p>`
+      : "";
     const seen = shownAs(p);
     const where = Mori.people.whereLine(seen).concat(s.email || []).map(esc).join(" · ");
     const hidden = Object.keys(SHOW_LABELS).filter((k) => !p.show[k] && hasDetail(p, k)).map((k) => SHOW_LABELS[k].toLowerCase());
@@ -272,7 +277,7 @@
         ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
         <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
         <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
-        <section class="pf-sec"><h3>Work record</h3>${record}</section>
+        <section class="pf-sec"><h3>Work record</h3>${record}${sprintLine}</section>
         <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }

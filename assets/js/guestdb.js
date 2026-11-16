@@ -17,7 +17,7 @@
   const Mori = window.Mori;
   const session = Mori.auth.session();
   const active = !!(session && session.provider === "guest");
-  Mori.guest = { active, reset, seed, SEED_VERSION: 1 };
+  Mori.guest = { active, reset, seed, SEED_VERSION: 2 }; // 2: launch-path progress and a saved sprint spot
   if (!active) return;
 
   const S = Mori.sample;
@@ -40,6 +40,7 @@
     write("projects", clone(S.projects));
     write("workspaces", clone(S.workspaces));
     write("docs", clone(S.docs));
+    write("spots", clone(S.spots));
     // The pages' own copies, so the first paint already shows the sample data
     user("profile", clone(S.persona));
     user("members", clone(S.members.filter((m) => !m.invisible)));
@@ -48,6 +49,7 @@
     user("projectsRemote", clone(S.projects));
     Object.keys(S.workspaces).forEach((pid) => user("ws." + pid, clone(S.workspaces[pid])));
     user("projectOverrides", { "p-warungpay": { pinned: true } });
+    user("sprintSpots", clone(S.spots));
     user("settings", { tour: { site: "done", project: "done" } }); // the tours wait in Settings
     const read0 = {};
     S.links.filter((l) => l.from === ME && l.status === "accepted").forEach((l) => { read0["acc:" + l.id] = true; }); // only the two requests are unread
@@ -217,6 +219,15 @@
       write("messages", messages().map((m) => (m.from === fromId && m.to === ME && !m.readAt ? Object.assign({}, m, { readAt: now }) : m)));
       return soon();
     },
+
+    /* ---------- Sprint spots, kept in this browser ---------- */
+    async sprintSpots() { return soon(clone(read("spots", []))); },
+    async saveSpot(id) {
+      const list = read("spots", []);
+      if (!list.some((x) => x.id === id)) write("spots", list.concat([{ id, at: Date.now() }]));
+      return soon();
+    },
+    async dropSpot(id) { write("spots", read("spots", []).filter((x) => x.id !== id)); return soon(); },
 
     /* ---------- Live updates: nothing arrives in the demo ---------- */
     async live(handlers) {

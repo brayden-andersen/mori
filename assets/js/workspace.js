@@ -120,6 +120,27 @@
   /* ---------- Overall progress: the milestone ladder (worked out in state.js, shared with the homepage) ---------- */
   const progress = (p, ws = get(p.id)) => S.ladderProgress(p, ws);
 
+  /* ---------- The launch path: what's ticked, what this plan opens, and the next step ----------
+     A stage is open on Explorer when it's marked free; Builder and up open them all. */
+  const launchOpen = (st) => !!st.free || Mori.data.plans.current !== "explorer";
+  function launch(ws) {
+    const done = (ws && ws.launch && ws.launch.done) || {};
+    let total = 0;
+    let ticked = 0;
+    let next = null;
+    const stages = Mori.data.launchPath.stages.map((st, index) => {
+      const items = st.items.map((text, i) => ({ key: `${st.id}.${i}`, text, done: !!done[`${st.id}.${i}`] }));
+      const n = items.filter((x) => x.done).length;
+      const open = launchOpen(st);
+      total += items.length;
+      ticked += n;
+      const first = items.find((x) => !x.done);
+      if (first && !next) next = { stage: st, index, item: first, open };
+      return Object.assign({}, st, { index, items, ticked: n, open, complete: n === items.length });
+    });
+    return { stages, total, ticked, next, pct: total ? Math.round((ticked / total) * 100) : 0 };
+  }
+
   /* ---------- Money ---------- */
   function money(ws) {
     const f = ws.finance;
@@ -224,7 +245,7 @@
   };
 
   Mori.workspace = {
-    get, load, change, normalize, progress, money, fmtMoney, docs, uid, isoDay,
+    get, load, change, normalize, progress, launch, launchOpen, money, fmtMoney, docs, uid, isoDay,
     MAX_ROWS,
     isLocal: () => !shared() || local.ws,
   };

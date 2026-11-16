@@ -110,6 +110,7 @@
         widget("a", "tasks", "today", 0, 0, 1, 2), widget("b", "ladder", "next", 1, 0, 1, 1), widget("c", "finance", "runway", 2, 0, 1, 1),
         widget("d", "people", "team", 3, 0, 1, 1), widget("e", "tasks", "progress", 1, 1, 3, 1), widget("f", "metrics", "row", 0, 2, 3, 1),
         widget("g", "interviews", "count", 3, 2, 1, 1), widget("h", "doc", "recent", 0, 3, 1, 2), widget("i", "finance", "chart", 1, 3, 2, 2), widget("j", "funding", "pipeline", 3, 3, 1, 2),
+        widget("k", "launch", "next", 0, 5, 2, 1),
       ],
       roles: [
         { id: "ro-1", title: "Mobile developer", note: "10 hours a week, equity", filled: false },
@@ -157,6 +158,7 @@
         revenue: "Rp 25.000 a month after a free month.",
       },
       ladder: { done: {} },
+      launch: { done: { "idea.0": true, "idea.1": true, "structure.0": true } }, // part way through choosing a structure
     },
     "p-rantang": { layout: [], roles: [], finance: { currency: "IDR", start: 0, entries: [] }, marketing: { campaigns: [] }, gtm: { done: {}, custom: [] }, funding: { items: [] }, metrics: { items: [] }, interviews: { items: [] }, canvas: {}, ladder: { done: {} } },
     "p-kebundata": {
@@ -211,5 +213,8 @@
     programme("women-founders", "grant", "Sample Women Founders Fund", [0, 1, 2, 3], ["Any"], ["Any"], 75, 15000000, "Small grants for women-led teams at any early stage."),
   ];
 
-  Mori.sample = { persona, members, links, messages, projects, workspaces, docs, lobbies, sprints, partners, programs, me: ID };
+  /* ---------- A sprint spot Nadia has saved ---------- */
+  const spots = [{ id: "fin-problem", at: ago(1) }];
+
+  Mori.sample = { persona, members, links, messages, projects, workspaces, docs, lobbies, sprints, spots, partners, programs, me: ID };
 })();

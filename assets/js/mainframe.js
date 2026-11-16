@@ -125,6 +125,23 @@
         return `<div class="wg-col wg-col--top">${head}${rungBar(p, g)}</div><ul class="wg-list">${steps.map((text, i) => `<li><label class="wg-check"><input type="checkbox" data-wstep="${g.next}:${i}" ${g.flags[i] ? "checked" : ""}><span class="task-box">${icon("check")}</span><span class="wg-text">${esc(text)}</span></label></li>`).join("")}</ul>`;
       },
     },
+    launch: {
+      name: "Launch path", icon: "briefcase", section: "launch", desc: "The next step toward a registered, operating company.",
+      variants: {
+        next: { name: "Next step", min: [1, 1], sizes: [[1, 1], [2, 1]] },
+        stages: { name: "Stages", min: [2, 2], sizes: [[2, 2], [3, 2], [4, 2], [2, 3]] },
+      },
+      render({ ws }, w) {
+        const L = W.launch(ws);
+        if (w.variant === "stages") {
+          const room = fit(w.h, L.stages.length, 31, 26);
+          return `<div class="wg-line">${bar(L.pct)}<span class="wg-sub">${L.ticked}/${L.total}</span></div><ul class="wg-list">${L.stages.slice(0, room).map((st) => `<li class="wg-stage${st.complete ? " is-done" : ""}">${st.complete ? icon("check") : `<span class="wg-stage-n">${st.index + 1}</span>`}<span class="wg-text">${esc(st.title)}</span><span class="wg-due">${st.open ? `${st.ticked}/${st.items.length}` : "Builder"}</span></li>`).join("")}</ul>${more(L.stages.length - room, "launch")}`;
+        }
+        if (!L.next) return `<div class="wg-col"><span class="wg-strong">Launch path complete</span><span class="wg-sub">Every step is ticked.</span>${bar(100)}</div>`;
+        if (!L.next.open) return `<div class="wg-col"><span class="wg-strong">${esc(L.next.stage.title)}</span><span class="wg-sub">${esc(D.launchPath.unlock.text)}</span>${bar(L.pct)}</div>`;
+        return `<div class="wg-col"><label class="wg-check"><input type="checkbox" data-wlaunch="${esc(L.next.item.key)}"><span class="task-box">${icon("check")}</span><span class="wg-text">${esc(L.next.item.text)}</span></label><span class="wg-sub">${esc(L.next.stage.title)} · ${L.ticked} of ${L.total} steps</span>${bar(L.pct)}</div>`;
+      },
+    },
     finance: {
       name: "Finance", icon: "wallet", section: "finance", desc: "Cash in the bank, monthly burn and runway.",
       variants: {
@@ -375,7 +392,7 @@
     // drop's glide plays out. Focus on a ticked box comes back after a re-draw.
     const active = document.activeElement;
     const inWid = active && container.contains(active) && active.closest(".wg") ? active.closest(".wg").dataset.wid : null;
-    const focusAttr = inWid && ["data-wtask", "data-wgtm", "data-wstep"].find((a) => active.hasAttribute(a));
+    const focusAttr = inWid && ["data-wtask", "data-wgtm", "data-wstep", "data-wlaunch"].find((a) => active.hasAttribute(a));
     const focusSel = focusAttr ? `[${focusAttr}="${CSS.escape(active.getAttribute(focusAttr))}"]` : null;
     const ids = new Set(layout.map((w) => w.id));
     Array.from(container.children).forEach((el) => { if (el.classList.contains("mf-cells")) return; if (!el.classList.contains("wg") || !ids.has(el.dataset.wid)) el.remove(); });
@@ -466,6 +483,7 @@
     { type: "finance", variant: "runway", x: 2, y: 0, w: 1, h: 1 },
     { type: "people", variant: "team", x: 3, y: 0, w: 1, h: 1 },
     { type: "tasks", variant: "progress", x: 1, y: 1, w: 3, h: 1 },
+    { type: "launch", variant: "next", x: 0, y: 2, w: 2, h: 1 },
   ];
   function addStarter() {
     if (!ctx) return Promise.resolve();
@@ -646,6 +664,7 @@
       const t = e.target;
       if (t.matches("[data-wtask]")) { S.toggleTask(ctx.pid, t.dataset.wtask).saved.catch(failed); return; }
       if (t.matches("[data-wgtm]")) { const key = t.dataset.wgtm; const on = t.checked; W.change(ctx.pid, "gtm", (g) => { g.done[key] = on || undefined; if (!on) delete g.done[key]; return g; }).catch(failed); return; }
+      if (t.matches("[data-wlaunch]")) { const key = t.dataset.wlaunch; W.change(ctx.pid, "launch", (l) => { l.done[key] = true; return l; }).catch(failed); return; }
       if (t.matches("[data-wstep]")) { const key = t.dataset.wstep; const on = t.checked; W.change(ctx.pid, "ladder", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }).catch(failed); }
     });
     container.addEventListener("input", (e) => {

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-auth="required">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SandBox • Sprints</title>
+  <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/mori-icon-32.png?v=7" type="image/png" sizes="32x32" />
+  <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
+  <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/mori.css?v=11" />
+  <link rel="stylesheet" href="assets/css/sprints.css?v=11" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=11" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=11" />
+  <script src="assets/js/config.js?v=11"></script>
+  <script src="assets/js/auth.js?v=11"></script>
+  <script defer src="assets/js/data.js?v=11"></script>
+  <script defer src="assets/js/state.js?v=11"></script>
+  <script defer src="assets/js/ui.js?v=11"></script>
+  <script defer src="assets/js/motion.js?v=11"></script>
+  <script defer src="assets/js/db.js?v=11"></script>
+  <script defer src="assets/js/sample.js?v=11"></script>
+  <script defer src="assets/js/guestdb.js?v=11"></script>
+  <script defer src="assets/js/shell.js?v=11"></script>
+  <script defer src="assets/js/people.js?v=11"></script>
+  <script defer src="assets/js/sprints.js?v=11"></script>
+  <script defer src="assets/js/tour.js?v=11"></script>
+</head>
+<body data-page="sprints">
+  <div class="aura" aria-hidden="true"></div>
+
+  <!-- NAV (rendered by shell.js) -->
+  <div data-shell="nav"></div>
+
+  <!-- Three views, routed by the address so links and the back button work (sprints.js):
+       sprints.html · sprints.html#lobby/<id> · sprints.html#sprint/<id> -->
+  <main class="wrap wrap--sprints" id="sprintsView" aria-live="polite"></main>
+
+  <div data-shell="footer"></div>
+</body>
+</html>

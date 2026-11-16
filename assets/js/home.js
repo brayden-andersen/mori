@@ -46,17 +46,11 @@
   /** The project to continue: pinned first, else the most recently touched one you're on. */
   const focusProject = () => S.pinnedProjects()[0] || S.projects().slice().sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0))[0] || null;
 
-  /* ---------- The launch path: the next unticked step of a project ---------- */
-  function launchNext(p) {
-    const done = (p && W ? W.get(p.id).launch.done : {}) || {};
-    let total = 0, ticked = 0, next = null;
-    D.launchPath.stages.forEach((st) => st.items.forEach((text, i) => {
-      total++;
-      if (done[`${st.id}.${i}`]) ticked++;
-      else if (!next) next = { stage: st, text, index: i };
-    }));
-    return { total, ticked, next, pct: total ? Math.round((ticked / total) * 100) : 0 };
-  }
+  /* ---------- The launch path: the next unticked step of a project (workspace.js works it out) ---------- */
+  const launchNext = (p) => {
+    const L = W.launch(p ? W.get(p.id) : null);
+    return { total: L.total, ticked: L.ticked, pct: L.pct, next: L.next && { stage: L.next.stage, text: L.next.item.text, open: L.next.open } };
+  };
 
   /* ---------- Panels ---------- */
   function linksHTML() {
@@ -110,8 +104,8 @@
       ? `<a class="pin spotlight launch-next" href="project.html?id=${encodeURIComponent(p.id)}#launch">
           <div class="pin-left">
             <span class="meta">${esc(p.name)} · ${esc(l.next.stage.title)}${l.next.stage.legal ? ` · <span class="launch-guide" title="${esc(D.launchPath.disclaimer)}">guidance, not legal advice</span>` : ""}</span>
-            <h4>${esc(l.next.text)}</h4>
-            <div class="caption">${l.ticked} of ${l.total} steps done · rung ${l.next.stage.rung} of the ladder</div>
+            <h4>${l.next.open ? esc(l.next.text) : `Every step Explorer opens is done`}</h4>
+            <div class="caption">${l.next.open ? `${l.ticked} of ${l.total} steps done · rung ${l.next.stage.rung} of the ladder` : esc(D.launchPath.unlock.text)}</div>
           </div>
           <div class="nudge-bar nudge-bar--tall" role="img" aria-label="Launch path ${l.pct}% done"><i style="width:${l.pct}%"></i></div>
         </a>`
@@ -120,11 +114,16 @@
   }
 
   function sprintsPanel() {
-    const list = D.sprints.slice().sort((a, b) => a.startsIn - b.startsIn).filter((x) => x.startsIn >= 0).slice(0, 3);
+    const soon = D.sprints.filter((x) => x.startsIn >= 0).sort((a, b) => a.startsIn - b.startsIn);
+    const saved = soon.filter((x) => S.sprints.has(x.id));
+    const list = saved.concat(soon.filter((x) => !S.sprints.has(x.id))).slice(0, Math.max(3, saved.length));
     const lobby = (id) => (D.sprintLobbies.find((l) => l.id === id) || {}).name || "";
-    return panel("sprintsPanel", "Upcoming sprints", null, `
-      <p class="meta sprints-note">Two-week online sprints by niche. The first ones haven’t run yet; sprints your teammates confirm go on your work record.</p>
-      <ul class="sprint-list">${list.map((x) => `<li><span class="sprint-when">${esc(dayLabel(inDays(x.startsIn)))}</span><div><b>${esc(x.title)}</b><span class="meta">${esc(lobby(x.lobby))} · teams of ${esc(x.teamSize)}</span></div></li>`).join("")}</ul>`);
+    const note = saved.length
+      ? `You’ve saved ${saved.length === 1 ? "a spot" : `${saved.length} spots`}. The first sprints haven’t run yet: you’ll be in the first teams.`
+      : "Two-week online sprints by niche. The first ones haven’t run yet, and you haven’t saved a spot: open one to save it.";
+    return panel("sprintsPanel", saved.length ? "Your sprints" : "Upcoming sprints", ["sprints.html", "All sprints"], `
+      <p class="meta sprints-note">${note}</p>
+      <ul class="sprint-list">${list.map((x) => `<li><a class="sprint-link" href="sprints.html#sprint/${encodeURIComponent(x.id)}"><span class="sprint-when">${esc(dayLabel(inDays(x.startsIn)))}</span><div><b>${esc(x.title)}</b><span class="meta">${esc(lobby(x.lobby))} · teams of ${esc(x.teamSize)}</span></div>${S.sprints.has(x.id) ? `<span class="chip sprint-saved">${icon("check")} Spot saved</span>` : ""}</a></li>`).join("")}</ul>`);
   }
 
   function peoplePanel() {
@@ -157,7 +156,7 @@
           <h4>${esc(p.name)}${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}</h4>
           <div class="chips"><span class="chip">${esc(tag)}</span>${p.pinned ? `<span class="chip chip--gray">${icon("pin")} Pinned</span>` : ""}</div>
           <div class="caption">${esc(p.focus)}</div>
-          ${l.next ? `<p class="meta continue-next">${icon("ladder")} Next on the launch path: <b>${esc(l.next.text)}</b> <span class="meta">(${esc(l.next.stage.title)})</span></p>` : ""}
+          ${l.next && l.next.open ? `<p class="meta continue-next">${icon("briefcase")}<span>Next on the launch path: <b>${esc(l.next.text)}</b></span><a href="project.html?id=${encodeURIComponent(p.id)}#launch" data-stop>Open the launch path</a></p>` : ""}
         </div>
         <div class="pin-separator" aria-hidden="true"></div>
         <div class="progress-wrapper" role="img" aria-label="Project progress ${p.overall}%" title="${p.overall}%">
@@ -191,7 +190,7 @@
     const c = S.profileCompleteness();
     const key = JSON.stringify([active, p && [p.id, p.name, p.focus, p.overall, p.pinned, p.updatedAt], l && [l.ticked, l.next && l.next.text], c.pct, S.settings().situation,
       S.network.incoming().map((r) => r.link.id), S.chat.threads().map((t) => [t.id, t.unread, t.last && t.last.id]), S.network.members().length, S.network.connections().length,
-      S.projects().map((x) => x.tasks.filter((t) => !t.done && t.due && t.due < todayISO()).length)]);
+      S.projects().map((x) => x.tasks.filter((t) => !t.done && t.due && t.due < todayISO()).length), S.sprints.spots().map((x) => x.id)]);
     if (key === lastKey) return;
     lastKey = key;
     $("#prompt").textContent = active ? "Pick up where you left off." : "Let’s get you started.";
@@ -252,14 +251,16 @@
   openingRitual();
   document.addEventListener("mori:change", (e) => {
     const key = e.detail && e.detail.key;
-    if (["network", "links", "messages", "projectsRemote", "projectsCreated", "projectOverrides", "workspace", "settings", "profile"].includes(key)) render();
+    if (["network", "links", "messages", "projectsRemote", "projectsCreated", "projectOverrides", "workspace", "settings", "profile", "sprintSpots"].includes(key)) render();
   });
   // The ring and the launch path read the project's workspace: bring in the latest.
   const now = focusProject();
   if (now && W) W.load(now.id).catch(() => {});
+  S.sprints.refresh().catch(() => {});
 
   /* Click + keyboard */
   document.addEventListener("click", (e) => {
+    if (e.target.closest("a[data-stop]")) return; // a link inside the tile goes where it says
     const pin = e.target.closest(".pin[data-project]");
     if (pin) { location.href = "project.html?id=" + encodeURIComponent(pin.dataset.project); return; }
   });
