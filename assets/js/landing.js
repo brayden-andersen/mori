@@ -102,9 +102,9 @@
     if (problem) {
       loader.hide();
       history.replaceState(null, "", location.pathname);
-      // The database checks every new account (a Google-verified email, not banned, and on the invite list
-      // while sign-up is invite-only). When it refuses, Supabase reports "Database error saving new user"
-      // and nothing is saved. It doesn't say why, so neither do we.
+      // The database checks every new account: on the invite list (SandBox is a prototype, invite only),
+      // a Google-verified email, not banned. When it refuses, Supabase reports "Database error saving
+      // new user" and nothing is saved.
       const code = params.get("error_code") || hash.get("error_code") || "";
       const refused = /database error saving new user|invite/i.test(problem) || /unexpected_failure/i.test(code);
       if (!refused) $("#authFailed").textContent = problem.replace(/\+/g, " ");
@@ -146,9 +146,9 @@
     startDemo();
   });
   if (params.get("demo") === "1") startDemo(); // linked from the public pages
-  // "Write to us" after a refused sign-up goes to the contact address when there is one, else the Contact page.
+  // "Ask for one" after a refused sign-up goes to the contact address when there is one, else the Contact page.
   const ask = $("#refusedAsk");
-  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox sign-up")}` : "contact.html"; }
+  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox invite")}` : "contact.html"; }
 
   $("#demoForm").addEventListener("submit", (e) => {
     e.preventDefault();
