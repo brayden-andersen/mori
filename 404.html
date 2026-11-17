@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules' 'sha256-68RSSuFc6DhkJhTYTyt3XJfupT76NedaVRfh/gnpJY4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules' 'sha256-qDL+XT75K+PqeC+JKTVY307k873gvfSWoUnyR5x32xg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>
     // Served for any missing address (GitHub Pages): point relative links at the site root.
-    // A project site lives at /<repo>/, a user site or a local server at /.
-    (function () { var seg = location.pathname.split("/")[1] || ""; var base = seg && !/\./.test(seg) ? "/" + seg + "/" : "/"; var b = document.createElement("base"); b.href = base; document.head.prepend(b); })();
+    // A project site on github.io lives at /<repo>/; a custom domain (www.morisandbox.com) or a local server at /.
+    (function () { var seg = location.pathname.split("/")[1] || ""; var base = /\.github\.io$/.test(location.hostname) && seg && !/\./.test(seg) ? "/" + seg + "/" : "/"; var b = document.createElement("base"); b.href = base; document.head.prepend(b); })();
   </script>
   <title>SandBox • Page not found</title>
   <meta name="description" content="There’s nothing at this address." />

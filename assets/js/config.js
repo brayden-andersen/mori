@@ -4,8 +4,8 @@
    Sign-in and profiles run on the Supabase project "Sandbox". Google sign-in
    is configured in Supabase (Authentication → Providers → Google).
    In Supabase → Authentication → URL Configuration, add every address that
-   serves this site to "Redirect URLs", e.g. http://localhost:4173/** and
-   later https://<you>.github.io/**
+   serves this site to "Redirect URLs": https://www.morisandbox.com/** (the
+   live site), and http://localhost:4173/** while developing.
 
    The anon key is meant for browsers: row-level security keeps each
    member's profile and CV private to them.

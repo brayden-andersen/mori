@@ -238,7 +238,7 @@ The two-account security check needs real accounts, so it runs separately: `tool
 
 The site uses the Supabase project **Sandbox**. The URL and anon key are in `assets/js/config.js`; the anon key is safe in browser code because row-level security protects the data.
 
-- **Auth:** Google provider. In Supabase → Authentication → URL Configuration, add every address that serves the site to **Redirect URLs**, e.g. `http://localhost:4173/**` and later `https://<you>.github.io/**`.
+- **Auth:** Google provider. In Supabase → Authentication → URL Configuration, set **Site URL** to `https://www.morisandbox.com` and add every address that serves the site to **Redirect URLs**: `https://www.morisandbox.com/**`, and `http://localhost:4173/**` while developing.
 - **`public.profiles`:** one row per member, readable and writable only by that member. The onboarding answers map to these columns:
   - `first_name`, `last_name`, `age`, `region`
   - `profile_type` (Founder / Specialist), `expertise_level`, `employment_status`
@@ -307,7 +307,7 @@ To make a new database change, add the next migration file here and apply it to 
 These live in the Supabase and Google dashboards, not in this repository. For a public launch they should look like this:
 
 - **Supabase → Authentication → Sign In / Providers:** Google on; Email, Phone and Anonymous sign-ins off. (The database refuses anything but Google anyway; turning them off means nobody even gets that far.)
-- **Supabase → Authentication → URL Configuration:** *Site URL* is the live address. *Redirect URLs* lists only the addresses that serve the site, such as `https://<you>.github.io/mori/**`; remove `localhost` entries when you aren't developing.
+- **Supabase → Authentication → URL Configuration:** *Site URL* is `https://www.morisandbox.com` (the custom domain in `CNAME`). *Redirect URLs* lists only the addresses that serve the site: `https://www.morisandbox.com/**`; remove `localhost` entries when you aren't developing.
 - **Supabase → Authentication → Sessions:** keep refresh-token rotation and reuse detection on (the default), and the access token lifetime at an hour or less.
 - **Google Cloud → Google Auth Platform (OAuth consent screen):** the publishing status decides whether Google keeps its own invite list too. *Testing*: only the test users listed under **Audience → Test users** (up to 100) can get past Google's sign-in screen, so everyone you invite goes on that list as well as on `public.invites`. *In production*: anyone's Google account gets through Google, and the database's invite list alone decides. Either way the database refuses anyone not invited. Give it the app name, a support email, the home page, the privacy policy (`legal.html#privacy`) and the terms (`legal.html#terms`). Ask only for the `openid`, `email` and `profile` scopes.
 - **Google Cloud → Credentials → the OAuth client:** the only authorised redirect URI is `https://ovchugvbujrqkowjalfx.supabase.co/auth/v1/callback`. The client secret lives only in Supabase; if it was ever shared, make a new one.
