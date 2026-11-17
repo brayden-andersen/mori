@@ -67,6 +67,7 @@
               <a class="drop-link" href="#" data-modal="settings">${icon("sliders")} Settings</a>
               <a class="drop-link" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
               <a class="drop-link" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
+              <a class="drop-link" href="#" data-modal="settings" data-tab="preferences" data-focus="language">${icon("globe")} Language</a>
               <div class="drop-sep" aria-hidden="true"></div>
               <a class="drop-link" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
             </div>
@@ -581,7 +582,7 @@
     { id: "notifications", label: "Notifications", icon: "bell" },
   ];
 
-  function settingsHTML(tab) {
+  function settingsHTML(tab, focus) {
     const s = S.session();
     const st = S.settings();
     const p = S.profile();
@@ -614,6 +615,8 @@
             ${s.provider === "guest" ? row("Reset the demo", "Puts the sample members, projects and conversations back the way they started.", `<button class="btn btn--sm btn--danger" data-demo-reset>${icon("refresh")} Reset the demo</button>`, "st-row--danger") : row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
+            ${row("Language", "SandBox’s words and dates. What members write stays as they wrote it.",
+              `<select class="select" id="stLanguage" aria-label="Language"${focus === "language" ? " autofocus" : ""}>${Object.keys(Mori.i18n.LANGS).map((k) => `<option value="${k}" lang="${Mori.i18n.LANGS[k].html}" translate="no" ${k === Mori.i18n.lang ? "selected" : ""}>${Mori.i18n.LANGS[k].label}</option>`).join("")}</select>`)}
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
             ${row("Start page", "Where Sandbox opens after you sign in.",
               `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
@@ -664,12 +667,18 @@
     S.safety.refresh().catch(() => {}); // the list as the database has it
   }
 
-  function renderSettings(tab = "account") {
+  function renderSettings(tab = "account", focus = "") {
     const el = createModal("modal-settings", { label: "Settings", panelCls: "modal--settings" });
     const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "stTitle");
-    panel.innerHTML = settingsHTML(tab);
+    panel.innerHTML = settingsHTML(tab, focus);
     wireBlocks(panel);
+    const langSel = $("#stLanguage", panel);
+    if (langSel) langSel.addEventListener("change", () => {
+      loader.show("Changing the language", "One moment…");
+      S.saveSettings({ language: langSel.value }); // state.js keeps it with your settings and reloads the page in it
+      Mori.i18n.set(langSel.value);
+    });
 
     const pill = $(".saved-pill", panel);
     let pillTimer = 0;
@@ -792,11 +801,11 @@
   }
 
   /* ---------- Opening modals ---------- */
-  const RENDER = { profile: () => renderProfile("view"), settings: (tab) => renderSettings(tab), notifications: () => renderNotifications() };
-  function openAccountModal(which, opener, tab) {
+  const RENDER = { profile: () => renderProfile("view"), settings: (tab, focus) => renderSettings(tab, focus), notifications: () => renderNotifications() };
+  function openAccountModal(which, opener, tab, focus) {
     if (!RENDER[which]) return;
     closeMenus();
-    RENDER[which](tab || "account");
+    RENDER[which](tab || "account", focus);
     Mori.modal.open("modal-" + which, { opener: opener || undefined });
   }
 
@@ -823,7 +832,7 @@
     if (!e.target.closest(".item.is-open")) closeMenus();
 
     const m = e.target.closest("[data-modal]");
-    if (m) { e.preventDefault(); openAccountModal(m.dataset.modal, m, m.dataset.tab); return; }
+    if (m) { e.preventDefault(); openAccountModal(m.dataset.modal, m, m.dataset.tab, m.dataset.focus); return; }
 
     const rd = e.target.closest("[data-demo-reset]");
     if (rd) { if (Mori.people.confirmTap(rd, "Tap again to reset")) Mori.guest.reset(); return; }

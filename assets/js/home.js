@@ -34,9 +34,10 @@
   const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return isoOf(d); };
   const todayISO = () => inDays(0);
   const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }); };
-  const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(Mori.i18n.locale, { day: "numeric", month: "short" }); };
+  const L = () => Mori.i18n.locale;
+  const weekdayOf = (d) => d.toLocaleDateString(L(), { weekday: "long" });
+  const monthOf = (d) => d.toLocaleDateString(L(), { month: "long" });
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
   /* ---------- Greeting ---------- */
@@ -136,7 +137,7 @@
     return `
     <section class="panel home-panel s4 td" id="todayPanel" aria-labelledby="todayPanelTitle">
       <div class="panel-head"><span class="panel-ico" aria-hidden="true">${icon("calendar")}</span><h2 class="panel-title" id="todayPanelTitle">Today</h2></div>
-      <div class="td-date"><span class="td-day">${d.getDate()}</span><span class="td-wk"><b>${WEEKDAYS[d.getDay()]}</b><span class="meta">${MONTHS[d.getMonth()]}</span></span></div>
+      <div class="td-date"><span class="td-day">${d.getDate()}</span><span class="td-wk"><b>${esc(weekdayOf(d))}</b><span class="meta">${esc(monthOf(d))}</span></span></div>
       ${t.allDay.map((x) => `<a class="td-allday" href="${x.href}"><span class="td-allday-tag">All day</span><span>${esc(x.text)}<span class="meta"> · ${esc(x.where)}</span></span></a>`).join("")}
       ${rows.length ? `<ol class="td-list" aria-label="Meetings today">${rows.join("")}</ol>` : ""}
       ${t.tasks.length ? `<div class="td-tasks"><p class="td-label">Due today</p>${t.tasks.map(({ p, t: k }) => `
@@ -155,7 +156,12 @@
     if (t.meetings.length) parts.push(plural(t.meetings.length, "meeting", "meetings"));
     if (open) parts.push(plural(open, "task", "tasks") + (t.meetings.length ? "" : " due"));
     const what = parts.length ? `${parts.join(" and ")} today` : hasActivity() ? "nothing scheduled today" : "let’s get you started";
-    return `${WEEKDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${what}`;
+    return { date: d.toLocaleDateString(L(), { weekday: "long", day: "numeric", month: "long" }), what };
+  }
+
+  function showSummary() {
+    const sm = summary();
+    $("#prompt").innerHTML = `<span>${esc(sm.date)}</span> · <span>${esc(sm.what)}</span>`;
   }
 
   /* ---------- Panels ---------- */
@@ -304,7 +310,7 @@
       S.projects().map((x) => x.tasks.filter((k) => !k.done && k.due && k.due < t.date).length), S.projects().map((x) => W.get(x.id).compliance.items.filter((i) => i && !i.done && i.due && i.due < t.date).length), S.sprints.spots().map((x) => x.id)]);
     if (key === lastKey) return;
     lastKey = key;
-    $("#prompt").textContent = summary();
+    showSummary();
     const profile = profilePanel();
     grid.innerHTML = (active ? continuePanel() : startPanel()) + todayPanel()
       + attentionPanel() + launchPanel(p) + sprintsPanel()
@@ -319,7 +325,7 @@
     const tmp = document.createElement("div");
     tmp.innerHTML = todayPanel().trim();
     el.replaceWith(tmp.firstElementChild);
-    $("#prompt").textContent = summary();
+    showSummary();
   }
 
   /* ---------- Meeting window: add, edit, delete ---------- */

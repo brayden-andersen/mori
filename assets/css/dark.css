@@ -162,6 +162,7 @@ html[data-theme="dark"] .problem > .ico{ color:#ff5c5c }
 html[data-theme="dark"] .problem-x{ color:#f88187 }
 html[data-theme="dark"] .field-error{ color:#ff5c5c }
 html[data-theme="dark"] .input[aria-invalid="true"], html[data-theme="dark"] .select[aria-invalid="true"], html[data-theme="dark"] .textarea[aria-invalid="true"]{ border-color:#951a15; box-shadow:0 0 0 3px rgba(178,31,26,0.15) }
+html[data-theme="dark"]:not([lang="en"]) .i18n-note{ border:1px solid rgba(227,228,230,0.14); background:rgba(227,228,230,0.04) }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }

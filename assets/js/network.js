@@ -35,7 +35,7 @@
   const smooth = () => (Mori.motion.reduced() ? "instant" : "smooth");
   const emptyHTML = (ic, title, sub, action, cls = "") =>
     `<div class="empty ${cls}"><span class="empty-ico">${icon(ic)}</span><div>${title}</div>${sub ? `<div class="meta">${sub}</div>` : ""}${action || ""}</div>`;
-  const clock = (ts) => new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const clock = (ts) => new Date(ts).toLocaleTimeString(Mori.i18n.loc([]), { hour: "numeric", minute: "2-digit" });
   const shortAgo = (ts) => ago(ts).replace(" ago", "").replace("Just now", "now");
 
   /* ready: members are on screen · loading: first load · error: nothing to show · off: demo account */
@@ -298,7 +298,7 @@
       <article class="pcard person spotlight" data-person="${esc(m.id)}">
         <button class="person-top" type="button" data-view="${esc(m.id)}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar(m, 52, { ring: m.open })}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString(Mori.i18n.locale, { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
         </button>
         <div class="chips">${roleChip(m.role, m.specialty)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
@@ -320,7 +320,7 @@
       <article class="pcard person is-invisible" data-person="${id}">
         <button class="person-top" type="button" data-view="${id}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar({ id: m.id, name: m.name }, 52)}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString(Mori.i18n.locale, { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
         </button>
         <p class="person-note">${icon("shield")}Invisible on the MORI Network. You can’t connect with them.</p>
         <div class="pcard-actions">
@@ -576,7 +576,7 @@
     return msgs.map((m) => {
       const mine = m.from !== id;
       const d = new Date(m.at).toDateString();
-      const divider = d !== day ? `<span class="chat-day">${esc(d === new Date().toDateString() ? "Today" : new Date(m.at).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }))}</span>` : "";
+      const divider = d !== day ? `<span class="chat-day">${esc(d === new Date().toDateString() ? "Today" : new Date(m.at).toLocaleDateString(Mori.i18n.loc([]), { weekday: "short", day: "numeric", month: "short" }))}</span>` : "";
       day = d;
       let status = esc(clock(m.at));
       if (m.pending) status = `${icon("clock")} Sending…`;

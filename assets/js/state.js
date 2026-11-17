@@ -246,6 +246,9 @@
   function applyPrefs() {
     const r = document.documentElement;
     const s = settings();
+    // Language: the member's choice follows them to their other devices. i18n.js reads it from this
+    // browser before a page draws, so a different one is copied across and the page reloads in it.
+    if (s.language && Mori.i18n && Mori.i18n.LANGS[s.language] && s.language !== Mori.i18n.lang) Mori.i18n.set(s.language);
     if (s.motion === "system") r.removeAttribute("data-motion");
     else r.setAttribute("data-motion", s.motion);
     r.removeAttribute("data-aura"); // an old setting: the background no longer moves

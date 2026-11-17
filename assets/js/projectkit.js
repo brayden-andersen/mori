@@ -203,12 +203,12 @@
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const days = Math.round((date - today) / 864e5);
-    const label = date.toLocaleDateString("en-US", y === today.getFullYear() ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
+    const label = date.toLocaleDateString(Mori.i18n.loc("en-US"), y === today.getFullYear() ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
     if (done) return { text: label, cls: "", days };
     if (days < 0) return { text: `Overdue · ${label}`, cls: "is-late", days };
     if (days === 0) return { text: "Due today", cls: "is-soon", days };
     if (days === 1) return { text: "Due tomorrow", cls: "is-soon", days };
-    if (days < 7) return { text: "Due " + date.toLocaleDateString("en-US", { weekday: "long" }), cls: "", days };
+    if (days < 7) return { text: "Due " + date.toLocaleDateString(Mori.i18n.loc("en-US"), { weekday: "long" }), cls: "", days };
     return { text: "Due " + label, cls: "", days };
   }
 

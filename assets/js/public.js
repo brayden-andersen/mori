@@ -116,7 +116,7 @@
         <p class="meta">${esc(t.blurb)}${t.toolkit ? ` · From the ${esc(t.toolkit)}` : ""}</p>
         <details>
           <summary>Read the template</summary>
-          <div class="toolkit-body">${t.body}</div>
+          <div class="toolkit-body">${t.legal ? `<p class="i18n-note"><em>${Mori.i18n.UNOFFICIAL}</em></p>` : ""}${t.body}</div>
         </details>
       </article>`).join("");
   }

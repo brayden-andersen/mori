@@ -31,7 +31,7 @@
   const first = (name) => String(name || "").split(/\s+/)[0];
   const roleLabel = (role) => (D.roles[role] ? D.roles[role].label : "Member");
   const openLabel = (m) => (m.open ? D.openTypes[m.openType] || "Open to build" : "");
-  const joined = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "");
+  const joined = (ts) => (ts ? new Date(ts).toLocaleDateString(Mori.i18n.locale, { month: "short", year: "numeric" }) : "");
   const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return "Link"; } };
 
   /** The shareable address of a member's profile. */

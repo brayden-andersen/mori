@@ -145,7 +145,7 @@
     if (!editor) return;
     const d = W.docs.get(editor.pid, editor.id);
     const m = $("#docMeta");
-    if (d && m) m.textContent = `Edited ${ago(d.updatedAt).toLowerCase()}${ctx.who(d.updatedBy) ? " by " + ctx.who(d.updatedBy) : ""} · created ${new Date(d.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}${ctx.who(d.createdBy) ? " by " + ctx.who(d.createdBy) : ""}`;
+    if (d && m) m.textContent = `Edited ${ago(d.updatedAt).toLowerCase()}${ctx.who(d.updatedBy) ? " by " + ctx.who(d.updatedBy) : ""} · created ${new Date(d.createdAt).toLocaleDateString(Mori.i18n.loc("en-US"), { day: "numeric", month: "short", year: "numeric" })}${ctx.who(d.createdBy) ? " by " + ctx.who(d.createdBy) : ""}`;
     // A teammate saved a newer version while this one has no unsaved typing: show theirs.
     if (d && d.body !== undefined && !editor.dirty && document.activeElement !== editor.page && clean(d.body) !== clean(editor.page.innerHTML) && d.updatedBy && d.updatedBy !== S.session().id) {
       editor.page.innerHTML = clean(d.body);

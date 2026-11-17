@@ -150,7 +150,7 @@
 
   function renderHead(p) {
     const team = K.teamOf(p);
-    const created = new Date(p.createdAt || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    const created = new Date(p.createdAt || Date.now()).toLocaleDateString(Mori.i18n.locale, { day: "numeric", month: "short", year: "numeric" });
     $("#plHead").innerHTML = `
       <div class="pl-head-main">
         <div class="chips">${K.tagChips(p.tags)}${p.sample ? Mori.ui.sampleTag("A sample project for the demo: change anything you like") : ""}</div>

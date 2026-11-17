@@ -63,7 +63,7 @@
   }
 
   /* ---------- Count-ups and progress rings ---------- */
-  function format(n) { return Math.round(n).toLocaleString("en-US"); }
+  function format(n) { return Math.round(n).toLocaleString(Mori.i18n.loc("en-US")); }
   function animateCount(el, to) {
     const target = to != null ? to : parseFloat(el.dataset.count) || 0;
     const from = parseFloat(el.dataset.from || "0") || 0;

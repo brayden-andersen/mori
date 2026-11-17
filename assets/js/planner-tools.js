@@ -60,8 +60,8 @@
   const bar = (p, cls = "") => `<span class="wg-bar ${cls}"><i style="width:${Math.max(0, Math.min(100, p))}%"></i></span>`;
   const checkbox = (attrs, on, text, sub = "") => `<label class="tool-check"><input type="checkbox" ${attrs} ${on ? "checked" : ""}><span class="task-box">${icon("check")}</span><span class="tool-check-text">${text}${sub ? `<span class="meta">${sub}</span>` : ""}</span></label>`;
   const removeBtn = (attrs, labelText) => `<button class="icon-btn tool-x" type="button" ${attrs} aria-label="${esc(labelText)}" title="${esc(labelText)}">${icon("trash")}</button>`;
-  const dayLabel = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { day: "numeric", month: "short", year: y === new Date().getFullYear() ? undefined : "numeric" }); };
-  const fmtNum = (n) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(Number(n) || 0);
+  const dayLabel = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(Mori.i18n.loc("en-US"), { day: "numeric", month: "short", year: y === new Date().getFullYear() ? undefined : "numeric" }); };
+  const fmtNum = (n) => new Intl.NumberFormat(Mori.i18n.loc("en-US"), { maximumFractionDigits: 2 }).format(Number(n) || 0);
   const memberOf = (p, id) => K.teamOf(p).find((m) => m.id === id) || null;
   const gtmItems = (ws) => P.gtm.flatMap((g, gi) => g.items.map((text, ii) => ({ key: `g${gi}.${ii}`, text, group: g.group }))).concat(ws.gtm.custom.map((c) => ({ key: c.id, text: c.text, group: c.group || "Your items", custom: true })));
   const formData = (form) => Object.fromEntries(new FormData(form).entries());
@@ -381,7 +381,7 @@
         <div><span class="meta">This month</span><b><span class="is-in">+${W.fmtMoney(m.thisMonth.in, cur, { compact: true })}</span> <span class="is-out">−${W.fmtMoney(m.thisMonth.out, cur, { compact: true })}</span></b></div>
       </div>
       <div class="tool-grid tool-grid--side">
-        ${card("Cash flow", `<div class="wg-chart tool-chart">${m.byMonth.map((x) => { const [y, mo] = x.m.split("-").map(Number); return `<div class="wg-month" title="${new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "long" })}: in ${W.fmtMoney(x.in, cur)}, out ${W.fmtMoney(x.out, cur)}"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "short" })}</span></div>`; }).join("")}</div>
+        ${card("Cash flow", `<div class="wg-chart tool-chart">${m.byMonth.map((x) => { const [y, mo] = x.m.split("-").map(Number); return `<div class="wg-month" title="${new Date(y, mo - 1, 1).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "long" })}: in ${W.fmtMoney(x.in, cur)}, out ${W.fmtMoney(x.out, cur)}"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "short" })}</span></div>`; }).join("")}</div>
           <div class="wg-legend"><span><i class="is-in"></i>Money in</span><span><i class="is-out"></i>Money out</span></div>
           <p class="meta">Burn is the average net spend of the last three months with entries; runway is your balance divided by it.</p>`)}
         ${card("Setup", `<form class="tool-form tool-form--stack" data-fin-setup autocomplete="off">
@@ -751,7 +751,10 @@
       const tpl = e.target.closest("[data-template]");
       if (tpl) {
         const t = P.templates.find((x) => x.id === tpl.dataset.template);
-        Mori.people.busy(tpl, () => W.docs.create(ctx.pid, { title: t.name, body: t.body }), (d) => ctx.go("docs/" + d.id));
+        // In another language the document starts translated, and legal templates say the English counts.
+        const I = Mori.i18n;
+        const body = I.lang === "en" ? t.body : (t.legal ? `<p><em>${I.t(I.UNOFFICIAL)}</em></p>` : "") + I.html(t.body);
+        Mori.people.busy(tpl, () => W.docs.create(ctx.pid, { title: I.t(t.name), body }), (d) => ctx.go("docs/" + d.id));
         return;
       }
       const x = e.target.closest("[data-gtm-x], [data-role-x], [data-int-x], [data-camp-x], [data-metric-x], [data-fin-x], [data-fund-x], [data-comp-x]");

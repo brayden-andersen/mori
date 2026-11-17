@@ -43,7 +43,7 @@
   /** The five rungs: full up to the project's rung, part-filled for the share of the next rung's proof that's done. */
   const rungBar = (p, g) => `<span class="pl-ladderbar wg-ladderbar" aria-hidden="true">${[1, 2, 3, 4, 5].map((r) => `<i><b style="width:${r <= p.rung ? 100 : r === g.next && g.total ? Math.round((g.done / g.total) * 100) : 0}%"></b></i>`).join("")}</span>`;
   const empty = (text, section, cta) => `<div class="wg-empty"><p>${text}</p>${section ? `<button class="btn btn--sm" type="button" data-wgo="${section}">${cta || "Open"}</button>` : ""}</div>`;
-  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
+  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "short", day: "numeric" }); };
   const daysTo = (iso) => { const [y, m, d] = iso.split("-").map(Number); const t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((new Date(y, m - 1, d) - t) / 864e5); };
   function spark(points, w = 120, h = 34) {
     const vals = points.map((x) => Number(x.v) || 0);
@@ -55,7 +55,7 @@
     return `<svg class="wg-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
   }
   const metricValue = (m) => { const pts = (m.points || []).slice().sort((a, b) => (a.d || "").localeCompare(b.d || "")); return pts.length ? Number(pts[pts.length - 1].v) || 0 : null; };
-  const fmtNum = (n) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 1, notation: Math.abs(n) >= 100000 ? "compact" : "standard" }).format(n);
+  const fmtNum = (n) => new Intl.NumberFormat(Mori.i18n.loc("en-US"), { maximumFractionDigits: 1, notation: Math.abs(n) >= 100000 ? "compact" : "standard" }).format(n);
   const gtmItems = (ws) => P.gtm.flatMap((g, gi) => g.items.map((text, ii) => ({ key: `g${gi}.${ii}`, text, group: g.group }))).concat(ws.gtm.custom.map((c) => ({ key: c.id, text: c.text, group: c.group || "Your items" })));
 
   /* ---------- The widgets ----------
@@ -167,7 +167,7 @@
         return `<div class="wg-line"><span class="wg-strong">${W.fmtMoney(m.balance, cur, { compact: true })}</span><span class="wg-sub">balance · ${runway}${runway === "—" ? "" : " months runway"}</span></div>
           <div class="wg-chart">${m.byMonth.map((x) => {
             const [y, mo] = x.m.split("-").map(Number);
-            return `<div class="wg-month"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "short" })}</span></div>`;
+            return `<div class="wg-month"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "short" })}</span></div>`;
           }).join("")}</div>
           <div class="wg-legend"><span><i class="is-in"></i>In</span><span><i class="is-out"></i>Out</span></div>`;
       },

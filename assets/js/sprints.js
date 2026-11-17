@@ -27,7 +27,7 @@
   const DAY = 864e5;
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const dateIn = (n) => { const d = new Date(); d.setHours(12, 0, 0, 0); return new Date(d.getTime() + n * DAY); };
-  const fmt = (d, opts = {}) => d.toLocaleDateString("en-GB", Object.assign({ day: "numeric", month: "short" }, opts));
+  const fmt = (d, opts = {}) => d.toLocaleDateString(Mori.i18n.locale, Object.assign({ day: "numeric", month: "short" }, opts));
   const kindOf = (x) => D.sprintKinds[x.kind] || D.sprintKinds.problem;
   const lobbyOf = (id) => D.sprintLobbies.find((l) => l.id === id) || null;
   const sprint = (id) => D.sprints.find((x) => x.id === id) || null;
