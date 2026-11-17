@@ -76,6 +76,7 @@
 
   /* ---------- Session ---------- */
   const SESSION_KEY = "mori.session.v1";
+  const SIGNED_IN_KEY = "mori.justSignedIn"; // set by sign-in, onboarding and the guest demo; the homepage's opening plays once on it
   const ACCOUNTS_KEY = "mori.accounts.v1";
   const PENDING_DRAFT_KEY = "mori.pendingOnboardingDraft";
   const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -90,7 +91,7 @@
     if (draft) Mori.store.write(PENDING_DRAFT_KEY, draft);
     Mori.store.remove(SESSION_KEY);
   })();
-  const APP_PAGES = ["home.html", "projects.html", "project.html", "network.html", "subscription.html"];
+  const APP_PAGES = ["home.html", "projects.html", "project.html", "network.html", "sprints.html", "directory.html", "subscription.html"];
   const params = new URLSearchParams(location.search);
   const pageName = () => location.pathname.split("/").pop() || "index.html";
   const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "member";
@@ -107,6 +108,12 @@
 
     session() { return Mori.store.read(SESSION_KEY, null); },
     isSignedIn() { return !!Mori.auth.session(); },
+    /** Exploring the demo as a guest: a sample founder, with sample data kept in this browser (guestdb.js). */
+    isGuest() { const s = Mori.auth.session(); return !!(s && s.provider === "guest"); },
+    /** Open the app as a guest, without an account. */
+    startGuest() { Mori.auth.markSignedIn(); return Mori.auth.completeSignIn({ provider: "guest", name: "Guest" }, { onboarded: true }); },
+    /** Someone has just signed in (or finished sign-up): the next homepage plays its short opening. */
+    markSignedIn() { try { sessionStorage.setItem(SIGNED_IN_KEY, "1"); } catch (e) { /* storage blocked */ } },
 
     /** Merge changes into the current session (e.g. a new name, onboarding done). */
     updateSession(patch) {
@@ -152,8 +159,8 @@
      * questions are answered (from the database, or remembered for demo accounts).
      */
     completeSignIn(profile, opts = {}) {
-      const provider = profile.provider === "google" ? "google" : "demo";
-      const id = provider === "google" ? profile.id : "demo_" + slug(profile.email || profile.name);
+      const provider = profile.provider === "google" ? "google" : profile.provider === "guest" ? "guest" : "demo";
+      const id = provider === "google" ? profile.id : provider === "guest" ? "guest" : "demo_" + slug(profile.email || profile.name);
       const accounts = Mori.store.read(ACCOUNTS_KEY, {});
       const known = accounts[id];
       accounts[id] = Object.assign({ joinedAt: Date.now() }, known);
@@ -259,20 +266,30 @@
     motion = st.motion || "system";
   }
 
-  /* The homepage's opening ritual: on a fresh start (signing in, a new tab, a
-     reload, or a tab the browser had unloaded) the homepage opens with just the
-     welcome, centred, which then glides up while everything else rises into
-     place (home.js). Moving between pages during a visit doesn't replay it. */
+  /* The homepage's opening: only on the first homepage right after signing in
+     (sign-in, the end of onboarding and the guest demo set a flag), never on a
+     reload. About 2.5 s: the welcome fades in at the centre, then glides up
+     while everything else rises into place (home.js). */
   const VISIT_KEY = "mori.inVisit";
   const session = (fn) => { try { return fn(); } catch (e) { return null; } };
   if (s && s.onboarded && root.getAttribute("data-auth") === "required") {
-    const entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
-    const type = entry ? entry.type : "navigate";
-    const fresh = !session(() => sessionStorage.getItem(VISIT_KEY)) || type === "reload" || document.wasDiscarded;
+    const justIn = session(() => sessionStorage.getItem(SIGNED_IN_KEY)) === "1";
     const calm = motion === "reduced" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if (pageName() === "home.html" && fresh && !calm && !document.prerendering) root.classList.add("boot");
+    if (pageName() === "home.html" && justIn && !calm && !document.prerendering) root.classList.add("boot");
+    if (justIn && !document.prerendering) session(() => sessionStorage.removeItem(SIGNED_IN_KEY)); // the first app page uses it up
     session(() => sessionStorage.setItem(VISIT_KEY, "1"));
   }
+  /* Reserve the nav's height before the first paint. The nav (and a guest's
+     demo bar) is drawn by shell.js after the page has painted, so without
+     this the page would jump down when it appears. ui.js remembers the
+     height it measured for this width; until then the CSS has estimates. */
+  if (s && s.provider === "guest") root.classList.add("is-guest");
+  session(() => {
+    const seen = JSON.parse(localStorage.getItem("mori.navH") || "{}");
+    const h = seen[(s && s.provider === "guest" ? "g" : "m") + window.innerWidth];
+    if (h && root.getAttribute("data-auth") === "required") root.style.setProperty("--navH", h + "px");
+  });
+
   // Google is redirecting back: show the sign-in screen, not the landing page.
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
   if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index.html")) root.classList.add("is-signing-in");

@@ -2,6 +2,7 @@
 <html lang="en" data-auth="required">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SandBox • Subscription</title>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
@@ -9,21 +10,23 @@
   <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
   <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/mori.css?v=11" />
-  <link rel="stylesheet" href="assets/css/subscription.css?v=11" />
-  <link rel="stylesheet" href="assets/css/tour.css?v=11" />
-  <link rel="stylesheet" href="assets/css/dark.css?v=11" />
-  <script src="assets/js/config.js?v=11"></script>
-  <script src="assets/js/auth.js?v=11"></script>
-  <script defer src="assets/js/data.js?v=11"></script>
-  <script defer src="assets/js/state.js?v=11"></script>
-  <script defer src="assets/js/ui.js?v=11"></script>
-  <script defer src="assets/js/motion.js?v=11"></script>
-  <script defer src="assets/js/db.js?v=11"></script>
-  <script defer src="assets/js/shell.js?v=11"></script>
-  <script defer src="assets/js/people.js?v=11"></script>
-  <script defer src="assets/js/subscription.js?v=11"></script>
-  <script defer src="assets/js/tour.js?v=11"></script>
+  <link rel="stylesheet" href="assets/css/mori.css?v=15" />
+  <link rel="stylesheet" href="assets/css/subscription.css?v=15" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=15" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=15" />
+  <script src="assets/js/config.js?v=15"></script>
+  <script src="assets/js/auth.js?v=15"></script>
+  <script defer src="assets/js/data.js?v=15"></script>
+  <script defer src="assets/js/state.js?v=15"></script>
+  <script defer src="assets/js/ui.js?v=15"></script>
+  <script defer src="assets/js/motion.js?v=15"></script>
+  <script defer src="assets/js/db.js?v=15"></script>
+  <script defer src="assets/js/sample.js?v=15"></script>
+  <script defer src="assets/js/guestdb.js?v=15"></script>
+  <script defer src="assets/js/shell.js?v=15"></script>
+  <script defer src="assets/js/people.js?v=15"></script>
+  <script defer src="assets/js/subscription.js?v=15"></script>
+  <script defer src="assets/js/tour.js?v=15"></script>
 </head>
 <body data-page="subscription">
   <div class="aura" aria-hidden="true"></div>
@@ -42,18 +45,19 @@
       </div>
       <div class="plans-billing">
         <div class="seg" id="billing" data-value="monthly" role="group" aria-label="Billing">
-          <button data-value="monthly">Monthly</button>
-          <button data-value="yearly">Yearly <span class="plans-save">2 months free</span></button>
+          <button type="button" data-value="monthly">Monthly</button>
+          <button type="button" data-value="yearly">Yearly <span class="plans-save">2 months free</span></button>
         </div>
       </div>
     </header>
 
-    <p class="plans-note" id="plansNote" hidden><i data-icon="sparkle"></i> Placeholder pricing: the final prices and perks are coming soon.</p>
+    <p class="plans-note" id="plansNote" hidden><i class="ico" data-icon="sparkle"></i> Placeholder pricing: these prices and perks will change before SandBox launches.</p>
 
     <section class="plans" id="plans" aria-label="Plans"></section>
 
     <section class="panel plans-compare" aria-labelledby="compareTitle">
       <h3 id="compareTitle">Compare plans</h3>
+      <!-- [html-validate-disable-next prefer-native-element -- a CSS grid with table roles, so each plan is a column on wide screens and a card on phones] -->
       <div class="cmp" id="compare" role="table" aria-label="What each plan includes"></div>
     </section>
 

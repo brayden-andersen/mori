@@ -19,7 +19,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, avatarStack, ago, toast, createModal, seg } = Mori.ui;
+  const { $, $$, esc, icon, avatarStack, ago, toast, createModal, seg } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const P = D.planner;
@@ -123,6 +123,23 @@
         if (w.variant === "next") return `<div class="wg-col">${head}${rungBar(p, g)}</div>`;
         const steps = P.ladderSteps[g.next];
         return `<div class="wg-col wg-col--top">${head}${rungBar(p, g)}</div><ul class="wg-list">${steps.map((text, i) => `<li><label class="wg-check"><input type="checkbox" data-wstep="${g.next}:${i}" ${g.flags[i] ? "checked" : ""}><span class="task-box">${icon("check")}</span><span class="wg-text">${esc(text)}</span></label></li>`).join("")}</ul>`;
+      },
+    },
+    launch: {
+      name: "Launch path", icon: "briefcase", section: "launch", desc: "The next step toward a registered, operating company.",
+      variants: {
+        next: { name: "Next step", min: [1, 1], sizes: [[1, 1], [2, 1]] },
+        stages: { name: "Stages", min: [2, 2], sizes: [[2, 2], [3, 2], [4, 2], [2, 3]] },
+      },
+      render({ ws }, w) {
+        const L = W.launch(ws);
+        if (w.variant === "stages") {
+          const room = fit(w.h, L.stages.length, 31, 26);
+          return `<div class="wg-line">${bar(L.pct)}<span class="wg-sub">${L.ticked}/${L.total}</span></div><ul class="wg-list">${L.stages.slice(0, room).map((st) => `<li class="wg-stage${st.complete ? " is-done" : ""}">${st.complete ? icon("check") : `<span class="wg-stage-n">${st.index + 1}</span>`}<span class="wg-text">${esc(st.title)}</span><span class="wg-due">${st.open ? `${st.ticked}/${st.items.length}` : "Builder"}</span></li>`).join("")}</ul>${more(L.stages.length - room, "launch")}`;
+        }
+        if (!L.next) return `<div class="wg-col"><span class="wg-strong">Launch path complete</span><span class="wg-sub">Every step is ticked.</span>${bar(100)}</div>`;
+        if (!L.next.open) return `<div class="wg-col"><span class="wg-strong">${esc(L.next.stage.title)}</span><span class="wg-sub">${esc(D.launchPath.unlock.text)}</span>${bar(L.pct)}</div>`;
+        return `<div class="wg-col"><label class="wg-check"><input type="checkbox" data-wlaunch="${esc(L.next.item.key)}"><span class="task-box">${icon("check")}</span><span class="wg-text">${esc(L.next.item.text)}</span></label><span class="wg-sub">${esc(L.next.stage.title)} · ${L.ticked} of ${L.total} steps</span>${bar(L.pct)}</div>`;
       },
     },
     finance: {
@@ -341,7 +358,7 @@
           ${t.section ? `<button class="wg-title" type="button" data-wgo="${t.section}" aria-label="Open ${esc(TYPES[w.type].name)}">${esc(t.name)}</button>` : `<span class="wg-title">${esc(t.name)}</span>`}
           <span class="wg-tools">
             <button class="wg-tool wg-grip" type="button" data-wdrag aria-label="Move ${esc(titleOf(w, ctx))}" title="Drag to move">${icon("grip")}</button>
-            <button class="wg-tool" type="button" data-wmenu="${esc(w.id)}" aria-label="Options for ${esc(titleOf(w, ctx))}" title="Options">${icon("more")}</button>
+            <button class="wg-tool" type="button" data-wmenu="${esc(w.id)}" aria-expanded="false" aria-label="Options for ${esc(titleOf(w, ctx))}" title="Options">${icon("more")}</button>
           </span>
         </header>
         <div class="wg-body">${t.render(ctx, w)}</div>
@@ -375,7 +392,7 @@
     // drop's glide plays out. Focus on a ticked box comes back after a re-draw.
     const active = document.activeElement;
     const inWid = active && container.contains(active) && active.closest(".wg") ? active.closest(".wg").dataset.wid : null;
-    const focusAttr = inWid && ["data-wtask", "data-wgtm", "data-wstep"].find((a) => active.hasAttribute(a));
+    const focusAttr = inWid && ["data-wtask", "data-wgtm", "data-wstep", "data-wlaunch"].find((a) => active.hasAttribute(a));
     const focusSel = focusAttr ? `[${focusAttr}="${CSS.escape(active.getAttribute(focusAttr))}"]` : null;
     const ids = new Set(layout.map((w) => w.id));
     Array.from(container.children).forEach((el) => { if (el.classList.contains("mf-cells")) return; if (!el.classList.contains("wg") || !ids.has(el.dataset.wid)) el.remove(); });
@@ -466,6 +483,7 @@
     { type: "finance", variant: "runway", x: 2, y: 0, w: 1, h: 1 },
     { type: "people", variant: "team", x: 3, y: 0, w: 1, h: 1 },
     { type: "tasks", variant: "progress", x: 1, y: 1, w: 3, h: 1 },
+    { type: "launch", variant: "next", x: 0, y: 2, w: 2, h: 1 },
   ];
   function addStarter() {
     if (!ctx) return Promise.resolve();
@@ -646,6 +664,7 @@
       const t = e.target;
       if (t.matches("[data-wtask]")) { S.toggleTask(ctx.pid, t.dataset.wtask).saved.catch(failed); return; }
       if (t.matches("[data-wgtm]")) { const key = t.dataset.wgtm; const on = t.checked; W.change(ctx.pid, "gtm", (g) => { g.done[key] = on || undefined; if (!on) delete g.done[key]; return g; }).catch(failed); return; }
+      if (t.matches("[data-wlaunch]")) { const key = t.dataset.wlaunch; W.change(ctx.pid, "launch", (l) => { l.done[key] = true; return l; }).catch(failed); return; }
       if (t.matches("[data-wstep]")) { const key = t.dataset.wstep; const on = t.checked; W.change(ctx.pid, "ladder", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }).catch(failed); }
     });
     container.addEventListener("input", (e) => {
@@ -660,7 +679,15 @@
   }
 
   /* ---------- A widget's options menu ---------- */
-  function closeMenu() { const m = $(".wg-pop"); if (m) m.remove(); document.removeEventListener("pointerdown", outside, true); }
+  function closeMenu(opts = {}) {
+    const m = $(".wg-pop");
+    if (m) {
+      const btn = $(`[data-wmenu="${CSS.escape(m.dataset.for)}"]`);
+      m.remove();
+      if (btn) { btn.setAttribute("aria-expanded", "false"); if (opts.focus) btn.focus(); }
+    }
+    document.removeEventListener("pointerdown", outside, true);
+  }
   const outside = (e) => { if (!e.target.closest(".wg-pop") && !e.target.closest("[data-wmenu]")) closeMenu(); };
   function openMenu(btn) {
     const open = $(".wg-pop");
@@ -670,8 +697,10 @@
     const pop = document.createElement("div");
     pop.className = "wg-pop";
     pop.dataset.for = id;
-    pop.setAttribute("role", "menu");
-    pop.innerHTML = `<button type="button" role="menuitem" data-pop="edit">${icon("sliders")} Style and size</button><button type="button" role="menuitem" data-pop="remove">${icon("trash")} Remove</button>`;
+    pop.id = "wgPop";
+    btn.setAttribute("aria-expanded", "true");
+    btn.setAttribute("aria-controls", "wgPop");
+    pop.innerHTML = `<button type="button" data-pop="edit">${icon("sliders")} Style and size</button><button type="button" data-pop="remove">${icon("trash")} Remove</button>`;
     btn.closest(".wg").appendChild(pop);
     pop.addEventListener("click", (e) => {
       const b = e.target.closest("[data-pop]");
@@ -679,6 +708,8 @@
       if (b.dataset.pop === "edit") { closeMenu(); openGallery(btn, { edit: id }); return; }
       if (Mori.people.confirmTap(b, "Tap again to remove")) { closeMenu(); removeWidget(id); toast("Widget removed", { icon: "trash" }); }
     });
+    pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeMenu({ focus: true }); } });
+    pop.addEventListener("focusout", (e) => { if (e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== btn) closeMenu(); });
     setTimeout(() => document.addEventListener("pointerdown", outside, true), 0);
     $("button", pop).focus();
   }

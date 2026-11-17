@@ -38,7 +38,7 @@
   /* ---------- Filters ---------- */
   function buildChips() {
     filterChips.innerHTML = S.allTags()
-      .map((t) => `<button class="fchip" type="button" data-tag="${esc(t)}" data-active="${activeTags.has(t)}">${esc(t)}</button>`)
+      .map((t) => `<button class="fchip" type="button" data-tag="${esc(t)}" data-active="${activeTags.has(t)}" aria-pressed="${activeTags.has(t)}">${esc(t)}</button>`)
       .join("");
   }
   filterChips.addEventListener("click", (e) => {
@@ -47,13 +47,38 @@
     const tag = chip.dataset.tag;
     if (activeTags.has(tag)) activeTags.delete(tag); else activeTags.add(tag);
     chip.dataset.active = String(activeTags.has(tag));
+    chip.setAttribute("aria-pressed", String(activeTags.has(tag)));
     currentPage = 1;
     render();
+  });
+  /** Every filter that's on, as a chip you can remove; Reset clears them all. */
+  const SORTS = { updated_asc: "Least recently updated", name_asc: "Name A–Z", name_desc: "Name Z–A" };
+  function renderActive() {
+    const box = $("#pjActive");
+    const chips = [];
+    if (q.value.trim()) chips.push(["q", `Search: “${q.value.trim()}”`]);
+    activeTags.forEach((t) => chips.push(["tag:" + t, t]));
+    if (SORTS[sortBy.value]) chips.push(["sort", `Sorted: ${SORTS[sortBy.value]}`]);
+    box.innerHTML = chips.map(([k, label]) => `<span class="fpill">${esc(label)}<button type="button" data-drop-pj="${esc(k)}" aria-label="Remove: ${esc(label)}">${icon("x")}</button></span>`).join("")
+      + (chips.length ? `<button class="link-btn" type="button" data-clear-all>Reset</button>` : "");
+    box.hidden = !chips.length;
+  }
+  $("#pjActive").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-drop-pj]");
+    if (!b) return;
+    const k = b.dataset.dropPj;
+    if (k === "q") q.value = "";
+    else if (k === "sort") sortBy.value = "updated_desc";
+    else { activeTags.delete(k.slice(4)); buildChips(); }
+    currentPage = 1;
+    render();
+    const next = $("[data-drop-pj], [data-clear-all]", $("#pjActive")) || q;
+    next.focus();
   });
   $("#clearFilters").addEventListener("click", () => {
     q.value = "";
     activeTags.clear();
-    $$(".fchip", filterChips).forEach((c) => { c.dataset.active = "false"; });
+    $$(".fchip", filterChips).forEach((c) => { c.dataset.active = "false"; c.setAttribute("aria-pressed", "false"); });
     sortBy.value = "updated_desc";
     currentPage = 1;
     render();
@@ -87,7 +112,7 @@
       : others.length ? `With ${esc(others.slice(0, 2).map((t) => first(t.person.name)).join(" and "))}${others.length > 2 ? ` +${others.length - 2}` : ""}` : "";
     return `
       <article class="pcard spotlight" data-open="${esc(p.id)}">
-        <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button></h4>
+        <h4><button class="pcard-open" type="button" data-open="${esc(p.id)}">${esc(p.name)}</button>${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}</h4>
         <div class="meta">Last update: ${humanizeDays(p.updated_days)} • ${esc(p.focus)}</div>
         <div class="tags" style="margin-top:12px">${chips}</div>
         <div class="rung-row">${Mori.shell.ladderBar(p.rung)}<span class="meta">Rung ${p.rung} · ${esc(D.ladder[p.rung].stage)}</span></div>
@@ -105,13 +130,18 @@
       pager.hidden = true;
       return;
     }
+    renderActive();
     countMeta.textContent = all.length
-      ? `${filtered.length} project${filtered.length === 1 ? "" : "s"} • viewing ${PAGE_SIZE} per page`
+      ? (filtered.length === all.length ? `${all.length} project${all.length === 1 ? "" : "s"}` : `${filtered.length} of ${all.length} projects match`) + (filtered.length > PAGE_SIZE ? ` · ${PAGE_SIZE} per page` : "")
       : "No projects yet";
     $("#emptyTitle").textContent = all.length ? "No projects match your filters." : "Declare your first project";
     $("#emptySub").textContent = all.length
-      ? "Try clearing filters or creating a new project."
+      ? "Try fewer filters, or clear them."
       : "Put your idea in a form a specialist can judge in two minutes, then plan it here with your team.";
+    const emptyBtn = $("#empty button");
+    emptyBtn.textContent = all.length ? "Clear filters" : "Create project";
+    emptyBtn.toggleAttribute("data-new-project", !all.length);
+    emptyBtn.toggleAttribute("data-clear-all", !!all.length);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     if (currentPage > totalPages) currentPage = totalPages;
@@ -204,7 +234,7 @@
   let openId = null;
   function openProject(id, opener) {
     const p = S.project(id);
-    if (!p) { toast("That project couldn’t be found", { icon: "x" }); setOpenParam(null); return; }
+    if (!p) { Mori.ui.problem("That project couldn’t be found"); setOpenParam(null); return; }
     const root = createModal("projectDrawer", { label: "Project details", cls: "modal-root--drawer", panelCls: "modal--drawer" });
     const panel = $(".modal", root);
     if (!panel.dataset.bound) {
@@ -240,7 +270,7 @@
     if (!openId || !Mori.modal.isOpen("projectDrawer")) return;
     const p = S.project(openId);
     const panel = $("#projectDrawer .modal");
-    if (!p) { Mori.modal.close(); toast("You’re no longer on that project", { icon: "x" }); return; }
+    if (!p) { Mori.modal.close(); Mori.ui.problem("You’re no longer on that project"); return; }
     $("#pdBoard", panel).innerHTML = boardPeek(p);
     $("#pdBar", panel).style.width = p.progress + "%";
     $("#pdDone", panel).textContent = `${p.doneCount} of ${p.tasks.length} tasks done`;
@@ -255,7 +285,7 @@
     const chosen = new Set();
     const cofounders = new Set();
     const offerPicker = N.available() && S.profile().role === "founder" && N.connections().length > 0;
-    let rung = 0;
+    let rung = Math.max(0, Math.min(5, Number(new URLSearchParams(location.search).get("rung")) || 0)); // ?rung= preselects the stage
     panel.setAttribute("aria-labelledby", "npTitle");
     panel.innerHTML = `
       <div class="modal-head">
@@ -273,7 +303,7 @@
         <div class="field">
           <span>Where are you on the milestone ladder?</span>
           <div class="np-rungs" role="radiogroup" aria-label="Starting rung">
-            ${D.ladder.map((r) => `<button type="button" class="np-rung" role="radio" data-np-rung="${r.rung}" aria-checked="${r.rung === 0}" title="${esc(r.stage)}">${r.rung}</button>`).join("")}
+            ${D.ladder.map((r) => `<button type="button" class="np-rung" role="radio" data-np-rung="${r.rung}" aria-checked="${r.rung === rung}" title="${esc(r.stage)}">${r.rung}</button>`).join("")}
           </div>
           <p class="np-rung-desc" id="npRungDesc"></p>
         </div>
@@ -301,7 +331,7 @@
 
     // A new project opens straight on its Mainframe; the planner shows the note once it's there.
     const created = (id, name, note, first) => {
-      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) {}
+      try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) { /* private mode: the planner just won't show the note */ }
       Mori.modal.close({ restoreFocus: false });
       Mori.ui.go("project.html?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
     };
@@ -309,11 +339,8 @@
       const nameInput = form.elements.name;
       const name = nameInput.value.trim();
       if (!name) {
-        nameInput.classList.remove("is-invalid");
-        void nameInput.offsetWidth;
-        nameInput.classList.add("is-invalid");
+        Mori.ui.fieldError(nameInput, "Give your project a name.", () => (nameInput.value.trim() ? "" : "Give your project a name."));
         nameInput.focus();
-        toast("Give your project a name", { icon: "edit" });
         return;
       }
       const btn = $("#npCreate", panel);
@@ -348,6 +375,7 @@
 
   $("#newProjectBtn").addEventListener("click", (e) => openNewProject(e.currentTarget));
   document.addEventListener("click", (e) => { const b = e.target.closest("[data-new-project]"); if (b) openNewProject(b); });
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-clear-all]")) $("#clearFilters").click(); });
 
   // Projects shared with you, co-founders' changes and team names arrive in the background.
   document.addEventListener("mori:change", (e) => {
@@ -361,7 +389,7 @@
   buildChips();
   render();
   const params = new URLSearchParams(location.search);
-  const ready = N.available() ? S.refreshProjects().catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else toast("Couldn’t load your projects: " + err.message, { icon: "x" }); }) : Promise.resolve();
+  const ready = N.available() ? S.refreshProjects().catch((err) => { if (err && err.code === "signed-out") Mori.people.signInAgain(err.message); else Mori.ui.problem("Couldn’t load your projects: " + err.message); }) : Promise.resolve();
   ready.then(() => {
     loaded = true;
     render();

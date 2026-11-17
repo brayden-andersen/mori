@@ -1,11 +1,11 @@
 /* ==========================================================================
    Mori: Sandbox — the planner's tools (the sections in its left sidebar)
    --------------------------------------------------------------------------
-   Plan:   Daily tasks · GTM checklist · Milestone ladder
+   Plan:   Daily tasks · GTM checklist · Milestone ladder · Launch path · Compliance tracker
    Team:   People
    Build:  Documents (planner-docs.js) · Customer interviews · Lean canvas
    Grow:   Marketing · Metrics
-   Money:  Finance · Funding
+   Money:  Finance · Funding · Program navigator
    Learn:  Toolkits (document templates)
    Each section draws itself into the planner's view; events are delegated
    from the view, so a section can be re-drawn whenever its data changes.
@@ -33,6 +33,8 @@
     { id: "tasks", label: "Daily tasks", icon: "checklist" },
     { id: "gtm", label: "GTM checklist", icon: "rocket" },
     { id: "ladder", label: "Milestone ladder", icon: "ladder" },
+    { id: "launch", label: "Launch path", icon: "briefcase" },
+    { id: "compliance", label: "Compliance tracker", icon: "shield" },
     { group: "Team" },
     { id: "people", label: "People", icon: "network" },
     { group: "Build" },
@@ -45,6 +47,7 @@
     { group: "Money" },
     { id: "finance", label: "Finance", icon: "wallet" },
     { id: "funding", label: "Funding opportunities", icon: "coins" },
+    { id: "programs", label: "Program navigator", icon: "compass" },
     { group: "Learn" },
     { id: "toolkits", label: "Toolkits", icon: "layers" },
   ];
@@ -110,10 +113,10 @@
     const fresh = before.size === 0;
     $$(".task[data-task]", view).forEach((el, i) => {
       const r0 = before.get(el.dataset.task);
-      if (!r0) { el.animate([{ opacity: 0, transform: "translateY(8px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 360, delay: fresh ? Math.min(i * 25, 200) : 0, easing: EASE, fill: "backwards" }); return; }
+      if (!r0) { el.animate([{ opacity: 0, transform: "translateY(8px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 200, delay: fresh ? Math.min(i * 25, 200) : 0, easing: EASE, fill: "backwards" }); return; }
       const r1 = el.getBoundingClientRect();
       if (Math.abs(r0.left - r1.left) < 1 && Math.abs(r0.top - r1.top) < 1) return;
-      el.animate([{ transform: `translate(${r0.left - r1.left}px, ${r0.top - r1.top}px)` }, { transform: "none" }], { duration: 420, easing: EASE });
+      el.animate([{ transform: `translate(${r0.left - r1.left}px, ${r0.top - r1.top}px)` }, { transform: "none" }], { duration: 200, easing: EASE });
     });
   }
   function openTask(ctx, id, opener) {
@@ -150,7 +153,7 @@
     const text = form.elements.text;
     const save = () => {
       const value = text.value.trim().replace(/\s+/g, " ");
-      if (!value) { text.classList.remove("is-invalid"); void text.offsetWidth; text.classList.add("is-invalid"); text.focus(); return; }
+      if (!value) { Mori.ui.fieldError(text, "Say what the task is.", () => (text.value.trim() ? "" : "Say what the task is.")); text.focus(); return; }
       const { saved } = S.updateTask(ctx.pid, id, { text: value, status: $("#tkStatus", panel).dataset.value, assignee: form.elements.assignee.value || null, due: form.elements.due.value || null });
       Mori.modal.close();
       saved.catch(failed);
@@ -407,7 +410,7 @@
     const cur = ws.finance.currency;
     view.innerHTML = `
       <div class="tool-grid tool-grid--side">
-        ${card("Your pipeline", `${items.length ? `<ul class="tool-entries">${items.map((x) => `<li><div><b>${esc(x.name)}</b><span class="meta">${esc(P.fundingKinds[x.kind] || "Other")}${x.amount ? ` · ${W.fmtMoney(x.amount, cur, { compact: true })}` : ""}${x.deadline ? ` · deadline ${esc(dayLabel(x.deadline))}` : ""}${x.link ? ` · <a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">link</a>` : ""}</span>${x.note ? `<p>${esc(x.note)}</p>` : ""}</div>
+        ${card("Your pipeline", `${items.length ? `<ul class="tool-entries">${items.map((x) => `<li><div><b>${esc(x.name)}</b><span class="meta">${esc(P.fundingKinds[x.kind] || "Other")}${x.amount ? ` · ${W.fmtMoney(x.amount, cur, { compact: true })}` : ""}${x.deadline ? ` · deadline ${esc(dayLabel(x.deadline))}` : ""}${Mori.ui.safeUrl(x.link) ? ` · <a href="${esc(Mori.ui.safeUrl(x.link))}" target="_blank" rel="noopener noreferrer">link</a>` : ""}</span>${x.note ? `<p>${esc(x.note)}</p>` : ""}</div>
             <select class="select select--sm" data-fund-status="${esc(x.id)}" aria-label="Status of ${esc(x.name)}">${Object.entries(P.fundingStatus).map(([k, v]) => `<option value="${k}" ${x.status === k ? "selected" : ""}>${v}</option>`).join("")}</select>${removeBtn(`data-fund-x="${esc(x.id)}"`, "Remove")}</li>`).join("")}</ul>` : `<p class="meta">Keep every grant, competition, accelerator and investor you’re going after in one place, with its deadline.</p>`}
           <form class="tool-form" data-fund-add autocomplete="off">
             <input class="input" name="name" maxlength="80" placeholder="Name of the programme or investor" required aria-label="Name">
@@ -419,6 +422,138 @@
           </form>`, `${items.filter((x) => x.status !== "won" && x.status !== "lost").length} active`)}
         ${card("Where to look", `<ul class="tool-tips">${P.fundingTips.map(([t, d]) => `<li><b>${esc(t)}</b><span class="meta">${esc(d)}</span></li>`).join("")}</ul><p class="meta">Check each programme’s own site for current terms and deadlines.</p>`)}
       </div>`;
+  }
+
+  /* =====================================================================
+     Launch path: from a declared idea to a registered, operating company
+     ===================================================================== */
+  function launchStageHTML(st, p) {
+    const LP = D.launchPath;
+    const reached = p.rung >= st.rung;
+    const tools = st.open
+      ? st.templates.map((id) => P.templates.find((t) => t.id === id)).filter(Boolean).map((t) => `<button class="btn btn--sm" type="button" data-template="${esc(t.id)}">${icon("file")} ${esc(t.name)}</button>`).join("")
+        + (st.partner ? `<a class="btn btn--sm" href="directory.html#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
+      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription.html">See the plans</a>`;
+    return `
+      <li class="pl-card tool-card launch-stage${st.complete ? " is-done" : ""}${st.open ? "" : " is-locked"}" id="launch-${esc(st.id)}">
+        <div class="launch-head">
+          <span class="launch-n" aria-hidden="true">${st.complete ? icon("check") : st.index + 1}</span>
+          <div><h3>${esc(st.title)}</h3><span class="meta launch-rung">${icon("ladder")} Rung ${st.rung} · ${esc(D.ladder[st.rung].stage)}${reached ? " · your project is here or past it" : ""}</span></div>
+          <span class="launch-count">${st.ticked}/${st.items.length}</span>
+        </div>
+        <p class="meta launch-blurb">${esc(st.blurb)}</p>
+        ${st.legal ? `<p class="launch-legal">${icon("alert")} <span>${esc(LP.disclaimer)} <b class="launch-review">${esc(LP.review)}</b></span></p>` : ""}
+        <div class="tool-checks">${st.items.map((x) => `<div class="tool-check-row">${checkbox(`data-launch="${esc(x.key)}"${st.open ? "" : " disabled"}`, x.done, esc(x.text))}</div>`).join("")}</div>
+        ${tools ? `<div class="launch-tools">${tools}</div>` : ""}
+      </li>`;
+  }
+  function renderLaunch(view, { p, ws }) {
+    const L = W.launch(ws);
+    const next = !L.next ? "Every step is done."
+      : L.next.open ? `Next: <b>${esc(L.next.item.text)}</b> · ${esc(L.next.stage.title)}`
+      : `Every step your plan opens is done. ${esc(D.launchPath.unlock.text)}`;
+    view.innerHTML = `
+      <div class="tool-intro">${bar(L.pct)}<p class="meta"><b>${L.ticked} of ${L.total}</b> launch steps done. ${next}</p></div>
+      <p class="meta tool-lead">From a declared idea to a registered, operating company in Indonesia. Each stage shows the rung of the milestone ladder it belongs to; ${esc(p.name)} is on rung ${p.rung}. Templates start a document your team can edit.</p>
+      <ol class="launch-stages">${L.stages.map((st) => launchStageHTML(st, p)).join("")}</ol>`;
+  }
+
+  /* =====================================================================
+     Compliance tracker: recurring obligations after registration
+     Which obligations apply is for a vetted partner to confirm: the tool
+     tracks the ones a team adds and claims nothing about the law. A guest's
+     sample project comes with sample obligations, labelled.
+     ===================================================================== */
+  const PLAN_NOTE = (plan) => `<p class="meta tool-plan">${icon("award")} Part of ${esc(plan)}. Every member can use it while SandBox is a demo.</p>`;
+  const addPeriod = (iso, every) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const months = { month: 1, quarter: 3, year: 12 }[every] || 0;
+    const t = new Date(y, m - 1 + months, 1);
+    t.setDate(Math.min(d, new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate())); // 31 Jan + 1 month = 28/29 Feb
+    return W.isoDay(t);
+  };
+  function renderCompliance(view, { ws }) {
+    const items = ws.compliance.items.slice().sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || String(a.due || "9999").localeCompare(String(b.due || "9999")));
+    const open = items.filter((x) => !x.done);
+    const late = open.filter((x) => { const d = K.dueInfo(x.due, false); return d && d.days < 0; }).length;
+    const soon = open.filter((x) => { const d = K.dueInfo(x.due, false); return d && d.days >= 0 && d.days <= 30; }).length;
+    const row = (x) => {
+      const due = K.dueInfo(x.due, x.done);
+      return `<div class="tool-check-row comp-row${x.done ? " is-done" : ""}">
+        ${checkbox(`data-comp-done="${esc(x.id)}"${x.done ? " checked disabled" : ""}`, x.done, `${esc(x.name)}${x.sample ? Mori.ui.sampleTag("A sample obligation for the demo") : ""}`,
+          [esc(D.complianceRepeats[x.every] || "Once"), due ? `<span class="task-due ${due.cls}">${icon("clock")}${esc(x.done ? `Done · ${due.text}` : due.text)}</span>` : "", x.note ? esc(x.note) : ""].filter(Boolean).join(" · "))}
+        ${removeBtn(`data-comp-x="${esc(x.id)}"`, "Remove")}
+      </div>`;
+    };
+    view.innerHTML = `
+      <div class="tool-intro"><p class="meta"><b>${open.length} obligation${open.length === 1 ? "" : "s"}</b> to keep up with${late ? ` · <span class="comp-late">${late} overdue</span>` : ""}${soon ? ` · ${soon} due in the next 30 days` : ""}.</p></div>
+      <p class="meta tool-lead">The recurring work that comes after registration: filings, reviews and renewals. Which obligations apply to your company, and when, is for a vetted accountant, tax adviser or lawyer to confirm; SandBox doesn’t decide them for you. Tick one off and its next date is set.</p>
+      ${PLAN_NOTE("Founder Pro")}
+      <div class="tool-grid tool-grid--wide">
+        ${card("Obligations", items.length ? `<div class="tool-checks">${items.map(row).join("")}</div>`
+          : `<div class="empty tool-empty"><span class="empty-ico">${icon("shield")}</span><div>No obligations yet</div><div class="meta">Add the ones a vetted partner has confirmed for your company, with how often they come round.</div><a class="btn btn--sm" href="directory.html#accounting">${icon("shield")} Find a vetted accountant</a></div>`, `${open.length} open`)}
+        ${card("Add an obligation", `
+          <form class="tool-form" data-comp-add autocomplete="off">
+            <label class="field"><span>What it is</span><input class="input" name="name" maxlength="100" required placeholder="For example: monthly bookkeeping close"></label>
+            <div class="tool-form-row">
+              <label class="field"><span>How often</span><select class="select" name="every">${Object.entries(D.complianceRepeats).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select></label>
+              <label class="field"><span>Next due</span><input class="input" type="date" name="due" required value="${W.isoDay(new Date(Date.now() + 30 * 864e5))}"></label>
+            </div>
+            <label class="field"><span>Note <em class="hint">optional</em></span><input class="input" name="note" maxlength="140" placeholder="Who handles it"></label>
+            <button class="btn btn--ink" type="submit">${icon("plus")} Add obligation</button>
+          </form>`)}
+      </div>`;
+  }
+
+  /* =====================================================================
+     Program navigator: grants, incubators and competitions
+     Filtered by rung, sector and region. The list is sample entries for
+     now, so only the guest demo shows it (sample data stays in guest mode);
+     members see that the list isn't in yet. [BRAYDEN: real list later]
+     ===================================================================== */
+  const navFilters = {};
+  const rupiah = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+  function renderPrograms(view, { pid, p, ws }) {
+    const all = Mori.auth.isGuest() && Mori.sample ? Mori.sample.programs : [];
+    const f = navFilters[pid] || (navFilters[pid] = { rung: String(p.rung), sector: "", region: "" });
+    if (!all.length) {
+      view.innerHTML = `
+        <p class="meta tool-lead">Grants, incubators and competitions for Indonesian founders, filtered by your rung, sector and region.</p>
+        ${PLAN_NOTE("Builder")}
+        ${card("", `<div class="empty tool-empty empty--unbuilt"><span class="empty-ico">${icon("compass")}</span><div>No programmes are listed yet</div><div class="meta">A checked list of grants, incubators and competitions is being put together. Until then, keep the ones you find in Funding opportunities. The guest demo shows how the navigator works with sample programmes.</div><button class="btn btn--sm" type="button" data-go="funding">${icon("coins")} Open Funding opportunities</button></div>`)}`;
+      return;
+    }
+    const sectors = Array.from(new Set(all.flatMap((x) => x.sectors).filter((x) => x !== "Any"))).sort();
+    const regions = Array.from(new Set(all.flatMap((x) => x.regions).filter((x) => x !== "Any"))).sort();
+    const hits = all.filter((x) => (f.rung === "" || x.rungs.includes(Number(f.rung)))
+      && (!f.sector || x.sectors.includes("Any") || x.sectors.includes(f.sector))
+      && (!f.region || x.regions.includes("Any") || x.regions.includes(f.region)))
+      .sort((a, b) => a.deadline.localeCompare(b.deadline));
+    const inPipeline = (x) => ws.funding.items.some((i) => i.name === x.name);
+    const select = (name, label, options, value) => `<label class="field prog-filter"><span>${label}</span><select class="select" data-prog-filter="${name}">${options.map(([v, t]) => `<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>`;
+    const filtered = f.rung !== "" || f.sector || f.region;
+    view.innerHTML = `
+      <p class="meta tool-lead">Grants, incubators and competitions for Indonesian founders, filtered by your rung, sector and region. Add one to Funding opportunities to track your application.</p>
+      ${PLAN_NOTE("Builder")}
+      <div class="prog-filters">
+        ${select("rung", "Rung", [["", "Any rung"]].concat(D.ladder.map((r) => [String(r.rung), `Rung ${r.rung} · ${r.stage}${r.rung === p.rung ? " (yours)" : ""}`])), f.rung)}
+        ${select("sector", "Sector", [["", "Any sector"]].concat(sectors.map((x) => [x, x])), f.sector)}
+        ${select("region", "Region", [["", "Any region"]].concat(regions.map((x) => [x, x])), f.region)}
+        <p class="meta prog-count" aria-live="polite"><b>${hits.length}</b> of ${all.length} programmes match${filtered ? ` · <button class="link-btn" type="button" data-prog-clear>Clear filters</button>` : ""}</p>
+      </div>
+      ${hits.length ? `<div class="tool-grid prog-grid">${hits.map((x) => {
+        const due = K.dueInfo(x.deadline, false);
+        const kind = D.programKinds[x.kind] || { label: x.kind };
+        const rr = x.rungs.length > 1 ? `Rungs ${x.rungs[0]}–${x.rungs[x.rungs.length - 1]}` : `Rung ${x.rungs[0]}`;
+        return `<section class="pl-card tool-card prog-card">
+          <div class="prog-top"><span class="chip chip--gray">${esc(kind.label)}</span>${due ? `<span class="task-due ${due.cls}">${icon("clock")}Deadline ${esc(due.text.replace(/^Due /, ""))}</span>` : ""}</div>
+          <h3 class="prog-name">${esc(x.name)}${x.sample ? Mori.ui.sampleTag("A made-up programme for the demo") : ""}</h3>
+          <p class="meta">${esc(x.blurb)}</p>
+          <p class="prog-facts"><span>${icon("coins")} ${x.amount ? esc(rupiah(x.amount)) : "Support, no money"}</span><span>${icon("ladder")} ${rr}</span><span>${icon("layers")} ${esc(x.sectors.join(", "))}</span><span>${icon("pin")} ${esc(x.regions.join(", "))}</span></p>
+          ${inPipeline(x) ? `<span class="chip prog-in">${icon("check")} In Funding opportunities</span>` : `<button class="btn btn--sm" type="button" data-prog-add="${esc(x.id)}">${icon("plus")} Add to Funding opportunities</button>`}
+        </section>`;
+      }).join("")}</div>`
+      : card("", `<div class="empty tool-empty"><span class="empty-ico">${icon("search")}</span><div>No programmes match these filters</div><div class="meta">Try another rung, or any sector or region.</div><button class="btn btn--sm" type="button" data-prog-clear>Clear filters</button></div>`)}`;
   }
 
   /* =====================================================================
@@ -442,7 +577,7 @@
      Drawing and events
      ===================================================================== */
   const RENDER = {
-    tasks: renderTasks, gtm: renderGtm, ladder: renderLadder, people: renderPeople, interviews: renderInterviews,
+    tasks: renderTasks, gtm: renderGtm, ladder: renderLadder, launch: renderLaunch, compliance: renderCompliance, programs: renderPrograms, people: renderPeople, interviews: renderInterviews,
     canvas: renderCanvas, marketing: renderMarketing, metrics: renderMetrics, finance: renderFinance, funding: renderFunding, toolkits: renderToolkits,
   };
   function render(id, view, ctx) {
@@ -468,7 +603,7 @@
         S.addTask(ctx.pid, text, { status: st, done: st === "done" }).saved.catch((err) => { failed(err); if (!form.elements.text.value) form.elements.text.value = text; });
         return;
       }
-      if (!form.matches("[data-gtm-add], [data-role-add], [data-int-add], [data-camp-add], [data-metric-add], [data-metric-log], [data-fin-add], [data-fin-setup], [data-fund-add]")) return;
+      if (!form.matches("[data-comp-add], [data-gtm-add], [data-role-add], [data-int-add], [data-camp-add], [data-metric-add], [data-metric-log], [data-fin-add], [data-fin-setup], [data-fund-add]")) return;
       e.preventDefault();
       // Something was added: clear the form (before the section re-draws) and,
       // if the cursor was in it, keep it there for the next one.
@@ -517,8 +652,12 @@
         const start = Math.max(0, Number(d.start) || 0);
         change("finance", (x) => Object.assign(x, { currency, start }));
         toast("Finance settings saved", { icon: "check" });
+      } else if (form.matches("[data-comp-add]")) {
+        const item = { id: uid("cm"), name: (d.name || "").trim().slice(0, 100), every: D.complianceRepeats[d.every] ? d.every : "once", due: /^\d{4}-\d{2}-\d{2}$/.test(d.due || "") ? d.due : "", done: false, note: (d.note || "").trim().slice(0, 140) };
+        if (!item.name || !item.due) return;
+        added("compliance", (x) => { x.items = x.items.concat([item]); return x; });
       } else if (form.matches("[data-fund-add]")) {
-        const link = /^https?:\/\//i.test(d.link || "") ? d.link.trim().slice(0, 300) : "";
+        const link = Mori.ui.safeUrl((d.link || "").trim().replace(/^http:\/\//i, "https://")).slice(0, 300);
         const item = { id: uid("u"), name: (d.name || "").trim().slice(0, 80), kind: d.kind, amount: Math.max(0, Number(d.amount) || 0), deadline: d.deadline || "", status: "researching", link, note: "" };
         if (!item.name) return;
         added("funding", (x) => { x.items = x.items.concat([item]); return x; });
@@ -531,6 +670,34 @@
       if (t.matches("[data-task-done]")) { S.toggleTask(ctx.pid, t.dataset.taskDone).saved.catch(failed); return; }
       if (t.matches('[data-fin-add] [name="kind"]')) { t.form.elements.category.innerHTML = P.financeCategories[t.value === "in" ? "in" : "out"].map((x) => `<option>${esc(x)}</option>`).join(""); return; }
       if (t.matches("[data-gtm]")) { const key = t.dataset.gtm; const on = t.checked; change("gtm", (g) => { if (on) g.done[key] = true; else delete g.done[key]; return g; }); return; }
+      if (t.matches("[data-comp-done]")) {
+        const id = t.dataset.compDone;
+        const x = ctx.ws.compliance.items.find((i) => i.id === id);
+        if (!x) return;
+        const next = x.every === "once" ? null : addPeriod(x.due || W.isoDay(new Date()), x.every);
+        change("compliance", (c) => { c.items = c.items.map((i) => (i.id !== id ? i : next ? Object.assign({}, i, { due: next, last: W.isoDay(new Date()) }) : Object.assign({}, i, { done: true, last: W.isoDay(new Date()) }))); return c; })
+          .then(() => toast(next ? `Done. Next one: ${dayLabel(next)}` : "Done", { icon: "check" }));
+        return;
+      }
+      if (t.matches("[data-prog-filter]")) {
+        const c = getCtx();
+        navFilters[c.pid] = Object.assign({}, navFilters[c.pid], { [t.dataset.progFilter]: t.value });
+        render("programs", view, c);
+        const again = $(`[data-prog-filter="${t.dataset.progFilter}"]`, view);
+        if (again) again.focus();
+        return;
+      }
+      if (t.matches("[data-launch]")) {
+        const key = t.dataset.launch;
+        const on = t.checked;
+        const st = D.launchPath.stages.find((x) => key.startsWith(x.id + "."));
+        if (!st || !W.launchOpen(st)) { t.checked = !on; return; }
+        change("launch", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }).then(() => {
+          const now = W.launch(W.get(ctx.pid)).stages.find((x) => x.id === st.id);
+          if (on && now && now.complete) toast(`Stage done: ${st.title}`, { icon: "award" });
+        });
+        return;
+      }
       if (t.matches("[data-step]")) { const key = t.dataset.step; const on = t.checked; change("ladder", (l) => { if (on) l.done[key] = true; else delete l.done[key]; return l; }); return; }
       if (t.matches("[data-pl-rung]")) { const r = Number(t.value); S.updateProject(ctx.pid, { rung: r }).saved.then(() => toast(`Now on rung ${r} · ${D.ladder[r].stage}`, { icon: "ladder" }), failed); return; }
       if (t.matches("[data-role-fill]")) { const id = t.dataset.roleFill; const on = t.checked; change("roles", (r) => r.map((x) => (x.id === id ? Object.assign({}, x, { filled: on }) : x))); return; }
@@ -571,13 +738,23 @@
         Mori.people.busy(up, () => S.updateProject(ctx.pid, { rung: r }).saved, () => { K.burst(up); toast(`Rung ${r} reached: ${D.ladder[r].stage}!`, { icon: "award" }); });
         return;
       }
+      const clear = e.target.closest("[data-prog-clear]");
+      if (clear) { navFilters[ctx.pid] = { rung: "", sector: "", region: "" }; render("programs", view, ctx); return; }
+      const prog = e.target.closest("[data-prog-add]");
+      if (prog) {
+        const x = (Mori.sample ? Mori.sample.programs : []).find((i) => i.id === prog.dataset.progAdd);
+        if (!x) return;
+        const item = { id: uid("u"), name: x.name, kind: (D.programKinds[x.kind] || {}).funding || "other", amount: x.amount || 0, deadline: x.deadline, status: "researching", link: "", note: "From the program navigator" };
+        change("funding", (f) => { f.items = f.items.concat([item]); return f; }).then(() => toast(`Added to Funding opportunities: ${x.name}`, { icon: "coins" }));
+        return;
+      }
       const tpl = e.target.closest("[data-template]");
       if (tpl) {
         const t = P.templates.find((x) => x.id === tpl.dataset.template);
         Mori.people.busy(tpl, () => W.docs.create(ctx.pid, { title: t.name, body: t.body }), (d) => ctx.go("docs/" + d.id));
         return;
       }
-      const x = e.target.closest("[data-gtm-x], [data-role-x], [data-int-x], [data-camp-x], [data-metric-x], [data-fin-x], [data-fund-x]");
+      const x = e.target.closest("[data-gtm-x], [data-role-x], [data-int-x], [data-camp-x], [data-metric-x], [data-fin-x], [data-fund-x], [data-comp-x]");
       if (!x || !Mori.people.confirmTap(x, "Tap again")) return;
       const d = x.dataset;
       if (d.gtmX) change("gtm", (g) => { g.custom = g.custom.filter((c) => c.id !== d.gtmX); delete g.done[d.gtmX]; return g; });
@@ -587,6 +764,7 @@
       else if (d.metricX) change("metrics", (m) => { m.items = m.items.filter((c) => c.id !== d.metricX); return m; });
       else if (d.finX) change("finance", (f) => { f.entries = f.entries.filter((c) => c.id !== d.finX); return f; });
       else if (d.fundX) change("funding", (f) => { f.items = f.items.filter((c) => c.id !== d.fundX); return f; });
+      else if (d.compX) change("compliance", (c) => { c.items = c.items.filter((i) => i.id !== d.compX); return c; });
     });
 
     /* Task board drag and drop */

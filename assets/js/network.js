@@ -19,7 +19,7 @@
   if (Mori.redirecting) return;
 
   const { $, $$, esc, icon, avatar, ago, toast, roleChip } = Mori.ui;
-  const { busy, fail } = Mori.people;
+  const { fail } = Mori.people;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
@@ -46,7 +46,9 @@
   const manageItems = $$(".manage-item[data-tab]");
   let activeTab = null; // the pane on screen: explore · sent · messages
 
+  const TAB_TITLES = { explore: "Discover", requests: "Requests", sent: "Sent requests", messages: "Messages" };
   function showTab(tab) {
+    document.title = `SandBox • MORI Network · ${TAB_TITLES[tab] || "Discover"}`;
     const pane = tab === "requests" ? "explore" : tab; // requests sit on top of Discover
     manageItems.forEach((t) => {
       const on = t.dataset.tab === tab;
@@ -80,16 +82,18 @@
     else if (activeTab === "messages") { renderChatList(); renderThread(); }
   }
 
+  /* A profile's address is #member/<id> (#explore/<id> still works): it opens over Discover. */
   function parseHash() {
     const [tab, sub] = decodeURIComponent(location.hash.replace(/^#/, "")).split("/");
+    if (tab === "member") return { tab: "explore", sub: sub || null };
     return { tab: TABS.includes(tab) ? tab : "explore", sub: sub || null };
   }
   function route() {
     const { tab, sub } = parseHash();
     showTab(tab);
     if (tab === "explore" && sub) {
-      Mori.people.openMember(sub, { onClose: () => { if (/^#explore\//.test(location.hash)) history.replaceState(null, "", "#explore"); } })
-        .then((ok) => { if (!ok) history.replaceState(null, "", "#explore"); });
+      const back = () => { if (/^#(explore|member)\//.test(location.hash)) history.replaceState(null, "", "#explore"); };
+      Mori.people.openMember(sub, { fromLink: true, onClose: back });
     }
     if (tab !== "messages") return;
     if (sub) openChat(sub);
@@ -242,19 +246,31 @@
   indPanel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showIndustries(false); indToggle.focus(); } });
   document.addEventListener("click", (e) => { if (!indPanel.hidden && !indFilter.contains(e.target)) showIndustries(false); });
 
+  /** Every filter that's on, as a chip you can remove, and one reset for them all. */
   function renderActiveFilters() {
     const box = $("#activeFilters");
-    const pills = Array.from(filters.industries).map((x) =>
-      `<span class="fpill">${esc(x)}<button type="button" data-drop-industry="${esc(x)}" aria-label="Remove ${esc(x)}">${icon("x")}</button></span>`).join("");
-    box.innerHTML = pills + (filtersOn() ? `<button class="link-btn" type="button" data-clear-filters>Clear all filters</button>` : "");
-    box.hidden = !filtersOn();
+    const chosen = (sel) => (sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : "");
+    const chips = [];
+    if (filters.q) chips.push(["q", `Search: “${filters.q}”`]);
+    if (filters.role !== "all") chips.push(["role", chosen(roleSel)]);
+    if (filters.exp) chips.push(["exp", `${chosen(expSel)} experience`]);
+    if (filters.region) chips.push(["region", chosen(regionSel)]);
+    if (filters.rating) chips.push(["rating", `${chosen(ratingSel)} verified sprints`]);
+    Array.from(filters.industries).forEach((x) => chips.push(["industry:" + x, x]));
+    box.innerHTML = chips.map(([k, label]) => `<span class="fpill">${esc(label)}<button type="button" data-drop-filter="${esc(k)}" aria-label="Remove filter: ${esc(label)}">${icon("x")}</button></span>`).join("")
+      + (chips.length ? `<button class="link-btn" type="button" data-clear-filters>Reset filters</button>` : "");
+    box.hidden = !chips.length;
   }
   $("#activeFilters").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-drop-industry]");
+    const b = e.target.closest("[data-drop-filter]");
     if (!b) return;
-    filters.industries.delete(b.dataset.dropIndustry);
-    setIndustryToggle();
+    const k = b.dataset.dropFilter;
+    if (k.startsWith("industry:")) { filters.industries.delete(k.slice(9)); setIndustryToggle(); }
+    else Object.assign(filters, { q: { q: "" }, role: { role: "all" }, exp: { exp: "" }, region: { region: "" }, rating: { rating: 0 } }[k]);
+    syncControls();
     renderPeople();
+    const next = $("[data-drop-filter], [data-clear-filters]", $("#activeFilters")) || peopleQ; // keep the keyboard in the same place
+    next.focus();
   });
 
   /* ---------- Explore: member cards ---------- */
@@ -282,7 +298,7 @@
       <article class="pcard person spotlight" data-person="${esc(m.id)}">
         <button class="person-top" type="button" data-view="${esc(m.id)}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar(m, 52, { ring: m.open })}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${where || (m.joinedAt ? `Joined ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : roleLabel(m.role))}</span></span>
         </button>
         <div class="chips">${roleChip(m.role, m.specialty)}${connected ? `<span class="chip chip--emerald">${icon("check")} Connected</span>` : open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         ${m.headline ? `<p class="person-head">${esc(m.headline)}</p>` : ""}
@@ -304,7 +320,7 @@
       <article class="pcard person is-invisible" data-person="${id}">
         <button class="person-top" type="button" data-view="${id}" aria-label="View ${esc(m.name)}’s profile">
           ${avatar({ id: m.id, name: m.name }, 52)}
-          <span class="person-id"><b class="person-name">${esc(m.name)}</b><span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
+          <span class="person-id"><b class="person-name">${esc(m.name)}</b>${m.sample ? Mori.ui.sampleTag() : ""}<span class="meta">${m.joinedAt ? `Joined SandBox ${esc(new Date(m.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }))}` : "SandBox member"}</span></span>
         </button>
         <p class="person-note">${icon("shield")}Invisible on the MORI Network. You can’t connect with them.</p>
         <div class="pcard-actions">
@@ -359,6 +375,8 @@
     const found = q ? N.found().filter((m) => normName(m.name) === q && !pool.some((p) => p.id === m.id)) : [];
     const list = found.concat(pool.filter(matches).sort(newestFirst));
     grid.innerHTML = list.map(personCard).join("");
+    // A result count while filtering, announced as it changes; Discover shows no member count otherwise.
+    $("#peopleCount").textContent = pool.length && filtersOn() ? `${list.length} ${list.length === 1 ? "person matches" : "people match"}` : "";
     const ids = list.map((m) => m.id).join(",");
     if (ids !== shownIds) Mori.motion.enter(grid);
     shownIds = ids;
@@ -443,7 +461,7 @@
     const incoming = N.incoming();
     title.textContent = incoming.length ? `Requests (${incoming.length})` : "Requests";
     const shown = showAllRequests ? incoming : incoming.slice(0, REQUESTS_SHOWN);
-    recv.innerHTML = incoming.length ? shown.map(receivedRow).join("") : `<p class="meta req-none">No requests waiting. When founders or specialists want to connect, they’ll show up here.</p>`;
+    recv.innerHTML = incoming.length ? shown.map(receivedRow).join("") : `<p class="meta req-none">No requests waiting. When founders or specialists want to connect, they’ll show up here. <a class="link-btn" href="#explore">Discover members</a></p>`;
     if (incoming.length > REQUESTS_SHOWN) { more.hidden = false; more.textContent = showAllRequests ? "Show less" : `Show all ${incoming.length}`; }
     const ids = shown.map((x) => x.link.id).join(",");
     if (ids !== shownRequests) Mori.motion.enter(recv);
@@ -474,7 +492,7 @@
     void row.offsetWidth;
     row.classList.add("is-leaving");
     $$("button", row).forEach((b) => { b.disabled = true; });
-    const wait = new Promise((r) => setTimeout(r, Mori.motion.reduced() ? 0 : 430));
+    const wait = new Promise((r) => setTimeout(r, Mori.motion.reduced() ? 0 : 210)); // the row's leave transition (network.css)
     Promise.allSettled([Promise.resolve().then(work), wait]).then(([res]) => {
       holdRequests--;
       renderTab();
@@ -538,12 +556,12 @@
     };
     $("#chatList").innerHTML = list.length
       ? list.map((t) => `
-          <button class="chat-item ${t.id === activeChat ? "is-on" : ""} ${t.unread ? "is-unread" : ""}" type="button" role="listitem" data-chat="${esc(t.id)}">
+          <li><button class="chat-item ${t.id === activeChat ? "is-on" : ""} ${t.unread ? "is-unread" : ""}" type="button" data-chat="${esc(t.id)}">
             ${avatar(t.person, 42, { ring: t.person.open })}
             <span class="chat-copy"><b>${esc(t.person.name)}</b><span class="preview">${preview(t)}</span></span>
-            <span class="chat-meta">${t.last ? esc(shortAgo(t.at)) : "New"}${t.unread ? `<span class="unread-dot" aria-label="${t.unread} unread"></span>` : ""}</span>
-          </button>`).join("")
-      : `<div class="chat-none meta">${loadState === "off" ? "Sign in with Google to message members." : all.length ? "No conversations match." : "Your connections appear here once a request is accepted."}</div>`;
+            <span class="chat-meta">${t.last ? esc(shortAgo(t.at)) : "New"}${t.unread ? `<span class="unread-dot"><span class="sr-only">${t.unread} unread</span></span>` : ""}</span>
+          </button></li>`).join("")
+      : `<li class="chat-none meta">${loadState === "off" ? "Sign in with Google to message members." : all.length ? "No conversations match." : "Your connections appear here once a request is accepted."}</li>`;
   }
 
   function chatIntro() {
@@ -646,7 +664,7 @@
     input.value = "";
     C.send(activeChat, text).catch((err) => {
       if (err && err.code === "signed-out") fail(err);
-      else toast(N.status(activeChat) === "connected" ? "Your message wasn’t sent. Try again." : "You’re no longer connected, so the message wasn’t sent.", { icon: "x", duration: 3600 });
+      else Mori.ui.problem(N.status(activeChat) === "connected" ? "Your message wasn’t sent. Try again." : "You’re no longer connected, so the message wasn’t sent.");
     });
     scrollChat(true);
   }
@@ -665,7 +683,7 @@
       return;
     }
     const retry = e.target.closest("[data-retry-msg]");
-    if (retry) { C.retry(retry.dataset.retryMsg).catch(() => toast("Still couldn’t send it. Check your connection.", { icon: "x" })); return; }
+    if (retry) { C.retry(retry.dataset.retryMsg).catch(() => Mori.ui.problem("Still couldn’t send it. Check your connection.")); return; }
     const discard = e.target.closest("[data-discard-msg]");
     if (discard) C.discard(discard.dataset.discardMsg);
   });
@@ -708,7 +726,7 @@
         loadError = err;
         loadState = N.members().length ? "ready" : "error";
         renderTab();
-        if (loadState === "ready") toast("Couldn’t refresh the network. Showing what was loaded before.", { icon: "x" });
+        if (loadState === "ready") Mori.ui.problem("Couldn’t refresh the network. Showing what was loaded before.");
       }
     );
     C.refresh({ force }).catch(() => {});

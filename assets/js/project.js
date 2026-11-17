@@ -119,7 +119,7 @@
         </div>
       </div></div>`;
     document.title = "SandBox • Project planner";
-    if (wasOpen) toast("You’re no longer on that project", { icon: "x" });
+    if (wasOpen) Mori.ui.problem("You’re no longer on that project");
   }
 
   /* ---------- Drawing ---------- */
@@ -153,7 +153,7 @@
     const created = new Date(p.createdAt || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     $("#plHead").innerHTML = `
       <div class="pl-head-main">
-        <div class="chips">${K.tagChips(p.tags)}</div>
+        <div class="chips">${K.tagChips(p.tags)}${p.sample ? Mori.ui.sampleTag("A sample project for the demo: change anything you like") : ""}</div>
         <h1 class="title pl-title" id="plTitle">${esc(p.name)}</h1>
         <p class="pl-section-label" id="plSection">${esc(T.label(section()))}</p>
         <p class="meta">Updated ${esc(humanizeDays(p.updated_days).toLowerCase())} · Created on ${esc(created)}</p>
@@ -319,9 +319,9 @@
       const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navH")) || 64;
       if (view.getBoundingClientRect().top < navH) window.scrollTo({ top: 0, behavior: "instant" });
       if (!Mori.motion.reduced()) {
-        view.animate([{ opacity: 0, translate: "0 10px" }, { opacity: 1, translate: "0 0" }], { duration: 240, easing: "cubic-bezier(.16,1,.3,1)" });
+        view.animate([{ opacity: 0, translate: "0 10px" }, { opacity: 1, translate: "0 0" }], { duration: 180, easing: "cubic-bezier(.16,1,.3,1)" });
         const label = $("#plSection");
-        if (label) label.animate([{ opacity: 0, translate: "0 3px" }, { opacity: 1, translate: "0 0" }], { duration: 220, easing: "cubic-bezier(.16,1,.3,1)" });
+        if (label) label.animate([{ opacity: 0, translate: "0 3px" }, { opacity: 1, translate: "0 0" }], { duration: 160, easing: "cubic-bezier(.16,1,.3,1)" });
       }
       const say = $("#plAnnounce");
       if (say) say.textContent = `${T.label(shown)} page`;
@@ -399,7 +399,7 @@
     K.bindTagField(form, chosen);
     const save = () => {
       const name = form.elements.name.value.trim();
-      if (!name) { form.elements.name.classList.remove("is-invalid"); void form.elements.name.offsetWidth; form.elements.name.classList.add("is-invalid"); form.elements.name.focus(); return; }
+      if (!name) { const f = form.elements.name; Mori.ui.fieldError(f, "Give your project a name.", () => (f.value.trim() ? "" : "Give your project a name.")); f.focus(); return; }
       const { saved } = S.updateProject(pid, { name, focus: form.elements.focus.value, tags: chosen.size ? Array.from(chosen) : ["Idea"] });
       Mori.modal.close();
       saved.then(() => toast("Project details saved", { icon: "check" }), failed);
@@ -447,14 +447,17 @@
   let justCreated = null;
   try { justCreated = JSON.parse(sessionStorage.getItem("mori.created") || "null"); sessionStorage.removeItem("mori.created"); } catch (e) { /* private mode */ }
   if (justCreated && justCreated.id !== pid) justCreated = null;
-  if (justCreated && justCreated.note) toast(justCreated.note.text, { icon: justCreated.note.icon || "check", duration: justCreated.note.duration || 3200 });
+  if (justCreated && justCreated.note) {
+    if (justCreated.note.icon === "x") Mori.ui.problem(justCreated.note.text); // created, but something about it failed
+    else toast(justCreated.note.text, { icon: justCreated.note.icon || "check", duration: justCreated.note.duration || 3200 });
+  }
 
   renderAll();
   const ready = N.available()
     ? Promise.all([
         S.refreshProjects().catch((err) => { // shares the load the shell started
           if (err && err.code === "signed-out") Mori.people.signInAgain(err.message);
-          else if (!project()) toast("Couldn’t load this project: " + err.message, { icon: "x" });
+          else if (!project()) Mori.ui.problem("Couldn’t load this project: " + err.message);
         }),
         W.load(pid).catch(() => {}),
         W.docs.refresh(pid).catch(() => {}),

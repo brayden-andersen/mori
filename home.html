@@ -2,29 +2,32 @@
 <html lang="en" data-auth="required">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SandBox • Home</title>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
   <link rel="icon" href="assets/img/mori-icon-32.png?v=7" type="image/png" sizes="32x32" />
   <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
   <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/mori.css?v=11" />
-  <link rel="stylesheet" href="assets/css/home.css?v=11" />
-  <link rel="stylesheet" href="assets/css/tour.css?v=11" />
-  <link rel="stylesheet" href="assets/css/dark.css?v=11" />
-  <script src="assets/js/config.js?v=11"></script>
-  <script src="assets/js/auth.js?v=11"></script>
-  <script defer src="assets/js/data.js?v=11"></script>
-  <script defer src="assets/js/state.js?v=11"></script>
-  <script defer src="assets/js/ui.js?v=11"></script>
-  <script defer src="assets/js/motion.js?v=11"></script>
-  <script defer src="assets/js/db.js?v=11"></script>
-  <script defer src="assets/js/workspace.js?v=11"></script>
-  <script defer src="assets/js/shell.js?v=11"></script>
-  <script defer src="assets/js/people.js?v=11"></script>
-  <script defer src="assets/js/home.js?v=11"></script>
-  <script defer src="assets/js/tour.js?v=11"></script>
+  <link rel="stylesheet" href="assets/css/mori.css?v=15" />
+  <link rel="stylesheet" href="assets/css/home.css?v=15" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=15" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=15" />
+  <script src="assets/js/config.js?v=15"></script>
+  <script src="assets/js/auth.js?v=15"></script>
+  <script defer src="assets/js/data.js?v=15"></script>
+  <script defer src="assets/js/state.js?v=15"></script>
+  <script defer src="assets/js/ui.js?v=15"></script>
+  <script defer src="assets/js/motion.js?v=15"></script>
+  <script defer src="assets/js/db.js?v=15"></script>
+  <script defer src="assets/js/sample.js?v=15"></script>
+  <script defer src="assets/js/guestdb.js?v=15"></script>
+  <script defer src="assets/js/workspace.js?v=15"></script>
+  <script defer src="assets/js/shell.js?v=15"></script>
+  <script defer src="assets/js/people.js?v=15"></script>
+  <script defer src="assets/js/home.js?v=15"></script>
+  <script defer src="assets/js/tour.js?v=15"></script>
 </head>
 <body data-page="home">
   <div class="aura" aria-hidden="true"></div>
@@ -33,43 +36,14 @@
   <div data-shell="nav"></div>
 
   <main class="wrap wrap--home">
-    <section class="hero" role="banner">
+    <section class="hero" aria-labelledby="hello">
       <h1 class="hello" id="hello">Welcome back, <span id="username">Founder</span></h1>
-      <p class="prompt" id="prompt" data-reveal="fade" style="--reveal-delay:420ms">Where would you like to go?</p>
-
-      <div class="sections" aria-label="Primary actions" data-stagger="120">
-        <a href="projects.html" class="card spotlight tilt" data-tilt="4" id="toProjects">
-          <h2>Projects</h2>
-          <p>Your projects, their launch paths and milestones.</p>
-        </a>
-        <a href="network.html" class="card spotlight tilt" data-tilt="4" id="toNetworking">
-          <h2>MORI Network</h2>
-          <p>Find founders and specialists, and connect with them.</p>
-        </a>
-      </div>
+      <p class="prompt" id="prompt">&nbsp;</p>
     </section>
 
-    <!-- Pinned projects: one half-width tile with separator + circular progress -->
-    <section class="panel" aria-labelledby="pinnedTitle" id="pinnedPanel" data-reveal>
-      <div class="panel-head">
-        <h3 id="pinnedTitle">Pinned projects</h3>
-        <a class="panel-link" href="projects.html">All projects <span class="go"><i data-icon="arrowRight"></i></span></a>
-      </div>
-      <div class="pins" id="pins"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="msgsTitle" data-reveal>
-      <div class="panel-head">
-        <h3 id="msgsTitle">Recent messages</h3>
-        <a class="panel-link" href="network.html#messages">Open messages <span class="go"><i data-icon="arrowRight"></i></span></a>
-      </div>
-      <div class="pins" id="msgs"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="insightsTitle" data-reveal>
-      <h3 id="insightsTitle">Insights</h3>
-      <div class="insights-soon" id="insights"><span class="insights-soon-ico" data-icon="bulb" aria-hidden="true"></span><p>Insights are coming soon</p></div>
-    </section>
+    <!-- A fixed grid of panels (home.js): your projects beside Today; what needs
+         your attention, the launch path and sprints; people to meet beside your profile. -->
+    <div class="home-grid" id="homeGrid"></div>
   </main>
 
   <div data-shell="footer"></div>

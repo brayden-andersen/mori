@@ -19,16 +19,27 @@
   const editing = new URLSearchParams(location.search).has("edit");
   const session = S.session();
   const saved = S.profile();
-  const ALL_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["experience", "Experience"], ["industries", "Industries"], ["cv", "CV"], ["languages", "Languages"]];
+  // Signing up asks only what the first useful action needs; the rest is
+  // "Complete your profile" (Profile → Update, or onboarding.html?edit=1), which
+  // shows every step. Only the name and the role can't be skipped.
+  const SHORT_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["industries", "Industry"], ["situation", "First step"]];
+  const FULL_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["industries", "Industry"], ["details", "Details"], ["cv", "CV"], ["languages", "Languages"]];
+  // A member with a name and a role but no completed sign-up (rare): the full set, answers filled in.
+  const updating = !editing && !!(saved.firstName && saved.role);
   /** The steps for this member: specialists also say what they do. */
-  const steps = () => ALL_STEPS.filter(([k]) => k !== "specialty" || a.role === "specialist");
-  // Members who signed up before the current questions are asked to fill the gaps.
-  const updating = !editing && !!(saved.firstName && saved.region && saved.role);
+  const steps = () => (editing || updating ? FULL_STEPS : SHORT_STEPS).filter(([k]) => k !== "specialty" || a.role === "specialist");
+  const REQUIRED = new Set(["about", "role"]); // every other step has a Skip
+  /** Where the member is right now: picks the first action and the homepage's "Start here". */
+  const SITUATIONS = [
+    { id: "idea", label: "I have an idea and need a team", blurb: "Declare the project and get its launch path.", icon: "bulb", c1: "#afafaf", c2: "#9d9d9d", go: "projects.html?new=1" },
+    { id: "skills", label: "I have skills and want to join something", blurb: "Discover founders, and the sprints starting soon.", icon: "code", c1: "#acacac", c2: "#8b8b8b", go: "network.html#explore" },
+    { id: "prototype", label: "I have a prototype and need to make it real", blurb: "Start on the launch path: structure, registration, licences.", icon: "rocket", c1: "#bbbbbb", c2: "#a3a3a3", go: "projects.html?new=1&rung=2" },
+  ];
   const MAX_INDUSTRIES = 3;
   const MAX_LANGUAGES = 6;
   const MAX_CV_BYTES = 10 * 1024 * 1024;
   const DRAFT_KEY = Mori.store.userKey("onboardingDraft");
-  const ROLE_TONES = { founder: ["#ec9e5f", "#e78440"], specialist: ["#7cafee", "#7e80e7"] };
+  const ROLE_TONES = { founder: ["#afafaf", "#9d9d9d"], specialist: ["#acacac", "#8b8b8b"] };
 
   /* ---------- Answers: draft > saved profile > Google name > role picked on the landing page ---------- */
   let joinRole = null;
@@ -46,6 +57,7 @@
     industries: (saved.industries || []).slice(0, MAX_INDUSTRIES),
     linkedin: saved.linkedin || "",
     languages: saved.languages && saved.languages.length ? saved.languages.map((l) => ({ ...l })) : [{ name: "Bahasa Indonesia", level: "" }],
+    situation: S.settings().situation || "",
   }, editing ? {} : Mori.store.read(DRAFT_KEY, null) || Mori.store.read(Mori.auth.PENDING_DRAFT_KEY, {}));
   let file = null;
   let removeCv = false;
@@ -58,23 +70,24 @@
     `<option value="" disabled ${a.region ? "" : "selected"}>Choose your region</option>` +
     D.regions.map((g) => `<optgroup label="${esc(g.group)}">${g.items.map((r) => `<option ${r === a.region ? "selected" : ""}>${esc(r)}</option>`).join("")}</optgroup>`).join("");
 
-  // Born at least 16 years ago, at most 80.
+  // Born at least 18 years ago (the database refuses anyone younger), at most 100.
   const today = new Date();
   const isoDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const MAX_BIRTH = isoDay(new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()));
-  const MIN_BIRTH = isoDay(new Date(today.getFullYear() - 81, today.getMonth(), today.getDate() + 1));
+  const MAX_BIRTH = isoDay(new Date(today.getFullYear() - S.MIN_AGE, today.getMonth(), today.getDate()));
+  const MIN_BIRTH = isoDay(new Date(today.getFullYear() - 101, today.getMonth(), today.getDate() + 1));
   const isSpecialty = (v) => D.specialties.includes(v);
 
   const STEP_HTML = {
     about: () => `
       <h1 class="grad-ink" tabindex="-1">${editing ? "Your details" : updating ? "A few new questions" : "Welcome! Tell us about you"}</h1>
-      <p class="ob-lead">${updating ? "We now ask for your date of birth instead of your age" + (a.role === "specialist" && !a.specialty ? ", and what you do as a specialist" : "") + ". Your other answers are filled in: check them and continue." : "This is how founders and specialists will see you on Sandbox."}</p>
+      <p class="ob-lead">${updating ? "Your answers are filled in: check them and continue." : editing ? "This is how founders and specialists see you on Sandbox." : "Your name, your date of birth and where you are. Everything else can wait."}</p>
       <div class="ob-grid">
         <label class="field"><span>First name</span><input class="input" name="firstName" value="${esc(a.firstName)}" maxlength="40" autocomplete="given-name"></label>
         <label class="field"><span>Last name <em class="hint">optional</em></span><input class="input" name="lastName" value="${esc(a.lastName)}" maxlength="40" autocomplete="family-name"></label>
-        <label class="field"><span>Date of birth <em class="hint">private · we’ll wish you a happy birthday</em></span><input class="input" name="birthDate" type="date" min="${MIN_BIRTH}" max="${MAX_BIRTH}" value="${esc(a.birthDate)}" autocomplete="bday"></label>
-        <label class="field"><span>Region</span><select class="select" name="region">${regionOptions()}</select></label>
-      </div>`,
+        <label class="field"><span>Date of birth <em class="hint">private · you must be 18 or older</em></span><input class="input" name="birthDate" type="date" min="${MIN_BIRTH}" max="${MAX_BIRTH}" value="${esc(a.birthDate)}" autocomplete="bday" required aria-describedby="obBirthNote"></label>
+        <label class="field"><span>Region <em class="hint">optional</em></span><select class="select" name="region">${regionOptions()}</select></label>
+      </div>
+      <p class="meta ob-birth-note" id="obBirthNote">SandBox is for people aged 18 and over. Only you see your date of birth; your age shows on your profile only if you choose.</p>`,
     role: () => `
       <h1 class="grad-ink" tabindex="-1">You’re joining as…</h1>
       <p class="ob-lead">Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application. <a class="link-btn" href="partners.html">How partners join</a></p>
@@ -85,6 +98,7 @@
             <span class="ob-option-ico">${icon(r.icon)}</span>
             <b>${r.label}</b>
             <span class="meta">${esc(r.blurb)}</span>
+            <span class="ob-role-what">${esc(r.what)}</span>
             <span class="ob-tick" aria-hidden="true">${icon("check")}</span>
           </label>`).join("")}
       </div>`,
@@ -96,16 +110,29 @@
         <label class="fchip ob-chip" data-active="${!!a.specialty && !isSpecialty(a.specialty)}"><input type="radio" name="specialtyPick" value="other" ${a.specialty && !isSpecialty(a.specialty) ? "checked" : ""}>Other</label>
       </div>
       <label class="field ob-other" ${a.specialty && !isSpecialty(a.specialty) ? "" : "hidden"}><span>Your role</span><input class="input" name="specialtyOther" maxlength="60" placeholder="e.g. Supply chain analyst" value="${esc(a.specialty && !isSpecialty(a.specialty) ? a.specialty : "")}"></label>`,
-    experience: () => `
-      <h1 class="grad-ink" tabindex="-1">Your experience</h1>
-      <p class="ob-lead">Helps founders and specialists find the right match.</p>
+    details: () => `
+      <h1 class="grad-ink" tabindex="-1">A little more about you</h1>
+      <p class="ob-lead">All optional. Your experience helps founders and specialists find the right match.</p>
       <span class="ob-label" id="expLabel">Years of experience</span>
       <div class="ob-choices" role="radiogroup" aria-labelledby="expLabel">${choices("experience", D.experience)}</div>
       <span class="ob-label" id="empLabel">Status of employment</span>
       <div class="ob-choices" role="radiogroup" aria-labelledby="empLabel">${choices("employment", D.employment)}</div>`,
+    situation: () => `
+      <h1 class="grad-ink" tabindex="-1">Where are you right now?</h1>
+      <p class="ob-lead">We’ll open Sandbox on the page that fits. You can go anywhere from there.</p>
+      <div class="ob-roles ob-situations" role="radiogroup" aria-label="Your situation">
+        ${SITUATIONS.map((x) => `
+          <label class="ob-option ${a.situation === x.id ? "is-on" : ""}" style="--c1:${x.c1};--c2:${x.c2}">
+            <input type="radio" name="situation" value="${x.id}" ${a.situation === x.id ? "checked" : ""}>
+            <span class="ob-option-ico">${icon(x.icon)}</span>
+            <b>${esc(x.label)}</b>
+            <span class="meta">${esc(x.blurb)}</span>
+            <span class="ob-tick" aria-hidden="true">${icon("check")}</span>
+          </label>`).join("")}
+      </div>`,
     industries: () => `
       <h1 class="grad-ink" tabindex="-1">Your industry</h1>
-      <p class="ob-lead">Pick up to three. Search the full list if yours isn’t in the popular picks.</p>
+      <p class="ob-lead">Pick one, or up to three. Search the full list if yours isn’t in the popular picks.</p>
       <span class="ob-label">Your picks <span class="ob-counter" id="obIndCount"></span></span>
       <div class="ob-picked" id="obPicked"></div>
       <div class="ob-combo">
@@ -140,17 +167,27 @@
 
   /* ---------- Validation (returns [fieldName|null, message] or null) ---------- */
   const age = () => (a.birthDate ? S.ageOn(a.birthDate) : null);
+  const birthProblem = () => {
+    if (!a.birthDate) return "Add your date of birth. SandBox is for people aged 18 and over.";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate) || !(age() <= 100)) return "Check your date of birth.";
+    if (!(age() >= S.MIN_AGE)) return "SandBox is for people aged 18 and over, so we can’t create an account for you yet.";
+    return "";
+  };
   const VALIDATE = {
-    about: () => (!a.firstName.trim() ? ["firstName", "Add your first name."]
-      : !/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate) ? ["birthDate", "Add your date of birth."]
-      : !(age() >= 16 && age() <= 80) ? ["birthDate", "Sandbox is for members aged 16 to 80. Check your date of birth."]
-      : !a.region ? ["region", "Choose your region."] : null),
+    about: () => (!a.firstName.trim() ? ["firstName", "Add your first name."] : birthProblem() ? ["birthDate", birthProblem()] : null),
     role: () => (!a.role ? [null, "Choose Founder or Specialist."] : null),
-    specialty: () => (!String(a.specialty || "").trim() ? [isSpecialty(a.specialty) || !$('input[name="specialtyPick"]:checked') ? null : "specialtyOther", "Choose your specialty, or write your own."] : null),
-    experience: () => (!a.experience ? [null, "Choose your years of experience."] : !a.employment ? [null, "Choose your employment status."] : null),
-    industries: () => (!a.industries.length ? [null, "Pick at least one industry."] : null),
+    specialty: () => ($('input[name="specialtyPick"][value="other"]:checked') && !String(a.specialty || "").trim() ? ["specialtyOther", "Write your role, or pick one from the list."] : null),
+    details: () => null,
+    industries: () => null,
+    situation: () => null,
     cv: () => (a.linkedin.trim() && !/^(https?:\/\/)?([\w-]+\.)*linkedin\.com\/\S+/i.test(a.linkedin.trim()) ? ["linkedin", "That doesn’t look like a LinkedIn link."] : null),
-    languages: () => (a.languages.some((l) => !l.level) ? [null, "Choose a level for each language."] : null),
+    languages: () => (a.languages.some((l) => l.name && !l.level) ? [null, "Choose a level for each language, or remove it."] : null),
+  };
+  /** Skipping a step leaves whatever was half-filled out of the answers. */
+  const SCRUB = {
+    specialty: () => { if (!isSpecialty(a.specialty) && $('input[name="specialtyPick"][value="other"]:checked')) a.specialty = ""; },
+    cv: () => { if (VALIDATE.cv()) a.linkedin = ""; },
+    languages: () => { a.languages = a.languages.filter((l) => l.name && l.level); },
   };
 
   /* ---------- Rendering ---------- */
@@ -167,7 +204,7 @@
 
   const key = (n) => steps()[n][0];
   function renderSteps() {
-    $("#obSteps").innerHTML = steps().map(([, label], i) => `<li ${editing || updating ? `role="button" tabindex="0" data-goto="${i}"` : ""}>${label}</li>`).join("");
+    $("#obSteps").innerHTML = steps().map(([, label], i) => `<li>${editing || updating ? `<button type="button" class="ob-step-btn" data-goto="${i}">${label}</button>` : label}</li>`).join("");
   }
 
   function show(n, dir = 1) {
@@ -177,6 +214,7 @@
     body.innerHTML = `<section class="ob-step ${dir < 0 ? "is-back" : ""}">${STEP_HTML[key(n)]()}</section>`;
     errorEl.textContent = "";
     $("#obBack").hidden = n === 0;
+    $("#obSkip").hidden = REQUIRED.has(key(n));
     const last = n === list.length - 1;
     $("#obNext").innerHTML = last ? (editing || updating ? `${icon("check")} Save changes` : `Finish ${icon("arrowRight")}`) : `Continue ${icon("arrowRight")}`;
     $("#obBar").style.setProperty("--p", ((n + 1) / list.length) * 100 + "%");
@@ -184,7 +222,7 @@
     $$("#obSteps li").forEach((li, i) => { li.classList.toggle("is-on", i === n); li.classList.toggle("is-done", i < n); });
     if (WIRE[key(n)]) WIRE[key(n)]();
     window.scrollTo({ top: 0, behavior: "instant" });
-    const first = $(".ob-step input:not([type=radio]):not([type=file]), .ob-step select", body);
+    const first = $(".ob-step input:not([type=radio]):not([type=file]):not([type=date]), .ob-step select", body);
     (first && !matchMedia("(pointer: coarse)").matches ? first : $("h1", body)).focus({ preventScroll: true });
   }
 
@@ -373,7 +411,7 @@
   const WIRE = { industries: wireIndustries, cv: wireCv, languages: wireLanguages };
 
   /* ---------- Save ---------- */
-  const linkedinUrl = (v) => { const t = v.trim(); return t && !/^https?:\/\//i.test(t) ? "https://" + t : t; };
+  const linkedinUrl = (v) => { const t = v.trim().replace(/^http:\/\//i, "https://"); return t && !/^https:\/\//i.test(t) ? "https://" + t : t; };
 
   async function finish() {
     const nextBtn = $("#obNext");
@@ -392,7 +430,7 @@
         employment: a.employment,
         industries: a.industries.slice(0, MAX_INDUSTRIES),
         linkedin: linkedinUrl(a.linkedin),
-        languages: a.languages.map((l) => ({ name: l.name, level: l.level })),
+        languages: a.languages.filter((l) => l.name && l.level).map((l) => ({ name: l.name, level: l.level })), // a half-filled row (the default, on the short sign-up) isn't saved
       };
       if (removeCv) Object.assign(patch, { cvPath: "", cvName: "" });
       if (file) {
@@ -405,7 +443,7 @@
         }
       }
       // Starter headline and open-to-build type follow the answers until the member writes their own.
-      const starter = (role, industries, specialty) => (D.roles[role] ? `${role === "specialist" && specialty ? specialty : D.roles[role].label} · ${(industries || []).join(", ")}` : "");
+      const starter = (role, industries, specialty) => (D.roles[role] ? [role === "specialist" && specialty ? specialty : D.roles[role].label, (industries || []).join(", ")].filter(Boolean).join(" · ") : "");
       const OLD_DEFAULTS = ["Founder · building something new", "Specialist · ready to join an early-stage team"];
       if (!saved.headline || OLD_DEFAULTS.includes(saved.headline) || saved.headline === starter(saved.role, saved.industries) || saved.headline === starter(saved.role, saved.industries, saved.specialty)) {
         patch.headline = starter(a.role, patch.industries, patch.specialty);
@@ -415,17 +453,24 @@
       await S.saveProfile(patch, { onboarded: true });
       const name = [patch.firstName, patch.lastName].filter(Boolean).join(" ");
       Mori.auth.updateSession({ name, givenName: patch.firstName.split(/\s+/)[0], onboarded: true });
+      if (a.situation && a.situation !== S.settings().situation) S.saveSettings({ situation: a.situation });
       Mori.store.remove(DRAFT_KEY);
       Mori.store.remove(Mori.auth.PENDING_DRAFT_KEY);
       try { sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
 
       if (!editing && !updating) {
-        // A first sign-up: a short tour of the site, starting on the MORI Network.
-        S.saveSettings({ tour: Object.assign({}, S.settings().tour, { site: "network" }) });
-        loader.show(`Welcome to Sandbox, ${patch.firstName}`, "Let’s show you around…");
-        location.replace("network.html#explore");
+        // A first sign-up: open Sandbox on the first useful action for their situation (or
+        // wherever they were headed), with a short tour waiting there.
+        S.saveSettings({ tour: Object.assign({}, S.settings().tour, { site: "start" }) });
+        const wanted = new URLSearchParams(location.search).get("next");
+        const situation = SITUATIONS.find((x) => x.id === a.situation);
+        const dest = wanted && Mori.auth.APP_PAGES.includes(wanted.split(/[?#]/)[0]) ? wanted : situation ? situation.go : "home.html";
+        Mori.auth.markSignedIn();
+        loader.show(`Welcome to Sandbox, ${patch.firstName}`, situation ? situation.blurb : "Opening your homepage…");
+        location.replace(dest);
         return;
       }
+      Mori.auth.markSignedIn();
       loader.show("All saved", "Taking you back…");
       location.replace(Mori.auth.nextUrl(editing ? "home.html" : Mori.auth.startPage()));
     } catch (err) {
@@ -440,7 +485,15 @@
       }
       nextBtn.disabled = false;
       loader.hide();
-      flash(err.message || "Couldn’t save your answers. Please try again.");
+      const msg = String(err.message || "");
+      if (/too_young|birth_date_required/.test(msg)) {
+        show(0, -1);
+        const field = form.elements.birthDate;
+        Mori.ui.fieldError(field, /too_young/.test(msg) ? "SandBox is for people aged 18 and over, so we can’t create an account for you yet." : "Add your date of birth to finish signing up.", () => birthProblem());
+        field.focus();
+        return;
+      }
+      flash(msg || "Couldn’t save your answers. Please try again.");
     }
   }
 
@@ -449,15 +502,32 @@
     e.preventDefault();
     const problem = VALIDATE[key(step)]();
     if (problem) {
-      flash(problem[1]);
       const field = problem[0] && form.elements[problem[0]];
-      if (field) field.focus();
+      if (field && field.nodeType === 1) {
+        const k = key(step);
+        Mori.ui.fieldError(field, problem[1], () => { const p = VALIDATE[k](); return p && p[0] === problem[0] ? p[1] : ""; });
+        field.focus();
+      } else {
+        flash(problem[1]); // a choice (role, specialty…): the message sits under the choices until one is made
+        const group = $(".ob-step [role=radiogroup], .ob-step .ob-roles, .ob-step .ob-chips", body);
+        if (group) group.setAttribute("aria-describedby", "obError");
+        const first = $(".ob-step input", body);
+        if (first) first.focus();
+      }
       return;
     }
     if (step === steps().length - 1) finish();
     else show(step + 1, 1);
   });
   $("#obBack").addEventListener("click", () => { if (step > 0) show(step - 1, -1); });
+  $("#obSkip").addEventListener("click", () => {
+    const k = key(step);
+    if (REQUIRED.has(k)) return;
+    if (SCRUB[k]) SCRUB[k]();
+    keepDraft();
+    if (step === steps().length - 1) finish();
+    else show(step + 1, 1);
+  });
   $("#obSteps").addEventListener("click", (e) => {
     const li = e.target.closest("[data-goto]");
     if (li) show(Number(li.dataset.goto), Number(li.dataset.goto) < step ? -1 : 1);
@@ -470,5 +540,5 @@
   });
 
   // Start on the first unanswered step (or the first step when editing).
-  show(editing ? 0 : Math.max(0, steps().findIndex(([k]) => VALIDATE[k]())));
+  show(updating ? Math.max(0, steps().findIndex(([k]) => VALIDATE[k]())) : 0); // updating: straight to the first gap
 })();

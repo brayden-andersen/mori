@@ -26,6 +26,7 @@
       session.onboarded ? `Welcome back, ${session.givenName}` : `Welcome, ${session.givenName}`,
       session.onboarded ? "Opening your Sandbox…" : "Let’s set up your profile…"
     );
+    Mori.auth.markSignedIn();
     location.replace(Mori.auth.landingUrl(session));
   }
   const rememberRole = (role) => {
@@ -40,10 +41,10 @@
     $("#heroAuth").innerHTML = `
       <a class="btn-google btn-google--me magnetic" href="${href}">
         ${avatar(you, 38)}
-        <span class="me-copy">Continue as ${esc(s.givenName || s.name)}<small>${esc(s.email || "Demo account")}</small></span>
+        <span class="me-copy">${s.provider === "guest" ? "Back to the demo as" : "Continue as"} ${esc(s.givenName || s.name)}<small>${esc(s.email || (s.provider === "guest" ? "Guest demo · a sample founder" : "Demo account"))}</small></span>
         ${s.provider === "google" ? googleG() : icon("arrowRight")}
       </a>
-      <p class="switch-line">Not you? <button class="link-btn" type="button" data-signout>Sign out</button></p>`;
+      <p class="switch-line">${s.provider === "guest" ? "Done exploring?" : "Not you?"} <button class="link-btn" type="button" data-signout>${s.provider === "guest" ? "Leave the demo" : "Sign out"}</button></p>`;
   }
   if (Mori.auth.isSignedIn()) renderSignedIn(Mori.auth.session());
 
@@ -90,17 +91,24 @@
       await db.signInWithGoogle(params.get("next")); // the browser now leaves for Google
     } catch (err) {
       loader.hide();
-      toast(err.message || "Google sign-in failed.", { icon: "x", duration: 4000 });
+      Mori.ui.problem(err.message || "Google sign-in failed.");
     }
   }
 
   /** Google sent the member back here (index.html?auth=callback&code=…). */
   async function finishRedirect() {
-    const problem = params.get("error_description") || params.get("error");
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const problem = params.get("error_description") || hash.get("error_description") || params.get("error") || hash.get("error");
     if (problem) {
       loader.hide();
       history.replaceState(null, "", location.pathname);
-      toast(problem.replace(/\+/g, " "), { icon: "x", duration: 4500 });
+      // The database checks every new account: on the invite list (SandBox is a prototype, invite only),
+      // a Google-verified email, not banned. When it refuses, Supabase reports "Database error saving
+      // new user" and nothing is saved.
+      const code = params.get("error_code") || hash.get("error_code") || "";
+      const refused = /database error saving new user|invite/i.test(problem) || /unexpected_failure/i.test(code);
+      if (!refused) $("#authFailed").textContent = problem.replace(/\+/g, " ");
+      openAuth("join", { view: refused ? "refused" : "failed" });
       return;
     }
     loader.show("Signing you in", "Checking your Google account…");
@@ -120,9 +128,27 @@
     } catch (err) {
       loader.hide();
       history.replaceState(null, "", location.pathname);
-      toast(err.message || "Sign-in failed.", { icon: "x", duration: 4500 });
+      Mori.ui.problem(err.message || "Sign-in failed.");
     }
   }
+
+  /* ---------- Explore the demo: the app as a guest, no account needed ---------- */
+  function startDemo() {
+    if (Mori.modal.isOpen()) Mori.modal.close({ restoreFocus: false });
+    loader.show("Opening the demo", "Setting up a sample founder, members and projects…");
+    Mori.auth.startGuest();
+    location.replace(Mori.auth.nextUrl("home.html"));
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-guest]");
+    if (!b) return;
+    e.preventDefault();
+    startDemo();
+  });
+  if (params.get("demo") === "1") startDemo(); // linked from the public pages
+  // "Ask for one" after a refused sign-up goes to the contact address when there is one, else the Contact page.
+  const ask = $("#refusedAsk");
+  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox invite")}` : "contact.html"; }
 
   $("#demoForm").addEventListener("submit", (e) => {
     e.preventDefault();

@@ -6,7 +6,6 @@
    owns the account modals (Profile with photo and links, Settings,
    Notifications) and starts live updates for signed-in Google members.
      data-modal="profile|settings|notifications"  opens a modal
-     data-soon="Label"                           "coming soon" toast
      data-action="signout"                       signs out
    ========================================================================== */
 (function () {
@@ -14,71 +13,87 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, brandMark, googleG, avatar, ago, toast, soon, createModal, seg, placeGlider, roleChip, empty, loader } = Mori.ui;
+  const { $, $$, esc, icon, brandMark, googleG, avatar, ago, toast, createModal, seg, placeGlider, roleChip, empty, loader } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const page = document.body.dataset.page || "";
-  const section = page === "project" ? "projects" : page; // the planner lives under Projects
+  const section = page === "project" || page === "directory" ? "projects" : page; // the planner and the partner directory live under Projects
 
   /* ---------- Nav ---------- */
   function navHTML() {
     const s = S.session();
     const you = S.me();
-    const sub = s.email || (s.provider === "demo" ? "Demo account" : "");
-    const link = (href, label, ic) => `<a class="drop-link" role="menuitem" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
+    const sub = s.email || (s.provider === "guest" ? "Sample founder · guest demo" : s.provider === "demo" ? "Demo account" : "");
+    const link = (href, label, ic) => `<a class="drop-link" href="${href}">${ic ? icon(ic) + " " : ""}${label}</a>`;
     return `
-    <nav class="nav app-nav" id="topNav" aria-label="Main">
+    <nav class="nav app-nav${Mori.guest && Mori.guest.active ? " has-demo" : ""}" id="topNav" aria-label="Main">
       <div class="nav-inner">
         <a href="home.html" class="brand" aria-label="SandBox — go to your homepage">${brandMark()}<div class="brand-name">SandBox</div></a>
         <div class="menu" id="mainMenu">
           <span class="menu-glider" aria-hidden="true"></span>
           <div class="item"><a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
           <div class="item">
-            <a class="nav-btn" href="projects.html" data-nav="projects" aria-haspopup="true">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
-            <div class="dropdown" role="menu" aria-label="Projects">
+            <a class="nav-btn" href="projects.html" data-nav="projects">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
+            <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddProjects" aria-label="Projects menu">${icon("chevronDown")}</button>
+            <div class="dropdown" id="ddProjects">
               <div class="drop-label">Pinned</div>
               ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
-              <div class="drop-sep" role="separator"></div>
+              <div class="drop-sep" aria-hidden="true"></div>
               ${link("projects.html", "All projects")}
-              <a class="drop-link" role="menuitem" href="#" data-modal="settings" data-tab="projects">Project settings</a>
+              ${link("directory.html", "Vetted partners")}
+              <a class="drop-link" href="#" data-modal="settings" data-tab="projects">Project settings</a>
             </div>
           </div>
           <div class="item">
-            <a class="nav-btn" href="network.html" data-nav="network" aria-haspopup="true">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
-            <div class="dropdown" role="menu" aria-label="Network">
+            <a class="nav-btn" href="network.html" data-nav="network">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
+            <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddNetwork" aria-label="Network menu">${icon("chevronDown")}</button>
+            <div class="dropdown" id="ddNetwork">
               ${link("network.html#explore", "Discover", "compass")}
-              <a class="drop-link" role="menuitem" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="#" data-connections>${icon("network")} Connections</a>
+              <a class="drop-link" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
+              <a class="drop-link" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
+              <a class="drop-link" href="#" data-connections>${icon("network")} Connections</a>
             </div>
           </div>
+          <div class="item"><a class="nav-btn" href="sprints.html" data-nav="sprints">${icon("zap", "ico nav-ico")}<span class="nav-label">Sprints</span></a></div>
           <div class="item account">
-            <button class="nav-btn account-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+            <button class="nav-btn account-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddAccount" aria-label="Account menu">
               <span class="nav-label acct-label">Account</span>
               <span class="pfp-wrap">${avatar(you, 24)}<span class="pfp-dot" hidden></span></span>
             </button>
-            <div class="dropdown" role="menu" aria-label="Account">
+            <div class="dropdown" id="ddAccount">
               <div class="drop-head">${avatar(you, 36)}<div><b>${esc(you.name)}</b><span>${esc(sub)}</span></div></div>
-              <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="#" data-modal="profile">${icon("user")} Profile</a>
-              <a class="drop-link" role="menuitem" href="#" data-modal="settings">${icon("sliders")} Settings</a>
-              <a class="drop-link" role="menuitem" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
-              <a class="drop-link" role="menuitem" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
-              <div class="drop-sep" role="separator"></div>
-              <a class="drop-link" role="menuitem" href="#" data-action="signout">${icon("logout")} Sign out</a>
+              <div class="drop-sep" aria-hidden="true"></div>
+              <a class="drop-link" href="#" data-modal="profile">${icon("user")} Profile</a>
+              <a class="drop-link" href="#" data-modal="settings">${icon("sliders")} Settings</a>
+              <a class="drop-link" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
+              <a class="drop-link" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
+              <div class="drop-sep" aria-hidden="true"></div>
+              <a class="drop-link" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
             </div>
           </div>
           <div class="item item--theme">${Mori.ui.themeToggle()}</div>
         </div>
-      </div>
+      </div>${demoBarHTML()}
     </nav>`;
   }
+  /** Guests see where they are on every page, with a way to start the demo again or leave it. */
+  function demoBarHTML() {
+    if (!(Mori.guest && Mori.guest.active)) return "";
+    return `<div class="demo-bar" role="status">
+        <span class="demo-bar-text">${icon("sparkle")}<span class="demo-bar-long">You’re exploring a demo as a sample founder. Nothing you do here is saved beyond this browser.</span><span class="demo-bar-short">A demo: nothing you do here is saved beyond this browser.</span></span>
+        <span class="demo-bar-actions"><button class="link-btn" type="button" data-demo-reset>Reset the demo</button><button class="link-btn" type="button" data-action="signout">Leave the demo</button></span>
+      </div>`;
+  }
 
-  function closeMenus() {
+  /** Close the open nav menu; with { focus: true }, focus goes back to the button that opened it. */
+  function closeMenus(opts = {}) {
     $$(".item.is-open").forEach((it) => {
       it.classList.remove("is-open");
-      const t = $(".account-toggle", it);
-      if (t) t.setAttribute("aria-expanded", "false");
+      const t = $("[data-menu-toggle]", it);
+      if (t) {
+        t.setAttribute("aria-expanded", "false");
+        if (opts.focus) t.focus();
+      }
     });
   }
 
@@ -95,14 +110,18 @@
     if (active) { active.classList.add("is-active"); active.setAttribute("aria-current", "page"); }
     $$(".dropdown", nav).forEach((d) => Array.from(d.children).forEach((c, i) => c.style.setProperty("--i", i)));
 
-    const acct = $(".item.account", nav);
-    const toggle = $(".account-toggle", acct);
-    toggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const open = !acct.classList.contains("is-open");
-      closeMenus();
-      acct.classList.toggle("is-open", open);
-      toggle.setAttribute("aria-expanded", String(open));
+    // Menus are disclosures: the button shows or hides a list of links. Tab moves through
+    // them, Escape closes the menu and returns to its button, and leaving it closes it.
+    $$("[data-menu-toggle]", nav).forEach((toggle) => {
+      const item = toggle.closest(".item");
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = !item.classList.contains("is-open");
+        closeMenus();
+        item.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+      item.addEventListener("focusout", (e) => { if (item.classList.contains("is-open") && e.relatedTarget && !item.contains(e.relatedTarget)) closeMenus(); });
     });
 
     // Glass pill follows the hovered nav item and rests on the current page.
@@ -144,15 +163,26 @@
     }
   }
 
-  /* ---------- Instant page changes: prerender linked app pages on hover (Chrome / Edge) ---------- */
+  /* ---------- Instant page changes: prefetch and prerender linked app pages (Chrome / Edge) ----------
+     Nothing at all when the browser asks to save data. On phones and tablets
+     (no hover, or a narrow screen) only a light prefetch of the link being
+     pressed: no prerendering, which would spend data and battery on pages
+     that may never be opened. */
   function speculate() {
     if (!(HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules"))) return;
+    const conn = navigator.connection || {};
+    if (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "")) return;
+    const phone = window.matchMedia("(hover: none), (max-width: 760px)").matches;
+    const links = 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="sprints.html"], a[href^="directory.html"], a[href^="subscription.html"]';
+    const rules = phone
+      ? { prefetch: [{ source: "document", where: { selector_matches: links }, eagerness: "conservative" }] }
+      : {
+          prefetch: [{ source: "document", where: { selector_matches: links }, eagerness: "eager" }],
+          prerender: [{ source: "document", where: { selector_matches: links }, eagerness: "moderate" }],
+        };
     const s = document.createElement("script");
     s.type = "speculationrules";
-    s.textContent = JSON.stringify({
-      prefetch: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "eager" }],
-      prerender: [{ source: "document", where: { selector_matches: 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="subscription.html"]' }, eagerness: "moderate" }],
-    });
+    s.textContent = JSON.stringify(rules);
     document.head.appendChild(s);
   }
 
@@ -161,14 +191,14 @@
     const slot = $('[data-shell="footer"]');
     if (!slot) return;
     const col = (id, title, items) =>
-      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map((t) => (Array.isArray(t) ? `<li><a href="${t[1]}"${t[2] ? " " + t[2] : ""}>${t[0]}</a></li>` : `<li><a href="#" data-soon="${t}">${t}</a></li>`)).join("")}</ul></nav>`;
+      `<nav class="footer-col" aria-labelledby="${id}"><h4 id="${id}">${title}</h4><ul>${items.map(([label, href, attrs]) => `<li><a href="${href}"${attrs ? " " + attrs : ""}>${label}</a></li>`).join("")}</ul></nav>`;
     const tpl = document.createElement("template");
     tpl.innerHTML = `
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], "About Sandbox", ["Partners", "partners.html"], "Contact Us", ["Terms &amp; Policy", "legal.html"]])}
-          ${col("productsTitle", "Products", ["Toolkits", ["Subscription Pricing", "subscription.html"], "Cancellation"])}
+          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about.html"], ["Partners", "partners.html"], ["Contact Us", "contact.html"], ["Terms &amp; Policy", "legal.html"]])}
+          ${col("productsTitle", "Products", [["Sprints", "sprints.html"], ["Partner directory", "directory.html"], ["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -210,57 +240,68 @@
       : lead
         ? `<div class="pf-record"><div class="pf-record-head"><b>${esc(lead.name)}</b><span class="meta">Rung ${lead.rung} · ${esc(D.ladder[lead.rung].stage)}</span></div>${ladderBar(lead.rung)}</div>`
         : `<p class="meta">Declare a project to start your record.</p>`;
+    const spots = S.sprints.spots().length;
+    const sprintLine = S.settings().showRecord
+      ? `<p class="meta pf-sprints">${icon("zap")} <span><b>Verified sprints:</b> none yet. The first sprints haven’t run; ${spots ? `you’ve saved ${spots === 1 ? "a spot" : `${spots} spots`}.` : "save a spot to join the first teams."} <a href="sprints.html">${spots ? "Your sprints" : "See the sprints"}</a></span></p>`
+      : "";
     const seen = shownAs(p);
     const where = Mori.people.whereLine(seen).concat(s.email || []).map(esc).join(" · ");
     const hidden = Object.keys(SHOW_LABELS).filter((k) => !p.show[k] && hasDetail(p, k)).map((k) => SHOW_LABELS[k].toLowerCase());
     const docs = Mori.people.linkButtons(p) + (p.cvName ? `<button class="btn btn--sm" type="button" data-pf-cv>${icon("file")} ${esc(p.cvName)}</button>` : "");
     const google = s.provider === "google" && /^https:/.test(s.picture || "") && s.picture !== p.photo ? s.picture : "";
     const photoMenu = [
-      `<button class="drop-link" type="button" role="menuitem" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
-      google ? `<button class="drop-link" type="button" role="menuitem" data-photo="google">${googleG()} Use my Google photo</button>` : "",
-      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="adjust">${icon("search")} Adjust or resize</button>` : "",
-      p.photo ? `<button class="drop-link" type="button" role="menuitem" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
+      `<button class="drop-link" type="button" data-photo="upload">${icon("upload")} ${p.photo ? "Upload a new photo" : "Upload a photo"}</button>`,
+      google ? `<button class="drop-link" type="button" data-photo="google">${googleG()} Use my Google photo</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" data-photo="adjust">${icon("search")} Adjust or resize</button>` : "",
+      p.photo ? `<button class="drop-link" type="button" data-photo="remove">${icon("user")} Use the default icon</button>` : "",
     ].join("");
     const coverMenu = [
-      `<button class="drop-link" type="button" role="menuitem" data-cover="upload">${icon("upload")} ${p.cover ? "Upload a new image" : "Upload an image"}</button>`,
-      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="adjust">${icon("search")} Adjust or resize</button>` : "",
-      p.cover ? `<button class="drop-link" type="button" role="menuitem" data-cover="remove">${icon("x")} Use the default banner</button>` : "",
+      `<button class="drop-link" type="button" data-cover="upload">${icon("upload")} ${p.cover ? "Upload a new image" : "Upload an image"}</button>`,
+      p.cover ? `<button class="drop-link" type="button" data-cover="adjust">${icon("search")} Adjust or resize</button>` : "",
+      p.cover ? `<button class="drop-link" type="button" data-cover="remove">${icon("x")} Use the default banner</button>` : "",
     ].join("");
     const coverControls = `
-      <button class="pf-cover-btn" type="button" data-pf-cover aria-haspopup="menu" aria-expanded="false">${icon("camera")} ${p.cover ? "Edit banner" : "Add a banner"}</button>
-      <div class="pf-photo-menu pf-cover-menu" role="menu" aria-label="Profile banner" hidden>${coverMenu}</div>
+      <button class="pf-cover-btn" type="button" data-pf-cover aria-expanded="false" aria-controls="pfCoverMenu">${icon("camera")} ${p.cover ? "Edit banner" : "Add a banner"}</button>
+      <div class="pf-photo-menu pf-cover-menu" id="pfCoverMenu" hidden>${coverMenu}</div>
       <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-cover-file hidden>`;
 
+    const done = S.profileCompleteness(p);
+    const completeLine = done.pct < 100
+      ? `<p class="meta pf-complete"><span class="pf-complete-bar" aria-hidden="true"><i style="width:${done.pct}%"></i></span>Profile ${done.pct}% complete · <a href="onboarding.html?edit=1">Add ${esc(done.missing.slice(0, 2).join(" and "))}</a></p>`
+      : "";
     return `
       ${Mori.ui.coverHTML(p.cover, coverControls)}
       ${closeBtn("Close profile")}
       <div class="pf-head">
         <div class="pf-photo">
           ${avatar(S.me(), 88, { ring: p.open })}
-          <button class="icon-btn pf-photo-btn" type="button" data-pf-photo aria-haspopup="menu" aria-expanded="false" aria-label="Change profile photo">${icon("camera")}</button>
-          <div class="pf-photo-menu" role="menu" aria-label="Profile photo" hidden>${photoMenu}</div>
+          <button class="icon-btn pf-photo-btn" type="button" data-pf-photo aria-expanded="false" aria-controls="pfPhotoMenu" aria-label="Change profile photo">${icon("camera")}</button>
+          <div class="pf-photo-menu" id="pfPhotoMenu" hidden>${photoMenu}</div>
           <input type="file" accept="image/jpeg,image/png,image/webp" data-pf-photo-file hidden>
         </div>
         <button class="btn btn--sm" data-pf-edit>${icon("edit")} Edit profile</button>
       </div>
       <div class="pf-body">
-        <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}</h2>
+        <h2 class="pf-name" id="pfTitle">${esc(fullName(p, s))}${s.provider === "guest" ? Mori.ui.sampleTag("A sample profile for the demo: change anything you like") : ""}</h2>
+        <div class="chips">${roleChip(p.role, p.specialty)}</div>
         <p class="pf-headline">${esc(p.headline || "Add a headline")}</p>
         <p class="meta pf-meta">${icon("pin")} ${where || "Your region is hidden"}</p>
-        <div class="chips">${roleChip(p.role, p.specialty)}${p.open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span>` : ""}</div>
-        ${Mori.people.factPills(seen)}
+        ${completeLine}
         ${hidden.length ? `<p class="meta pf-hidden">${icon("shield")} Hidden from your profile: ${esc(hidden.join(", "))}. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         ${p.invisible ? `<p class="meta pf-hidden pf-invisible-on">${icon("shield")} You’re invisible on the MORI Network: only people who search your full name can find you, and they see just your name and join date. <button class="link-btn" type="button" data-pf-edit>Change</button></p>` : ""}
         <div class="pf-stats pf-stats--2">
           <button class="pf-stat pf-stat--link" type="button" data-connections aria-label="See your connections"><b data-count="${S.network.connections().length}">0</b><span>Connections ${icon("arrowRight")}</span></button>
           <div class="pf-stat"><b data-count="${owned.length}">0</b><span>Projects</span></div>
         </div>
-        <section class="pf-sec"><h3>About</h3><p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re working on.</span>'}</p></section>
-        <section class="pf-sec"><h3>Industry</h3><div class="tags">${(p.industries || []).length ? p.industries.map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("") : '<span class="meta">Pick up to three industries.</span>'}</div></section>
-        ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
-        <section class="pf-sec"><h3>Skills</h3><div class="tags">${(p.skills || []).length ? p.skills.map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("") : '<span class="meta">Add skills so founders and specialists can find you.</span>'}</div></section>
-        <section class="pf-sec"><h3>Work record</h3>${record}</section>
+        <section class="pf-sec pf-open"><h3>${p.role === "founder" ? "Building and looking for" : "Looking for"}</h3>${p.open ? `<p class="pf-open-line"><span class="chip chip--emerald"><i class="live-dot"></i>${esc(D.openTypes[p.openType] || "Open to build")}</span></p>` : `<p class="meta">You’re not open to build right now. <button class="link-btn" type="button" data-pf-edit>Change</button></p>`}<p>${p.bio ? esc(p.bio) : '<span class="meta">Add a short intro so founders and specialists know what you’re building or looking for.</span>'}</p></section>
+        <section class="pf-sec"><h3>Work record</h3>${record}${sprintLine}</section>
+        <section class="pf-sec"><h3>Skills and industries</h3><div class="tags">${(p.skills || []).map((k) => `<span class="badge badge--gray">${esc(k)}</span>`).join("")}${(p.industries || []).map((x, i) => `<span class="badge badge--${["orange", "blue", "purple"][i % 3]}">${esc(x)}</span>`).join("")}${!(p.skills || []).length && !(p.industries || []).length ? '<span class="meta">Add skills and up to three industries so founders and specialists can find you.</span>' : ""}</div></section>
+        <details class="pf-more" ${window.matchMedia("(min-width: 761px)").matches ? "open" : ""}><summary>${icon("chevronDown")} More: links, CV, languages</summary>
+          <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs || '<span class="meta">Add your LinkedIn page, a CV, or links like GitHub and a portfolio.</span>'}<button class="btn btn--sm btn--ghost pf-add-link" type="button" data-pf-links>${icon("plus")} Add a link</button></div></section>
+          ${p.show.languages ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${(p.languages || []).length ? p.languages.map((l) => `<span class="badge badge--gray">${esc(l.name)} · ${esc(l.level)}</span>`).join("") : '<span class="meta">Add the languages you work in.</span>'}</div></section>` : ""}
+          <section class="pf-sec">${Mori.people.factPills(seen)}</section>
+        </details>
+        ${S.network.available() && !p.invisible ? `<div class="pf-share-row">${Mori.people.shareBtn(s.id)}<span class="meta">Anyone signed in to SandBox can open it.</span></div>` : ""}
         <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }
@@ -313,7 +354,8 @@
       if (!raw) continue;
       let url;
       try { url = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : "https://" + raw); } catch (e) { url = null; }
-      if (!url || !/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) {
+      if (url && url.protocol === "http:") url.protocol = "https:"; // links are shown as https:// only
+      if (!url || url.protocol !== "https:" || !url.hostname.includes(".")) {
         const err = new Error(`“${raw}” doesn’t look like a web address.`);
         err.field = $("[data-link-url]", row);
         throw err;
@@ -347,7 +389,7 @@
     try {
       crop = await Mori.ui.cropper($("#pfCrop", panel), src, { aspect: c.aspect, round: c.round, outW: c.outW });
     } catch (err) {
-      toast(err.message, { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.message);
       back();
       return;
     }
@@ -361,7 +403,7 @@
         await c.apply(await crop.toBlob());
         toast(c.done, { icon: "check" });
       } catch (err) {
-        toast(err.code === "signed-out" ? err.message : "Couldn’t save it: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+        Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t save it: " + (err.message || "please try again."));
       }
       crop.destroy();
       if (Mori.modal.isOpen("modal-profile")) back();
@@ -374,13 +416,13 @@
       await S.setCover(null);
       toast("Back to the default banner", { icon: "check" });
     } catch (err) {
-      toast(err.code === "signed-out" ? err.message : "Couldn’t change your banner: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t change your banner: " + (err.message || "please try again."));
     }
     if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
   }
   async function changePhoto(choice, panel, file) {
     if (choice === "upload") {
-      try { checkImage(file); } catch (err) { toast(err.message, { icon: "x", duration: 4200 }); return; }
+      try { checkImage(file); } catch (err) { Mori.ui.problem(err.message); return; }
       openCropper("photo", file);
       return;
     }
@@ -396,7 +438,7 @@
         toast("Back to the default icon", { icon: "check" });
       }
     } catch (err) {
-      toast(err.code === "signed-out" ? err.message : "Couldn’t change your photo: " + (err.message || "please try again."), { icon: "x", duration: 4200 });
+      Mori.ui.problem(err.code === "signed-out" ? err.message : "Couldn’t change your photo: " + (err.message || "please try again."));
     }
     if (Mori.modal.isOpen("modal-profile")) renderProfile("view");
   }
@@ -410,7 +452,7 @@
       if (win) win.location = url; else location.href = url;
     } catch (err) {
       if (win) win.close();
-      toast(err.message || "Couldn’t open your CV.", { icon: "x" });
+      Mori.ui.problem(err.message || "Couldn’t open your CV.");
     }
   }
 
@@ -442,6 +484,8 @@
         else changePhoto(b.dataset.photo, panel);
       });
       panel.addEventListener("click", (e) => { if (!menu.hidden && !e.target.closest(".pf-photo")) showMenu(false); });
+      menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showMenu(false); photoBtn.focus(); } });
+      menu.addEventListener("focusout", (e) => { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== photoBtn) showMenu(false); });
       fileInput.addEventListener("change", () => { const f = fileInput.files && fileInput.files[0]; if (f) changePhoto("upload", panel, f); });
       const coverBtn = $("[data-pf-cover]", panel);
       const coverMenu = $(".pf-cover-menu", panel);
@@ -460,6 +504,8 @@
         else changeCover(b.dataset.cover);
       });
       panel.addEventListener("click", (e) => { if (!coverMenu.hidden && !e.target.closest(".pf-cover")) showCoverMenu(false); });
+      coverMenu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showCoverMenu(false); coverBtn.focus(); } });
+      coverMenu.addEventListener("focusout", (e) => { if (e.relatedTarget && !coverMenu.contains(e.relatedTarget) && e.relatedTarget !== coverBtn) showCoverMenu(false); });
       coverFile.addEventListener("change", () => { const f = coverFile.files && coverFile.files[0]; if (f) changeCover("upload", f); });
       Mori.motion.refresh(panel);
       return el;
@@ -489,8 +535,8 @@
       const btn = $("[data-pf-save]", panel);
       let links;
       try { links = readLinks(form); } catch (err) {
-        toast(err.message, { icon: "x", duration: 3600 });
-        if (err.field) err.field.focus();
+        if (err.field) { Mori.ui.fieldError(err.field, err.message, () => { try { readLinks(form); return ""; } catch (e) { return e.field === err.field ? e.message : ""; } }); err.field.focus(); }
+        else Mori.ui.problem(err.message);
         return;
       }
       btn.disabled = true;
@@ -508,7 +554,7 @@
         const nowInvisible = !!form.elements.invisible.checked;
         toast(nowInvisible !== wasInvisible ? (nowInvisible ? "You’re invisible on the MORI Network" : "You’re visible on the MORI Network again") : "Profile updated", { icon: "check" });
       } catch (err) {
-        toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 });
+        Mori.ui.problem("Saved on this device, but not to your account: " + err.message);
       }
       renderProfile("view");
     };
@@ -560,11 +606,12 @@
             <div class="st-card">
               ${avatar(S.me(), 48)}
               <div class="st-card-copy"><b>${esc(S.me().name)}</b><span class="meta">${esc(s.email || "No email on this demo account")}</span></div>
-              <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + "Demo"}</span>
+              <span class="provider">${s.provider === "google" ? googleG() + "Google" : icon("sparkle") + (s.provider === "guest" ? "Guest demo" : "Demo")}</span>
             </div>
-            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
-            ${row("Sign out", "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} Sign out</button>`)}
-            ${row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
+            ${row("Sign-in method", s.provider === "google" ? "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account." : s.provider === "guest" ? "Guest demo: you’re exploring as a sample founder, with sample members and projects kept in this browser. SandBox is a prototype, invite only: ask for an invite on the Contact page." : "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.", "")}
+            ${row(s.provider === "guest" ? "Leave the demo" : "Sign out", s.provider === "guest" ? "Forgets everything you did in the demo and goes back to the start page." : "Sign out of Sandbox on this browser.", `<button class="btn btn--sm" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</button>`)}
+            ${s.provider === "google" ? row("Sign out of all devices", "Ends your SandBox sessions on every phone and computer, this one included. Other devices are signed out within the hour, when their sign-in next refreshes. Use it if you signed in on a device that isn’t yours, or think someone else has.", `<button class="btn btn--sm" type="button" data-action="signout-all">${icon("logout")} Sign out everywhere</button>`) : ""}
+            ${s.provider === "guest" ? row("Reset the demo", "Puts the sample members, projects and conversations back the way they started.", `<button class="btn btn--sm btn--danger" data-demo-reset>${icon("refresh")} Reset the demo</button>`, "st-row--danger") : row("Reset this browser", s.provider === "google" ? "Clears the settings and copies saved in this browser. Everything in your account stays." : "Clears the projects and settings saved in this browser. Your sign-up answers stay.", `<button class="btn btn--sm btn--danger" data-reset>${icon("refresh")} Reset</button>`, "st-row--danger")}
           `)}
           ${pane("preferences", `
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
@@ -591,9 +638,30 @@
             ${row("Profile visibility", "Who sees your full profile in the Network. Everyone else sees your name, role and headline.", segHTML("visibility", p.visibility, [["everyone", "Everyone"], ["connections", "Connections"]]))}
             ${row("Show my work record", "Founders and specialists see the rungs you’ve reached and your verified sprints. You can hide the whole record, but not single parts of it.", switchHTML('data-setting="showRecord" aria-label="Show my work record"', st.showRecord))}
             ${row("Show “Open to build”", "Adds the open-to-build ring and tag to your profile.", switchHTML('data-profile="open" aria-label="Show open to build"', p.open))}
+            ${S.safety.available() ? `<div class="st-row st-row--list"><div class="st-copy"><h4>Blocked members</h4><p>People you blocked can’t see you on the MORI Network, send you requests or message you, and you don’t see them. They aren’t told. To block or report someone, use the buttons at the foot of their profile.</p></div><div class="st-blocks" id="stBlocks" tabindex="-1">${blocksHTML()}</div></div>` : ""}
           `)}
         </div>
       </div>`;
+  }
+
+  /** Settings → Privacy: the members you blocked, each with Unblock. */
+  function blocksHTML() {
+    const list = S.safety.blocks();
+    if (!list.length) return `<p class="meta">You haven’t blocked anyone.</p>`;
+    return `<ul class="st-block-list">${list.map((b) => `
+      <li class="st-block">${avatar({ id: b.id, name: b.name, picture: b.picture }, 32)}<span class="st-block-name">${esc(b.name)}</span>
+        <button class="btn btn--sm" type="button" data-unblock="${esc(b.id)}" aria-label="Unblock ${esc(b.name)}">Unblock</button></li>`).join("")}</ul>`;
+  }
+  function wireBlocks(panel) {
+    const box = $("#stBlocks", panel);
+    if (!box) return;
+    box.addEventListener("click", (e) => {
+      const ub = e.target.closest("[data-unblock]");
+      if (!ub) return;
+      const b = S.safety.blocks().find((x) => x.id === ub.dataset.unblock);
+      Mori.people.busy(ub, () => S.safety.unblock(ub.dataset.unblock), () => toast(`You unblocked ${b ? b.name : "them"}`, { icon: "check" }));
+    });
+    S.safety.refresh().catch(() => {}); // the list as the database has it
   }
 
   function renderSettings(tab = "account") {
@@ -601,6 +669,7 @@
     const panel = $(".modal", el);
     panel.setAttribute("aria-labelledby", "stTitle");
     panel.innerHTML = settingsHTML(tab);
+    wireBlocks(panel);
 
     const pill = $(".saved-pill", panel);
     let pillTimer = 0;
@@ -614,7 +683,7 @@
     const segs = $$(".seg[data-setting]", panel).map((s) => seg(s, (v) => {
       if (s.dataset.setting === "visibility") {
         // Stored on the profile so the Network can respect it.
-        S.saveProfile({ visibility: v }).then(saved, (err) => toast("Saved on this device, but not to your account: " + err.message, { icon: "x", duration: 4200 }));
+        S.saveProfile({ visibility: v }).then(saved, (err) => Mori.ui.problem("Saved on this device, but not to your account: " + err.message));
         return;
       }
       S.saveSettings({ [s.dataset.setting]: v });
@@ -638,7 +707,7 @@
 
     const reset = $("[data-reset]", panel);
     let armed = false;
-    reset.addEventListener("click", () => {
+    if (reset) reset.addEventListener("click", () => {
       if (!armed) {
         armed = true;
         reset.innerHTML = `${icon("refresh")} Tap again to confirm`;
@@ -657,15 +726,15 @@
 
   /* ---------- Notifications modal ---------- */
   const NT_STYLE = {
-    request: ["userPlus", "#3e5c98", "#3d5b96"],
-    accepted: ["check", "#34d399", "#10b981"],
-    message: ["message", "#34d399", "#265451"],
-    mention: ["at", "#a04174", "#8b2e45"],
-    project: ["target", "#896938", "#775b31"],
-    ladder:  ["ladder", "#71562e", "#775b31"],
-    sprint:  ["zap", "#375186", "#375186"],
-    insight: ["bulb", "#775b31", "#71562e"],
-    badge:   ["award", "#a13651", "#775b31"],
+    request: ["userPlus", "#5d5d5d", "#5c5c5c"],
+    accepted: ["check", "#bbbbbb", "#a3a3a3"],
+    message: ["message", "#bbbbbb", "#4d4d4d"],
+    mention: ["at", "#636363", "#4f4f4f"],
+    project: ["target", "#6e6e6e", "#606060"],
+    ladder:  ["ladder", "#5b5b5b", "#606060"],
+    sprint:  ["zap", "#525252", "#525252"],
+    insight: ["bulb", "#606060", "#5b5b5b"],
+    badge:   ["award", "#5c5c5c", "#606060"],
   };
   let ntFilter = "all";
 
@@ -731,10 +800,19 @@
     Mori.modal.open("modal-" + which, { opener: opener || undefined });
   }
 
-  async function signOut() {
+  async function signOut(everywhere = false) {
+    if (everywhere) {
+      // Every session ends in Supabase first; if that fails, stay signed in here and say so.
+      loader.show("Signing out everywhere", "Ending your sessions on every device…");
+      try { await Mori.db.signOut(true); } catch (err) {
+        loader.hide();
+        Mori.ui.problem("Couldn’t sign out your other devices. Check your connection and try again.");
+        return;
+      }
+    }
     Mori.modal.close({ restoreFocus: false });
     loader.show("Signing out", "See you soon…");
-    await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
+    if (!everywhere) await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
     S.forgetPrivate(); // other members' details and messages don't stay on this device
     Mori.auth.clearSession();
     location.replace("index.html?signedout=1");
@@ -747,12 +825,14 @@
     const m = e.target.closest("[data-modal]");
     if (m) { e.preventDefault(); openAccountModal(m.dataset.modal, m, m.dataset.tab); return; }
 
-    const later = e.target.closest("[data-soon]");
-    if (later) { e.preventDefault(); closeMenus(); soon(later.dataset.soon); return; }
+    const rd = e.target.closest("[data-demo-reset]");
+    if (rd) { if (Mori.people.confirmTap(rd, "Tap again to reset")) Mori.guest.reset(); return; }
 
     if (e.target.closest('[data-action="signout"]')) { e.preventDefault(); signOut(); }
+    const all = e.target.closest('[data-action="signout-all"]');
+    if (all) { e.preventDefault(); if (Mori.people.confirmTap(all, "Tap again to sign out everywhere")) signOut(true); }
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $(".item.is-open")) closeMenus({ focus: true }); });
   // The nav shows your photo, name and pinned projects: rebuild it when any of those change.
   const navKey = () => JSON.stringify([S.me(), S.pinnedProjects().map((p) => [p.id, p.name])]);
   let lastNav = "";
@@ -765,6 +845,12 @@
       updateBadges();
     }
     if ((key === "network" || key === "links" || key === "notifRead") && Mori.modal.isOpen("modal-notifications")) renderNotifications();
+    if (key === "blocks" && $("#stBlocks")) {
+      const box = $("#stBlocks");
+      const hadFocus = box.contains(document.activeElement) || document.activeElement === document.body;
+      box.innerHTML = blocksHTML();
+      if (hadFocus && Mori.modal.isOpen("modal-settings")) ($("[data-unblock]", box) || box).focus(); // an unblocked row is gone: keep focus in the list
+    }
   });
 
   // Live updates: a short pop-up for requests, acceptances and messages.
@@ -789,7 +875,7 @@
     S.syncProfile().then((changed) => {
       if (!changed) return;
       if (S.session().provider === "google" && !S.profileComplete()) {
-        // New sign-up questions (date of birth, a specialist's role): ask once, answers filled in.
+        // No role, or no 18+ date of birth (members who joined before it was required): ask the sign-up questions once, answers filled in.
         Mori.auth.updateSession({ onboarded: false });
         const here = location.pathname.split("/").pop() || "home.html";
         location.replace("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));

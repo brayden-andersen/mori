@@ -99,9 +99,8 @@
       reviews: r.sprint_reviews || 0,
       joinedAt: Date.parse(r.created_at) || 0,
       show: { age: r.show_age === true, region: r.show_region !== false, employment: r.show_employment !== false, languages: r.show_languages !== false },
-      // Older rows predate the current questions (date of birth, a specialist's role):
-      // those members go through onboarding again, with their answers filled in.
-      onboarded: !!(r.onboarding_completed && r.birth_date && r.region && (role !== "specialist" || r.specialty)),
+      // Sign-up requires the role and a date of birth (18+, checked by the database); the rest is "Complete your profile" later.
+      onboarded: !!(r.onboarding_completed && role && r.birth_date),
     };
   }
   function toRow(id, p) {
@@ -267,6 +266,58 @@
       fail(error);
     },
 
+    /** The sprint spots you've saved, oldest first: [{ id, at }]. Row-level security returns only your own rows. */
+    async sprintSpots() {
+      const { c, id } = await signedIn();
+      const { data, error } = await c.from("sprint_spots").select("sprint_id, created_at").eq("member_id", id).order("created_at");
+      fail(error);
+      return (data || []).map((r) => ({ id: r.sprint_id, at: Date.parse(r.created_at) || Date.now() }));
+    },
+    /** Save your spot in a sprint (saving it twice is fine). */
+    async saveSpot(sprintId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("sprint_spots").insert({ member_id: id, sprint_id: sprintId });
+      if (error && error.code === "23505") return; // already saved
+      fail(error);
+    },
+    async dropSpot(sprintId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("sprint_spots").delete().eq("member_id", id).eq("sprint_id", sprintId);
+      fail(error);
+    },
+
+    /* ---------- Blocks and reports ---------- */
+    /** The members you blocked, newest first: [{ id, name, picture, at }]. Only you see your blocks. */
+    async myBlocks() {
+      const { c } = await signedIn();
+      const { data, error } = await c.rpc("my_blocks");
+      fail(error);
+      return (data || []).map((r) => ({
+        id: r.id,
+        name: [r.first_name, r.last_name].filter(Boolean).join(" ").trim() || "Member",
+        picture: https(r.avatar_url),
+        at: Date.parse(r.blocked_at) || Date.now(),
+      }));
+    },
+    /** Block a member. The database ends any connection or request between you; neither can reach the other. */
+    async block(memberId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_blocks").insert({ blocker_id: id, blocked_id: memberId });
+      if (error && error.code === "23505") return; // already blocked
+      fail(error);
+    },
+    async unblock(memberId) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_blocks").delete().eq("blocker_id", id).eq("blocked_id", memberId);
+      fail(error);
+    },
+    /** Report a member to SandBox. Reports can't be read back through the API; they're read in the dashboard. */
+    async report(memberId, reason, details) {
+      const { c, id } = await signedIn();
+      const { error } = await c.from("member_reports").insert({ reporter_id: id, reported_id: memberId, reason, details: details || null });
+      fail(error);
+    },
+
     /** Upload a square photo to avatars/<user id>/…; returns its public URL. */
     async uploadPhoto(blob, prefix = "") {
       const { c, id } = await signedIn();
@@ -288,7 +339,7 @@
     /** Upload a CV to cvs/<user id>/…; returns { path, name }. Replaces the previous file. */
     async uploadCv(file, previousPath) {
       const { c, id } = await signedIn();
-      const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(-80);
+      const safe = file.name.replace(/[^\w.-]+/g, "_").slice(-80);
       const path = `${id}/${Date.now()}-${safe}`;
       const { error } = await c.storage.from("cvs").upload(path, file, { contentType: file.type, upsert: false });
       fail(error);
@@ -525,8 +576,14 @@
     linkFromRow,
     messageFromRow,
 
-    async signOut() {
+    /** Sign out of this browser, or with everywhere = true, of every device (it ends all the account's sessions). */
+    async signOut(everywhere = false) {
       if (!enabled) return;
+      if (everywhere) {
+        const { error } = await (await client()).auth.signOut({ scope: "global" });
+        if (error) throw error;
+        return;
+      }
       if (clientPromise) {
         try { await (await client()).auth.signOut({ scope: "local" }); return; } catch (e) { /* fall through */ }
       }

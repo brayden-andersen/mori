@@ -8,6 +8,12 @@
      data-message="<id>"     open the conversation with a connection
      data-member-cv="<id>"   open a connection's CV
      data-connections        open the Connections window
+     data-copy-profile="<id>" copy the address of a member's profile
+     data-report / data-block="<id>"  report or block a member (Settings → Privacy unblocks)
+   Every profile has an address, network.html#member/<id> (profileUrl). It
+   opens the same window, built from what member_directory() and
+   find_member() return, so invisible and connections-only profiles stay as
+   private as they are.
    Rows inside .req (the Requests tab) are animated by network.js instead.
    ========================================================================== */
 (function () {
@@ -15,7 +21,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, avatar, ago, toast, roleChip, createModal, loader } = Mori.ui;
+  const { $, esc, icon, avatar, ago, toast, roleChip, createModal, loader } = Mori.ui;
   const S = Mori.state;
   const D = Mori.data;
   const N = S.network;
@@ -23,19 +29,41 @@
   const LINK_TYPES = Object.fromEntries(D.linkTypes.map((t) => [t.id, t]));
 
   const first = (name) => String(name || "").split(/\s+/)[0];
-  const dash = (s) => String(s || "").replace(/(\d)-(\d)/, "$1–$2");
   const roleLabel = (role) => (D.roles[role] ? D.roles[role].label : "Member");
   const openLabel = (m) => (m.open ? D.openTypes[m.openType] || "Open to build" : "");
   const joined = (ts) => (ts ? new Date(ts).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "");
   const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return "Link"; } };
 
+  /** The shareable address of a member's profile. */
+  const profileUrl = (id) => new URL("network.html#member/" + encodeURIComponent(id), location.href).href;
+  const wide = () => window.matchMedia("(min-width: 761px)").matches;
+  async function copyProfile(id) {
+    const url = profileUrl(id);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Profile link copied", { icon: "link" });
+    } catch (e) {
+      window.prompt("Copy this link to the profile:", url); // clipboard blocked: let them copy it by hand
+    }
+  }
+  const shareBtn = (id) => `<button class="btn btn--sm btn--ghost pf-share" type="button" data-copy-profile="${esc(id)}">${icon("link")} Copy profile link</button>`;
+  /** Report and Block at the foot of a profile (members with a network: Google sign-in and the guest demo). */
+  const safetyBtns = (id) => (S.safety.available() ? `
+    <span class="pf-safety">
+      <button class="btn btn--sm btn--ghost" type="button" data-report="${esc(id)}">${icon("flag")} Report</button>
+      <button class="btn btn--sm btn--ghost" type="button" data-block="${esc(id)}">${icon("ban")} Block</button>
+    </span>` : "");
+
   /** LinkedIn and extra links as buttons. */
   function linkButtons(p) {
     const out = [];
-    if (p.linkedin) out.push(`<a class="btn btn--sm" href="${esc(p.linkedin)}" target="_blank" rel="noopener">${icon("link")} LinkedIn</a>`);
+    const li = Mori.ui.safeUrl(p.linkedin);
+    if (li) out.push(`<a class="btn btn--sm" href="${esc(li)}" target="_blank" rel="noopener noreferrer">${icon("link")} LinkedIn</a>`);
     (p.links || []).forEach((l) => {
       const t = LINK_TYPES[l.type] || LINK_TYPES.other;
-      out.push(`<a class="btn btn--sm" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">${icon(t.icon)} ${esc(t.id === "other" ? host(l.url) : t.label)}</a>`);
+      const url = Mori.ui.safeUrl(l && l.url);
+      if (!url) return; // only https:// links are shown
+      out.push(`<a class="btn btn--sm" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="${esc(url)}">${icon(t.icon)} ${esc(t.id === "other" ? host(url) : t.label)}</a>`);
     });
     return out.join("");
   }
@@ -62,7 +90,7 @@
   }
   function fail(err) {
     if (err && err.code === "signed-out") { signInAgain(err.message); return; }
-    toast((err && err.message) || "Something went wrong. Please try again.", { icon: "x", duration: 3800 });
+    Mori.ui.problem((err && err.message) || "Something went wrong. Please try again.");
   }
   /** Disable the button while the change is saved; views re-render when it lands. */
   function busy(btn, work, done) {
@@ -104,10 +132,11 @@
       <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
       <div class="pf-head">${avatar({ id: m.id, name: m.name }, 88)}</div>
       <div class="pf-body">
-        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
+        <h2 class="pf-name" id="mpTitle">${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</h2>
         <div class="fact-pills">${m.joinedAt ? `<span class="fact-pill">${icon("clock")}Joined SandBox ${esc(joined(m.joinedAt))}</span>` : ""}</div>
         ${st === "pending" ? `<div class="mp-action"><div class="mp-status"><span class="chip chip--blue">Request sent ${esc(ago(link.at).toLowerCase())}</span><button class="btn btn--sm" type="button" data-withdraw="${id}">Withdraw</button></div></div>` : ""}
         <section class="pf-sec"><p class="meta pf-invisible-note">${icon("shield")} ${esc(first(m.name))} is invisible on the MORI Network, so you can’t connect or see more of their profile.</p></section>
+        <div class="pf-share-row">${safetyBtns(m.id)}</div>
       </div>`;
   }
 
@@ -146,27 +175,36 @@
       ? (docs ? "" : `<span class="meta">${esc(first(m.name))} hasn’t added a CV or links yet.</span>`)
       : `<span class="meta">CVs are shared with connections.</span>`;
 
+    const n = m.reviews || 0;
+    const record = `<section class="pf-sec"><h3>Work record</h3><p class="pf-record-line">${icon("award")} <span>${n ? `<b>${n} verified sprint${n === 1 ? "" : "s"}</b>, confirmed by teammates.` : "No verified sprints yet. The first sprints haven’t run."} <a href="sprints.html">See the sprints</a></span></p></section>`;
+    const lookingFor = open || m.bio
+      ? `<section class="pf-sec pf-open"><h3>${m.role === "founder" ? "Building and looking for" : "Looking for"}</h3>${open ? `<p class="pf-open-line"><span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span></p>` : ""}${m.bio && !m.limited ? `<p>${esc(m.bio)}</p>` : ""}</section>`
+      : "";
+    const more = [
+      m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : "",
+      `<section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`,
+      `<section class="pf-sec">${factPills(m)}</section>`,
+    ].join("");
     const details = m.limited
-      ? `${factPills(m)}<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their industries, languages and links.</p></section>`
+      ? `${lookingFor}${record}<section class="pf-sec"><p class="meta">${esc(first(m.name))} shares their full profile with connections only. Connect to see their skills, industries, languages and links.</p></section>`
       : `
-        ${factPills(m)}
-        ${m.bio ? `<section class="pf-sec"><h3>About</h3><p>${esc(m.bio)}</p></section>` : ""}
-        ${m.industries.length ? `<section class="pf-sec"><h3>Industry</h3><div class="tags">${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
-        ${m.languages.length ? `<section class="pf-sec"><h3>Languages</h3><div class="tags">${list(m.languages.map((l) => `${l.name} · ${l.level}`))}</div></section>` : ""}
-        ${m.skills.length ? `<section class="pf-sec"><h3>Skills</h3><div class="tags">${list(m.skills)}</div></section>` : ""}
-        <section class="pf-sec"><h3>CV &amp; links</h3><div class="tags">${docs}${docsNote}</div></section>`;
+        ${lookingFor}
+        ${record}
+        ${m.skills.length || m.industries.length ? `<section class="pf-sec"><h3>Skills and industries</h3><div class="tags">${list(m.skills)}${list(m.industries, (i) => HUES[i % HUES.length])}</div></section>` : ""}
+        <details class="pf-more" ${wide() ? "open" : ""}><summary>${icon("chevronDown")} More: links, CV, languages</summary>${more}</details>`;
 
     return `
       ${Mori.ui.coverHTML(m.cover)}
       <button class="icon-btn modal-x" data-close aria-label="Close profile">${icon("x")}</button>
       <div class="pf-head">${avatar(m, 88, { ring: m.open })}</div>
       <div class="pf-body">
-        <h2 class="pf-name" id="mpTitle">${esc(m.name)}</h2>
+        <h2 class="pf-name" id="mpTitle">${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</h2>
+        <div class="chips">${roleChip(m.role, m.specialty)}</div>
         ${m.headline ? `<p class="pf-headline">${esc(m.headline)}</p>` : ""}
         ${whereLine(m).length ? `<p class="meta pf-meta">${icon("pin")} ${whereLine(m).map(esc).join(" · ")}</p>` : ""}
-        <div class="chips">${roleChip(m.role, m.specialty)}${open ? `<span class="chip chip--emerald"><i class="live-dot"></i>${esc(open)}</span>` : ""}</div>
         <div class="mp-action">${action}</div>
         ${details}
+        <div class="pf-share-row">${shareBtn(m.id)}${safetyBtns(m.id)}</div>
       </div>`;
   }
   const memberKey = (m) => N.status(m.id) + JSON.stringify(m);
@@ -187,16 +225,25 @@
     }
     return root;
   }
+  let shownTitle = ""; // the page's title, put back when the profile closes
   /** Open a member's profile. Resolves false if they can't be found. */
   async function openMember(id, opts = {}) {
+    if (id && id === S.session().id && Mori.shell) { Mori.shell.openModal("profile", opts.opener); return true; }
     let m = N.member(id);
     if (!m && N.available()) {
       // Not in the local copy: they may have joined since.
       await N.refresh({ force: true }).catch(() => {});
       m = N.member(id);
     }
-    if (!m) { toast("That member couldn’t be found", { icon: "x" }); return false; }
+    if (!m) {
+      if (opts.fromLink) unavailable(opts);
+      else Mori.ui.problem("That member couldn’t be found. They may have left SandBox.");
+      return false;
+    }
     const wasOpen = Mori.modal.isOpen("memberModal");
+    const pageTitle = wasOpen ? (shownTitle || document.title) : document.title;
+    shownTitle = pageTitle;
+    document.title = `SandBox • ${m.name}`; // the profile's own title while it's open
     renderMember(m);
     $("#memberModal .modal").scrollTop = 0;
     if (!wasOpen) {
@@ -204,12 +251,30 @@
         opener: opts.opener,
         onClose: () => {
           shownMember = null;
+          if (shownTitle) { document.title = shownTitle; shownTitle = ""; }
           if (opts.onClose) opts.onClose();
         },
       });
     }
     return true;
   }
+  /** A profile address that shows nothing: the member is invisible, has left, or the link is wrong. */
+  function unavailable(opts) {
+    const root = createModal("memberModal", { label: "Member profile", panelCls: "modal--profile modal--member" });
+    const panel = $(".modal", root);
+    panel.setAttribute("aria-labelledby", "mpTitle");
+    panel.innerHTML = `
+      ${Mori.ui.coverHTML("")}
+      <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      <div class="pf-body pf-unavailable">
+        <h2 class="pf-name" id="mpTitle">This profile isn’t available</h2>
+        <p class="meta">${N.available() ? "The member may be invisible on the MORI Network, may have left, or the link may be incomplete." : "Member profiles need a Google sign-in. Demo accounts stay on this device; the guest demo has sample members."}</p>
+        <a class="btn" href="#explore">${icon("compass")} Discover members</a>
+      </div>`;
+    shownMember = null;
+    if (!Mori.modal.isOpen("memberModal")) Mori.modal.open("memberModal", { onClose: opts.onClose });
+  }
+
   /** Keep an open profile in step with new data, without wiping a note being typed. */
   function refreshMember() {
     if (!shownMember || !Mori.modal.isOpen("memberModal")) return;
@@ -296,13 +361,107 @@
     N.refresh().catch(() => {});
   }
 
+  /* ---------- Report and block ---------- */
+  function blockMember(id, btn) {
+    const p = N.member(id);
+    const name = p ? p.name : "this member";
+    busy(btn, () => S.safety.block(id), () => {
+      if (Mori.modal.isOpen("memberModal")) Mori.modal.close();
+      toast(`You blocked ${name}. You won’t see or hear from each other on SandBox.`, { icon: "ban" });
+    });
+  }
+
+  function openReport(id) {
+    const m = N.member(id);
+    if (!m) return;
+    const guest = S.session().provider === "guest";
+    const root = createModal("reportModal", { label: "Report a member", panelCls: "modal--new modal--report" });
+    const panel = $(".modal", root);
+    panel.setAttribute("aria-labelledby", "rpTitle");
+    panel.innerHTML = `
+      <div class="modal-head">
+        <div><h2 id="rpTitle">Report ${esc(m.name)}</h2><p class="meta">Your report goes to SandBox, never to ${esc(first(m.name))}.${guest ? " In the demo, nothing is sent." : ""}</p></div>
+        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      </div>
+      <form class="modal-body np-form rp-form" id="rpForm" novalidate>
+        <fieldset class="rp-reasons" aria-describedby="rpReasonError">
+          <legend>What’s wrong?</legend>
+          ${S.safety.REPORT_REASONS.map(([k, label]) => `<label class="rp-reason"><input type="radio" name="reason" value="${k}"><span>${esc(label)}</span></label>`).join("")}
+          <p class="field-error" id="rpReasonError" role="alert" hidden></p>
+        </fieldset>
+        <label class="field"><span>What happened? <em class="hint">optional</em></span><textarea class="textarea" name="details" maxlength="2000" rows="4" placeholder="What they did, and where: a message, a connection request, their profile."></textarea></label>
+        <label class="rp-also"><input type="checkbox" name="block" checked><span>Also block ${esc(first(m.name))}, so you stop seeing and hearing from each other</span></label>
+      </form>
+      <div class="modal-foot">
+        <button class="btn" type="button" data-close>Cancel</button>
+        <button class="btn btn--ink" type="submit" form="rpForm">${icon("flag")} Send report</button>
+      </div>`;
+    const form = $("#rpForm", panel);
+    const reasonError = $("#rpReasonError", panel);
+    form.addEventListener("change", (e) => { if (e.target.name === "reason") reasonError.hidden = true; });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const picked = $('input[name="reason"]:checked', form);
+      if (!picked) {
+        reasonError.textContent = "Choose what’s wrong.";
+        reasonError.hidden = false;
+        $('input[name="reason"]', form).focus();
+        return;
+      }
+      const reason = picked.value;
+      const details = form.elements.details.value;
+      const alsoBlock = form.elements.block.checked;
+      busy($('button[type="submit"]', panel), async () => {
+        await S.safety.report(id, reason, details);
+        if (alsoBlock) await S.safety.block(id);
+      }, () => reported(panel, m, reason, details, alsoBlock, guest));
+    });
+    Mori.modal.open("reportModal"); // focus goes back to whatever opened the profile
+  }
+
+  /** The report is saved: say what happens next, and email it to SandBox so it's seen straight away. */
+  function reported(panel, m, reason, details, blocked, guest) {
+    const mail = (window.MORI_CONFIG || {}).contactEmail;
+    const label = (S.safety.REPORT_REASONS.find(([k]) => k === reason) || [reason, reason])[1];
+    const body = [
+      "Member report",
+      "",
+      `Member: ${m.name}`,
+      `Profile: ${profileUrl(m.id)}`,
+      `Reason: ${label}`,
+      `What happened: ${String(details || "").trim() || "(not given)"}`,
+      "",
+      `Reported by: ${S.me().name} (${profileUrl(S.me().id)})`,
+    ].join("\n");
+    const href = !guest && mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox report: " + m.name)}&body=${encodeURIComponent(body.slice(0, 1800))}` : "";
+    panel.innerHTML = `
+      <div class="modal-head">
+        <div><h2 id="rpTitle" tabindex="-1">Thanks for telling us</h2></div>
+        <button class="icon-btn modal-x" data-close aria-label="Close">${icon("x")}</button>
+      </div>
+      <div class="modal-body rp-done">
+        <p>${guest ? "This is the demo, so the report stays in this browser and nothing is sent." : `Your report about ${esc(m.name)} is saved for SandBox to review. ${esc(first(m.name))} won’t know you reported them.`}</p>
+        ${blocked ? `<p class="meta">You also blocked ${esc(first(m.name))}. You can unblock them in Settings → Privacy.</p>` : ""}
+        ${href ? `<p class="meta">Your email app should open with the report addressed to SandBox, so we see it straight away. If it didn’t, use the button.</p>` : ""}
+      </div>
+      <div class="modal-foot">
+        ${href ? `<a class="btn" href="${esc(href)}">${icon("mail")} Email the report</a>` : ""}
+        <button class="btn btn--ink" type="button" data-close>Done</button>
+      </div>`;
+    $("#rpTitle", panel).focus();
+    if (href) location.href = href; // opens the email draft; the page stays put
+  }
+
   /* ---------- Actions (delegated) ---------- */
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections]");
+    const t = e.target.closest("[data-view],[data-connect],[data-withdraw],[data-accept],[data-ignore],[data-remove],[data-member-cv],[data-message],[data-connections],[data-copy-profile],[data-report],[data-block]");
     if (!t) return;
     const d = t.dataset;
+    if (d.report) { e.preventDefault(); openReport(d.report); return; }
+    if (d.block) { e.preventDefault(); if (confirmTap(t, "Tap again to block")) blockMember(d.block, t); return; }
     if ("connections" in d) { e.preventDefault(); openConnections(t); return; }
     if (d.view) { e.preventDefault(); openMember(d.view, { opener: t }); return; }
+    if (d.copyProfile) { e.preventDefault(); copyProfile(d.copyProfile); return; }
     if (d.message) { e.preventDefault(); message(d.message); return; }
     if (d.memberCv) { openCv(d.memberCv); return; }
     if (t.closest(".req")) return; // the Requests tab animates its own rows
@@ -325,5 +484,5 @@
     if (Mori.modal.isOpen("connectionsModal")) renderConnections();
   });
 
-  Mori.people = { openMember, openConnections, message, linkButtons, factPills, whereLine, busy, fail, confirmTap, signInAgain };
+  Mori.people = { openMember, openConnections, message, linkButtons, factPills, whereLine, busy, fail, confirmTap, signInAgain, profileUrl, copyProfile, shareBtn };
 })();

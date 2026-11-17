@@ -11,7 +11,7 @@
   const Mori = window.Mori;
   if (Mori.redirecting) return;
 
-  const { $, $$, esc, icon, toast, seg } = Mori.ui;
+  const { $, esc, icon, toast, seg } = Mori.ui;
   const PLANS = Mori.data.plans;
   const CURRENT = "explorer";
   let billing = "monthly";
@@ -42,7 +42,7 @@
         <ul class="plan-perks">${t.perks.map((p) => `<li>${icon("check")}<span>${esc(p)}</span></li>`).join("")}</ul>
       </article>`).join("");
     const names = PLANS.tiers.map((t) => t.name);
-    const cell = (v) => (v === true ? `<span class="cmp-yes" aria-label="Included">${icon("check")}</span>` : v === false ? `<span class="cmp-no" aria-label="Not included">–</span>` : esc(v));
+    const cell = (v) => (v === true ? `<span class="cmp-yes">${icon("check")}<span class="sr-only">Included</span></span>` : v === false ? `<span class="cmp-no"><span aria-hidden="true">–</span><span class="sr-only">Not included</span></span>` : esc(v));
     $("#compare").innerHTML = `
       <div class="cmp-row cmp-head" role="row"><span role="columnheader">Feature</span>${names.map((n) => `<span role="columnheader">${esc(n)}</span>`).join("")}</div>
       ${PLANS.compare.map(([feature, vals]) => `<div class="cmp-row" role="row"><span role="rowheader">${esc(feature)}</span>${vals.map((v, i) => `<span role="cell" data-plan="${esc(names[i])}">${cell(v)}</span>`).join("")}</div>`).join("")}`;
@@ -57,7 +57,7 @@
     const b = e.target.closest("[data-plan]");
     if (!b || b.tagName !== "BUTTON") return;
     const t = PLANS.tiers.find((x) => x.id === b.dataset.plan);
-    toast(`Payments open soon: we’ll let you know when you can move up to ${t ? t.name : "this plan"}.`, { icon: "card", duration: 3600 });
+    toast(`Payments aren’t part of this demo. Everyone is on Explorer for now, and ${t ? t.name + "’s" : "these"} prices are placeholders.`, { icon: "card", duration: 3800 });
   });
   render();
 })();

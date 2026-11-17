@@ -8,10 +8,10 @@
    ========================================================================== */
 window.Mori = window.Mori || {};
 
-Mori.data = {
+window.Mori.data = {
   roles: {
-    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people." },
-    specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture." },
+    founder:    { label: "Founder",    hue: "orange", icon: "rocket", blurb: "I have an idea or an early startup and want to build it into a real business with the right people.", what: "You can declare projects, add co-founders and get a launch path for your business." },
+    specialist: { label: "Specialist", hue: "blue",   icon: "code",   blurb: "I bring a skill (design, engineering, growth, legal…) and want to join or co-found a venture.", what: "Founders find you by your role; you join projects and build a verified work record." },
   },
 
   openTypes: { cofound: "Open to co-found", join: "Open to join a team" },
@@ -168,17 +168,111 @@ Mori.data = {
     ],
   },
 
+  /* The launch path: from a declared idea to a registered, operating company
+     in Indonesia, stage by stage, in the milestone ladder's order. Its legal
+     wording is taken from the existing toolkit checklists (registration,
+     sector licences, founders' agreement); nothing new is claimed. Every legal
+     stage says "Guidance, not legal advice" and stays marked for review.
+     Progress is kept per project in its workspace (launch.done, keyed
+     "<stage>.<item index>"). Explorer (the free plan) opens the stages marked
+     free, the "first stages" on the subscription page; the rest come with
+     Builder ("Your full launch path").
+     [BRAYDEN: final stage list] */
+  launchPath: {
+    disclaimer: "Guidance, not legal advice. Have a vetted partner check it before you rely on it.",
+    review: "Not yet checked by a lawyer.",
+    unlock: { plan: "builder", text: "Opens with Builder, which includes your full launch path." },
+    stages: [
+      { id: "idea", title: "Declare the idea", rung: 0, free: true,
+        blurb: "Put the idea in a form a specialist can judge in two minutes: the problem, who has it, the hours you have and the role you need.",
+        items: ["Write the one-page problem brief", "Name the role you need on the team"], templates: ["brief"] },
+      { id: "structure", title: "Choose a structure", rung: 3, free: true, legal: true,
+        blurb: "A PT Perorangan: one founder, an Indonesian citizen, for a micro or small business. It’s registered with a statement of establishment rather than a notary deed. A team of co-founders: a regular PT or a CV instead.",
+        items: ["Decide on a PT Perorangan, a PT or a CV", "Check that your name and brand are free to use"], templates: ["registration"], partner: "notary" },
+      { id: "registration", title: "Register and get an NIB", rung: 3, free: true, legal: true,
+        blurb: "The NIB (business identification number) is issued through OSS. It’s the business’s basic legal identity, and some financing, such as KUR, asks for it.",
+        items: ["Register the business", "Get the NIB through OSS"], templates: ["registration"], partner: "notary" },
+      { id: "tax", title: "Get a company tax number", rung: 3, legal: true,
+        blurb: "A registered company needs its own NPWP.",
+        items: ["Get the company NPWP", "Ask a vetted tax partner what the company files, and when"], templates: ["registration"], partner: "tax" },
+      { id: "bank", title: "Open a business bank account", rung: 3,
+        blurb: "Keep the company’s money apart from your own.",
+        items: ["Open the account", "Move the company’s money into it"], templates: [], partner: "accounting" },
+      { id: "team", title: "Team agreements", rung: 4, legal: true,
+        blurb: "Agree who does what and who owns what before anyone builds more. Agreements with Indonesian parties are generally written in Bahasa Indonesia, often alongside English. Check with a lawyer.",
+        items: ["Agree roles, time and equity in a founders’ agreement", "Agree how equity vests", "Sign an NDA and assign the IP to the company"], templates: ["agreement", "equity", "ndaip"], partner: "legal" },
+      { id: "licences", title: "Sector licences", rung: 5, legal: true,
+        blurb: "The licences and certifications your sector needs. For food and drink: from October 2026, halal certification is required for food and drink products of micro and small businesses, and the government runs a free self-declare scheme for them.",
+        items: ["List the licences and certifications your sector needs", "Confirm them with a vetted partner"], templates: ["licences"], partner: "legal" },
+      { id: "hires", title: "First hires", rung: 5, legal: true,
+        blurb: "The first people the company employs: which roles come first, and an employment contract a lawyer has checked.",
+        items: ["Decide the first roles to hire for", "Have a vetted lawyer check the employment contract"], templates: [], partner: "legal" },
+    ],
+  },
+
+  /* Sprints: two-week online sprints by niche. The first ones haven't run yet.
+     Dates are days from today, so the list always looks current.
+     [BRAYDEN: the niches and the first sprint topics] */
+  sprintLobbies: [
+    { id: "fintech", name: "Fintech & payments", blurb: "Payments, lending and bookkeeping for small businesses." },
+    { id: "food", name: "Food science & F&B", blurb: "New products, packaging and kitchens that scale." },
+    { id: "robotics", name: "Robotics & hardware", blurb: "Devices, sensors and the firmware behind them." },
+    { id: "agritech", name: "Agritech", blurb: "Tools for farmers, fishers and the people who buy from them." },
+    { id: "creative", name: "Creative & media", blurb: "Content, brands and the tools creators use." },
+  ],
+  /* Vetted partners by service, for the partner directory (directory.html) and the launch path. */
+  partnerKinds: {
+    notary: { label: "Notaries", one: "Notary", icon: "file" },
+    legal: { label: "Lawyers", one: "Lawyer", icon: "shield" },
+    accounting: { label: "Accountants", one: "Accountant", icon: "wallet" },
+    tax: { label: "Tax advisers", one: "Tax adviser", icon: "coins" },
+    design: { label: "Designers", one: "Designer", icon: "sparkle" },
+  },
+  /* The program navigator's kinds, and the funding pipeline kind each becomes. */
+  programKinds: {
+    grant: { label: "Grant", funding: "grant" },
+    incubator: { label: "Incubator", funding: "accelerator" },
+    competition: { label: "Competition", funding: "competition" },
+  },
+  /* The compliance tracker: how often an obligation comes round. */
+  complianceRepeats: { month: "Every month", quarter: "Every quarter", year: "Every year", once: "Once" },
+
+  /* The five kinds of sprint, as the landing page describes them. Each counts toward a rung. */
+  sprintKinds: {
+    problem: { name: "Problem sprint", rung: 1, icon: "target", c1: "#acacac", c2: "#929292", blurb: "Talk to 8–10 people who have the problem, then decide what to build." },
+    prototype: { name: "Prototype sprint", rung: 2, icon: "flask", c1: "#acacac", c2: "#8d8d8d", blurb: "Put a clickable prototype in front of five real users." },
+    physical: { name: "Physical sprint", rung: 2, icon: "box", c1: "#bbbbbb", c2: "#afafaf", blurb: "Test a first sample of a hardware, food or consumer product." },
+    demand: { name: "Demand sprint", rung: 3, icon: "megaphone", c1: "#afafaf", c2: "#9d9d9d", blurb: "Launch a landing page and hit a sign-up target you set in advance." },
+    build: { name: "Build sprint", rung: 4, icon: "code", c1: "#a9a9a9", c2: "#929292", blurb: "Ship one working feature to real users, with usage numbers." },
+  },
+  /* How every sprint works. [BRAYDEN: confirm how teams form and how long sign-up stays open] */
+  sprintHow: {
+    days: 14,
+    teams: "Save your spot. Before the sprint starts, the people who saved one are put into teams of 3 to 4, founders and specialists together, so each team has the roles its brief needs. You’ll see your team on the sprint’s page.",
+    verify: "Each team works toward the proof for its rung: the same proof the milestone ladder asks for. At the end the team shows what it made, and each teammate confirms who did what.",
+    badges: "Once your teammates confirm your part, the sprint goes on your work record as a badge, with the rung it counts toward. Nobody rates anyone: there are no stars, scores or leaderboards.",
+  },
+  sprints: [
+    { id: "fin-problem", lobby: "fintech", kind: "problem", title: "Problem sprint · Credit between small shops and their regulars", startsIn: 12, teamSize: "3 to 4", brief: "Talk to 8 to 10 warung owners about how they handle credit, then decide what to build." },
+    { id: "food-problem", lobby: "food", kind: "problem", title: "Problem sprint · Office lunches that don’t go stale", startsIn: 9, teamSize: "3 to 4", brief: "Interview office managers and the people who eat at their desks." },
+    { id: "agri-demand", lobby: "agritech", kind: "demand", title: "Demand sprint · Pre-orders from farmer groups", startsIn: 19, teamSize: "3 to 4", brief: "Launch a page and hit a sign-up target you set in advance." },
+    { id: "fin-proto", lobby: "fintech", kind: "prototype", title: "Prototype sprint · Record a payment in one tap", startsIn: 26, teamSize: "3 to 4", brief: "Put a clickable prototype in front of five shop owners and change it between each one." },
+    { id: "robot-proto", lobby: "robotics", kind: "physical", title: "Physical sprint · A sensor a farmer can install alone", startsIn: 33, teamSize: "3 to 4", brief: "Build one sample, test it in a field, write down what broke." },
+    { id: "creative-build", lobby: "creative", kind: "build", title: "Build sprint · A creator’s first paid product", startsIn: 40, teamSize: "3 to 4", brief: "Ship one feature to real users and show the usage numbers." },
+  ],
+
   /* Subscription ladder. PLACEHOLDER prices and perks: to be replaced with the
      final ones. `monthly` is in rupiah; yearly billing is ten months' price. */
   plans: {
     placeholder: true,
+    current: "explorer", // payments aren't part of the demo, so everyone is on Explorer
     tiers: [
       { id: "explorer", name: "Explorer", rung: 1, monthly: 0, tagline: "Find your people and start your launch path.",
         perks: ["MORI Network: discover, connect and message", "Sprints and your verified work record", "1 project with its Mainframe and tools", "The first stages of your launch path", "Starter templates: problem brief and interview script"] },
       { id: "builder", name: "Builder", rung: 2, monthly: 49000, tagline: "For founders building in earnest.", popular: true,
-        perks: ["Everything in Explorer", "Your full launch path", "Team agreements: founders’ agreement, equity and vesting, NDA and IP", "Program navigator (coming soon)", "Up to 5 projects, 5 people each, unlimited documents"] },
+        perks: ["Everything in Explorer", "Your full launch path", "Team agreements: founders’ agreement, equity and vesting, NDA and IP", "Program navigator: grants, incubators and competitions", "Up to 5 projects, 5 people each, unlimited documents"] },
       { id: "founder", name: "Founder Pro", rung: 3, monthly: 129000, tagline: "Register, stay compliant and grow.",
-        perks: ["Everything in Builder", "Member pricing with vetted partners", "Compliance tracker (coming soon)", "Unlimited projects and teammates", "Funding deadlines and reminders", "Word and PDF exports"] },
+        perks: ["Everything in Builder", "Member pricing with vetted partners", "Compliance tracker", "Unlimited projects and teammates", "Funding deadlines and reminders", "Word and PDF exports"] },
       { id: "studio", name: "Studio", rung: 4, monthly: 349000, tagline: "For campus incubators and entrepreneurship programmes.",
         perks: ["Everything in Founder Pro", "Run a cohort of teams in one place", "Cohort progress across projects", "Your programme’s own templates"] },
     ],
@@ -192,8 +286,8 @@ Mori.data = {
       ["Documents", ["5", "Unlimited", "Unlimited", "Unlimited"]],
       ["Launch path", ["First stages", "Full", "Full", "Full"]],
       ["Team agreements", [false, true, true, true]],
-      ["Program navigator (soon)", [false, true, true, true]],
-      ["Compliance tracker (soon)", [false, false, true, true]],
+      ["Program navigator", [false, true, true, true]],
+      ["Compliance tracker", [false, false, true, true]],
       ["Member pricing with vetted partners", [false, false, true, true]],
       ["Cohorts", [false, false, false, true]],
     ],

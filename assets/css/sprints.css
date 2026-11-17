@@ -1,0 +1,69 @@
+/* ==========================================================================
+   Mori: Sandbox — Sprints (sprints.html)
+   ========================================================================== */
+.wrap--sprints{ display:grid; gap:18px; padding-bottom:110px }
+.wrap--sprints > .panel{ margin:0 }
+.wrap--sprints .pagehead .ico{ width:16px; height:16px }
+.sp-lead{ max-width:62ch; margin:10px 0 0; line-height:1.55 }
+.title:focus{ outline:none }
+
+/* "The first sprints haven't run yet" */
+.sp-note{ display:flex; align-items:flex-start; gap:10px; margin:0; padding:12px 16px; border-radius:14px; font-size:13.5px; line-height:1.5; color:#414347; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.10) }
+.sp-note .ico{ flex:0 0 auto; width:16px; height:16px; margin-top:2px; color: var(--cherry) }
+
+/* Lists of sprints */
+.sp-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px }
+.sp-row{ display:flex; align-items:center; gap:14px; padding:12px 14px; text-decoration:none; color:inherit }
+.sp-row-main{ flex:1; min-width:0; display:grid; gap:2px }
+.sp-row-main b{ font-size:14.5px }
+.sp-row .go .ico{ width:16px; height:16px; color:var(--subtle) }
+.sp-when{ flex:0 0 auto; display:grid; justify-items:center; min-width:48px; padding:6px 8px; border-radius:12px; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:#4c4c4c; background: rgba(90,90,90,.08) }
+.sp-when b{ font-size:18px; line-height:1.1; letter-spacing:0 }
+.sp-saved-chip{ flex:0 0 auto; color:#6b6b6b; background: rgba(163,163,163,.10); border:1px solid rgba(163,163,163,.30) }
+.sp-saved-chip .ico{ width:13px; height:13px }
+.sp-empty{ padding:26px 10px }
+
+/* Lobbies */
+.sp-lobbies{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:12px }
+.sp-lobby{ display:grid; align-content:start; gap:6px; padding:16px; text-decoration:none; color:inherit }
+.sp-lobby b{ font-size:15px }
+.sp-lobby-count{ margin-top:4px; font-size:12.5px; font-weight:600; color:#4c4c4c }
+
+/* How sprints work */
+.sp-kinds{ display:grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap:12px; margin-bottom:18px }
+.sp-kindcard{ display:grid; align-content:start; justify-items:start; gap:6px; padding:14px; border-radius:16px; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08) }
+.sp-kindcard b{ font-size:14px }
+.sp-kind-ico{ display:grid; place-items:center; width:34px; height:34px; border-radius:11px; color:#fff; background: linear-gradient(135deg, var(--c1), var(--c2)) }
+.sp-kind-ico .ico{ width:16px; height:16px }
+.sp-how{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:16px }
+.sp-how h4{ display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:14px }
+.sp-how h4 .ico{ width:16px; height:16px; color: var(--cherry) }
+.sp-how p{ margin:0; line-height:1.55 }
+
+/* One sprint */
+.sp-head{ align-items:flex-end }
+.sp-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px }
+.sp-kind{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12.5px; font-weight:600; color:#fff; background: linear-gradient(135deg, var(--c1), var(--c2)) }
+.sp-kind .ico{ width:13px; height:13px }
+.sp-chips .chip .ico{ width:13px; height:13px }
+.sp-facts{ display:flex; flex-wrap:wrap; gap:8px 18px; margin:12px 0 0; font-size:14px; color:#414347 }
+.sp-facts span{ display:inline-flex; align-items:center; gap:6px }
+.sp-facts .ico{ color:var(--subtle) }
+.sp-save{ flex:0 0 auto; display:grid; justify-items:end; gap:8px; max-width:300px; text-align:right }
+.sp-save .meta{ margin:0; font-size:12.5px }
+.sp-saved{ display:flex; align-items:flex-start; gap:8px; margin:0; font-size:13.5px; line-height:1.45; text-align:left; color:#6b6b6b }
+.sp-saved .ico{ flex:0 0 auto; margin-top:2px }
+.sp-detail{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:18px }
+.sp-detail .panel{ margin:0 }
+.sp-detail h3{ margin:0 0 8px }
+.sp-detail p{ margin:0 0 8px; line-height:1.55 }
+.sp-detail p:last-child{ margin-bottom:0 }
+
+@media (max-width: 760px){
+  .sp-how, .sp-detail{ grid-template-columns: 1fr }
+  .sp-head{ flex-direction:column; align-items:stretch }
+  .sp-save{ justify-items:stretch; max-width:none; text-align:left }
+  .sp-save .btn{ width:100% }
+  .sp-row{ gap:10px; padding:10px 12px }
+  .sp-row .sp-saved-chip{ display:none }
+}

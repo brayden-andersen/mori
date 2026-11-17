@@ -41,7 +41,10 @@
     invisible: false,               // hidden from the MORI Network
   };
   const SHOW_DEFAULT = PROFILE_BLANK.show;
-  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && session().provider === "google" && Mori.auth.isUuid(session().id));
+  // A database stands behind the member: Supabase for Google members, or the guest
+  // demo's in-browser copy (guestdb.js) for guests. Demo accounts (file://) have
+  // neither and keep everything local.
+  const remoteEnabled = () => !!(Mori.db && Mori.db.enabled && ((session().provider === "google" && Mori.auth.isUuid(session().id)) || (session().provider === "guest" && Mori.db.guest)));
 
   function profile() {
     const p = Object.assign({}, PROFILE_BLANK, get("profile", {}));
@@ -63,8 +66,22 @@
     const [, m, d] = String(p.birthDate || "").split("-").map(Number);
     return !!m && on.getMonth() + 1 === m && on.getDate() === d;
   };
-  /** Has the member answered the current sign-up questions? */
-  const profileComplete = (p = profile()) => !!(p.birthDate && p.region && (p.role !== "specialist" || p.specialty));
+  /** Members must be 18 or older (the database enforces it too). */
+  const MIN_AGE = 18;
+  const isAdult = (p = profile()) => !!p.birthDate && ageOn(p.birthDate) >= MIN_AGE;
+  /** Has the member answered what sign-up requires? The role and an 18+ date of birth: everything else is "Complete your profile". */
+  const profileComplete = (p = profile()) => !!p.role && isAdult(p);
+  /** How complete the profile is, and what's still missing (the gentle nudge on the homepage and the profile). */
+  function profileCompleteness(p = profile()) {
+    const checks = [
+      ["your region", !!p.region], ["your date of birth", !!p.birthDate], ["an industry", (p.industries || []).length > 0],
+      ["your experience", !!p.experience], ["your employment status", !!p.employment], ["a headline", !!p.headline],
+      ["a LinkedIn page or CV", !!(p.linkedin || p.cvPath || p.cvName)], ["your languages", (p.languages || []).some((l) => l.name && l.level)], ["a photo", !!p.photo],
+    ];
+    if (p.role === "specialist") checks.unshift(["your specialty", !!p.specialty]);
+    const missing = checks.filter(([, ok]) => !ok).map(([label]) => label);
+    return { pct: Math.round(((checks.length - missing.length) / checks.length) * 100), missing };
+  }
   const fullName = (p = profile(), s = session()) => [p.firstName, p.lastName].filter(Boolean).join(" ") || s.name;
   /** You, shaped like a member, for avatars and headers. */
   const self = () => ({ id: me(), name: fullName(), picture: profile().photo || "" });
@@ -115,6 +132,7 @@
     showRecord: true,            // show milestone record on the profile
     projectStart: "mainframe",   // a project opens on: mainframe | tasks
     projectSidebar: true,        // the planner's tools sidebar is shown
+    situation: "",               // from sign-up: idea | skills | prototype (picks the first action and the homepage's Start here)
     tour: {},                    // guided tours: { site: network|projects|subscription|done|skipped, project: <id>|done|skipped }
     notify: { messages: true, requests: true, projects: true, announcements: true, digest: false },
   };
@@ -806,19 +824,91 @@
 
   /** Forget what this browser cached about other members (on sign-out). */
   function forgetPrivate() {
-    ["members", "links", "messages", "projectsRemote"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
+    ["members", "links", "messages", "projectsRemote", "blocks"].forEach((k) => Mori.store.remove(Mori.store.userKey(k)));
   }
+
+  /* ---------- Blocks and reports ----------
+     Google members: member_blocks and member_reports in Supabase. Only the
+     blocker sees a block; blocking ends any connection, and the two stop
+     seeing and reaching each other. A report goes to SandBox and can't be read
+     back. Guests: the guest database in this browser. */
+  const REPORT_REASONS = [
+    ["spam", "Spam or unwanted requests"],
+    ["harassment", "Harassment or bullying"],
+    ["fake", "A fake profile or pretending to be someone"],
+    ["scam", "A scam, or asking for money or equity"],
+    ["inappropriate", "Inappropriate photo or content"],
+    ["other", "Something else"],
+  ];
+  const safety = {
+    available: remoteEnabled,
+    REPORT_REASONS,
+    blocks: () => (remoteEnabled() ? get("blocks", []) : []),
+    isBlocked: (id) => safety.blocks().some((b) => b.id === id),
+    refresh: refresher(async () => { set("blocks", await Mori.db.myBlocks()); }),
+    async block(id) {
+      const who = network.member(id);
+      const before = safety.blocks();
+      set("blocks", [{ id, name: who ? who.name : "Member", picture: (who && who.picture) || "", at: Date.now() }].concat(before.filter((b) => b.id !== id)));
+      try { await Mori.db.block(id); } catch (err) { set("blocks", before); throw err; }
+      // They leave your network at once (the database has already ended any connection).
+      put("links", network.links().filter((l) => l.from !== id && l.to !== id));
+      put("members", network.members().filter((m) => m.id !== id));
+      foundMembers.delete(id);
+      emit("network");
+      network.refresh({ force: true }).catch(() => {});
+    },
+    async unblock(id) {
+      const before = safety.blocks();
+      set("blocks", before.filter((b) => b.id !== id));
+      try { await Mori.db.unblock(id); } catch (err) { set("blocks", before); throw err; }
+      network.refresh({ force: true }).catch(() => {});
+    },
+    report(id, reason, details) {
+      if (!REPORT_REASONS.some(([k]) => k === reason)) return Promise.reject(new Error("Choose a reason for the report."));
+      return Mori.db.report(id, reason, String(details || "").trim().slice(0, 2000));
+    },
+  };
+
+  /* ---------- Sprints: the spots you've saved ----------
+     Google members: a row each in sprint_spots (Supabase; row-level security
+     lets a member insert, read and delete only their own rows, so Brayden can
+     count interest). Guests: the guest database in this browser. Demo
+     accounts: this browser only. A spot is { id: sprint id, at }. */
+  const tableMissing = (err) => !!err && (["42P01", "PGRST205"].includes(err.code) || /sprint_spots/.test(err.message || "") && /relation|table|schema cache/i.test(err.message || ""));
+  const sprints = {
+    spots: () => get("sprintSpots", []),
+    has: (id) => sprints.spots().some((x) => x.id === id),
+    refresh: refresher(async () => {
+      try { set("sprintSpots", await Mori.db.sprintSpots()); }
+      catch (err) { if (!tableMissing(err)) throw err; } // the table isn't there yet: keep this browser's copy
+    }),
+    save(id) {
+      if (sprints.has(id)) return Promise.resolve();
+      const before = sprints.spots();
+      set("sprintSpots", before.concat([{ id, at: Date.now() }]));
+      if (!remoteEnabled()) return Promise.resolve();
+      return Mori.db.saveSpot(id).catch((err) => { if (tableMissing(err)) return; set("sprintSpots", before); throw err; });
+    },
+    drop(id) {
+      const before = sprints.spots();
+      if (!before.some((x) => x.id === id)) return Promise.resolve();
+      set("sprintSpots", before.filter((x) => x.id !== id));
+      if (!remoteEnabled()) return Promise.resolve();
+      return Mori.db.dropSpot(id).catch((err) => { if (tableMissing(err)) return; set("sprintSpots", before); throw err; });
+    },
+  };
 
   /** Clear everything stored in this browser for the member and start again. */
   function reset() { Mori.store.clearUser(); emit("reset"); }
 
   Mori.state = {
     session, ladder: D.ladder,
-    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete,
+    profile, saveProfile, syncProfile, setPhoto, setCover, me: self, fullName, ageOn, isBirthday, profileComplete, profileCompleteness, MIN_AGE, isAdult,
     settings, saveSettings, applyPrefs, syncPrefs, touchPref,
     notifications, unreadNotifications, markNotificationRead, markAllNotificationsRead,
     projects, project, pinnedProjects, allTags, togglePin, createProject, refreshProjects, addCofounders, removeCofounder,
     updateProject, deleteProject, changeTasks, addTask, updateTask, removeTask, moveTask, toggleTask, MAX_TASKS, ladderProgress,
-    network, chat, live, forgetPrivate, reset,
+    network, chat, sprints, safety, live, forgetPrivate, reset,
   };
 })();

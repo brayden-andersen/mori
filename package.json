@@ -1,0 +1,19 @@
+{
+  "name": "mori-sandbox",
+  "private": true,
+  "description": "SandBox by MORI: the demo site. Plain HTML, CSS and JavaScript; these tools only check it.",
+  "scripts": {
+    "lint": "eslint .",
+    "validate": "html-validate \"*.html\"",
+    "test": "playwright test",
+    "check": "npm run lint && npm run validate && npm test",
+    "serve": "node tests/serve.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
+    "html-validate": "11.21.1"
+  }
+}

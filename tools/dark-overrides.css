@@ -9,7 +9,7 @@ html[data-theme="dark"] .aura{ background-image: url("../img/aura-dark-wide.webp
 html[data-theme="dark"] .brand-mark .mark-red{ fill:#b80000 }
 html[data-theme="dark"] .brand-mark, html[data-theme="dark"] .loader-mark{ color:#f2f2f3 }
 /* Profile banner: darker still */
-html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(120deg, #0c0c0e 0%, #23100f 52%, #5c1218 100%) }
+html[data-theme="dark"] .pf-cover:not(.has-image){ background: linear-gradient(120deg, #0c0c0e 0%, #23100f 52%, #2e2e2e 100%) }
 /* The nav floats over the aura */
 html[data-theme="dark"] .nav.is-scrolled{ background: rgba(17,17,19,.78); box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.35) }
 /* Hero words: a brighter red gradient on dark */
@@ -18,22 +18,26 @@ html[data-theme="dark"]{ --red-grad: linear-gradient(110deg, #9e0d18 0%, #e3201f
 html[data-theme="dark"] .spotlight::after{ background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,.28) 45%, transparent 72%) }
 /* The cursor highlight on cards: a faint light glow on dark surfaces */
 html[data-theme="dark"] .spotlight{ --spot: rgba(255,255,255,.06) }
-html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot: rgba(120,160,230,.10) }
+html[data-theme="dark"] .pcard.spotlight, html[data-theme="dark"] .pin.spotlight, html[data-theme="dark"] .news.spotlight, html[data-theme="dark"] .tile.spotlight{ --spot: rgba(159,159,159,.10) }
 /* Photos and illustrations aren't recoloured */
 html[data-theme="dark"] img{ color-scheme: normal }
 /* The default avatar: a grey person on dark grey */
 html[data-theme="dark"] .avatar--face{ background: linear-gradient(180deg, #505157, #3d3e43); color:#d7d8dc; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06) }
 /* Project planner: brighter column dots, a white tick, visible checkbox edges */
-html[data-theme="dark"] .pl-col--doing .pl-dot{ background:#7391d8 }
-html[data-theme="dark"] .pl-col--done .pl-dot{ background:#2bc792 }
-html[data-theme="dark"] .pl-stack .is-doing{ background: linear-gradient(90deg, #4f6db6, #3d5a9e) }
+html[data-theme="dark"] .pl-col--doing .pl-dot{ background:#929292 }
+html[data-theme="dark"] .pl-col--done .pl-dot{ background:#b0b0b0 }
+html[data-theme="dark"] .pl-stack .is-doing{ background: linear-gradient(90deg, #6f6f6f, #5c5c5c) }
 html[data-theme="dark"] .task-box{ border-color:#4a4f57 }
 html[data-theme="dark"] .task-box .ico{ color:#fff }
 /* Mainframe: a note is a warm, quiet card on dark */
-html[data-theme="dark"] .wg--note{ background: linear-gradient(180deg, #2a2618, #232017); border-color: rgba(240,220,160,.16) }
+html[data-theme="dark"] .wg--note{ background: linear-gradient(180deg, #2a2618, #232017); border-color: rgba(221,221,221,.16) }
 
 /* Tours: initials stay white on their colour; the spotlight dims the page (not a light veil). */
 html[data-theme="dark"] .ta-av{ color:#f4f4f5 }
-html[data-theme="dark"] .coach-spot{ box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 0 0 6px rgba(226,32,32,.4), 0 0 0 200vmax rgba(0,0,0,.62) }
+html[data-theme="dark"] .coach-spot{ box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 0 0 6px rgba(116,116,116,.4), 0 0 0 200vmax rgba(0,0,0,.62) }
 html[data-theme="dark"] .tour-skip, html[data-theme="dark"] .coach-skip{ color:var(--muted) }
 html[data-theme="dark"] .tour-skip:hover, html[data-theme="dark"] .coach-skip:hover{ color:var(--ink) }
+/* Report a member: the chosen reason gets a light outline */
+html[data-theme="dark"] .rp-reason:has(input:checked){ box-shadow:0 0 0 1px #e3e4e6 inset }
+/* The container icons' cherry red, a little lighter on dark */
+html[data-theme="dark"]{ --cherry:#c43c53 }

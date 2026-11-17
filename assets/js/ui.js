@@ -47,6 +47,9 @@
     compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/>',
     inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
     radio: '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/>',
+    flag: '<path d="M4 22V4"/><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1"/>',
+    ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+    mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     sparkle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>',
     rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
@@ -115,7 +118,8 @@
   }
   function avatar(p, size = 40, opts = {}) {
     // The icon sits underneath, so it shows if the photo is missing or fails to load.
-    const img = p && p.picture ? `<img src="${esc(p.picture)}" alt="" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.remove()">` : "";
+    const pic = p && /^(https:\/\/|data:image\/|blob:)/i.test(p.picture || "") ? p.picture : "";
+    const img = pic ? `<img src="${esc(pic)}" alt="" referrerpolicy="no-referrer" loading="lazy" decoding="async" data-drop-broken>` : "";
     const av = `<span class="avatar avatar--face" style="--size:${size}px" aria-hidden="true">${FACE}${img}</span>`;
     return opts.ring ? `<span class="open-ring">${av}</span>` : av;
   }
@@ -369,7 +373,76 @@
       setTimeout(() => n.remove(), 300);
     }, opts.duration || 2400);
   }
-  const soon = (what) => toast(`${what} — coming soon`, { icon: "sparkle" });
+  /**
+   * An error under a form field, tied to it with aria-describedby and
+   * aria-invalid. It stays until fixed: give `check` (returns the message, or
+   * "" when fine) and it's checked again as the person types. Pass "" to clear.
+   */
+  let errSeq = 0;
+  function fieldError(field, message, check) {
+    if (!field) return;
+    if (!field.id) field.id = "f" + Date.now().toString(36) + (errSeq++);
+    const id = field.id + "-err";
+    let el = document.getElementById(id);
+    if (!el && message) {
+      el = document.createElement("span");
+      el.className = "field-error";
+      el.id = id;
+      const host = field.closest(".field, label") || field.parentElement;
+      host.appendChild(el);
+    }
+    const ids = (field.getAttribute("aria-describedby") || "").split(/\s+/).filter((x) => x && x !== id);
+    if (message) {
+      el.textContent = message;
+      el.hidden = false;
+      field.setAttribute("aria-invalid", "true");
+      field.setAttribute("aria-describedby", ids.concat(id).join(" "));
+    } else {
+      if (el) { el.hidden = true; el.textContent = ""; }
+      field.removeAttribute("aria-invalid");
+      if (ids.length) field.setAttribute("aria-describedby", ids.join(" ")); else field.removeAttribute("aria-describedby");
+    }
+    if (check && !field._errCheck) {
+      field._errCheck = check;
+      // Checked again as the person types: after the page's own handlers have taken the new
+      // value (setTimeout), and never on blur, where a message disappearing would move the
+      // button being clicked out from under the pointer.
+      const again = () => setTimeout(() => { if (field.getAttribute("aria-invalid") === "true") fieldError(field, field._errCheck() || ""); }, 0);
+      field.addEventListener("input", again);
+      if (field.tagName === "SELECT" || field.type === "checkbox" || field.type === "radio" || field.type === "date") field.addEventListener("change", again);
+    } else if (check) field._errCheck = check;
+  }
+
+  /**
+   * Something that failed (a save, a sign-in, a load): an alert that stays on
+   * screen until it's dismissed or replaced. Toasts are for things that worked.
+   */
+  function problem(msg) {
+    let box = document.getElementById("moriProblem");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "moriProblem";
+      box.className = "problem";
+      box.setAttribute("role", "alert");
+      box.innerHTML = `${icon("alert")}<span class="problem-text"></span><button class="link-btn problem-x" type="button">Dismiss</button>`;
+      box.querySelector(".problem-x").addEventListener("click", () => { box.hidden = true; });
+      document.body.appendChild(box);
+    }
+    box.querySelector(".problem-text").textContent = msg;
+    box.hidden = false;
+  }
+
+  // A photo that doesn't load leaves the initials showing (no inline onerror: the security policy blocks those).
+  document.addEventListener("error", (e) => { const t = e.target; if (t && t.tagName === "IMG" && t.hasAttribute("data-drop-broken")) t.remove(); }, true);
+
+  /** A link a member gave us, if it's safe to put in an href: https:// only (or mailto: when allowed). */
+  const safeUrl = (url, { mailto = false } = {}) => {
+    const u = String(url || "").trim();
+    return /^https:\/\/[^\s"'<>]+$/i.test(u) || (mailto && /^mailto:[^\s"'<>]+$/i.test(u)) ? u : "";
+  };
+
+  /** The label every fictional person, project, partner and programme in the guest demo carries. */
+  const sampleTag = (title = "Fictional, for the demo") => `<span class="sample-tag" title="${esc(title)}">Sample</span>`;
 
   /* ---------- Full-screen loading screen (sign-in, onboarding, sign-out) ---------- */
   const loader = {
@@ -537,7 +610,21 @@
   /* Measure the fixed nav so content and sticky bars sit below it */
   function measureNav() {
     const nav = document.getElementById("topNav");
-    if (nav) root.style.setProperty("--navH", Math.ceil(nav.getBoundingClientRect().height) + "px");
+    if (!nav) return;
+    const h = Math.ceil(nav.getBoundingClientRect().height);
+    root.style.setProperty("--navH", h + "px");
+    // Remember it for this width, so the next page reserves the right space before it paints (auth.js).
+    if (!nav.classList.contains("app-nav")) return;
+    try {
+      const k = (nav.classList.contains("has-demo") ? "g" : "m") + window.innerWidth;
+      const seen = JSON.parse(localStorage.getItem("mori.navH") || "{}");
+      if (seen[k] !== h) {
+        seen[k] = h;
+        const keys = Object.keys(seen);
+        if (keys.length > 8) delete seen[keys[0]];
+        localStorage.setItem("mori.navH", JSON.stringify(seen));
+      }
+    } catch (e) { /* storage blocked */ }
   }
   window.addEventListener("resize", measureNav);
   document.addEventListener("DOMContentLoaded", measureNav);
@@ -554,6 +641,6 @@
 
   hydrateIcons();
 
-  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, soon, loader, go, createModal, seg, placeGlider, measureNav, splitWords, squareImage, cropper, coverHTML, blobToDataUrl, themeToggle, setTheme, isDark };
+  Mori.ui = { $, $$, esc, icon, hydrateIcons, brandMark, googleG, avatar, avatarStack, roleChip, empty, initials, ago, humanizeDays, toast, loader, go, createModal, seg, placeGlider, measureNav, splitWords, squareImage, cropper, coverHTML, blobToDataUrl, themeToggle, setTheme, isDark, sampleTag, fieldError, problem, safeUrl };
   Mori.modal = Modal;
 })();
