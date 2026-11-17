@@ -31,15 +31,15 @@
   const REQUIRED = new Set(["about", "role"]); // every other step has a Skip
   /** Where the member is right now: picks the first action and the homepage's "Start here". */
   const SITUATIONS = [
-    { id: "idea", label: "I have an idea and need a team", blurb: "Declare the project and get its launch path.", icon: "bulb", c1: "#ec9e5f", c2: "#e78440", go: "projects.html?new=1" },
-    { id: "skills", label: "I have skills and want to join something", blurb: "Discover founders, and the sprints starting soon.", icon: "code", c1: "#7cafee", c2: "#7e80e7", go: "network.html#explore" },
-    { id: "prototype", label: "I have a prototype and need to make it real", blurb: "Start on the launch path: structure, registration, licences.", icon: "rocket", c1: "#34d399", c2: "#10b981", go: "projects.html?new=1&rung=2" },
+    { id: "idea", label: "I have an idea and need a team", blurb: "Declare the project and get its launch path.", icon: "bulb", c1: "#afafaf", c2: "#9d9d9d", go: "projects.html?new=1" },
+    { id: "skills", label: "I have skills and want to join something", blurb: "Discover founders, and the sprints starting soon.", icon: "code", c1: "#acacac", c2: "#8b8b8b", go: "network.html#explore" },
+    { id: "prototype", label: "I have a prototype and need to make it real", blurb: "Start on the launch path: structure, registration, licences.", icon: "rocket", c1: "#bbbbbb", c2: "#a3a3a3", go: "projects.html?new=1&rung=2" },
   ];
   const MAX_INDUSTRIES = 3;
   const MAX_LANGUAGES = 6;
   const MAX_CV_BYTES = 10 * 1024 * 1024;
   const DRAFT_KEY = Mori.store.userKey("onboardingDraft");
-  const ROLE_TONES = { founder: ["#ec9e5f", "#e78440"], specialist: ["#7cafee", "#7e80e7"] };
+  const ROLE_TONES = { founder: ["#afafaf", "#9d9d9d"], specialist: ["#acacac", "#8b8b8b"] };
 
   /* ---------- Answers: draft > saved profile > Google name > role picked on the landing page ---------- */
   let joinRole = null;

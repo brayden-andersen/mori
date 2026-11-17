@@ -10,16 +10,16 @@
 .dir-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap:14px }
 .dir-card{ display:grid; align-content:start; gap:8px; padding:18px }
 .dir-top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px }
-.dir-ico{ display:grid; place-items:center; width:34px; height:34px; border-radius:11px; color:#fff; background: linear-gradient(135deg, #5e92e8, #9b79ea) }
+.dir-ico{ display:grid; place-items:center; width:34px; height:34px; border-radius:11px; color:#fff; background: linear-gradient(135deg, #929292, #8d8d8d) }
 .dir-ico .ico{ width:16px; height:16px }
-.dir-vetted{ color:#0f7a55; background: rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.30) }
+.dir-vetted{ color:#6b6b6b; background: rgba(163,163,163,.10); border:1px solid rgba(163,163,163,.30) }
 .dir-vetted .ico{ width:12px; height:12px }
 .dir-name{ margin:4px 0 0; font-size:16.5px; letter-spacing:-.01em }
 .dir-city{ display:flex; align-items:center; gap:5px; margin:0 }
 .dir-city .ico{ width:13px; height:13px }
 .dir-services{ list-style:none; margin:4px 0 0; padding:0; display:grid; gap:4px; font-size:13.5px }
 .dir-services li{ display:flex; align-items:flex-start; gap:6px }
-.dir-services .ico{ flex:0 0 auto; width:13px; height:13px; margin-top:3px; color:#10b981 }
+.dir-services .ico{ flex:0 0 auto; width:13px; height:13px; margin-top:3px; color:#a3a3a3 }
 .dir-price{ margin:6px 0 0; font-size:13.5px }
 .dir-fee{ margin:0; font-size:12px }
 .dir-empty{ grid-column: 1 / -1; padding:34px 10px }

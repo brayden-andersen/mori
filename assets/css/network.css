@@ -15,7 +15,7 @@
 .manage-item{ display:flex; align-items:center; gap:12px; padding:11px 18px; margin:0 8px; border-radius:12px; font-size:14px; font-weight:500; color:var(--muted); text-decoration:none; transition: background .2s ease, color .2s ease }
 .manage-item:hover{ background: rgba(39,39,42,.05); color:var(--ink) }
 .manage-item.is-on{ color:var(--ink); font-weight:600; background: rgba(39,39,42,.07) }
-.manage-item.is-on .ico{ color:var(--mori-red) }
+.manage-item.is-on .ico{ color:var(--ink) }
 .manage-item .ico{ width:18px; height:18px }
 .manage-item > span:first-of-type{ flex:1 }
 .manage-num{ font-size:13px; color:var(--subtle); font-variant-numeric: tabular-nums }
@@ -57,10 +57,10 @@
 .ind-opt input{ position:absolute; opacity:0; pointer-events:none }
 .ind-box{ width:18px; height:18px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; border:1.5px solid #d2d9e2; background:#fff; color:transparent; transition: background .2s ease, border-color .2s ease, color .2s ease }
 .ind-box .ico{ width:12px; height:12px }
-.ind-opt input:checked + .ind-box{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #5e92e8, #7e80e7) }
-.ind-opt input:focus-visible + .ind-box{ box-shadow: 0 0 0 3px rgba(94,146,232,.3) }
+.ind-opt input:checked + .ind-box{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #929292, #8b8b8b) }
+.ind-opt input:focus-visible + .ind-box{ box-shadow: 0 0 0 3px rgba(26,28,31,.42) }
 .ind-name{ flex:1; min-width:0 }
-.ind-count{ min-width:20px; height:20px; padding:0 6px; border-radius:999px; display:inline-grid; place-items:center; font-size:11px; font-weight:600; color:#2c458d; background: rgba(94,146,232,.10) }
+.ind-count{ min-width:20px; height:20px; padding:0 6px; border-radius:999px; display:inline-grid; place-items:center; font-size:11px; font-weight:600; color:#494949; background: rgba(146,146,146,.10) }
 
 .explore-active{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px }
 .explore-active .link-btn{ font-size:13px; margin-left:4px }
@@ -85,7 +85,7 @@
 .person .tags{ margin-top:12px }
 .person .pcard-actions{ padding-top:16px }
 .person .pcard-actions .btn{ flex:1 }
-.btn.is-pending{ color:#2c458d; background: rgba(94,146,232,.08); border-color: rgba(94,146,232,.28); box-shadow:none }
+.btn.is-pending{ color:#494949; background: rgba(146,146,146,.08); border-color: rgba(146,146,146,.28); box-shadow:none }
 .btn.is-pending:hover{ color:#c33030; background: rgba(227,101,101,.06); border-color: rgba(227,101,101,.3) }
 span.btn.is-done{ cursor:default; transform:none }
 .btn[aria-busy="true"]{ cursor:progress; opacity:.6 }
@@ -140,7 +140,7 @@ span.btn.is-done{ cursor:default; transform:none }
 .chat-scroll{ flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:10px; padding:18px }
 .chat-item.is-unread .preview{ font-weight:600; color:var(--ink-2) }
 .chat-meta{ display:grid; justify-items:end; gap:6px; font-size:11.5px; color:var(--subtle); white-space:nowrap }
-.unread-dot{ width:9px; height:9px; border-radius:50%; background:var(--mori-red); box-shadow: 0 0 0 3px rgba(231,132,64,.18) }
+.unread-dot{ width:9px; height:9px; border-radius:50%; background:var(--mori-red); box-shadow: 0 0 0 3px rgba(157,157,157,.18) }
 .chat-who{ appearance:none; flex:1; min-width:0; display:flex; align-items:center; gap:12px; padding:0; border:0; background:none; font:inherit; color:inherit; text-align:left; cursor:pointer }
 .chat-who .who{ display:grid; min-width:0 }
 .chat-who .who b{ display:block }
@@ -151,7 +151,7 @@ span.btn.is-done{ cursor:default; transform:none }
 .cb-row{ display:flex; flex-direction:column; align-items:flex-start; max-width:78%; animation: bubble-pop .4s var(--ease-spring) both }
 .cb-row.me{ align-self:flex-end; align-items:flex-end }
 .cb{ padding:10px 14px; border-radius:4px 16px 16px 16px; font-size:14px; line-height:1.5; color:var(--ink-2); background:#fff; border:1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(26,28,31,.04); overflow-wrap:anywhere; white-space:pre-wrap }
-.cb-row.me .cb{ border-radius:16px 4px 16px 16px; color:#fff; border-color:transparent; background: linear-gradient(135deg, #5e92e8, #7e80e7); box-shadow: 0 8px 18px -8px rgba(94,146,232,.6) }
+.cb-row.me .cb{ border-radius:16px 4px 16px 16px; color:#fff; border-color:transparent; background: linear-gradient(135deg, #929292, #8b8b8b); box-shadow: 0 8px 18px -8px rgba(146,146,146,.6) }
 .cb-row.is-pending .cb{ opacity:.65 }
 .cb-row.is-failed .cb{ color:#842a2a; background: rgba(251,229,229,.9); border:1px solid rgba(227,101,101,.35); box-shadow:none }
 .cb-time{ display:inline-flex; align-items:center; gap:4px; margin-top:4px; font-size:11px; color:var(--subtle) }

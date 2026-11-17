@@ -17,7 +17,7 @@
   const Mori = window.Mori;
   const session = Mori.auth.session();
   const active = !!(session && session.provider === "guest");
-  Mori.guest = { active, reset, seed, SEED_VERSION: 3 }; // 2: launch-path progress and a saved sprint spot · 3: sample obligations
+  Mori.guest = { active, reset, seed, SEED_VERSION: 4 }; // 2: launch-path progress and a saved sprint spot · 3: sample obligations · 4: sample meetings
   if (!active) return;
 
   const S = Mori.sample;
@@ -167,7 +167,12 @@
     async changeTasks(id, apply) { return Mori.db.changeColumn(id, "milestones", apply); },
     async workspace(id) {
       if (!onTeam(project(id))) return soon(null);
-      return soon(clone(workspaces()[id] || {}));
+      const ws = clone(workspaces()[id] || {});
+      // Sample meetings stay on today's date, so the homepage's Today always has some.
+      const d = new Date();
+      const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      if (ws.meetings && Array.isArray(ws.meetings.items)) ws.meetings.items = ws.meetings.items.map((m) => (m && m.sample ? Object.assign({}, m, { date: today }) : m));
+      return soon(ws);
     },
     async changeWorkspace(id, apply) {
       if (!onTeam(project(id))) return soon(null);

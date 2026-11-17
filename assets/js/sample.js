@@ -83,7 +83,7 @@
       milestones: [
         task("w1", "Write the one-page problem brief", "done"),
         task("w2", "Book 8–10 problem interviews", "done"),
-        task("w3", "Summarise what you learned", "doing", { assignee: ID, due: inDays(3) }),
+        task("w3", "Summarise what you learned", "doing", { assignee: ID, due: inDays(0) }),
         task("w4", "Sketch the riskiest user flow", "todo", { assignee: m("dewi"), due: inDays(6) }),
         task("w5", "Build a clickable prototype", "todo"),
         task("w6", "Sign the founders’ agreement", "todo", { due: inDays(10) }),
@@ -165,9 +165,15 @@
         { id: "cm-2", name: "Quarterly review with a tax adviser", every: "quarter", due: inDays(24), done: false, note: "", sample: true },
         { id: "cm-3", name: "Renew the domain and business email", every: "year", due: inDays(-2), done: false, note: "", sample: true },
       ] },
+      // Sample meetings for the homepage's Today. guestdb.js keeps them on today's date.
+      meetings: { items: [
+        { id: "mt-1", title: "Team stand-up", date: inDays(0), start: "09:30", end: "09:45", sample: true },
+        { id: "mt-2", title: "Interview at a warung in Tebet", date: inDays(0), start: "14:00", end: "15:00", sample: true },
+      ] },
     },
     "p-rantang": { layout: [], roles: [], finance: { currency: "IDR", start: 0, entries: [] }, marketing: { campaigns: [] }, gtm: { done: {}, custom: [] }, funding: { items: [] }, metrics: { items: [] }, interviews: { items: [] }, canvas: {}, ladder: { done: {} } },
     "p-kebundata": {
+      meetings: { items: [{ id: "mt-3", title: "Call with a notary", date: inDays(0), start: "16:30", end: "17:00", sample: true }] },
       layout: [widget("ka", "tasks", "today", 0, 0, 1, 2), widget("kb", "ladder", "next", 1, 0, 1, 1), widget("kc", "metrics", "kpi", 2, 0, 1, 1, { metricId: "k-3" }), widget("kd", "people", "team", 3, 0, 1, 1), widget("ke", "marketing", "leads", 1, 1, 1, 1), widget("kf", "canvas", "uvp", 2, 1, 2, 1)],
       roles: [{ id: "ro-3", title: "Backend developer", note: "Offline-first sync", filled: false }],
       finance: { currency: "IDR", start: 8000000, entries: [{ id: "f-6", date: inDays(-15), label: "Field trip to Sleman", kind: "out", amount: 900000, category: "Operations" }] },

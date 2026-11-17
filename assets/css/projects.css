@@ -21,7 +21,7 @@
 .pages{ display:flex; gap:6px; flex-wrap:wrap; }
 .pagebtn{ padding:8px 12px; border-radius:10px; border:1px solid #e8e8e8; background:#fff; cursor:pointer; font-size:13px; transition: transform .25s var(--ease-spring), border-color .2s ease, background .2s ease }
 .pagebtn:hover{ transform: translateY(-1px) }
-.pagebtn[aria-current="page"]{ border-color: rgba(94,146,232,.28); background: rgba(94,146,232,.08); }
+.pagebtn[aria-current="page"]{ border-color: rgba(146,146,146,.28); background: rgba(146,146,146,.08); }
 
 /* ---------- Project preview (drawer) ---------- */
 .modal--drawer{ display:flex; flex-direction:column; padding-bottom:6px }
@@ -33,7 +33,7 @@
 }
 .pd-sheet:hover{ transform: translateY(-2px); border-color:#d6d6d8; box-shadow: var(--lift-shadow) }
 .pd-sheet:active{ transform: translateY(0) scale(.995) }
-.pd-sheet:focus-visible{ box-shadow: 0 0 0 3px rgba(94,146,232,.35), var(--panel-shadow) }
+.pd-sheet:focus-visible{ box-shadow: 0 0 0 3px rgba(26,28,31,.42), var(--panel-shadow) }
 .pd-head{ position:relative; padding:20px 0 4px }
 .pd-head .chips{ margin-top:0; padding-right:44px }
 .pd-head h2{ margin:14px 0 4px; font-size:24px; letter-spacing:-.02em }
@@ -48,7 +48,7 @@
 .pd-more{ font-size:11.5px; color:var(--subtle); padding:0 2px }
 .pd-open-row{ display:flex; align-items:center; gap:12px; margin-top:14px }
 .pd-bar{ flex:1; height:6px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.07) }
-.pd-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #34d399, #10b981); transition: width .7s var(--ease-out) }
+.pd-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #bbbbbb, #a3a3a3); transition: width .7s var(--ease-out) }
 .pd-open-row .meta{ font-size:12.5px; white-space:nowrap }
 .pd-go{ display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:600; white-space:nowrap; color:var(--ink) }
 .pd-go .ico{ width:15px; height:15px; transition: transform .35s var(--ease-out) }
@@ -62,7 +62,7 @@
 .ladder-labels{ display:grid; grid-template-columns: repeat(6, 1fr); gap:4px; margin-top:6px; font-size:11px; text-align:center; color:var(--subtle) }
 .ladder-labels .is-now{ font-weight:700; color:var(--progress-orange) }
 .pd-now{ margin:12px 0 0; font-size:14px }
-.pd-next{ margin-top:10px; padding:12px 14px; border-radius:12px; font-size:13.5px; line-height:1.5; background: rgba(231,132,64,.06); border:1px dashed rgba(231,132,64,.38) }
+.pd-next{ margin-top:10px; padding:12px 14px; border-radius:12px; font-size:13.5px; line-height:1.5; background: rgba(157,157,157,.06); border:1px dashed rgba(157,157,157,.38) }
 
 .team{ display:grid; gap:10px }
 .team-row{ display:flex; align-items:center; gap:12px }
@@ -83,8 +83,8 @@
 .co-opt input{ position:absolute; opacity:0; pointer-events:none }
 .co-opt .ind-box{ width:18px; height:18px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; border:1.5px solid #d2d9e2; background:#fff; color:transparent; transition: background .2s ease, border-color .2s ease, color .2s ease }
 .co-opt .ind-box .ico{ width:12px; height:12px }
-.co-opt input:checked + .ind-box{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #5e92e8, #7e80e7) }
-.co-opt input:focus-visible + .ind-box{ box-shadow: 0 0 0 3px rgba(94,146,232,.3) }
+.co-opt input:checked + .ind-box{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #929292, #8b8b8b) }
+.co-opt input:focus-visible + .ind-box{ box-shadow: 0 0 0 3px rgba(26,28,31,.42) }
 .co-copy{ display:grid; min-width:0 }
 .co-copy b{ font-size:13.5px }
 .co-copy .meta{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
@@ -101,7 +101,7 @@
 .np-rungs{ display:grid; grid-template-columns: repeat(6, 1fr); gap:6px }
 .np-rung{ appearance:none; padding:10px 0; border-radius:12px; border:1px solid #e8e8e8; background:#fff; font-weight:700; color:var(--ink-2); cursor:pointer; transition: transform .35s var(--ease-spring), background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease }
 .np-rung:hover{ transform: translateY(-2px) }
-.np-rung[aria-checked="true"]{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #ec9e5f, #e78440); box-shadow: 0 10px 20px -10px rgba(231,132,64,.9) }
+.np-rung[aria-checked="true"]{ color:#fff; border-color:transparent; background: linear-gradient(135deg, #afafaf, #9d9d9d); box-shadow: 0 10px 20px -10px rgba(157,157,157,.9) }
 .np-rung-desc{ margin:8px 0 0; min-height:2.8em; font-size:13px; font-weight:400; line-height:1.5; color:var(--muted) }
 .input.is-invalid{ border-color: rgba(227,101,101,.6); box-shadow: 0 0 0 4px rgba(227,101,101,.12); animation: shake .4s ease }
 @keyframes shake{ 25%{ translate:-4px 0 } 75%{ translate:4px 0 } }

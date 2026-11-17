@@ -21,7 +21,9 @@ async function openDemo(page) {
 test("the guest demo opens with labelled sample data, and resets", async ({ page }) => {
   await openDemo(page);
   await expect(page.locator("#continuePanel")).toContainText("WarungPay");
-  await expect(page.locator("#continuePanel .sample-tag")).toBeVisible();
+  await expect(page.locator("#continuePanel .sample-tag").first()).toBeVisible();
+  await expect(page.locator("#todayPanel .td-meet")).toHaveCount(3); // the sample meetings, always on today's date
+  await expect(page.locator("#prompt")).toContainText("3 meetings");
   await page.evaluate(() => Mori.state.createProject({ name: "My own idea" }));
   await page.goto("/projects.html");
   await expect(page.locator("#grid")).toContainText("My own idea");

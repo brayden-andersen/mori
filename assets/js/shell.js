@@ -726,15 +726,15 @@
 
   /* ---------- Notifications modal ---------- */
   const NT_STYLE = {
-    request: ["userPlus", "#3e5c98", "#3d5b96"],
-    accepted: ["check", "#34d399", "#10b981"],
-    message: ["message", "#34d399", "#265451"],
-    mention: ["at", "#a04174", "#8b2e45"],
-    project: ["target", "#896938", "#775b31"],
-    ladder:  ["ladder", "#71562e", "#775b31"],
-    sprint:  ["zap", "#375186", "#375186"],
-    insight: ["bulb", "#775b31", "#71562e"],
-    badge:   ["award", "#a13651", "#775b31"],
+    request: ["userPlus", "#5d5d5d", "#5c5c5c"],
+    accepted: ["check", "#bbbbbb", "#a3a3a3"],
+    message: ["message", "#bbbbbb", "#4d4d4d"],
+    mention: ["at", "#636363", "#4f4f4f"],
+    project: ["target", "#6e6e6e", "#606060"],
+    ladder:  ["ladder", "#5b5b5b", "#606060"],
+    sprint:  ["zap", "#525252", "#525252"],
+    insight: ["bulb", "#606060", "#5b5b5b"],
+    badge:   ["award", "#5c5c5c", "#606060"],
   };
   let ntFilter = "all";
 

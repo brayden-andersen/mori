@@ -17,7 +17,7 @@ Plain HTML, CSS and JavaScript. There is no build step. It uses the design langu
 | `toolkits.html` | **Toolkits** (public): the planner's templates, each readable in full, with a way into the planner or the demo. |
 | `404.html` | **Page not found**, served by GitHub Pages for any missing address. |
 | `onboarding.html` | **Sign-up**, short: name (region optional) · founder or specialist, with a line on what each changes · a specialist's role · one industry · *Where are you right now?* (an idea and need a team, skills and want to join, a prototype to make real). Only the name and the role are required; every other step has *Skip for now*. The answer picks the first page: declare a project, Discover, or declare at rung 2. A `?next=` deep link wins over it. **Complete your profile** is the same page with `?edit=1`: every step, including date of birth, experience and employment (*Details*), LinkedIn or CV, and languages. |
-| `home.html` | **Homepage**, in two versions. A new or empty account gets *Start here* (the first step for their situation), *Complete your profile*, the launch path, upcoming sprints and people to meet. An account with projects, connections or conversations gets *Continue where you left off* (the pinned or latest project and its next launch-path step), *Needs your attention* (requests, unread messages, overdue tasks), upcoming sprints and the profile nudge while it's incomplete. Projects, the MORI Network and Plans are small links under the greeting. |
+| `home.html` | **Homepage**: a fixed grid of panels. Row 1: *Continue where you left off* (up to three projects, pinned first, each with its focus, next launch-path step and progress ring; a new account gets *Start here* instead) beside **Today** (see below). Row 2: *Needs your attention*, the launch path, sprints. Row 3: *People to meet* beside *Your profile* while it's incomplete. Under the welcome: today's date and what's on. Two columns on tablets, one on phones with Today first. |
 | `projects.html` | **Projects**: search, tag filters, sort, pagination, declare a new project and add people. Clicking a project opens its **preview** (the board at a glance, milestone ladder, team, pin to homepage); clicking the preview opens the planner. |
 | `project.html?id=…` | **Project planner**: the project's **Mainframe** (its home page, a canvas of widgets) and a page for each tool: daily tasks, GTM checklist, milestone ladder, **launch path**, **compliance tracker**, people, documents, customer interviews, lean canvas, marketing, metrics, finance, funding opportunities, **program navigator** and toolkits. See *Projects* and *The launch path* below. |
 | `sprints.html` | **Sprints**: your spots, the lobbies by niche, what starts next and how sprints work (`sprints.html`); a lobby with its upcoming and past sprints (`#lobby/<id>`); a sprint with its brief, dates, team size, how teams form, what gets verified and how badges are earned, and **Save my spot** (`#sprint/<id>`). The first sprints haven't run yet and the page says so. See *Sprints* below. |
@@ -34,6 +34,16 @@ For signed-in members nothing is pre-filled: projects appear once the member dec
 - **The project tour** starts when a member declares their **first project**, which (like every new project) opens straight on its Mainframe. A spotlight walks through the sidebar's tools (Plan; Build with their own documents, interviews and the lean canvas; Grow, Money and Learn), then the **People** page (the team, adding people from their connections, the roles the team needs, the team in the header), then back to the **Mainframe** to show how widgets work: what they are (with *Add starter widgets* for an empty Mainframe), *Add widget*, and *Edit Mainframe*, which it turns on so they can move and resize widgets right there. On phones the tools drawer opens and closes along the way.
 - Every slide's picture is a small animated demo drawn in CSS (with reduced motion it just shows how it ends). Both tours can be skipped at any step (*Skip tour*, or Escape) and taken again from **Settings → Preferences / Projects → Take the tour**; the footer's *Sandbox Guide* starts the site tour too, on the page you're on (from a project page, on the homepage).
 - Where a member is in each tour is kept with their settings (`settings.tour`), so it follows them to other devices, and a skipped tour stays skipped. The code is `assets/js/tour.js` and `assets/css/tour.css`.
+
+### Homepage: Today and meetings
+
+**Today** is a calendar of the day, like a phone's calendar widget: the date; all-day items (a project's obligation due today, a project countdown that lands today, a saved sprint that starts today); today's meetings in time order, with a *Now* line between what's past and what's next; and the tasks due today in any of your projects, with tick boxes that tick them in the project.
+
+**Meetings:** *Add a meeting* (on Today) asks what, the day, from and (optionally) to, and who it's for. A meeting for a project is saved with that project (its workspace, `meetings.items`), so its whole team sees it on their homepage; one for *Just me* is saved with your settings, which only you see and which follow you to your other devices. Click a meeting to change, move or delete it. Meetings more than 60 days old are dropped when the list is next saved. There's no calendar sync yet (Google Calendar could come later). The guest demo has three sample meetings, always on today's date.
+
+### Colours
+
+The site is shades of grey. Red is kept only where it means something: the logo and the red words on the landing page, *Mainframe* in a project's header, unread dots and counts, overdue markers, errors and delete buttons. The one accent is a dark cherry red (`--cherry` in `mori.css`, lighter in dark mode) on the small icon at the top left of each panel and Mainframe widget. Members choosing text colours in documents keep their colours. The page you're on in the nav shows in full ink on a faint grey pill.
 
 ### Homepage: the opening
 
@@ -222,7 +232,7 @@ npx playwright install chromium
 
 The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
 
-**Cache tags:** every page loads its CSS and JS with `?v=14`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
+**Cache tags:** every page loads its CSS and JS with `?v=15`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
 ## Supabase (sign-in, profiles, CVs, network)
 

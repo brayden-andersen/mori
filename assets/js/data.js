@@ -239,11 +239,11 @@ window.Mori.data = {
 
   /* The five kinds of sprint, as the landing page describes them. Each counts toward a rung. */
   sprintKinds: {
-    problem: { name: "Problem sprint", rung: 1, icon: "target", c1: "#7cafee", c2: "#5e92e8", blurb: "Talk to 8–10 people who have the problem, then decide what to build." },
-    prototype: { name: "Prototype sprint", rung: 2, icon: "flask", c1: "#b4a0f2", c2: "#9b79ea", blurb: "Put a clickable prototype in front of five real users." },
-    physical: { name: "Physical sprint", rung: 2, icon: "box", c1: "#34d399", c2: "#28c3b2", blurb: "Test a first sample of a hardware, food or consumer product." },
-    demand: { name: "Demand sprint", rung: 3, icon: "megaphone", c1: "#ec9e5f", c2: "#e78440", blurb: "Launch a landing page and hit a sign-up target you set in advance." },
-    build: { name: "Build sprint", rung: 4, icon: "code", c1: "#eb8bbd", c2: "#e168a3", blurb: "Ship one working feature to real users, with usage numbers." },
+    problem: { name: "Problem sprint", rung: 1, icon: "target", c1: "#acacac", c2: "#929292", blurb: "Talk to 8–10 people who have the problem, then decide what to build." },
+    prototype: { name: "Prototype sprint", rung: 2, icon: "flask", c1: "#acacac", c2: "#8d8d8d", blurb: "Put a clickable prototype in front of five real users." },
+    physical: { name: "Physical sprint", rung: 2, icon: "box", c1: "#bbbbbb", c2: "#afafaf", blurb: "Test a first sample of a hardware, food or consumer product." },
+    demand: { name: "Demand sprint", rung: 3, icon: "megaphone", c1: "#afafaf", c2: "#9d9d9d", blurb: "Launch a landing page and hit a sign-up target you set in advance." },
+    build: { name: "Build sprint", rung: 4, icon: "code", c1: "#a9a9a9", c2: "#929292", blurb: "Ship one working feature to real users, with usage numbers." },
   },
   /* How every sprint works. [BRAYDEN: confirm how teams form and how long sign-up stays open] */
   sprintHow: {

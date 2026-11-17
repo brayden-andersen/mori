@@ -15,100 +15,172 @@
 html{ scrollbar-gutter: stable }
 html.boot .hello:not(.is-placed),
 html.boot #prompt,
-html.boot .home-links,
 html.boot .home-grid > section,
 html.boot .footer{ opacity:0 }
 .hello.split-words.is-shown .word{ animation:none; opacity:1; transform:none; filter:none }
 .prompt{ margin:12px 0 0; text-align:center; color:var(--muted) }
 
-/* ===== Secondary links under the greeting (Projects and the Network used to be big cards) ===== */
-.home-links{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:22px }
-.home-link{ display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px; font-size:14px; font-weight:500; color:var(--ink); text-decoration:none; background: rgba(255,255,255,.62); border:1px solid rgba(39,39,42,.30); box-shadow: var(--panel-shadow); transition: transform .15s ease, box-shadow .15s ease }
-.home-link:hover{ transform: translateY(-1px); box-shadow: var(--lift-shadow) }
-.home-link .ico{ width:16px; height:16px; color:var(--subtle) }
-.home-link-badge{ min-width:18px; height:18px; padding:0 5px; border-radius:999px; font-size:11px; font-weight:600; line-height:18px; text-align:center; color:#fff; background: var(--mori-red) }
+/* ===== The grid: a fixed layout of panels (home.js) =====
+   Row 1: projects (8 of 12 columns) beside Today (4). Row 2: three panels of 4.
+   Row 3: people (8, or all 12) beside your profile (4). Two columns on tablets,
+   one on phones, with Today first. */
+.home-grid{ display:grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap:20px }
+.home-grid > .panel{ margin:0; min-width:0 }
+.home-grid > .s8{ grid-column: span 8 }
+.home-grid > .s4{ grid-column: span 4 }
+.home-grid > .s12{ grid-column: span 12 }
+@media (max-width: 1100px){
+  .home-grid > .s8{ grid-column: span 12 }
+  .home-grid > .s4{ grid-column: span 6 }
+}
+@media (max-width: 760px){
+  .home-grid{ grid-template-columns: minmax(0,1fr); gap:14px }
+  .home-grid > .s4, .home-grid > .s8, .home-grid > .s12{ grid-column: auto }
+  .home-grid > #todayPanel{ order:-1 }
+}
 
-/* ===== The two homepages ===== */
-.home-grid{ display:grid; gap:18px }
-.home-grid > .panel{ margin:0 }
-.panel--compact .nudge p{ margin-top:6px }
-/* Start here */
+/* Panel heading: the cherry icon, a small capitalised title, a grey link on the right */
+.home-panel{ display:flex; flex-direction:column }
+.home-panel > .panel-head{ justify-content:flex-start; gap:10px; margin-bottom:14px }
+.panel-ico{ display:grid; place-items:center; width:20px; height:20px; flex:0 0 auto; color:var(--cherry) }
+.panel-ico .ico{ width:17px; height:17px }
+.panel-title{ margin:0; font-size:12.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--subtle) }
+.home-panel .panel-link{ margin-left:auto; color:var(--subtle); font-weight:500; white-space:nowrap }
+.home-panel .panel-link:hover{ color:var(--ink) }
+
+/* Start here (a new account) */
 .start-grid{ display:grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap:14px }
 .start-main{ display:grid; justify-items:start; gap:8px; padding:22px; text-decoration:none; color:inherit }
-.start-main h4{ margin:0; font-size:19px; letter-spacing:-.01em }
+.start-main h3{ margin:0; font-size:19px; letter-spacing:-.01em }
 .start-main .meta{ margin:0; line-height:1.5 }
 .start-main .btn{ margin-top:6px; pointer-events:none }
-.start-ico{ display:grid; place-items:center; width:40px; height:40px; border-radius:13px; color:#fff; background: linear-gradient(135deg, #c8141a, #8f0710) }
+.start-ico{ display:grid; place-items:center; width:40px; height:40px; border-radius:13px; color:var(--ink); background: rgba(26,28,31,.07) }
 .start-ico .ico{ width:19px; height:19px }
-.start-ico--sm{ width:34px; height:34px; border-radius:11px; background: linear-gradient(135deg, #5e92e8, #9b79ea) }
+.start-ico--sm{ width:34px; height:34px; border-radius:11px }
 .start-ico--sm .ico{ width:16px; height:16px }
 .start-rest{ display:grid; gap:12px }
 .start-alt{ display:flex; align-items:center; gap:12px; padding:14px 16px; text-decoration:none; color:inherit }
 .start-alt b{ display:block; font-size:14px }
 .start-alt .meta{ font-size:12.5px }
-/* Complete your profile */
-.nudge-bar{ height:8px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.08) }
-.nudge-bar i{ display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, #e78440, #c8141a) }
-.nudge-bar--tall{ width:140px; flex:0 0 auto; align-self:center }
-.nudge .meta{ margin:10px 0 0; line-height:1.5 }
-/* Launch path and continue */
-.launch-next{ display:flex; align-items:center; justify-content:space-between; gap:20px; text-decoration:none; color:inherit }
-.launch-next h4{ margin:4px 0 6px; font-size:17px }
-.launch-guide{ color:#8a5a00 }
-.continue-pin{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding:22px }
-.continue-pin .pin-left{ flex:1; min-width:0 }
-.continue-pin h4{ margin:0 0 6px }
-.continue-pin .caption{ margin-top:10px; font-size:13px; color:#55575b; font-style:italic }
-.continue-next{ margin:10px 0 0; display:flex; align-items:center; gap:6px; flex-wrap:wrap }
-.continue-next .ico{ width:14px; height:14px; color: var(--mori-red) }
-.continue-next a{ color:#3d64d2; font-weight:600; text-decoration:none }
-.continue-pin .pin-separator{ width:1px; background:#e8e8e8; align-self:stretch; margin-left:16px; margin-right:8px }
-/* Needs attention */
+
+/* Continue where you left off: one row per project */
+.cp-list{ display:grid }
+.cp-row{ display:flex; align-items:center; gap:20px; padding:16px 0; border-top:1px solid rgba(26,28,31,.08); cursor:pointer }
+.cp-row:first-child{ border-top:0; padding-top:4px }
+.cp-row:last-child{ padding-bottom:2px }
+.cp-main{ flex:1; min-width:0 }
+.cp-top{ display:flex; align-items:center; flex-wrap:wrap; gap:8px }
+.cp-name{ font-size:17px; font-weight:600; color:var(--ink); text-decoration:none }
+.cp-name:hover{ text-decoration:underline; text-underline-offset:3px }
+.cp-top .chip .ico{ width:12px; height:12px }
+.cp-when{ margin-left:auto; font-size:12px }
+.cp-focus{ margin:8px 0 0; font-size:14px; color:var(--muted) }
+.cp-next{ margin:6px 0 0 }
+.cp-next b{ font-weight:600; color:var(--ink-2) }
+.cp-ring{ width:58px; height:58px }
+.cp-ring .progress-circle::after{ display:none }
+.cp-ring .progress-inner{ inset:6px }
+.cp-row:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
+@keyframes ring-pop{ 40%{ transform: scale(1.05) } }
+@media (max-width: 560px){ .cp-when{ margin-left:0; flex-basis:100% } .cp-row{ gap:14px } .cp-ring{ width:48px; height:48px } }
+
+/* Today: a calendar widget */
+.td{ gap:12px }
+.td > .panel-head{ margin-bottom:0 }
+.td-date{ display:flex; align-items:flex-end; gap:12px }
+.td-day{ font-size:44px; font-weight:600; line-height:1; letter-spacing:-.02em; color:var(--ink) }
+.td-wk{ display:grid; padding-bottom:3px }
+.td-wk b{ font-size:14px; font-weight:600 }
+.td-allday{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; font-size:13px; color:var(--ink); text-decoration:none; background: rgba(26,28,31,.05) }
+.td-allday:hover{ background: rgba(26,28,31,.08) }
+.td-allday-tag{ flex:0 0 auto; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--subtle) }
+.td-list{ list-style:none; margin:0; padding:0; display:grid; gap:2px }
+.td-meet-btn{ all:unset; box-sizing:border-box; width:100%; display:grid; grid-template-columns: 48px minmax(0,1fr); gap:12px; padding:8px 6px; border-radius:10px; cursor:pointer }
+.td-meet-btn:hover{ background: rgba(26,28,31,.05) }
+.td-meet-btn:focus-visible{ box-shadow: 0 0 0 3px rgba(26,28,31,.42) }
+.td-time{ font-size:13px; color:var(--subtle); font-variant-numeric: tabular-nums; padding-top:1px }
+.td-what{ display:grid; min-width:0 }
+.td-what b{ font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.td-what .meta{ font-size:12px }
+.td-meet.is-past b{ color:var(--subtle); text-decoration:line-through; text-decoration-color: rgba(26,28,31,.3) }
+.td-now{ display:flex; align-items:center; gap:8px; padding:2px 6px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink) }
+.td-now-dot{ width:8px; height:8px; border-radius:50%; background:var(--ink) }
+.td-now-rule{ flex:1; height:1px; background: rgba(26,28,31,.45) }
+.td-tasks{ border-top:1px solid rgba(26,28,31,.08); padding-top:10px }
+.td-label{ margin:0 0 4px; font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--subtle) }
+.td-task{ display:flex; align-items:center; gap:10px; min-height:40px; font-size:14px; cursor:pointer }
+.td-task input{ width:18px; height:18px; flex:0 0 auto; margin:0; accent-color: var(--ink) }
+.td-task-text{ min-width:0 }
+.td-task.is-done .td-task-text{ color:var(--subtle); text-decoration:line-through }
+.td-empty{ margin:0; line-height:1.5 }
+.td-add{ align-self:flex-start; margin-top:auto }
+
+/* Needs your attention */
 .attn-list{ display:grid; gap:8px }
-.attn-row{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
+.attn-row{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
 .attn-row:hover{ transform: translateY(-1px); box-shadow: var(--panel-shadow) }
 .attn-row > div{ flex:1; min-width:0; display:grid }
 .attn-row b{ font-size:14px }
 .attn-row .meta{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.attn-ico{ display:grid; place-items:center; width:34px; height:34px; border-radius:11px; color:#fff; background: linear-gradient(135deg, #5e92e8, #9b79ea); flex:0 0 auto }
-.attn-ico.is-late{ background: linear-gradient(135deg, #f0442c, #b80000) }
+.attn-ico{ display:grid; place-items:center; width:32px; height:32px; border-radius:10px; flex:0 0 auto; color:var(--ink-2); background: rgba(26,28,31,.07) }
+.attn-ico.is-late{ color:#fff; background: linear-gradient(135deg, #f0442c, #b80000) }
 .attn-ico .ico{ width:16px; height:16px }
-.attn-row .go .ico{ width:16px; height:16px; color:var(--subtle) }
+
+/* Launch path */
+.lp-title{ margin:4px 0 10px; font-size:17px; font-weight:600; line-height:1.3 }
+.lp-sub{ margin:0; line-height:1.5 }
+.lp-sub + .btn{ margin-top:14px; align-self:flex-start }
+.lp-items{ list-style:none; margin:0; padding:0; display:grid; gap:6px }
+.lp-item{ display:flex; align-items:flex-start; gap:10px; font-size:14px; line-height:1.4 }
+.lp-item.is-done{ color:var(--subtle) }
+.lp-box{ display:grid; place-items:center; width:18px; height:18px; flex:0 0 auto; margin-top:1px; border-radius:5px; border:1.5px solid rgba(26,28,31,.35) }
+.lp-item.is-done .lp-box{ border-color:transparent; background:var(--ink); color:var(--bg) }
+.lp-box .ico{ width:12px; height:12px }
+.lp-progress{ display:flex; align-items:center; gap:10px; margin-top:auto; padding-top:14px }
+.lp-progress .nudge-bar{ flex:1 }
+
+/* Profile and the bars */
+.nudge-bar{ height:6px; border-radius:999px; overflow:hidden; background: rgba(26,28,31,.08) }
+.nudge-bar i{ display:block; height:100%; border-radius:inherit; background: var(--ink-2); opacity:.75 }
+.pp-pct{ margin:0 0 10px; font-size:14px; color:var(--muted) }
+.pp-pct b{ font-size:28px; font-weight:600; color:var(--ink); letter-spacing:-.01em }
+.pp-next{ margin:10px 0 0; line-height:1.5 }
+#profilePanel .panel-link{ order:0 }
+
 /* Sprints */
-.sprints-note{ margin:0 0 12px; line-height:1.5 }
 .sprint-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px }
 .sprint-list li{ display:block }
-.sprint-link{ display:flex; align-items:center; gap:14px; padding:11px 14px; border-radius:14px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
+.sprint-link{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px; text-decoration:none; color:inherit; background: rgba(255,255,255,.55); border:1px solid rgba(26,28,31,.08); transition: transform .15s ease, box-shadow .15s ease }
 .sprint-link:hover{ transform: translateY(-1px); box-shadow: var(--panel-shadow) }
 .sprint-link > div{ flex:1; min-width:0 }
-.sprint-saved{ flex:0 0 auto; color:#0f7a55; background: rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.30) }
-.sprint-saved .ico{ width:13px; height:13px }
-@media (max-width: 560px){ .sprint-saved{ display:none } }
 .sprint-list b{ display:block; font-size:14px }
-.sprint-when{ flex:0 0 auto; min-width:52px; padding:5px 9px; border-radius:10px; font-size:12px; font-weight:600; text-align:center; color:#9a0b11; background: rgba(184,0,0,.08) }
+.sprint-when{ flex:0 0 auto; min-width:52px; padding:5px 8px; border-radius:9px; font-size:12px; font-weight:600; text-align:center; color:var(--ink-2); background: rgba(26,28,31,.06) }
+
 /* People to meet */
 .people-row{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px }
+.people-row--4{ grid-template-columns: repeat(4, minmax(0,1fr)) }
 .person-mini{ display:flex; align-items:flex-start; gap:12px; padding:14px 16px; text-decoration:none; color:inherit }
 .person-mini > div{ min-width:0; display:grid; gap:2px }
 .person-mini b{ font-size:14px }
 .person-mini-line{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .empty--unbuilt{ opacity:.85 }
+@media (max-width: 1100px){ .people-row--4{ grid-template-columns: repeat(2, minmax(0,1fr)) } }
+@media (max-width: 760px){
+  .start-grid{ grid-template-columns: minmax(0,1fr) }
+  .people-row, .people-row--4{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:4px }
+  .person-mini{ flex:0 0 76%; scroll-snap-align:start }
+}
 
-/* ===== Panels ===== */
-.panel-link .go .ico{ width:15px; height:15px }
-/* Empty panels: one centred prompt across the whole row */
-.home-empty{ padding:24px 10px }
+/* Empty panels: one centred prompt */
+.home-empty{ padding:18px 10px }
 .home-empty .btn{ margin-top:4px }
 
-/* The continue tile's ring gives a small pop on hover */
-.continue-pin:hover .progress-circle{ animation: ring-pop .6s var(--ease-spring) }
-@keyframes ring-pop{ 40%{ transform: scale(1.06) } }
+/* The meeting window */
+.mt-when{ display:grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr); gap:12px }
+@media (max-width: 520px){ .mt-when{ grid-template-columns: minmax(0,1fr) minmax(0,1fr) } .mt-when > :first-child{ grid-column: 1 / -1 } }
+.mt-delete{ margin-right:auto }
 
-@media (max-width: 760px){ .start-grid, .people-row{ grid-template-columns: 1fr } .continue-pin{ flex-direction:column; align-items:flex-start } .continue-pin .pin-separator{ display:none } .launch-next{ flex-direction:column; align-items:flex-start } .nudge-bar--tall{ width:100% } }
 @media (max-width: 640px){
   .hero{ padding-top: 28px; }
 }
-
 .continue-name{ color:inherit; text-decoration:none }
-.continue-name:hover{ text-decoration:underline }
-.continue-pin{ cursor:pointer }

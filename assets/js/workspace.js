@@ -61,6 +61,7 @@
       ladder: { done: obj(obj(w.ladder).done) },
       launch: { done: obj(obj(w.launch).done) }, // launch-path steps ticked, keyed "<stage>.<item>"
       compliance: { items: arr(obj(w.compliance).items) }, // recurring obligations: { id, name, every, due, done, note }
+      meetings: { items: arr(obj(w.meetings).items).slice(-300) }, // the team's meetings: { id, title, date, start, end } (the homepage's Today)
     };
   }
 
