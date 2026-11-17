@@ -879,7 +879,7 @@ html[data-auth="required"].is-guest{ --navH: 119px }
 @media (max-width: 400px){ html[data-auth="required"].is-guest{ --navH: 142px } }
 /* Languages: the unofficial-translation notice shows only outside English; Chinese gets CJK fonts */
 .i18n-note{ display:none }
-html:not([lang="en"]) .i18n-note{ display:block; margin:10px 0 0; padding:10px 14px; border-radius:10px; border:1px solid rgba(26,28,31,.14); background:rgba(26,28,31,.04); color:var(--ink); font-size:14px }
+html:not([lang="en"]) .i18n-note{ display:block; margin:10px 0 16px; padding:10px 14px; border-radius:10px; border:1px solid rgba(26,28,31,.14); background:rgba(26,28,31,.04); color:var(--ink); font-size:14px }
 .l-hero .i18n-note, section > .i18n-note{ max-width:720px }
 html:lang(zh) body{ font-family:'Inter',"PingFang SC","Hiragino Sans GB","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",ui-sans-serif,system-ui,sans-serif }
 html:lang(zh) body, html:lang(zh) button, html:lang(zh) input, html:lang(zh) select, html:lang(zh) textarea{ letter-spacing:0 }

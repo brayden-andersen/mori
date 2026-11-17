@@ -11,7 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 FILES = [p for p in sorted((ROOT / "assets/js").glob("*.js")) if p.name not in ("i18n.js", "config.js")]
 # Inserted values that are numbers (a count, a length, a percentage, a rung) become {#}, so a
 # short pattern like "{#} page" can only ever match a number, never a sentence that ends in "page".
-NUMERIC_EXPR = re.compile(r"(\.length|\b(count|\w+Count|pct|total|done|rung|next|ticked|leads|late|soon|n|m|h|d|unread)\b|\bmin\[\d\]|Math\.\w+)\s*([-+*/]\s*[\w.]+\s*)?$|^\s*\w+\s*[-+]\s*\d+\s*$")
+NUMERIC_EXPR = re.compile(r"(\.length|\b(count|\w+Count|pct|total|done|rung|next|ticked|leads|late|soon|n|m|h|d|unread|requests|messages)\b|\bmin\[\d\]|Math\.\w+)\s*([-+*/]\s*[\w.]+\s*)?$|^\s*\w+\s*[-+]\s*\d+\s*$")
 MARKUP_EXPR = re.compile(r"^\s*(icon|avatar|Mori\.ui\.sampleTag|sampleTag|panel|emptyState|row|switchHTML|segHTML|googleG|brandMark|linkButtons|factPills|shareBtn|safetyBtns|blocksHTML|list|render|\w+HTML|\w+\.map|\w+\.join|\(|`)")
 
 
@@ -98,13 +98,21 @@ def add(text, where):
     if is_phrase(t) or re.search(r"\{(?:\d|#)\}", t):
         found.setdefault(t, set()).add(where)
 
-for f in FILES:
-    src = f.read_text()
+def scan(src, name, depth=0):
     for kind, val in parse(src):
         if kind == "s":
             if is_phrase(val):
-                add(val.replace("\\n", " ").replace("\\'", "'").replace('\\"', '"'), f.name)
+                add(val.replace("\\n", " ").replace("\\'", "'").replace('\\"', '"'), name)
             continue
+        # Strings and templates inside ${…} (a row("Label", "Help text", …) call) are phrases too.
+        if depth < 6:
+            for part in val:
+                if isinstance(part, tuple):
+                    scan(part[1], name, depth + 1)
+        template_phrases(val, name)
+
+
+def template_phrases(val, name):
         # Template literal: rebuild the text with markup boundaries, then cut it at tags.
         text, k = "", 0
         for part in val:
@@ -134,7 +142,11 @@ for f in FILES:
                 continue  # nothing but values
             if CODEY.search(re.sub(r"\{(?:\d|#)\}", "", seg2)) and not re.search(r"[A-Za-z]{3,}\s+[A-Za-z]{2,}", seg2):
                 continue
-            add(seg2, f.name)
+            add(seg2, name)
+
+
+for f in FILES:
+    scan(f.read_text(), f.name)
 
 out = {k: sorted(v) for k, v in sorted(found.items())}
 (ROOT / "tools/i18n/js_strings.json").write_text(json.dumps(out, indent=1, ensure_ascii=False))

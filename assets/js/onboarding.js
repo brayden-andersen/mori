@@ -79,9 +79,9 @@
 
   const STEP_HTML = {
     about: () => `
-      ${editing ? "" : `<div class="ob-lang" role="group" aria-label="Language">
-        <span class="ob-lang-label">Language</span>
-        ${Object.keys(Mori.i18n.LANGS).map((k) => `<button type="button" class="ob-lang-btn" data-ob-lang="${k}" lang="${Mori.i18n.LANGS[k].html}" translate="no" aria-pressed="${k === Mori.i18n.lang}">${Mori.i18n.LANGS[k].label}</button>`).join("")}
+      ${editing ? "" : `<div class="ob-locale" role="group" aria-label="Language">
+        <span class="ob-locale-label">Language</span>
+        ${Object.keys(Mori.i18n.LANGS).map((k) => `<button type="button" class="ob-locale-btn" data-ob-lang="${k}" lang="${Mori.i18n.LANGS[k].html}" translate="no" aria-pressed="${k === Mori.i18n.lang}">${Mori.i18n.LANGS[k].label}</button>`).join("")}
       </div>`}
       <h1 class="grad-ink" tabindex="-1">${editing ? "Your details" : updating ? "A few new questions" : "Welcome! Tell us about you"}</h1>
       <p class="ob-lead">${updating ? "Your answers are filled in: check them and continue." : editing ? "This is how founders and specialists see you on Sandbox." : "Your name, your date of birth and where you are. Everything else can wait."}</p>

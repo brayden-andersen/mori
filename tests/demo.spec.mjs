@@ -103,6 +103,23 @@ test("menus open with Enter, move with Tab and close with Escape", async ({ page
   await page.keyboard.press("Escape");
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(toggle).toBeFocused();
+
+  // Account → Language opens Settings on Preferences, at the language; choosing one translates the
+  // site and stays chosen; English comes back the same way.
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.click(".account-toggle");
+  await page.click('[data-focus="language"]');
+  const lang = page.locator("#stLanguage");
+  await expect(lang).toBeFocused();
+  await Promise.all([page.waitForEvent("load"), lang.selectOption("id")]);
+  await expect(page.locator("html")).toHaveAttribute("lang", "id");
+  await expect(page.locator('.nav-btn[data-nav="home"] .nav-label')).toHaveText("Beranda");
+  await page.goto("/network.html");
+  await expect(page.locator("html")).toHaveAttribute("lang", "id");
+  await page.click(".account-toggle");
+  await page.click('[data-focus="language"]');
+  await Promise.all([page.waitForEvent("load"), page.locator("#stLanguage").selectOption("en")]);
+  await expect(page.locator('.nav-btn[data-nav="home"] .nav-label')).toHaveText("Home");
 });
 
 test("Projects: filters show as chips, the count is announced, pagination stays valid", async ({ page }) => {

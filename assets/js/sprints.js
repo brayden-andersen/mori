@@ -34,7 +34,7 @@
   function dates(x) {
     const start = dateIn(x.startsIn);
     const end = dateIn(x.startsIn + D.sprintHow.days - 1);
-    return { start, end, label: `${fmt(start)} to ${fmt(end, { year: "numeric" })}`, iso: iso(start) };
+    return { start, end, label: `${fmt(start)} ${Mori.i18n.t("to")} ${fmt(end, { year: "numeric" })}`, iso: iso(start) };
   }
   const upcoming = (list = D.sprints) => list.filter((x) => x.startsIn >= 0).sort((a, b) => a.startsIn - b.startsIn);
   const startsLine = (x) => (x.startsIn === 0 ? "Starts today" : x.startsIn === 1 ? "Starts tomorrow" : `Starts in ${x.startsIn} days`);

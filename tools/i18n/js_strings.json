@@ -1,6 +1,15 @@
 {
+ "(Demo mode keeps the file name only.)": [
+  "onboarding.js"
+ ],
  "(hover: hover) and (pointer: fine)": [
   "motion.js"
+ ],
+ "(max-aspect-ratio: 4/5)": [
+  "auth.js"
+ ],
+ "(not given)": [
+  "people.js"
  ],
  "(pointer: coarse)": [
   "onboarding.js"
@@ -9,6 +18,9 @@
   "auth.js",
   "motion.js",
   "ui.js"
+ ],
+ "(to do)": [
+  "home.js"
  ],
  ").trim().slice(0, 80) +": [
   "planner-docs.js"
@@ -19,6 +31,9 @@
  ],
  ", body": [
   "db.js"
+ ],
+ ", confirmed by teammates.": [
+  "people.js"
  ],
  ", connect, then add them here.": [
   "tour.js"
@@ -76,6 +91,9 @@
   "data.js",
   "sample.js"
  ],
+ "4★ and up": [
+  "tour.js"
+ ],
  "6-10 years": [
   "data.js",
   "sample.js"
@@ -86,6 +104,12 @@
  "A PT Perorangan: one founder, an Indonesian citizen, for a micro or small business. It’s registered with a statement of establishment rather than a notary deed. A team of co-founders: a regular PT or a CV instead.": [
   "data.js"
  ],
+ "A Sunday summary by email. Arrives with the Sandbox backend.": [
+  "shell.js"
+ ],
+ "A checked list of grants, incubators and competitions is being put together. Until then, keep the ones you find in Funding opportunities. The guest demo shows how the navigator works with sample programmes.": [
+  "planner-tools.js"
+ ],
  "A demand figure on your startup page.": [
   "data.js"
  ],
@@ -95,17 +119,29 @@
  "A fake profile or pretending to be someone": [
   "state.js"
  ],
+ "A few new questions": [
+  "onboarding.js"
+ ],
  "A landing or pre-order page that reaches a sign-up target set in advance.": [
   "data.js"
  ],
  "A little more about you": [
   "onboarding.js"
  ],
+ "A made-up partner for the demo": [
+  "directory.js"
+ ],
+ "A made-up programme for the demo": [
+  "planner-tools.js"
+ ],
  "A one-page problem brief, the hours you have and the role you need.": [
   "data.js"
  ],
  "A pitch-ready startup page.": [
   "data.js"
+ ],
+ "A pop-up when a connection messages you. The Messages badge always shows unread conversations.": [
+  "shell.js"
  ],
  "A project holds up to {1} tasks for now.": [
   "state.js"
@@ -119,11 +155,30 @@
  "A quick note for the whole team.": [
   "mainframe.js"
  ],
+ "A quote worth keeping": [
+  "planner-tools.js"
+ ],
  "A registered company needs its own NPWP.": [
   "data.js"
  ],
+ "A sample obligation for the demo": [
+  "planner-tools.js"
+ ],
+ "A sample profile for the demo: change anything you like": [
+  "shell.js"
+ ],
+ "A sample project for the demo": [
+  "home.js",
+  "projects.js"
+ ],
+ "A sample project for the demo: change anything you like": [
+  "project.js"
+ ],
  "A scam, or asking for money or equity": [
   "state.js"
+ ],
+ "A short tour of the MORI Network, your projects and the subscription ladder.": [
+  "shell.js"
  ],
  "A short update for mentors, investors and your team.": [
   "data.js"
@@ -134,8 +189,17 @@
  "A startup page in the MORI Network and a place in a sprint lobby.": [
   "data.js"
  ],
+ "A walk through the planner. It starts when you declare your first project.": [
+  "shell.js"
+ ],
+ "A walk through the planner: its tools, your team and the Mainframe’s widgets.": [
+  "shell.js"
+ ],
  "AI / ML Engineer": [
   "data.js"
+ ],
+ "About Sandbox": [
+  "shell.js"
  ],
  "About you": [
   "onboarding.js"
@@ -145,6 +209,12 @@
  ],
  "Active ledgers per week. Kasbon recorded per owner.": [
   "sample.js"
+ ],
+ "Add a banner": [
+  "shell.js"
+ ],
+ "Add a headline": [
+  "shell.js"
  ],
  "Add a language": [
   "onboarding.js"
@@ -156,7 +226,8 @@
   "home.js"
  ],
  "Add a metric": [
-  "mainframe.js"
+  "mainframe.js",
+  "planner-tools.js"
  ],
  "Add a metric first": [
   "mainframe.js"
@@ -176,8 +247,14 @@
  "Add a task": [
   "planner-tools.js"
  ],
+ "Add a task to {1}": [
+  "planner-tools.js"
+ ],
  "Add an email address we can reply to.": [
   "public.js"
+ ],
+ "Add an obligation": [
+  "planner-tools.js"
  ],
  "Add any widget": [
   "tour.js"
@@ -191,6 +268,18 @@
  "Add how we can reach your reference.": [
   "public.js"
  ],
+ "Add metric": [
+  "planner-tools.js"
+ ],
+ "Add obligation": [
+  "planner-tools.js"
+ ],
+ "Add people from your connections.": [
+  "projectkit.js"
+ ],
+ "Add role": [
+  "planner-tools.js"
+ ],
  "Add starter widgets": [
   "tour.js"
  ],
@@ -200,6 +289,12 @@
  "Add the numbers you want to watch, like sign-ups or revenue.": [
   "mainframe.js"
  ],
+ "Add the ones a vetted partner has confirmed for your company, with how often they come round.": [
+  "planner-tools.js"
+ ],
+ "Add to Funding opportunities": [
+  "planner-tools.js"
+ ],
  "Add to Mainframe": [
   "mainframe.js"
  ],
@@ -207,10 +302,15 @@
   "projectkit.js"
  ],
  "Add to team": [
+  "project.js",
   "projectkit.js",
   "tour.js"
  ],
+ "Add what comes in (sales, grants, investment) and what goes out. Even a rough list shows how long your cash lasts.": [
+  "planner-tools.js"
+ ],
  "Add widget": [
+  "mainframe.js",
   "project.js"
  ],
  "Add widgets": [
@@ -237,11 +337,17 @@
  "Add {1}": [
   "shell.js"
  ],
+ "Add “{1}”": [
+  "onboarding.js"
+ ],
  "Added to Funding opportunities: {1}": [
   "planner-tools.js"
  ],
  "Added {#} {1} to “{2}”": [
   "projectkit.js"
+ ],
+ "Adds the open-to-build ring and tag to your profile.": [
+  "shell.js"
  ],
  "Adjust or resize": [
   "shell.js"
@@ -276,11 +382,17 @@
  "All caught up": [
   "shell.js"
  ],
+ "All day": [
+  "home.js"
+ ],
  "All documents": [
   "planner-docs.js"
  ],
  "All industries": [
   "network.js"
+ ],
+ "All lobbies": [
+  "sprints.js"
  ],
  "All optional. Your experience helps founders and specialists find the right match.": [
   "onboarding.js"
@@ -289,19 +401,30 @@
   "directory.js"
  ],
  "All projects": [
-  "home.js"
+  "home.js",
+  "shell.js"
  ],
  "All saved": [
   "onboarding.js"
  ],
  "All sprints": [
-  "home.js"
+  "home.js",
+  "sprints.js"
+ ],
+ "Already on your profile": [
+  "onboarding.js"
  ],
  "Also block {1}, so you stop seeing and hearing from each other": [
   "people.js"
  ],
+ "An obligation": [
+  "home.js"
+ ],
  "Angel investors": [
   "data.js"
+ ],
+ "Animations, tilt and parallax across Sandbox. System follows your device setting.": [
+  "shell.js"
  ],
  "Any experience": [
   "network.js"
@@ -310,7 +433,17 @@
   "network.js"
  ],
  "Any region": [
-  "network.js"
+  "network.js",
+  "planner-tools.js"
+ ],
+ "Any rung": [
+  "planner-tools.js"
+ ],
+ "Any sector": [
+  "planner-tools.js"
+ ],
+ "Anyone signed in to SandBox can open it.": [
+  "shell.js"
  ],
  "Application copied": [
   "public.js"
@@ -346,6 +479,9 @@
  "Back to the default icon": [
   "shell.js"
  ],
+ "Back to the demo as": [
+  "landing.js"
+ ],
  "Back to your projects": [
   "project.js"
  ],
@@ -380,6 +516,9 @@
  ],
  "Blockchain & Web3": [
   "data.js"
+ ],
+ "Blocked members": [
+  "shell.js"
  ],
  "Bold (Ctrl+B)": [
   "planner-docs.js"
@@ -447,6 +586,10 @@
   "data.js",
   "sample.js"
  ],
+ "Building and looking for": [
+  "people.js",
+  "shell.js"
+ ],
  "Bulleted list": [
   "planner-docs.js"
  ],
@@ -477,14 +620,21 @@
  "Campus incubators": [
   "data.js"
  ],
+ "Cancel my spot": [
+  "sprints.js"
+ ],
  "Can’t see both shops’ sales without visiting.": [
   "sample.js"
  ],
  "Cash flow": [
-  "mainframe.js"
+  "mainframe.js",
+  "planner-tools.js"
  ],
  "Cash in the bank, monthly burn and runway.": [
   "mainframe.js"
+ ],
+ "Cash you started with": [
+  "planner-tools.js"
  ],
  "Cash-flow planning": [
   "sample.js"
@@ -505,14 +655,21 @@
  "Certification support": [
   "data.js"
  ],
+ "Change rung": [
+  "planner-tools.js"
+ ],
  "Changing the language": [
   "shell.js"
+ ],
+ "Check each programme’s own site for current terms and deadlines.": [
+  "planner-tools.js"
  ],
  "Check that your name and brand are free to use": [
   "data.js"
  ],
  "Check your connection and try again.": [
-  "home.js"
+  "home.js",
+  "network.js"
  ],
  "Check your date of birth.": [
   "onboarding.js"
@@ -559,6 +716,9 @@
  "Choose your years in practice.": [
   "public.js"
  ],
+ "Choose {1}": [
+  "subscription.js"
+ ],
  "Chosen by members": [
   "network.js"
  ],
@@ -567,13 +727,29 @@
  ],
  "Clear filters": [
   "network.js",
+  "planner-tools.js",
   "projects.js"
  ],
  "Clear formatting": [
   "planner-docs.js"
  ],
+ "Clears the projects and settings saved in this browser. Your sign-up answers stay.": [
+  "shell.js"
+ ],
+ "Clears the settings and copies saved in this browser. Everything in your account stays.": [
+  "shell.js"
+ ],
  "Climate Tech": [
   "data.js"
+ ],
+ "Close notifications": [
+  "shell.js"
+ ],
+ "Close profile": [
+  "shell.js"
+ ],
+ "Close settings": [
+  "shell.js"
  ],
  "Cloud & DevOps": [
   "data.js"
@@ -610,11 +786,17 @@
  "Congratulations!": [
   "planner-tools.js"
  ],
+ "Connect with founders and specialists in Discover, then message them here.": [
+  "network.js"
+ ],
  "Connect with people in the": [
   "projectkit.js"
  ],
  "Connecting to Google…": [
   "landing.js"
+ ],
+ "Connection requests": [
+  "shell.js"
  ],
  "Connection requests need a Google sign-in, so demo accounts don’t have any.": [
   "network.js"
@@ -622,14 +804,23 @@
  "Connection requests need a Sandbox account, so demo accounts don’t have any.": [
   "network.js"
  ],
+ "Connection requests, and members accepting yours, will show up here.": [
+  "shell.js"
+ ],
  "Consumer Electronics": [
   "data.js"
+ ],
+ "Contact Us": [
+  "shell.js"
  ],
  "Content & Copywriting": [
   "data.js"
  ],
  "Content, brands and the tools creators use.": [
   "data.js"
+ ],
+ "Continue as": [
+  "landing.js"
  ],
  "Continue where you left off": [
   "home.js"
@@ -730,7 +921,8 @@
  ],
  "Daily tasks": [
   "mainframe.js",
-  "planner-tools.js"
+  "planner-tools.js",
+  "shell.js"
  ],
  "Daily tasks for the week, a go-to-market checklist, the milestone ladder with the proof each rung needs, and the launch path: the stages to a registered company, each with its checklist, templates and vetted partners.": [
   "tour.js"
@@ -751,6 +943,9 @@
  ],
  "Days left to a launch, demo day or deadline.": [
   "mainframe.js"
+ ],
+ "Deadline {1}": [
+  "planner-tools.js"
  ],
  "Decide on a PT Perorangan, a PT or a CV": [
   "data.js"
@@ -777,6 +972,9 @@
  "Declare a project to start your record.": [
   "shell.js"
  ],
+ "Declare one": [
+  "shell.js"
+ ],
  "Declare the idea": [
   "data.js"
  ],
@@ -799,6 +997,9 @@
  "Deed of establishment (PT or CV)": [
   "sample.js"
  ],
+ "Delete project": [
+  "project.js"
+ ],
  "Demand shown": [
   "data.js"
  ],
@@ -809,7 +1010,11 @@
   "data.js"
  ],
  "Demo account": [
+  "landing.js",
   "shell.js"
+ ],
+ "Demo accounts can’t message other members.": [
+  "network.js"
  ],
  "Demo accounts stay on this device, so there’s no one else here.": [
   "network.js"
@@ -819,6 +1024,9 @@
  ],
  "Demo accounts stay on this device, so there’s no one to meet here. The guest demo on the landing page has sample members.": [
   "home.js"
+ ],
+ "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.": [
+  "shell.js"
  ],
  "Describe your ideal customer in one paragraph": [
   "data.js"
@@ -872,6 +1080,12 @@
  "Domain and hosting": [
   "sample.js"
  ],
+ "Done exploring?": [
+  "landing.js"
+ ],
+ "Done · {1}": [
+  "planner-tools.js"
+ ],
  "Done. Next one: {1}": [
   "planner-tools.js"
  ],
@@ -888,6 +1102,7 @@
   "ui.js"
  ],
  "Due today": [
+  "home.js",
   "projectkit.js"
  ],
  "Due tomorrow": [
@@ -918,6 +1133,12 @@
  "East Nusa Tenggara": [
   "data.js"
  ],
+ "Edit Mainframe": [
+  "project.js"
+ ],
+ "Edit banner": [
+  "shell.js"
+ ],
  "Edit details": [
   "project.js"
  ],
@@ -936,6 +1157,9 @@
  "Edited {1}{2} · created {3}{4}": [
   "planner-docs.js"
  ],
+ "Edited {1}{2}{3}": [
+  "planner-docs.js"
+ ],
  "Eight stages from an idea to a registered company": [
   "home.js"
  ],
@@ -945,6 +1169,9 @@
  "Electric Vehicles": [
   "data.js"
  ],
+ "Email the report": [
+  "people.js"
+ ],
  "Employed full-time": [
   "data.js",
   "sample.js"
@@ -953,6 +1180,9 @@
   "data.js"
  ],
  "Ending your sessions on every device…": [
+  "shell.js"
+ ],
+ "Ends your SandBox sessions on every phone and computer, this one included. Other devices are signed out within the hour, when their sign-in next refreshes. Use it if you signed in on a device that isn’t yours, or think someone else has.": [
   "shell.js"
  ],
  "Entertainment & Media": [
@@ -976,7 +1206,14 @@
  "Every quarter": [
   "data.js"
  ],
+ "Every role is filled.": [
+  "mainframe.js"
+ ],
+ "Every rung": [
+  "planner-tools.js"
+ ],
  "Every step is done.": [
+  "mainframe.js",
   "planner-tools.js"
  ],
  "Every step is ticked.": [
@@ -996,6 +1233,9 @@
  ],
  "Everyone on the team sees these.": [
   "project.js"
+ ],
+ "Everyone you’re connected with is already on this project.": [
+  "projectkit.js"
  ],
  "Everything in Builder": [
   "data.js"
@@ -1037,6 +1277,9 @@
  "Finance settings saved": [
   "planner-tools.js"
  ],
+ "Find a vetted accountant": [
+  "planner-tools.js"
+ ],
  "Find founders to build with": [
   "home.js"
  ],
@@ -1045,6 +1288,9 @@
  ],
  "Find specialists": [
   "projects.js"
+ ],
+ "Find specialists in the MORI Network": [
+  "planner-tools.js"
  ],
  "Find your people": [
   "tour.js"
@@ -1085,6 +1331,9 @@
  "Flyers for warung visits": [
   "sample.js"
  ],
+ "Focus: {1}": [
+  "home.js"
+ ],
  "Food & Beverage": [
   "data.js",
   "sample.js"
@@ -1113,8 +1362,12 @@
  "For teams with a prototype farmers have used.": [
   "sample.js"
  ],
+ "Forgets everything you did in the demo and goes back to the start page.": [
+  "shell.js"
+ ],
  "Founder Pro": [
-  "data.js"
+  "data.js",
+  "planner-tools.js"
  ],
  "Founder · Field data for smallholder farmers": [
   "sample.js"
@@ -1140,6 +1393,9 @@
  "Founders and specialists building in Indonesia, in one network. Search by role, skill or region, connect with a note, and message once you’re connected.": [
   "tour.js"
  ],
+ "Founders and specialists see the rungs you’ve reached and your verified sprints. You can hide the whole record, but not single parts of it.": [
+  "shell.js"
+ ],
  "Founders search for specialists by role. Pick the closest one, or write your own.": [
   "onboarding.js"
  ],
@@ -1155,6 +1411,9 @@
  "Founders’ agreement, equity and vesting, NDA and IP assignment": [
   "data.js"
  ],
+ "Free, and you can cancel any time before it starts.": [
+  "sprints.js"
+ ],
  "Freelance / self-employed": [
   "data.js",
   "sample.js"
@@ -1166,6 +1425,9 @@
   "data.js"
  ],
  "From the program navigator": [
+  "planner-tools.js"
+ ],
+ "From: {1}": [
   "planner-tools.js"
  ],
  "Frontend Developer": [
@@ -1250,6 +1512,15 @@
  "Grow, Money and Learn": [
   "tour.js"
  ],
+ "Guest demo": [
+  "shell.js"
+ ],
+ "Guest demo · a sample founder": [
+  "landing.js"
+ ],
+ "Guest demo: you’re exploring as a sample founder, with sample members and projects kept in this browser. SandBox is a prototype, invite only: ask for an invite on the Contact page.": [
+  "shell.js"
+ ],
  "Guidance, not legal advice. Have a vetted partner check it before you rely on it.": [
   "data.js"
  ],
@@ -1261,6 +1532,9 @@
  ],
  "Halal Economy": [
   "data.js"
+ ],
+ "Happy birthday": [
+  "home.js"
  ],
  "Happy to. Start from what the warung owner saves in a week, not from what the app costs you to run.": [
   "sample.js"
@@ -1277,6 +1551,9 @@
  "Hi Kevin, we’re starting to collect transaction data from warungs and could use advice on what to keep.": [
   "sample.js"
  ],
+ "Hidden from your profile: {1}.": [
+  "shell.js"
+ ],
  "Hide me from the MORI Network. People who search your full name can still find you, but they’ll only see your name and when you joined, with the default photo, and they can’t send you a request. Your connections still see your full profile.": [
   "shell.js"
  ],
@@ -1291,6 +1568,9 @@
  ],
  "How badges are earned": [
   "sprints.js"
+ ],
+ "How often": [
+  "planner-tools.js"
  ],
  "How partners join": [
   "onboarding.js"
@@ -1343,11 +1623,17 @@
  "If my phone could remind them, I wouldn’t have to.": [
   "sample.js"
  ],
+ "In Funding opportunities": [
+  "planner-tools.js"
+ ],
  "In demo mode the CV stays on your device, so there’s nothing to open here.": [
   "shell.js"
  ],
  "In progress": [
   "projectkit.js"
+ ],
+ "In the demo, nothing is sent.": [
+  "people.js"
  ],
  "Inappropriate photo or content": [
   "state.js"
@@ -1422,6 +1708,14 @@
  "Join Sandbox": [
   "landing.js"
  ],
+ "Joined SandBox {1}": [
+  "network.js",
+  "people.js"
+ ],
+ "Joined {1}": [
+  "network.js",
+  "people.js"
+ ],
  "Journalism & Publishing": [
   "data.js"
  ],
@@ -1431,6 +1725,11 @@
  "Just now": [
   "network.js",
   "ui.js"
+ ],
+ "Just you": [
+  "mainframe.js",
+  "project.js",
+  "projectkit.js"
  ],
  "Kantor Notaris Sampel & Rekan": [
   "sample.js"
@@ -1443,6 +1742,9 @@
  ],
  "Kebun Data": [
   "sample.js"
+ ],
+ "Keep every grant, competition, accelerator and investor you’re going after in one place, with its deadline.": [
+  "planner-tools.js"
  ],
  "Keep the company’s money apart from your own.": [
   "data.js"
@@ -1512,6 +1814,7 @@
   "projectkit.js"
  ],
  "Leave the demo": [
+  "landing.js",
   "shell.js"
  ],
  "Leave the demo to sign in with Google.": [
@@ -1571,8 +1874,24 @@
  "Log a few values to see the trend.": [
   "planner-tools.js"
  ],
+ "Log an interview": [
+  "planner-tools.js"
+ ],
+ "Log every problem interview.": [
+  "mainframe.js"
+ ],
+ "Log interview": [
+  "planner-tools.js"
+ ],
+ "Log interviews": [
+  "planner-tools.js"
+ ],
  "Logistics & Supply Chain": [
   "data.js"
+ ],
+ "Looking for": [
+  "people.js",
+  "shell.js"
  ],
  "M65 88.9L65 78.5L64.1 79.6C62.9 80.9 59.9 83.9 58.4 85.2C56 87.3 53 89.7 50.5 91.3C49.2 92.2 46.6 93.8 46.4 93.8C46.4 93.8 46.1 93.4 45.8 93C44.3 90.8 42.5 88.7 40.4 86.5L38.7 84.9L39.4 84.6C40.8 83.9 43.9 82.4 45.3 81.5C49.9 78.8 53.8 75.8 57.7 71.9C59.8 69.8 61 68.4 62.4 66.7L63.1 65.7L56.5 65.7L49.9 65.7L49.9 60.2L49.9 54.8L57.5 54.8L65.1 54.8L65.1 49.4L65.1 44.1L71 44.2L76.9 44.2L77 49.5L77 54.8L86.5 54.8L96.1 54.8L96.1 60.2L96.1 65.7L87.3 65.7L78.5 65.7L79.3 66.6C84.6 72.9 92.2 79.3 98.7 82.9L100.1 83.7L99.3 84.4C96.8 86.6 93.2 90.7 91.7 92.9C91.5 93.2 91.3 93.5 91.3 93.5C91.2 93.6 89 91.7 87.7 90.6C84.7 87.8 81.4 84.1 78.3 80.3L77 78.6L77 88.9L77 99.3L71 99.3L65.1 99.3L65 88.9ZM19.6 88.9L19.6 79.5L18.6 80.7C15.4 84.6 11.9 88 8.8 90.4C7.5 91.4 5.1 93 5 93C4.9 93 4.7 92.5 4.5 91.9C3.8 89.7 2.4 86.4 0.9 83.4L0 81.5L1 81C7 77.6 13.6 71.9 17.9 66.4C18.3 65.9 18.6 65.4 18.6 65.4C18.6 65.3 15.2 65.3 11 65.3L3.4 65.3L3.4 59.8L3.4 54.4L11.5 54.4L19.6 54.4L19.6 49.3L19.6 44.1L25.4 44.1L31.3 44.1L31.3 49.3L31.3 54.4L38.8 54.4L46.3 54.4L46.3 59.8L46.3 65.3L38.8 65.3C31.6 65.3 31.3 65.3 31.3 65.5C31.3 65.6 32 66 33.7 67.1C35 67.8 36.5 68.7 37 69.1C41 71.5 41.9 72.1 43.6 73.1C44.7 73.8 46.1 74.7 46.8 75.2L48.1 76.1L43.5 79C40.9 80.6 38.7 82 38.6 82C38.4 82.2 38.3 82.1 36.8 80.9C34.8 79.3 31.4 76.7 31.4 76.7C31.3 76.7 31.3 81.5 31.3 87.5L31.3 98.4L25.4 98.4L19.6 98.4L19.6 88.9ZM7.2 47C5.7 44.5 3.7 41.8 1.6 39.8C0.9 39 0.2 38.4 0.3 38.4C0.4 38.4 3.8 37.2 5.5 36.6C14.9 33.2 22.9 28.9 29.6 23.5L30.6 22.7L18.9 22.7L7.3 22.7L7.3 17.1L7.3 11.6L25.2 11.6L43.2 11.6L43.2 6.2L43.2 0.8L49.4 0.8C55.3 0.8 55.6 0.8 55.6 1C55.6 1 55.6 3.5 55.6 6.4L55.6 11.6L73.8 11.6L91.9 11.6L91.9 17.1L91.9 22.7L79.6 22.7L67.3 22.7L68 23.3C71.9 26.2 77.5 29.4 82.6 31.7C87.4 33.9 92.9 35.9 97.5 37.1C98 37.2 98.5 37.4 98.6 37.4C98.7 37.4 98.3 37.9 97.6 38.6C95.5 40.8 92.6 44.6 91.1 47.1L90.7 47.7L89.3 47.3C77.6 43.2 65.9 35.9 57.3 27.4C56.4 26.6 55.7 26 55.7 26C55.7 26 55.6 30.8 55.6 36.8C55.6 42.7 55.6 47.7 55.6 47.8L55.6 48L49.4 48L43.2 48L43.2 36.9L43.2 25.7L41.5 27.3C39.5 29.3 38.2 30.5 36 32.4C30.1 37.3 22.9 41.8 15.7 45C13.5 46 8.2 48.1 7.9 48.1C7.9 48.1 7.6 47.6 7.2 47Z": [
   "ui.js"
@@ -1607,6 +1926,12 @@
  ],
  "Mark all as read": [
   "shell.js"
+ ],
+ "Mark as done": [
+  "planner-tools.js"
+ ],
+ "Mark as not done": [
+  "planner-tools.js"
  ],
  "Marketing & Growth": [
   "data.js"
@@ -1659,6 +1984,12 @@
  "Message {1}…": [
   "network.js"
  ],
+ "Messages arrive here as soon as they’re sent.": [
+  "network.js"
+ ],
+ "Messaging needs a Google sign-in": [
+  "network.js"
+ ],
  "Middle East": [
   "data.js"
  ],
@@ -1683,6 +2014,15 @@
  "Mobility & Transportation": [
   "data.js"
  ],
+ "Money in": [
+  "planner-tools.js"
+ ],
+ "Money in and out": [
+  "planner-tools.js"
+ ],
+ "Money out": [
+  "planner-tools.js"
+ ],
  "Monthly accounts": [
   "sample.js"
  ],
@@ -1699,8 +2039,17 @@
  "Monthly update": [
   "data.js"
  ],
+ "More toolkits for each rung": [
+  "planner-tools.js"
+ ],
  "More: links, CV, languages": [
   "people.js",
+  "shell.js"
+ ],
+ "Most popular": [
+  "subscription.js"
+ ],
+ "Motion effects": [
   "shell.js"
  ],
  "Move and resize widgets on a larger screen.": [
@@ -1708,6 +2057,9 @@
  ],
  "Move the company’s money into it": [
   "data.js"
+ ],
+ "Move up to rung {#}": [
+  "planner-tools.js"
  ],
  "My nephew runs the other one. I trust him, but still.": [
   "sample.js"
@@ -1734,6 +2086,7 @@
   "home.js"
  ],
  "New document": [
+  "planner-docs.js",
   "project.js"
  ],
  "New founders and specialists appear here as they join. Your connections are under Manage my network.": [
@@ -1742,11 +2095,20 @@
  "New products, packaging and kitchens that scale.": [
   "data.js"
  ],
+ "New sprints are added every few weeks. The other lobbies have sprints starting sooner.": [
+  "sprints.js"
+ ],
  "New sprints show here as soon as they’re announced.": [
   "home.js"
  ],
  "Next deadline": [
   "mainframe.js"
+ ],
+ "Next due": [
+  "planner-tools.js"
+ ],
+ "Next on the launch path:": [
+  "home.js"
  ],
  "Next rung": [
   "mainframe.js"
@@ -1754,20 +2116,43 @@
  "Next step": [
   "mainframe.js"
  ],
+ "Next: Rung {#} · {1}": [
+  "projects.js"
+ ],
+ "Next: {1}": [
+  "mainframe.js",
+  "tour.js"
+ ],
  "Next: {1} · {#} of {#} proof steps done": [
   "project.js"
  ],
  "No connections match “{1}”.": [
+  "people.js",
+  "projectkit.js"
+ ],
+ "No connections to message yet": [
+  "network.js"
+ ],
+ "No connections yet": [
   "people.js"
  ],
  "No connections yet? Find people in the": [
   "tour.js"
  ],
+ "No conversations match.": [
+  "network.js"
+ ],
  "No deadlines coming up": [
   "mainframe.js"
  ],
+ "No documents yet": [
+  "planner-docs.js"
+ ],
  "No documents yet.": [
   "mainframe.js"
+ ],
+ "No email on this demo account": [
+  "shell.js"
  ],
  "No industry matches “{1}”.": [
   "network.js"
@@ -1775,14 +2160,29 @@
  "No metrics yet. Add one in": [
   "mainframe.js"
  ],
+ "No obligations yet": [
+  "planner-tools.js"
+ ],
+ "No one has a verified sprint yet. They appear once sprints run.": [
+  "network.js"
+ ],
  "No one matches those filters": [
   "network.js"
  ],
  "No one yet": [
   "planner-tools.js"
  ],
+ "No open roles": [
+  "mainframe.js"
+ ],
  "No pending requests.": [
   "network.js"
+ ],
+ "No programmes are listed yet": [
+  "planner-tools.js"
+ ],
+ "No programmes match these filters": [
+  "planner-tools.js"
  ],
  "No projects match your filters.": [
   "projects.js"
@@ -1791,20 +2191,38 @@
   "home.js",
   "projects.js"
  ],
+ "No projects yet.": [
+  "shell.js"
+ ],
  "No requests waiting, nothing unread and nothing overdue.": [
   "home.js"
  ],
  "No requests waiting. When founders or specialists want to connect, they’ll show up here.": [
   "network.js"
  ],
+ "No spots saved yet": [
+  "sprints.js"
+ ],
+ "No sprints have run here yet": [
+  "sprints.js"
+ ],
  "No sprints scheduled": [
   "home.js"
+ ],
+ "No sprints scheduled in this lobby yet": [
+  "sprints.js"
+ ],
+ "No sprints scheduled yet": [
+  "sprints.js"
  ],
  "No tasks yet.": [
   "mainframe.js"
  ],
  "No verified sprints yet": [
   "network.js",
+  "people.js"
+ ],
+ "No verified sprints yet. The first sprints haven’t run.": [
   "people.js"
  ],
  "No vetted {1} are listed yet": [
@@ -1849,8 +2267,14 @@
  "Not yet checked by a lawyer.": [
   "data.js"
  ],
+ "Not you?": [
+  "landing.js"
+ ],
  "Notes from 8–10 conversations with people who have the problem, plus a one-page summary.": [
   "data.js"
+ ],
+ "Nothing scheduled today. Your meetings, and tasks due today in your projects, show here.": [
+  "home.js"
  ],
  "Nothing to do yet. Add the first task below.": [
   "planner-tools.js"
@@ -1915,6 +2339,9 @@
  "Only the owner can remove teammates.": [
   "guestdb.js"
  ],
+ "Only you and {1} can see these messages.": [
+  "network.js"
+ ],
  "Open Discover": [
   "home.js"
  ],
@@ -1924,11 +2351,17 @@
  "Open Funding": [
   "mainframe.js"
  ],
+ "Open Funding opportunities": [
+  "planner-tools.js"
+ ],
  "Open Marketing": [
   "mainframe.js"
  ],
  "Open a business bank account": [
   "data.js"
+ ],
+ "Open a sprint below and save your spot. It shows here and on your homepage.": [
+  "sprints.js"
  ],
  "Open it": [
   "home.js"
@@ -1942,6 +2375,9 @@
  "Open project planner": [
   "projects.js"
  ],
+ "Open projects on": [
+  "shell.js"
+ ],
  "Open tasks": [
   "mainframe.js"
  ],
@@ -1954,6 +2390,7 @@
  "Open to build": [
   "network.js",
   "people.js",
+  "shell.js",
   "tour.js"
  ],
  "Open to co-found": [
@@ -1970,6 +2407,9 @@
  ],
  "Opening the demo": [
   "landing.js"
+ ],
+ "Opening the document…": [
+  "planner-docs.js"
  ],
  "Opening your Sandbox…": [
   "landing.js"
@@ -2019,10 +2459,16 @@
  "Partner application: {1} ({2})": [
   "public.js"
  ],
+ "Partner directory": [
+  "shell.js"
+ ],
  "Partnering as": [
   "public.js"
  ],
  "Past sprints": [
+  "sprints.js"
+ ],
+ "Past sprints and the teams’ proof will show here.": [
   "sprints.js"
  ],
  "Payments aren’t part of this demo. Everyone is on Explorer for now, and {1} prices are placeholders.": [
@@ -2037,6 +2483,9 @@
  "People to meet": [
   "home.js"
  ],
+ "People you blocked can’t see you on the MORI Network, send you requests or message you, and you don’t see them. They aren’t told. To block or report someone, use the buttons at the foot of their profile.": [
+  "shell.js"
+ ],
  "Pet Care": [
   "data.js"
  ],
@@ -2048,6 +2497,9 @@
  ],
  "Physical sprint · A sensor a farmer can install alone": [
   "data.js"
+ ],
+ "Pick a conversation": [
+  "network.js"
  ],
  "Pick a date": [
   "mainframe.js"
@@ -2086,7 +2538,17 @@
   "mainframe.js"
  ],
  "Pin to home": [
+  "project.js",
   "projects.js"
+ ],
+ "Pinned projects show on your homepage and in the Projects menu.{1}": [
+  "shell.js"
+ ],
+ "Pinned to home": [
+  "project.js"
+ ],
+ "Pinned to your homepage": [
+  "shell.js"
  ],
  "Pitch and business-plan competitions give prize money, visibility and feedback.": [
   "data.js"
@@ -2105,6 +2567,9 @@
  ],
  "Plan the go-to-market push": [
   "data.js"
+ ],
+ "Plan where you’ll find your first customers, then track what each campaign brings in.": [
+  "planner-tools.js"
  ],
  "Plan your first campaign.": [
   "mainframe.js"
@@ -2173,6 +2638,9 @@
  "Profile updated": [
   "shell.js"
  ],
+ "Profile visibility": [
+  "shell.js"
+ ],
  "Profile {#}% complete ·": [
   "shell.js"
  ],
@@ -2211,7 +2679,11 @@
   "shell.js"
  ],
  "Project tour": [
+  "shell.js",
   "tour.js"
+ ],
+ "Projects and milestones": [
+  "shell.js"
  ],
  "Proof for rung {#},": [
   "sprints.js"
@@ -2255,6 +2727,9 @@
  "Putri Anggraini": [
   "sample.js"
  ],
+ "Puts the sample members, projects and conversations back the way they started.": [
+  "shell.js"
+ ],
  "QRIS is fine, but they still ask for credit.": [
   "sample.js"
  ],
@@ -2279,6 +2754,9 @@
  ],
  "Read the template": [
   "public.js"
+ ],
+ "Ready to launch.": [
+  "mainframe.js"
  ],
  "Rearrange the Mainframe on a larger screen": [
   "mainframe.js"
@@ -2307,8 +2785,26 @@
  "Relationships from 40 warung visits, and data on what regulars buy.": [
   "sample.js"
  ],
+ "Remove campaign": [
+  "planner-tools.js"
+ ],
  "Remove connection": [
   "people.js"
+ ],
+ "Remove entry": [
+  "planner-tools.js"
+ ],
+ "Remove interview": [
+  "planner-tools.js"
+ ],
+ "Remove role": [
+  "planner-tools.js"
+ ],
+ "Remove {1}": [
+  "planner-tools.js"
+ ],
+ "Removes the project, its tasks, tools and documents for everyone on the team. This can’t be undone.": [
+  "project.js"
  ],
  "Renew the domain and business email": [
   "sample.js"
@@ -2351,6 +2847,9 @@
  "Reset the demo": [
   "shell.js"
  ],
+ "Reset this browser": [
+  "shell.js"
+ ],
  "Revenue streams": [
   "data.js"
  ],
@@ -2361,7 +2860,8 @@
   "data.js"
  ],
  "Roles we need": [
-  "mainframe.js"
+  "mainframe.js",
+  "planner-tools.js"
  ],
  "Rp 25.000 a month after a free month.": [
   "sample.js"
@@ -2379,10 +2879,12 @@
   "projects.js"
  ],
  "Rung {#} of 5 · {1}": [
+  "planner-tools.js",
   "project.js"
  ],
  "Rung {#} · {1}": [
   "landing.js",
+  "planner-tools.js",
   "projects.js",
   "shell.js"
  ],
@@ -2395,11 +2897,18 @@
  "Rung {#} → {#}": [
   "mainframe.js"
  ],
+ "Rung {1}": [
+  "planner-tools.js",
+  "tour.js"
+ ],
  "Rung {1} reached: {2}!": [
   "planner-tools.js"
  ],
  "Rung {1} · {2}": [
   "project.js"
+ ],
+ "Rungs {1}–{2}": [
+  "planner-tools.js"
  ],
  "Runs out of cigarettes and instant noodles without noticing.": [
   "sample.js"
@@ -2446,11 +2955,20 @@
  "Sample founder · guest demo": [
   "shell.js"
  ],
+ "SandBox invite": [
+  "landing.js"
+ ],
  "SandBox is for people aged 18 and over, so we can’t create an account for you yet.": [
   "onboarding.js"
  ],
+ "SandBox member": [
+  "network.js"
+ ],
  "SandBox partner application": [
   "public.js"
+ ],
+ "SandBox report:": [
+  "people.js"
  ],
  "SandBox • MORI Network · {1}": [
   "network.js"
@@ -2464,6 +2982,12 @@
  ],
  "SandBox • {1}{2}": [
   "project.js"
+ ],
+ "SandBox’s words and dates. What members write stays as they wrote it.": [
+  "shell.js"
+ ],
+ "Sandbox Guide": [
+  "shell.js"
  ],
  "Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application.": [
   "onboarding.js"
@@ -2482,6 +3006,9 @@
  ],
  "Save changes": [
   "onboarding.js"
+ ],
+ "Save my spot": [
+  "sprints.js"
  ],
  "Save photo": [
   "shell.js"
@@ -2513,6 +3040,9 @@
  "Say hello": [
   "network.js"
  ],
+ "Say hello to {1}. Only the two of you can see this conversation.": [
+  "network.js"
+ ],
  "Say what the meeting is.": [
   "home.js"
  ],
@@ -2536,11 +3066,15 @@
   "data.js",
   "sample.js"
  ],
+ "See the next sprint": [
+  "sprints.js"
+ ],
  "See the plans": [
   "planner-tools.js"
  ],
  "See the sprints": [
-  "people.js"
+  "people.js",
+  "shell.js"
  ],
  "See you soon…": [
   "landing.js",
@@ -2561,6 +3095,9 @@
  ],
  "Sent {1}": [
   "network.js"
+ ],
+ "Sessions with vetted mentors and investors open here once they’re available.": [
+  "projects.js"
  ],
  "Sessions with vetted mentors and investors, once they’re available.": [
   "data.js"
@@ -2618,7 +3155,19 @@
  "Show me around": [
   "tour.js"
  ],
+ "Show my work record": [
+  "shell.js"
+ ],
  "Show on your profile": [
+  "shell.js"
+ ],
+ "Show that I’m open to build": [
+  "shell.js"
+ ],
+ "Show the sidebar of tools in the project planner. The button at its top left hides and shows it too.": [
+  "shell.js"
+ ],
+ "Show “Open to build”": [
   "shell.js"
  ],
  "Showing {1}": [
@@ -2630,6 +3179,9 @@
  "Sign an NDA and assign the IP to the company": [
   "data.js"
  ],
+ "Sign in": [
+  "landing.js"
+ ],
  "Sign in to pick up where you left off.": [
   "landing.js"
  ],
@@ -2640,11 +3192,30 @@
  "Sign in with Google to meet members": [
   "network.js"
  ],
+ "Sign in with Google to message members.": [
+  "network.js"
+ ],
+ "Sign out": [
+  "landing.js",
+  "shell.js"
+ ],
+ "Sign out everywhere": [
+  "shell.js"
+ ],
+ "Sign out of Sandbox on this browser.": [
+  "shell.js"
+ ],
+ "Sign out of all devices": [
+  "shell.js"
+ ],
  "Sign the founders’ agreement": [
   "sample.js"
  ],
  "Sign-in failed.": [
   "landing.js"
+ ],
+ "Sign-in method": [
+  "shell.js"
  ],
  "Sign-up flow sketch": [
   "sample.js"
@@ -2660,11 +3231,15 @@
  "Signing you in": [
   "landing.js"
  ],
+ "Site tour": [
+  "shell.js"
+ ],
  "Sketch the riskiest user flow": [
   "data.js",
   "sample.js"
  ],
  "Skills and industries": [
+  "people.js",
   "shell.js"
  ],
  "Skip tour": [
@@ -2734,6 +3309,12 @@
  "Spot saved: {1}": [
   "sprints.js"
  ],
+ "Sprint lobbies, verified sprints and new insights.": [
+  "shell.js"
+ ],
+ "Sprint progress and rungs reached on your projects.": [
+  "shell.js"
+ ],
  "Sprints and verified work record": [
   "data.js"
  ],
@@ -2742,6 +3323,9 @@
  ],
  "Sprints your teammates confirm and rungs you reach with proof make up your work record. No ratings, no leaderboards, nothing to buy.": [
   "tour.js"
+ ],
+ "Sprints, rooms and insights": [
+  "shell.js"
  ],
  "Stage done: {1}": [
   "planner-tools.js"
@@ -2757,6 +3341,9 @@
  ],
  "Start on the launch path: structure, registration, licences.": [
   "onboarding.js"
+ ],
+ "Start page": [
+  "shell.js"
  ],
  "Start the launch path": [
   "home.js"
@@ -2803,6 +3390,9 @@
  "Style and size": [
   "mainframe.js"
  ],
+ "Subscription Pricing": [
+  "shell.js"
+ ],
  "Summarise what you learned": [
   "data.js",
   "sample.js"
@@ -2813,11 +3403,17 @@
  "Suppliers’ prices change and she can’t compare.": [
   "sample.js"
  ],
+ "Support, no money": [
+  "planner-tools.js"
+ ],
  "Switch to dark mode": [
   "ui.js"
  ],
  "Switch to light mode": [
   "ui.js"
+ ],
+ "Take the tour": [
+  "shell.js"
  ],
  "Takes at least {#} column{1} × {#} row{2}. Drag its corner on the Mainframe to resize.": [
   "mainframe.js"
@@ -3002,6 +3598,9 @@
  "The first notaries, lawyers, accountants and tax advisers are being checked. Until they’re here, your launch path’s checklists and templates show what to ask a professional. The guest demo shows the directory with sample partners.": [
   "directory.js"
  ],
+ "The first one starts on {1}. Past sprints and the teams’ proof will show here.": [
+  "sprints.js"
+ ],
  "The first people the company employs: which roles come first, and an employment contract a lawyer has checked.": [
   "data.js"
  ],
@@ -3017,6 +3616,9 @@
  "The licences and certifications your sector needs. For food and drink: from October 2026, halal certification is required for food and drink products of micro and small businesses, and the government runs a free self-declare scheme for them.": [
   "data.js"
  ],
+ "The member may be invisible on the MORI Network, may have left, or the link may be incomplete.": [
+  "people.js"
+ ],
  "The next step toward a registered, operating company.": [
   "mainframe.js"
  ],
@@ -3026,6 +3628,9 @@
  ],
  "The one page a specialist reads to judge your idea.": [
   "data.js"
+ ],
+ "The page a project opens on from Home, Projects and the Projects menu.": [
+  "shell.js"
  ],
  "The partner address isn’t set yet: copy the application and send it to the address on the Contact page.": [
   "public.js"
@@ -3039,6 +3644,9 @@
  "The top three problems your customers have.": [
   "data.js"
  ],
+ "Their biggest pain": [
+  "planner-tools.js"
+ ],
  "They’ll see “{1}” in their projects and can plan it with you.": [
   "projectkit.js"
  ],
@@ -3048,7 +3656,17 @@
  "This document was deleted.": [
   "mainframe.js"
  ],
+ "This is how founders and specialists see you on Sandbox.": [
+  "onboarding.js"
+ ],
+ "This is the demo, so the report stays in this browser and nothing is sent.": [
+  "people.js"
+ ],
+ "This member": [
+  "state.js"
+ ],
  "This month": [
+  "mainframe.js",
   "planner-tools.js"
  ],
  "This photo can’t be adjusted here. Upload it again instead.": [
@@ -3059,6 +3677,9 @@
  ],
  "This project isn’t available": [
   "project.js"
+ ],
+ "Ticked: 8+ interviews logged": [
+  "planner-tools.js"
  ],
  "To do": [
   "projectkit.js"
@@ -3073,11 +3694,17 @@
  "Tools for farmers, fishers and the people who buy from them.": [
   "data.js"
  ],
+ "Tools sidebar": [
+  "shell.js"
+ ],
  "Top of the ladder: early traction.": [
   "project.js"
  ],
  "Top rung reached": [
   "planner-tools.js"
+ ],
+ "Top rung reached.": [
+  "projects.js"
  ],
  "Top rung reached: early traction.": [
   "mainframe.js"
@@ -3090,6 +3717,9 @@
  ],
  "Tourism & Travel": [
   "data.js"
+ ],
+ "Toward rung {#}": [
+  "sprints.js"
  ],
  "Toward rung {#} · {1}": [
   "planner-tools.js"
@@ -3115,8 +3745,14 @@
  "Try again": [
   "network.js"
  ],
+ "Try another rung, or any sector or region.": [
+  "planner-tools.js"
+ ],
  "Try another service.": [
   "directory.js"
+ ],
+ "Try fewer filters or a different search.": [
+  "network.js"
  ],
  "Try fewer filters, or clear them.": [
   "projects.js"
@@ -3188,11 +3824,26 @@
  "Update your sign-up answers": [
   "shell.js"
  ],
+ "Updated {1}": [
+  "home.js"
+ ],
  "Updated {1} · Created on {2}": [
   "project.js"
  ],
  "Upload a PDF or Word document.": [
   "onboarding.js"
+ ],
+ "Upload a new image": [
+  "shell.js"
+ ],
+ "Upload a new photo": [
+  "shell.js"
+ ],
+ "Upload a photo": [
+  "shell.js"
+ ],
+ "Upload an image": [
+  "shell.js"
  ],
  "Upload your CV": [
   "onboarding.js"
@@ -3200,8 +3851,14 @@
  "Uploading your CV…": [
   "onboarding.js"
  ],
+ "Use a template": [
+  "planner-docs.js"
+ ],
  "Use my Google photo": [
   "shell.js"
+ ],
+ "Use template": [
+  "planner-tools.js"
  ],
  "Use the default banner": [
   "shell.js"
@@ -3222,6 +3879,9 @@
   "data.js"
  ],
  "Verified sprints:": [
+  "shell.js"
+ ],
+ "Vetted partners": [
   "shell.js"
  ],
  "Video & Photography": [
@@ -3275,7 +3935,11 @@
  "Week 4 running": [
   "data.js"
  ],
+ "Weekly email digest": [
+  "shell.js"
+ ],
  "Welcome back": [
+  "home.js",
   "landing.js"
  ],
  "Welcome back, {1}": [
@@ -3286,6 +3950,9 @@
  ],
  "Welcome to {1}": [
   "tour.js"
+ ],
+ "Welcome! Tell us about you": [
+  "onboarding.js"
  ],
  "Welcome, {1}": [
   "landing.js"
@@ -3312,6 +3979,9 @@
  "We’ll open Sandbox on the page that fits. You can go anywhere from there.": [
   "onboarding.js"
  ],
+ "We’ll put you in a team before {1}.": [
+  "sprints.js"
+ ],
  "What 8–10 conversations taught you, on one page.": [
   "data.js"
  ],
@@ -3333,6 +4003,12 @@
  "What it costs to build, run and grow.": [
   "data.js"
  ],
+ "What it is": [
+  "planner-tools.js"
+ ],
+ "What you’ve heard": [
+  "planner-tools.js"
+ ],
  "What’s on today, overall progress or the whole board.": [
   "mainframe.js"
  ],
@@ -3342,11 +4018,23 @@
  "What’s your specialty?": [
   "onboarding.js"
  ],
+ "When founders or specialists want to connect, or accept your request.": [
+  "shell.js"
+ ],
+ "When someone accepts your request, or you accept theirs, they’ll appear here.": [
+  "people.js"
+ ],
+ "Where Sandbox opens after you sign in.": [
+  "shell.js"
+ ],
  "Where are you on the milestone ladder?": [
   "projects.js"
  ],
  "Where are you right now?": [
   "onboarding.js"
+ ],
+ "Where to look": [
+  "planner-tools.js"
  ],
  "Which document?": [
   "mainframe.js"
@@ -3354,8 +4042,14 @@
  "Which metric?": [
   "mainframe.js"
  ],
+ "Which skills is the team missing? List them so specialists know.": [
+  "planner-tools.js"
+ ],
  "Who sees your full profile": [
   "tour.js"
+ ],
+ "Who sees your full profile in the Network. Everyone else sees your name, role and headline.": [
+  "shell.js"
  ],
  "Who you’ll sell to first, how, and at what price.": [
   "data.js"
@@ -3396,6 +4090,9 @@
   "planner-tools.js",
   "sample.js"
  ],
+ "Would they pay for a fix?": [
+  "planner-tools.js"
+ ],
  "Wouldn’t pay": [
   "data.js",
   "planner-tools.js"
@@ -3408,6 +4105,9 @@
  ],
  "Write a one-page summary of what you learned": [
   "data.js"
+ ],
+ "Write a problem brief, a plan or meeting notes. Everyone on the team can edit them.": [
+  "planner-docs.js"
  ],
  "Write a short pitch or demo script": [
   "data.js"
@@ -3446,6 +4146,9 @@
  "Yes! Thursday at 10 works for me.": [
   "sample.js"
  ],
+ "You also blocked {1}. You can unblock them in Settings → Privacy.": [
+  "people.js"
+ ],
  "You blocked {1}. You won’t see or hear from each other on SandBox.": [
   "people.js"
  ],
@@ -3473,11 +4176,17 @@
  "You pay the partner directly. SandBox receives a referral fee.": [
   "directory.js"
  ],
+ "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account.": [
+  "shell.js"
+ ],
  "You unblocked {1}": [
   "shell.js"
  ],
  "Your Mainframe is empty": [
   "mainframe.js"
+ ],
+ "Your answers are filled in: check them and continue.": [
+  "onboarding.js"
  ],
  "Your business model on one page.": [
   "mainframe.js"
@@ -3485,8 +4194,17 @@
  "Your business model on one page. Everything saves as you type, and the whole team can edit it.": [
   "planner-tools.js"
  ],
+ "Your connections appear here once a request is accepted.": [
+  "network.js"
+ ],
+ "Your details": [
+  "onboarding.js"
+ ],
  "Your email app should open with it, addressed to {1}. If it didn’t, use the button below or copy the text.": [
   "public.js"
+ ],
+ "Your email app should open with the report addressed to SandBox, so we see it straight away. If it didn’t, use the button.": [
+  "people.js"
  ],
  "Your full launch path": [
   "data.js"
@@ -3510,8 +4228,23 @@
  "Your message wasn’t sent. Try again.": [
   "network.js"
  ],
+ "Your name, your date of birth and where you are. Everything else can wait.": [
+  "onboarding.js"
+ ],
+ "Your network on Sandbox": [
+  "people.js"
+ ],
  "Your picks": [
   "onboarding.js"
+ ],
+ "Your pins, like these settings, follow you to every device you sign in on.": [
+  "shell.js"
+ ],
+ "Your pipeline": [
+  "planner-tools.js"
+ ],
+ "Your plan": [
+  "subscription.js"
  ],
  "Your profile": [
   "home.js"
@@ -3521,6 +4254,12 @@
  ],
  "Your projects and documents stay, whatever your plan": [
   "tour.js"
+ ],
+ "Your region is hidden": [
+  "shell.js"
+ ],
+ "Your report about {1} is saved for SandBox to review. {2} won’t know you reported them.": [
+  "people.js"
  ],
  "Your report goes to SandBox, never to {1}.{2}": [
   "people.js"
@@ -3537,11 +4276,15 @@
  "Your sign-in has expired. Please sign in with Google again.": [
   "db.js"
  ],
+ "Your spot is saved.": [
+  "sprints.js"
+ ],
  "Your spots": [
   "sprints.js"
  ],
  "Your sprints": [
-  "home.js"
+  "home.js",
+  "shell.js"
  ],
  "Your team lives on the People page. Add co-founders and teammates from your connections: everyone on the team sees the same Mainframe, tasks and documents, and you can give each other tasks.": [
   "tour.js"
@@ -3559,7 +4302,11 @@
   "shell.js"
  ],
  "You’re all caught up": [
-  "home.js"
+  "home.js",
+  "shell.js"
+ ],
+ "You’re all caught up.": [
+  "shell.js"
  ],
  "You’re all set": [
   "tour.js"
@@ -3570,10 +4317,16 @@
  "You’re exploring a demo as a sample founder. Nothing you do here is saved beyond this browser.": [
   "shell.js"
  ],
+ "You’re here": [
+  "tour.js"
+ ],
  "You’re in edit mode now, so try it: drag a widget by its top bar to move it, or by its corner to resize it. Widgets snap to a four-column grid. Press Done when it looks right.": [
   "tour.js"
  ],
  "You’re invisible on the MORI Network": [
+  "shell.js"
+ ],
+ "You’re invisible on the MORI Network: only people who search your full name can find you, and they see just your name and join date.": [
   "shell.js"
  ],
  "You’re joining as…": [
@@ -3594,6 +4347,9 @@
  ],
  "You’re no longer on “{1}”.": [
   "project.js"
+ ],
+ "You’re not open to build right now.": [
+  "shell.js"
  ],
  "You’re now connected with {1}": [
   "network.js",
@@ -3624,6 +4380,9 @@
  "a photo": [
   "state.js"
  ],
+ "a spot": [
+  "shell.js"
+ ],
  "a, button, input, label": [
   "home.js"
  ],
@@ -3651,11 +4410,23 @@
  "button, input, textarea, select": [
   "mainframe.js"
  ],
+ "checked disabled": [
+  "planner-tools.js"
+ ],
  "comma separated": [
   "shell.js"
  ],
+ "connection request": [
+  "home.js"
+ ],
+ "connection requests": [
+  "home.js"
+ ],
  "continue to your Sandbox": [
   "landing.js"
+ ],
+ "data-pin=\"{1}\" aria-label=\"Pin {2} to your homepage\"": [
+  "shell.js"
  ],
  "due this week": [
   "project.js"
@@ -3672,8 +4443,17 @@
  "go-to-market steps done. Tick them off as the team works through them, and add your own.": [
   "planner-tools.js"
  ],
+ "guidance, not legal advice": [
+  "home.js"
+ ],
  "here, or at the top of the page, to bring people in.": [
   "tour.js"
+ ],
+ "ico nav-ico": [
+  "shell.js"
+ ],
+ "ico pl-add-ico": [
+  "planner-tools.js"
  ],
  "id, owner_id, name, focus, tags, rung, milestones, created_at, updated_at, project_members(member_id, created_at)": [
   "db.js"
@@ -3699,6 +4479,10 @@
  "input, textarea, select, button": [
   "project.js"
  ],
+ "just you": [
+  "home.js",
+  "project.js"
+ ],
  "launch steps done. {#}": [
   "planner-tools.js"
  ],
@@ -3720,6 +4504,9 @@
  "modal-root tour-root": [
   "tour.js"
  ],
+ "months runway": [
+  "mainframe.js"
+ ],
  "noopener noreferrer": [
   "planner-docs.js"
  ],
@@ -3729,8 +4516,29 @@
  "of {#} programmes match": [
   "planner-tools.js"
  ],
+ "on now": [
+  "shell.js"
+ ],
  "optional · from your connections": [
   "projects.js"
+ ],
+ "overdue obligation": [
+  "home.js"
+ ],
+ "overdue obligations": [
+  "home.js"
+ ],
+ "overdue task": [
+  "home.js"
+ ],
+ "overdue tasks": [
+  "home.js"
+ ],
+ "people match": [
+  "network.js"
+ ],
+ "person matches": [
+  "network.js"
  ],
  "please try again.": [
   "mainframe.js",
@@ -3741,11 +4549,17 @@
  "private · you must be 18 or older": [
   "onboarding.js"
  ],
+ "save a spot to join the first teams.": [
+  "shell.js"
+ ],
  "sign-ups from": [
   "mainframe.js"
  ],
  "sprint_id, created_at": [
   "db.js"
+ ],
+ "the big day": [
+  "mainframe.js"
  ],
  "this member": [
   "network.js",
@@ -3759,6 +4573,9 @@
  ],
  "to keep up with": [
   "planner-tools.js"
+ ],
+ "to {1}": [
+  "home.js"
  ],
  "to {1} · {2}": [
   "mainframe.js"
@@ -3820,8 +4637,20 @@
  "your specialty": [
   "state.js"
  ],
+ "you’ve saved": [
+  "shell.js"
+ ],
+ "{#} active": [
+  "planner-tools.js"
+ ],
  "{#} answers need a look before you send.": [
   "public.js"
+ ],
+ "{#} connection{1}": [
+  "people.js"
+ ],
+ "{#} entr{1}": [
+  "planner-tools.js"
  ],
  "{#} in progress": [
   "mainframe.js"
@@ -3838,6 +4667,9 @@
  "{#} of 8 interviews": [
   "mainframe.js"
  ],
+ "{#} of 8 interviews logged ·": [
+  "planner-tools.js"
+ ],
  "{#} of {#}": [
   "planner-tools.js"
  ],
@@ -3851,14 +4683,45 @@
   "mainframe.js",
   "projects.js"
  ],
+ "{#} open": [
+  "planner-tools.js"
+ ],
  "{#} open task{1}": [
   "projectkit.js"
+ ],
+ "{#} overdue": [
+  "planner-tools.js"
  ],
  "{#} pending": [
   "network.js"
  ],
+ "{#} people": [
+  "projectkit.js"
+ ],
  "{#} project{1}": [
   "projects.js"
+ ],
+ "{#} request{1}": [
+  "shell.js"
+ ],
+ "{#} role{1} still open": [
+  "mainframe.js"
+ ],
+ "{#} step{1} to go.": [
+  "planner-tools.js"
+ ],
+ "{#} styles": [
+  "mainframe.js"
+ ],
+ "{#} unread": [
+  "network.js",
+  "shell.js"
+ ],
+ "{#} unread conversation{1}": [
+  "shell.js"
+ ],
+ "{#} upcoming": [
+  "sprints.js"
  ],
  "{#} verified sprint{1}": [
   "network.js",
@@ -3866,6 +4729,9 @@
  ],
  "{#}% of the way from idea to early traction": [
   "project.js"
+ ],
+ "{#}% overall": [
+  "planner-tools.js"
  ],
  "{#}d ago": [
   "ui.js"
@@ -3875,6 +4741,9 @@
  ],
  "{#}m ago": [
   "ui.js"
+ ],
+ "{1} (its team sees it)": [
+  "home.js"
  ],
  "{1} / span {#}": [
   "mainframe.js"
@@ -3921,11 +4790,14 @@
  "{1} page": [
   "project.js"
  ],
- "{1} request{2}": [
-  "shell.js"
- ],
  "{1} shares their full profile with connections only. Connect to see their skills, industries, languages and links.": [
   "people.js"
+ ],
+ "{1} shares their full profile with connections.": [
+  "network.js"
+ ],
+ "{1} spots": [
+  "shell.js"
  ],
  "{1} starts": [
   "home.js"
@@ -3933,14 +4805,8 @@
  "{1} tasks is the limit for now": [
   "planner-tools.js"
  ],
- "{1} to {2}": [
-  "sprints.js"
- ],
  "{1} to {2}.": [
   "landing.js"
- ],
- "{1} unread conversation{2}": [
-  "shell.js"
  ],
  "{1} verified sprints": [
   "network.js"
@@ -3948,6 +4814,9 @@
  "{1} wants to connect": [
   "people.js",
   "shell.js"
+ ],
+ "{1} would pay": [
+  "mainframe.js"
  ],
  "{1} years old": [
   "people.js"
@@ -3970,6 +4839,9 @@
  "{1} · {2} of": [
   "tour.js"
  ],
+ "{1}% of {2}": [
+  "mainframe.js"
+ ],
  "{1}, updated_at": [
   "db.js"
  ],
@@ -3981,6 +4853,30 @@
  ],
  "© {1} Mori: Sandbox · SandBox by MORI Group": [
   "shell.js"
+ ],
+ "· From the {1}": [
+  "public.js"
+ ],
+ "· deadline {1}": [
+  "planner-tools.js"
+ ],
+ "· spot saved": [
+  "home.js"
+ ],
+ "· target {1} ({2}%)": [
+  "planner-tools.js"
+ ],
+ "· teams of {1}": [
+  "home.js"
+ ],
+ "· uploads when you finish": [
+  "onboarding.js"
+ ],
+ "· your project is here or past it": [
+  "planner-tools.js"
+ ],
+ "· {#} due in the next 30 days": [
+  "planner-tools.js"
  ],
  "· {1} per page": [
   "projects.js"

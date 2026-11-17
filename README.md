@@ -57,6 +57,25 @@ The first homepage after signing in (Google sign-in, the end of sign-up, or open
 - **The aura** (both modes) is the original release-5 background, held still: a grey hue at the top left, the MORI red at the bottom right, two large soft layers (a 120px blur) and three faint orbs. It's drawn as images: `tools/make_aura.py` works out those gradients and the blur with full precision and dithers them to 8 bits, writing `assets/img/aura-{light,dark}-{wide,tall}.webp` (2400 × 1500 for desktops, 860 × 1864 for phones in portrait; lossless, about 400 KB and 225 KB). Drawn live, Safari shows such faint gradients in visible steps (Chrome smooths them) and renders large blurs at low resolution; the images look the same in every browser and match Chrome's rendering of the original to within about one colour level. A page asks for its image before the first paint (the base colour shows until it arrives) and fetches the other theme's once idle, so switching is instant. To change the aura's colours, edit `tools/make_aura.py` and run it. The loading screen (signing in, signing out, saving the sign-up answers) carries its own copy of the aura, so it matches the pages in both modes, and it stays on top of the nav during page and theme fades.
 - Dark mode is `assets/css/dark.css`, generated from the light stylesheets by `tools/make_dark_css.py` (hand-tuned values in `tools/dark-overrides.css`). After changing colours in any stylesheet, run `python3 tools/make_dark_css.py`.
 
+### Languages: English, Bahasa Indonesia and 简体中文
+
+- **Where to choose:** English is the default, from the landing page on. The first step of sign-up starts with a language picker. Afterwards, **Account → Language** (below Subscription) opens **Settings → Preferences** at the Language setting, just above Motion effects. Choosing a language reloads the page in it.
+- **What changes:** the whole site, including pages, menus, windows, tours, errors, toasts, page titles, labels for screen readers, and the guest demo's sample content (people's and projects' names stay as they are). Dates and numbers follow the language (`id-ID`, `zh-CN`), and `<html lang>` is set, so Chinese gets Chinese fonts. What members write (documents, messages, project names) is never translated.
+- **Remembered:** the choice is kept in the browser (`mori.lang`), so it applies before a page draws. For members it's also saved with their synced settings (`settings.language`), so it follows them to their other devices.
+- **Legal text:** the terms, privacy and cookie page, and the legal templates (founders' agreement, equity and vesting, NDA and IP, registration, sector licences), are translated but marked *"This is an unofficial translation, not checked by a lawyer. The English version is the one that counts."* A document started from a template in Indonesian or Chinese starts translated, with that note on top for the legal ones.
+- **How it works:** the site is written in English. `assets/js/i18n.js` (loaded first on every page) swaps each piece of English text it finds for the chosen language, using a dictionary in `assets/i18n/id.js` or `assets/i18n/zh.js`. It watches the page, so text drawn later (windows, tours, toasts) is translated as it appears. In English nothing extra loads. In another language the page waits (at most 2.5 s) for the dictionary, so there's no English flash. The dictionary is about 175 KB for Indonesian and 120 KB for Chinese, and it's cached.
+- **Phrases with values:** `{#}` is a number ("Updated {#}h ago"); `{1}`, `{2}` are values such as a name or a title ("Welcome back, {1}"). A value that is itself a known phrase is translated too, and lines made of parts ("Fintech · Starts in 3 days") are translated part by part.
+
+**Updating the translations** (after changing or adding English text):
+
+1. `python3 tools/i18n/scan_js.py` collects the phrases written in the scripts.
+2. `node tools/i18n/extract.mjs` collects the phrases the pages show, by walking the site in a browser (about 20 minutes; optional for small changes).
+3. `python3 tools/i18n/merge.py` lists what isn't translated yet in `tools/i18n/todo.json`.
+4. Add each phrase with its Indonesian and Chinese to `tools/i18n/translations.json`: `"English": { "id": "…", "zh": "…" }`. Keep the same `{#}` and `{1}` placeholders. A word ending that only English needs ("project{1}" → "projects") can be dropped by writing `{1=}`.
+5. `python3 tools/i18n/build.py` writes `assets/i18n/id.js` and `zh.js`, and stops if a translation's placeholders don't match.
+
+A phrase without a translation simply shows in English.
+
 ### Sign-up questions
 
 - **Member roles are Founder and Specialist only.** This is enforced in three places: `Mori.data.roles` (`assets/js/data.js`), `onboarding.js` (it ignores any other `joinRole`), and the database's `profiles_profile_type_check` constraint (`'Founder'` or `'Specialist'`). Mentors, investors and service providers never sign up: they join as vetted partners, by invitation or application (see `partners.html`).
@@ -232,7 +251,7 @@ npx playwright install chromium
 
 The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
 
-**Cache tags:** every page loads its CSS and JS with `?v=15`. Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
+**Cache tags:** every page loads its CSS and JS with `?v=16` (the language dictionaries take the same number). Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
 ## Supabase (sign-in, profiles, CVs, network)
 
@@ -330,7 +349,9 @@ assets/
     projects.css    Projects page, plus the parts the planner shares (preview, team, pickers)
     project.css     the project planner
     dark.css        dark mode, generated by tools/make_dark_css.py (don't edit by hand)
+  i18n/             the Indonesian and Chinese dictionaries (built by tools/i18n/build.py; don't edit)
   js/
+    i18n.js         languages: the chosen language, and the translation of every page (loads first)
     config.js       Supabase URL + anon key
     auth.js         storage (with parsed-value cache), session, route guards (loads in <head>)
     db.js           Supabase: Google sign-in, profiles, photos, CVs, member directory, connection
@@ -365,6 +386,8 @@ assets/
                     the background aura: aura-light-wide.webp, aura-dark-wide.webp, aura-*-tall.webp
 favicon.ico         the MORI logo for browsers that look for /favicon.ico
 tools/
+  i18n/             translations.json (the source of truth) and the scripts that collect the
+                    English phrases and build the dictionaries; see Languages above
   make_dark_css.py  builds assets/css/dark.css from the light stylesheets
   dark-overrides.css hand-tuned dark values (aura images, base colour, logo)
   make_aura.py      renders the background aura images (needs numpy and Pillow)

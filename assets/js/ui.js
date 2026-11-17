@@ -633,7 +633,8 @@
   /** Split text into .word spans for the staggered heading entrance. */
   function splitWords(el) {
     if (!el) return;
-    const text = el.textContent.trim();
+    // In another language, translate the whole line first: once it's split, single words can't be.
+    const text = Mori.i18n ? Mori.i18n.t(el.textContent.trim()) : el.textContent.trim();
     el.setAttribute("aria-label", text);
     el.innerHTML = text.split(/\s+/).map((w, i) => `<span class="word" style="--i:${i}" aria-hidden="true">${esc(w)}</span>`).join(" ");
     el.classList.add("split-words");

@@ -263,6 +263,9 @@ html[data-theme="dark"] .ob-actions{ border-top:1px solid rgba(227,228,230,0.06)
 html[data-theme="dark"] .ob-steps li{ background:rgba(227,228,230,0.08) }
 }
 html[data-theme="dark"] .ob-role-what{ border-top:1px dashed rgba(227,228,230,0.14) }
+html[data-theme="dark"] .ob-locale-btn{ border:1px solid rgba(227,228,230,0.16); background:rgba(27,27,27,0.6) }
+html[data-theme="dark"] .ob-locale-btn:hover{ border-color:rgba(227,228,230,0.32) }
+html[data-theme="dark"] .ob-locale-btn:focus-visible{ box-shadow:0 0 0 3px rgba(0,0,0,0.85) }
 
 /* ---- home.css ---- */
 html[data-theme="dark"] .start-ico{ background:rgba(227,228,230,0.07) }

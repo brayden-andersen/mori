@@ -21,7 +21,9 @@ translations = load("translations.json")
 
 # Names in the sample data, sample firms and the brand stay as they are.
 sample = (ROOT / "assets/js/sample.js").read_text() + (ROOT / "assets/js/data.js").read_text()
-names = set(re.findall(r'name: "([^"]+)"', sample)) | {"SandBox", "Sandbox", "MORI", "Mori", "SandBox by MORI Group", "Google", "LinkedIn",
+# A sample `name:` is a proper name only when every word is capitalised ("Kebun Data", "Dewi Saraswati");
+# "Warung owners interviewed" is a sample metric, and is translated like the rest of the demo.
+names = {n for n in re.findall(r'name: "([^"]+)"', sample) if re.fullmatch(r"([A-Z0-9][\w’'&.-]*)( [A-Z0-9&][\w’'&.-]*)*", n)} | {"SandBox", "Sandbox", "MORI", "Mori", "SandBox by MORI Group", "Google", "LinkedIn",
     "Nadia Pratiwi", "Eka Putri", "WarungPay", "Warung Pay", "Kebun Data", "Sawah Data", "Studio Sampel", "Sampel Accounting", "Sampel Law Office",
     "Sampel Tax Advisory", "Kantor Notaris Sampel & Rekan", "SandBox • {1}", "SandBox • {1}{2}", "X (Twitter)", "GitHub", "Instagram", "WhatsApp"}
 first_names = {n.split()[0] for n in names if " " in n}
@@ -37,7 +39,7 @@ def key_of(s):
 def is_name(k):
     if k in names or re.fullmatch(r"[A-Z][a-z]+ [A-Z]\.", k):
         return True
-    return bool(re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z]+)?", k)) and (k in first_names or any(k in n for n in names))
+    return bool(re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z]+)?", k)) and (k in first_names or any(re.search(r"\b" + re.escape(k) + r"\b", n) for n in names))
 
 phrases = {}
 for src, where in list(crawl.items()) + list(js.items()):
@@ -53,6 +55,8 @@ exact, digits, patterns = {}, {}, []
 for en, tr in translations.items():
     if not (tr or {}).get("id"):
         continue
+    if re.search(r"\{\d\}\{\d\}", en):
+        continue  # the engine skips patterns with two values side by side
     if re.search(r"\{\d\}", en):
         slots = []
         def slot(m):
@@ -76,7 +80,11 @@ def fits(slots, weak, m):
         if s == "#":
             continue
         v = m.group(i + 1) or ""
-        if len(v) > 120 or weak and (len(v) > 32 or len(v.split(" ")) > 4 or re.search(r"[.,;:!?“”\"]", v)):
+        if len(v) > 120:
+            return False
+        if not weak or covered(v):
+            continue
+        if len(v) > 32 or len(v.split(" ")) > 4 or re.search(r"[.,;:!?“”\"]", v) or re.search(r"(^|\s)[a-z]", v):
             return False
     return True
 

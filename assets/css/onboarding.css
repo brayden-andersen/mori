@@ -114,3 +114,12 @@
 #obSkip{ margin-left:auto; margin-right:10px }
 #obSkip[hidden]{ display:none }
 @media (max-width: 760px){ .ob-situations{ grid-template-columns: 1fr } }
+
+/* The language picker at the top of sign-up's first step (English, Bahasa Indonesia, 简体中文) */
+.ob-locale{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 18px }
+.ob-locale-label{ font-size:12.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--subtle); margin-right:4px }
+.ob-locale-btn{ min-height:36px; padding:0 14px; border-radius:999px; border:1px solid rgba(26,28,31,.16); background:rgba(255,255,255,.6); color:var(--ink); font:inherit; font-size:14px; cursor:pointer; transition: background .15s, border-color .15s }
+.ob-locale-btn:hover{ border-color:rgba(26,28,31,.32) }
+.ob-locale-btn[aria-pressed="true"]{ background:var(--ink); color:var(--bg); border-color:transparent; font-weight:600 }
+.ob-locale-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(26,28,31,.42) }
+@media (pointer: coarse){ .ob-locale-btn{ min-height:44px } }

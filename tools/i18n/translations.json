@@ -3,9 +3,17 @@
   "id": "% · target {#} ({#}%)",
   "zh": "% · 目标 {#}（{#}%）"
  },
+ "(Demo mode keeps the file name only.)": {
+  "id": "(Mode demo hanya menyimpan nama file.)",
+  "zh": "（演示模式只保存文件名。）"
+ },
  "(done)": {
   "id": "(selesai)",
   "zh": "（已完成）"
+ },
+ "(not given)": {
+  "id": "(tidak diisi)",
+  "zh": "（未填写）"
  },
  "(to do)": {
   "id": "(harus dikerjakan)",
@@ -51,6 +59,14 @@
   "id": "[akan dikonfirmasi dengan pengacara]",
   "zh": "[待与律师确认]"
  },
+ "A checked list of grants, incubators and competitions is being put together. Until then, keep the ones you find in Funding opportunities. The guest demo shows how the navigator works with sample programmes.": {
+  "id": "Daftar hibah, inkubator, dan kompetisi yang sudah diperiksa sedang disusun. Sampai saat itu, simpan yang kamu temukan di Peluang pendanaan. Demo tamu menunjukkan cara kerja navigator dengan contoh program.",
+  "zh": "经过核查的资助、孵化器和竞赛清单正在整理中。在此之前，请把你找到的机会保存在“融资机会”中。访客演示用示例项目展示了导航的用法。"
+ },
+ "A clear path to a registered business": {
+  "id": "Jalur yang jelas menuju usaha terdaftar",
+  "zh": "一条通往注册企业的清晰路径"
+ },
  "A demand figure on your startup page.": {
   "id": "Angka permintaan di halaman startup kamu.",
   "zh": "你的创业页面上的需求数据。"
@@ -66,6 +82,10 @@
  "A fake profile or pretending to be someone": {
   "id": "Profil palsu atau berpura-pura menjadi orang lain",
   "zh": "虚假资料或冒充他人"
+ },
+ "A few new questions": {
+  "id": "Beberapa pertanyaan baru",
+  "zh": "几个新问题"
  },
  "a headline": {
   "id": "judul singkat",
@@ -187,6 +207,10 @@
   "id": "Pembukuan sederhana dengan pengingat, dalam Bahasa Indonesia, yang berjalan di ponsel murah.",
   "zh": "带提醒功能的简易账本，使用印尼语，可在低价手机上运行。"
  },
+ "a spot": {
+  "id": "tempat",
+  "zh": "名额"
+ },
  "A startup page in the MORI Network and a place in a sprint lobby.": {
   "id": "Halaman startup di MORI Network dan tempat di lobi sprint.",
   "zh": "在 MORI Network 中的创业页面，以及冲刺大厅中的一个名额。"
@@ -202,6 +226,10 @@
  "A vetted notary or lawyer can confirm the right structure and handle the registration.": {
   "id": "Notaris atau pengacara terverifikasi bisa memastikan struktur yang tepat dan mengurus pendaftarannya.",
   "zh": "经过审核的公证人或律师可以确认合适的结构并办理注册。"
+ },
+ "A walk through the planner. It starts when you declare your first project.": {
+  "id": "Tur perencana. Dimulai saat kamu mendeklarasikan proyek pertamamu.",
+  "zh": "规划器导览。在你创建第一个立项时开始。"
  },
  "A walk through the planner: its tools, your team and the Mainframe’s widgets.": {
   "id": "Tur perencana: alat-alatnya, timmu, dan widget di Mainframe.",
@@ -239,6 +267,10 @@
   "id": "akun",
   "zh": "账号"
  },
+ "Account": {
+  "id": "Akun",
+  "zh": "账号"
+ },
  "Account menu": {
   "id": "Menu akun",
   "zh": "账号菜单"
@@ -266,6 +298,10 @@
  "Add": {
   "id": "Tambah",
   "zh": "添加"
+ },
+ "Add a banner": {
+  "id": "Tambah banner",
+  "zh": "添加横幅"
  },
  "Add a language": {
   "id": "Tambah bahasa",
@@ -307,13 +343,69 @@
   "id": "Tambah peran",
   "zh": "添加角色"
  },
+ "Add a step": {
+  "id": "Tambah langkah",
+  "zh": "添加步骤"
+ },
+ "Add a step to Channels": {
+  "id": "Tambah langkah ke Kanal",
+  "zh": "向“渠道”添加步骤"
+ },
+ "Add a step to Launch": {
+  "id": "Tambah langkah ke Peluncuran",
+  "zh": "向“上线”添加步骤"
+ },
+ "Add a step to Legal & admin": {
+  "id": "Tambah langkah ke Hukum & administrasi",
+  "zh": "向“法律与行政”添加步骤"
+ },
+ "Add a step to Positioning": {
+  "id": "Tambah langkah ke Positioning",
+  "zh": "向“定位”添加步骤"
+ },
+ "Add a step to Pricing": {
+  "id": "Tambah langkah ke Harga",
+  "zh": "向“定价”添加步骤"
+ },
+ "Add a step to Sales & retention": {
+  "id": "Tambah langkah ke Penjualan & retensi",
+  "zh": "向“销售与留存”添加步骤"
+ },
+ "Add a step to {1}": {
+  "id": "Tambah langkah ke {1}",
+  "zh": "向“{1}”添加步骤"
+ },
+ "Add a tag": {
+  "id": "Tambah tag",
+  "zh": "添加标签"
+ },
  "Add a task": {
   "id": "Tambah tugas",
   "zh": "添加任务"
  },
+ "Add a task to Done": {
+  "id": "Tambah tugas ke Selesai",
+  "zh": "向“完成”添加任务"
+ },
+ "Add a task to In progress": {
+  "id": "Tambah tugas ke Sedang dikerjakan",
+  "zh": "向“进行中”添加任务"
+ },
+ "Add a task to To do": {
+  "id": "Tambah tugas ke Harus dikerjakan",
+  "zh": "向“待办”添加任务"
+ },
+ "Add a task to {1}": {
+  "id": "Tambah tugas ke {1}",
+  "zh": "向“{1}”添加任务"
+ },
  "Add an email address we can reply to.": {
   "id": "Tambahkan alamat email yang bisa kami balas.",
   "zh": "添加一个我们可以回复的邮箱地址。"
+ },
+ "Add an obligation": {
+  "id": "Tambah kewajiban",
+  "zh": "添加一项义务"
  },
  "Add any widget": {
   "id": "Tambah widget apa pun",
@@ -331,6 +423,22 @@
   "id": "Tambahkan cara kami menghubungi referensi kamu.",
   "zh": "添加我们联系你的推荐人的方式。"
  },
+ "Add metric": {
+  "id": "Tambah metrik",
+  "zh": "添加指标"
+ },
+ "Add obligation": {
+  "id": "Tambah kewajiban",
+  "zh": "添加义务"
+ },
+ "Add people from your connections.": {
+  "id": "Tambahkan orang dari koneksimu.",
+  "zh": "从你的联系人中添加成员。"
+ },
+ "Add role": {
+  "id": "Tambah peran",
+  "zh": "添加角色"
+ },
  "Add starter widgets": {
   "id": "Tambah widget awal",
   "zh": "添加入门小组件"
@@ -343,6 +451,10 @@
   "id": "Tambahkan angka yang ingin kamu pantau, seperti pendaftaran atau pendapatan.",
   "zh": "添加你想关注的数字，例如注册数或收入。"
  },
+ "Add the ones a vetted partner has confirmed for your company, with how often they come round.": {
+  "id": "Tambahkan yang sudah dikonfirmasi mitra terverifikasi untuk perusahaanmu, beserta seberapa sering datangnya.",
+  "zh": "添加经过审核的合作伙伴为你的公司确认过的义务，以及它们的周期。"
+ },
  "Add to Mainframe": {
   "id": "Tambah ke Mainframe",
   "zh": "添加到 Mainframe"
@@ -354,6 +466,10 @@
  "Add to team": {
   "id": "Tambah ke tim",
   "zh": "添加到团队"
+ },
+ "Add what comes in (sales, grants, investment) and what goes out. Even a rough list shows how long your cash lasts.": {
+  "id": "Tambahkan apa yang masuk (penjualan, hibah, investasi) dan apa yang keluar. Daftar kasar pun menunjukkan berapa lama kasmu bertahan.",
+  "zh": "添加收入（销售、资助、投资）和支出。即使是粗略的清单，也能看出你的现金能撑多久。"
  },
  "Add widget": {
   "id": "Tambah widget",
@@ -398,6 +514,10 @@
  "Add {1}": {
   "id": "Tambah {1}",
   "zh": "添加{1}"
+ },
+ "Add “{1}”": {
+  "id": "Tambah “{1}”",
+  "zh": "添加“{1}”"
  },
  "Added to Funding opportunities: {1}": {
   "id": "Ditambahkan ke Peluang pendanaan: {1}",
@@ -487,6 +607,10 @@
   "id": "Semua sudah beres",
   "zh": "全部处理完毕"
  },
+ "All day": {
+  "id": "Sepanjang hari",
+  "zh": "全天"
+ },
  "All documents": {
   "id": "Semua dokumen",
   "zh": "全部文档"
@@ -494,6 +618,10 @@
  "All industries": {
   "id": "Semua industri",
   "zh": "全部行业"
+ },
+ "All lobbies": {
+  "id": "Semua lobi",
+  "zh": "全部大厅"
  },
  "All optional. Your experience helps founders and specialists find the right match.": {
   "id": "Semuanya opsional. Pengalaman kamu membantu pendiri dan spesialis menemukan kecocokan yang tepat.",
@@ -523,6 +651,10 @@
   "id": "Sudah di Sandbox?",
   "zh": "已经在 Sandbox 上了？"
  },
+ "Already on your profile": {
+  "id": "Sudah ada di profilmu",
+  "zh": "已在你的个人资料中"
+ },
  "Also block {1}, so you stop seeing and hearing from each other": {
   "id": "Blokir juga {1}, agar kalian tidak lagi saling melihat dan mendengar",
   "zh": "同时屏蔽 {1}，你们将不再看到或收到对方的内容"
@@ -542,6 +674,10 @@
  "An invite": {
   "id": "Undangan",
   "zh": "邀请"
+ },
+ "An obligation": {
+  "id": "Sebuah kewajiban",
+  "zh": "一项义务"
  },
  "and / or": {
   "id": "dan / atau",
@@ -607,6 +743,10 @@
   "id": "Daftar sebagai mitra",
   "zh": "申请成为合作伙伴"
  },
+ "Apply to partner with SandBox": {
+  "id": "Daftar menjadi mitra SandBox",
+  "zh": "申请成为 SandBox 合作伙伴"
+ },
  "Applying": {
   "id": "Sedang melamar",
   "zh": "申请中"
@@ -651,6 +791,10 @@
   "id": "Permintaan",
   "zh": "请求"
  },
+ "Assigning all of it to the company": {
+  "id": "Mengalihkan semuanya ke perusahaan",
+  "zh": "全部转让给公司"
+ },
  "Assigning intellectual property": {
   "id": "Mengalihkan hak kekayaan intelektual",
   "zh": "转让知识产权"
@@ -671,6 +815,10 @@
   "id": "Kembali",
   "zh": "返回"
  },
+ "Back to conversations": {
+  "id": "Kembali ke percakapan",
+  "zh": "返回会话"
+ },
  "Back to the default banner": {
   "id": "Kembali ke banner bawaan",
   "zh": "恢复默认横幅"
@@ -678,6 +826,18 @@
  "Back to the default icon": {
   "id": "Kembali ke ikon bawaan",
   "zh": "恢复默认图标"
+ },
+ "Back to the demo as": {
+  "id": "Kembali ke demo sebagai",
+  "zh": "以此身份返回演示："
+ },
+ "Back to the demo as {1}": {
+  "id": "Kembali ke demo sebagai {1}",
+  "zh": "以 {1} 的身份返回演示"
+ },
+ "Back to the start": {
+  "id": "Kembali ke awal",
+  "zh": "返回开头"
  },
  "Back to your projects": {
   "id": "Kembali ke proyek kamu",
@@ -875,6 +1035,10 @@
   "id": "Bahasa Bugis",
   "zh": "布吉语"
  },
+ "Build": {
+  "id": "Bangun",
+  "zh": "构建"
+ },
  "Build a clickable prototype": {
   "id": "Buat prototipe yang bisa diklik",
   "zh": "制作可点击的原型"
@@ -991,9 +1155,17 @@
   "id": "Pendiri kampus",
   "zh": "校园创始人"
  },
+ "Campus incubator seed grant": {
+  "id": "Hibah awal inkubator kampus",
+  "zh": "校园孵化器种子资助"
+ },
  "Campus incubators": {
   "id": "Inkubator kampus",
   "zh": "校园孵化器"
+ },
+ "Campus WhatsApp groups": {
+  "id": "Grup WhatsApp kampus",
+  "zh": "校园 WhatsApp 群"
  },
  "Can I change plans later?": {
   "id": "Bisakah saya mengganti paket nanti?",
@@ -1010,6 +1182,10 @@
  "Cancel": {
   "id": "Batal",
   "zh": "取消"
+ },
+ "Cancel my spot": {
+  "id": "Batalkan tempatku",
+  "zh": "取消我的名额"
  },
  "cancellation": {
   "id": "pembatalan",
@@ -1147,6 +1323,10 @@
   "id": "Pilih alasan laporan.",
   "zh": "请选择举报原因。"
  },
+ "Choose a stage to explore": {
+  "id": "Pilih tahap untuk dijelajahi",
+  "zh": "选择一个阶段进行了解"
+ },
  "Choose a structure": {
   "id": "Pilih struktur",
   "zh": "选择结构"
@@ -1191,6 +1371,10 @@
   "id": "Pilih lama pengalaman praktik kamu.",
   "zh": "请选择你的从业年限。"
  },
+ "Choose {1}": {
+  "id": "Pilih {1}",
+  "zh": "选择 {1}"
+ },
  "Choosing a legal structure, getting an NIB, licences and tax numbers: every step is real, and none of it is written for a first-timer.": {
   "id": "Memilih struktur hukum, mendapatkan NIB, izin, dan nomor pajak: setiap langkah itu nyata, dan tidak ada yang ditulis untuk pemula.",
   "zh": "选择法律结构、取得 NIB、许可证和税号：每一步都是真实存在的，却没有一样是为首次创业者写的。"
@@ -1218,6 +1402,14 @@
  "Clearing it": {
   "id": "Menyelesaikannya",
   "zh": "解决方式"
+ },
+ "Clears the projects and settings saved in this browser. Your sign-up answers stay.": {
+  "id": "Menghapus proyek dan pengaturan yang tersimpan di browser ini. Jawaban pendaftaranmu tetap ada.",
+  "zh": "清除此浏览器中保存的项目和设置。你的注册回答会保留。"
+ },
+ "Clears the settings and copies saved in this browser. Everything in your account stays.": {
+  "id": "Menghapus pengaturan dan salinan yang tersimpan di browser ini. Semua yang ada di akunmu tetap ada.",
+  "zh": "清除此浏览器中保存的设置和副本。你账号中的所有内容都会保留。"
  },
  "Clickable prototype": {
   "id": "Prototipe yang bisa diklik",
@@ -1347,6 +1539,10 @@
   "id": "Pelacak kepatuhan",
   "zh": "合规跟踪"
  },
+ "Compliance tracker page": {
+  "id": "Halaman pelacak kepatuhan",
+  "zh": "合规跟踪页面"
+ },
  "Confidentiality": {
   "id": "Kerahasiaan",
   "zh": "保密"
@@ -1367,6 +1563,10 @@
   "id": "Hubungkan",
   "zh": "建立联系"
  },
+ "Connect with founders and specialists in Discover, then message them here.": {
+  "id": "Terhubung dengan pendiri dan spesialis di Jelajahi, lalu kirim pesan kepada mereka di sini.",
+  "zh": "在“发现”中与创始人和专家建立联系，然后在这里给他们发消息。"
+ },
  "Connect with people in the": {
   "id": "Terhubung dengan orang-orang di",
   "zh": "在"
@@ -1379,6 +1579,18 @@
   "id": "Menghubungkan ke Google…",
   "zh": "正在连接 Google…"
  },
+ "connection request": {
+  "id": "permintaan koneksi",
+  "zh": "联系请求"
+ },
+ "Connection requests": {
+  "id": "Permintaan koneksi",
+  "zh": "联系请求"
+ },
+ "connection requests": {
+  "id": "permintaan koneksi",
+  "zh": "联系请求"
+ },
  "Connection requests need a Google sign-in, so demo accounts don’t have any.": {
   "id": "Permintaan koneksi memerlukan login Google, jadi akun demo tidak memilikinya.",
   "zh": "联系请求需要使用 Google 登录，因此演示账号没有此功能。"
@@ -1386,6 +1598,10 @@
  "Connection requests need a Sandbox account, so demo accounts don’t have any.": {
   "id": "Permintaan koneksi memerlukan akun Sandbox, jadi akun demo tidak memilikinya.",
   "zh": "联系请求需要 Sandbox 账号，因此演示账号没有此功能。"
+ },
+ "Connection requests, and members accepting yours, will show up here.": {
+  "id": "Permintaan koneksi, dan anggota yang menerima permintaanmu, akan muncul di sini.",
+  "zh": "联系请求以及接受你请求的成员会显示在这里。"
  },
  "Connections": {
   "id": "Koneksi",
@@ -1403,6 +1619,10 @@
   "id": "Kontak",
   "zh": "联系我们"
  },
+ "Contact page": {
+  "id": "Halaman Kontak",
+  "zh": "“联系我们”页面"
+ },
  "Contact Us": {
   "id": "Hubungi Kami",
   "zh": "联系我们"
@@ -1418,6 +1638,14 @@
  "Continue": {
   "id": "Lanjutkan",
   "zh": "继续"
+ },
+ "Continue as": {
+  "id": "Lanjutkan sebagai",
+  "zh": "继续作为"
+ },
+ "Continue to Sandbox": {
+  "id": "Lanjut ke Sandbox",
+  "zh": "进入 Sandbox"
  },
  "continue to your Sandbox": {
   "id": "lanjutkan ke Sandbox kamu",
@@ -1575,6 +1803,10 @@
   "id": "Wawancara pelanggan",
   "zh": "客户访谈"
  },
+ "Customer interviews page": {
+  "id": "Halaman wawancara pelanggan",
+  "zh": "客户访谈页面"
+ },
  "Customer segments": {
   "id": "Segmen pelanggan",
   "zh": "客户细分"
@@ -1598,6 +1830,10 @@
  "Daily tasks for the week, a go-to-market checklist, the milestone ladder with the proof each rung needs, and the launch path: the stages to a registered company, each with its checklist, templates and vetted partners.": {
   "id": "Tugas harian untuk minggu ini, daftar periksa go-to-market, tangga milestone dengan bukti yang dibutuhkan setiap tahap, dan jalur peluncuran: tahap-tahap menuju perusahaan terdaftar, masing-masing dengan daftar periksa, templat, dan mitra terverifikasi.",
   "zh": "本周的每日任务、市场推广清单、里程碑阶梯（含每一级所需的证明），以及创业路径：通往注册公司的各个阶段，每个阶段都配有清单、模板和经过审核的合作伙伴。"
+ },
+ "Daily tasks page": {
+  "id": "Halaman tugas harian",
+  "zh": "每日任务页面"
  },
  "Dark mode": {
   "id": "Mode gelap",
@@ -1707,6 +1943,10 @@
   "id": "Deklarasikan startup",
   "zh": "为创业项目立项"
  },
+ "Declare one": {
+  "id": "Deklarasikan satu",
+  "zh": "立一个项"
+ },
  "Declare the idea": {
   "id": "Deklarasikan ide",
   "zh": "确立想法"
@@ -1747,6 +1987,10 @@
   "id": "Hapus",
   "zh": "删除"
  },
+ "Delete project": {
+  "id": "Hapus proyek",
+  "zh": "删除项目"
+ },
  "Delete {1}": {
   "id": "Hapus {1}",
   "zh": "删除{1}"
@@ -1775,6 +2019,10 @@
   "id": "Akun demo",
   "zh": "演示账号"
  },
+ "Demo accounts can’t message other members.": {
+  "id": "Akun demo tidak bisa mengirim pesan kepada anggota lain.",
+  "zh": "演示账号无法给其他成员发消息。"
+ },
  "Demo accounts stay on this device, so there’s no one else here.": {
   "id": "Akun demo hanya ada di perangkat ini, jadi tidak ada orang lain di sini.",
   "zh": "演示账号只保存在此设备上，所以这里没有其他人。"
@@ -1790,6 +2038,10 @@
  "Demo mode": {
   "id": "Mode demo",
   "zh": "演示模式"
+ },
+ "Demo mode: everything stays in this browser. Open the site over http(s) to sign in with Google.": {
+  "id": "Mode demo: semuanya tetap di browser ini. Buka situs lewat http(s) untuk masuk dengan Google.",
+  "zh": "演示模式：所有内容都保存在此浏览器中。通过 http(s) 打开网站即可使用 Google 登录。"
  },
  "Describe your ideal customer in one paragraph": {
   "id": "Gambarkan pelanggan ideal kamu dalam satu paragraf",
@@ -1883,6 +2135,10 @@
   "id": "Dokumen adalah tempat tim kamu menulis: draf pitch, riset, catatan rapat, dari halaman kosong atau templat. Catat wawancara pelanggan dan isi lean canvas kamu di sini juga.",
   "zh": "文档是团队写作的地方：路演草稿、调研、会议记录，可以从空白页或模板开始。你也可以在这里记录客户访谈、填写精益画布。"
  },
+ "Documents page": {
+  "id": "Halaman dokumen",
+  "zh": "文档页面"
+ },
  "Documents the whole team can read and edit: briefs, plans, meeting notes.": {
   "id": "Dokumen yang bisa dibaca dan diedit seluruh tim: ringkasan, rencana, catatan rapat.",
   "zh": "整个团队都能阅读和编辑的文档：简报、计划、会议记录。"
@@ -1923,9 +2179,17 @@
   "id": "Seret widget dari bilah atasnya untuk memindahkan, atau dari sudutnya untuk mengubah ukuran.",
   "zh": "拖动小组件的顶栏可移动它，拖动边角可调整大小。"
  },
+ "Drag to move": {
+  "id": "Seret untuk memindahkan",
+  "zh": "拖动以移动"
+ },
  "Drag to reposition, zoom to resize.": {
   "id": "Seret untuk mengatur posisi, zoom untuk mengubah ukuran.",
   "zh": "拖动以调整位置，缩放以调整大小。"
+ },
+ "Drag to resize": {
+  "id": "Seret untuk mengubah ukuran",
+  "zh": "拖动以调整大小"
  },
  "due this week": {
   "id": "jatuh tempo minggu ini",
@@ -2019,6 +2283,10 @@
   "id": "Nusa Tenggara Timur",
   "zh": "东努沙登加拉省"
  },
+ "Edit banner": {
+  "id": "Edit banner",
+  "zh": "编辑横幅"
+ },
  "Edit details": {
   "id": "Edit detail",
   "zh": "编辑详情"
@@ -2042,6 +2310,18 @@
  "Edit task: {1}": {
   "id": "Edit tugas: {1}",
   "zh": "编辑任务：{1}"
+ },
+ "Edited {#}d ago by you": {
+  "id": "Diedit {#} hari lalu oleh kamu",
+  "zh": "你于 {#} 天前编辑"
+ },
+ "Edited {#}w ago by you": {
+  "id": "Diedit {#} minggu lalu oleh kamu",
+  "zh": "你于 {#} 周前编辑"
+ },
+ "Edited {1} by you": {
+  "id": "Diedit {1} oleh kamu",
+  "zh": "你于 {1} 编辑"
  },
  "Edited {1} by {2}": {
   "id": "Diedit {1} oleh {2}",
@@ -2079,6 +2359,10 @@
   "id": "Email",
   "zh": "邮箱"
  },
+ "Email the report": {
+  "id": "Kirim laporan lewat email",
+  "zh": "通过邮件发送举报"
+ },
  "Employed full-time": {
   "id": "Karyawan penuh waktu",
   "zh": "全职受雇"
@@ -2090,6 +2374,10 @@
  "Ending your sessions on every device…": {
   "id": "Mengakhiri sesi kamu di semua perangkat…",
   "zh": "正在结束你在所有设备上的会话…"
+ },
+ "Ends your SandBox sessions on every phone and computer, this one included. Other devices are signed out within the hour, when their sign-in next refreshes. Use it if you signed in on a device that isn’t yours, or think someone else has.": {
+  "id": "Mengakhiri sesi SandBox-mu di setiap ponsel dan komputer, termasuk yang ini. Perangkat lain akan keluar dalam satu jam, saat login-nya diperbarui berikutnya. Gunakan ini jika kamu masuk di perangkat yang bukan milikmu, atau curiga ada orang lain yang masuk.",
+  "zh": "结束你在所有手机和电脑上的 SandBox 会话，包括这一台。其他设备会在一小时内、下次刷新登录时退出。如果你在不属于自己的设备上登录过，或怀疑有人登录了你的账号，请使用此功能。"
  },
  "Engineers": {
   "id": "Engineer",
@@ -2163,6 +2451,10 @@
   "id": "Setiap kuartal ·",
   "zh": "每季度 ·"
  },
+ "Every role is filled.": {
+  "id": "Semua peran sudah terisi.",
+  "zh": "所有角色都已到位。"
+ },
  "Every rung": {
   "id": "Setiap tahap",
   "zh": "每一级"
@@ -2207,6 +2499,10 @@
   "id": "Semua anggota tim melihat ini.",
   "zh": "团队中的每个人都能看到这些内容。"
  },
+ "Everyone you’re connected with is already on this project.": {
+  "id": "Semua orang yang terhubung denganmu sudah ada di proyek ini.",
+  "zh": "你的所有联系人都已在此项目中。"
+ },
  "Everything between an idea and a real business, open to everyone.": {
   "id": "Semua yang ada di antara ide dan bisnis nyata, terbuka untuk semua orang.",
   "zh": "从想法到真正企业之间的一切，向所有人开放。"
@@ -2250,6 +2546,10 @@
  "Explorer is free for as long as you need it: the MORI Network, sprints and your work record, one project with its Mainframe and tools, and the first stages of your launch path.": {
   "id": "Explorer gratis selama yang kamu butuhkan: MORI Network, sprint dan rekam kerjamu, satu proyek dengan Mainframe dan alat-alatnya, serta tahap awal jalur peluncuranmu.",
   "zh": "Explorer 想用多久就免费用多久：MORI Network、冲刺和你的工作记录、一个含 Mainframe 和工具的项目，以及你创业路径的初期阶段。"
+ },
+ "Farmer group meetings": {
+  "id": "Pertemuan kelompok tani",
+  "zh": "农民团体会议"
  },
  "farmers": {
   "id": "petani",
@@ -2307,6 +2607,10 @@
   "id": "Keuangan & akuntansi",
   "zh": "财务与会计"
  },
+ "Finance page": {
+  "id": "Halaman keuangan",
+  "zh": "财务页面"
+ },
  "Finance settings saved": {
   "id": "Pengaturan keuangan disimpan",
   "zh": "财务设置已保存"
@@ -2318,6 +2622,10 @@
  "Find a co-founder and build your idea": {
   "id": "Temukan co-founder dan bangun idemu",
   "zh": "寻找联合创始人，实现你的想法"
+ },
+ "Find a vetted accountant": {
+  "id": "Temukan akuntan terverifikasi",
+  "zh": "寻找经过审核的会计师"
  },
  "Find founders to build with": {
   "id": "Temukan pendiri untuk membangun bersama",
@@ -2369,6 +2677,10 @@
  },
  "FinTech": {
   "id": "FinTech",
+  "zh": "金融科技"
+ },
+ "Fintech": {
+  "id": "Fintech",
   "zh": "金融科技"
  },
  "Fintech & payments": {
@@ -2507,6 +2819,10 @@
   "id": "Untuk tim dengan prototipe yang sudah dipakai petani.",
   "zh": "面向拥有农民用过的原型的团队。"
  },
+ "for you": {
+  "id": "untuk kamu",
+  "zh": "给你"
+ },
  "for {1}": {
   "id": "untuk {1}",
   "zh": "用于{1}"
@@ -2550,6 +2866,10 @@
  "Founder · Payments and bookkeeping for warung owners": {
   "id": "Pendiri · Pembayaran dan pembukuan untuk pemilik warung",
   "zh": "创始人 · 面向小店店主的支付与记账"
+ },
+ "Founders": {
+  "id": "Pendiri",
+  "zh": "创始人"
  },
  "Founders and specialists aged {#} and over whom we’ve invited, with a Google account. Mentors, investors and service providers don’t sign up: they work with members as vetted partners.": {
   "id": "Pendiri dan spesialis berusia {#} tahun ke atas yang kami undang, dengan akun Google. Mentor, investor, dan penyedia jasa tidak mendaftar: mereka bekerja dengan anggota sebagai mitra terverifikasi.",
@@ -2610,6 +2930,10 @@
  "Free": {
   "id": "Gratis",
   "zh": "免费"
+ },
+ "Free, and you can cancel any time before it starts.": {
+  "id": "Gratis, dan kamu bisa membatalkan kapan saja sebelum dimulai.",
+  "zh": "免费，开始前随时可以取消。"
  },
  "Freelance / self-employed": {
   "id": "Freelance / wiraswasta",
@@ -2675,6 +2999,10 @@
   "id": "Dari {1}",
   "zh": "出自{1}"
  },
+ "From: {1}": {
+  "id": "Dari: {1}",
+  "zh": "来自：{1}"
+ },
  "Frontend Developer": {
   "id": "Frontend Developer",
   "zh": "前端开发者"
@@ -2706,6 +3034,10 @@
  "Funding opportunities": {
   "id": "Peluang pendanaan",
   "zh": "融资机会"
+ },
+ "Funding opportunities page": {
+  "id": "Halaman peluang pendanaan",
+  "zh": "融资机会页面"
  },
  "Fundraising": {
   "id": "Penggalangan dana",
@@ -2855,6 +3187,10 @@
   "id": "Daftar periksa GTM",
   "zh": "市场推广清单"
  },
+ "GTM checklist page": {
+  "id": "Halaman daftar periksa GTM",
+  "zh": "市场推广清单页面"
+ },
  "Guest demo": {
   "id": "Demo tamu",
   "zh": "访客演示"
@@ -2895,6 +3231,10 @@
   "id": "Menyerahkan pekerjaan dan akun",
   "zh": "移交工作和账号"
  },
+ "Happy birthday": {
+  "id": "Selamat ulang tahun",
+  "zh": "生日快乐"
+ },
  "Happy to. Start from what the warung owner saves in a week, not from what the app costs you to run.": {
   "id": "Dengan senang hati. Mulailah dari apa yang dihemat pemilik warung dalam seminggu, bukan dari biaya menjalankan aplikasinya.",
   "zh": "乐意效劳。从小店店主一周能省下多少开始算，而不是从你运营应用要花多少钱开始。"
@@ -2934,6 +3274,10 @@
  "Hidden from your profile: age.": {
   "id": "Disembunyikan dari profilmu: usia.",
   "zh": "在你的个人资料中隐藏：年龄。"
+ },
+ "Hidden from your profile: {1}.": {
+  "id": "Disembunyikan dari profilmu: {1}.",
+  "zh": "在你的个人资料中隐藏：{1}。"
  },
  "Hide me from the MORI Network. People who search your full name can still find you, but they’ll only see your name and when you joined, with the default photo, and they can’t send you a request. Your connections still see your full profile.": {
   "id": "Sembunyikan saya dari MORI Network. Orang yang mencari nama lengkapmu masih bisa menemukanmu, tetapi mereka hanya akan melihat namamu dan kapan kamu bergabung, dengan foto bawaan, dan mereka tidak bisa mengirim permintaan. Koneksimu tetap melihat profil lengkapmu.",
@@ -3135,9 +3479,17 @@
   "id": "Abaikan",
   "zh": "忽略"
  },
+ "In": {
+  "id": "Masuk",
+  "zh": "收入"
+ },
  "In demo mode the CV stays on your device, so there’s nothing to open here.": {
   "id": "Dalam mode demo, CV tetap di perangkatmu, jadi tidak ada yang bisa dibuka di sini.",
   "zh": "在演示模式下，简历保存在你的设备上，所以这里没有可打开的内容。"
+ },
+ "In Funding opportunities": {
+  "id": "Di Peluang pendanaan",
+  "zh": "已在“融资机会”中"
  },
  "In or out": {
   "id": "Masuk atau keluar",
@@ -3154,6 +3506,10 @@
  "in progress": {
   "id": "sedang dikerjakan",
   "zh": "进行中"
+ },
+ "In the demo, nothing is sent.": {
+  "id": "Di demo, tidak ada yang dikirim.",
+  "zh": "在演示中不会发送任何内容。"
  },
  "Inappropriate photo or content": {
   "id": "Foto atau konten tidak pantas",
@@ -3375,6 +3731,10 @@
   "id": "Hanya kamu",
   "zh": "仅你自己"
  },
+ "just you": {
+  "id": "hanya kamu",
+  "zh": "仅你自己"
+ },
  "Kasbon again. About {#} regulars on credit.": {
   "id": "Kasbon lagi. Sekitar {#} pelanggan tetap berutang.",
   "zh": "又是赊账。大约 {#} 位熟客在赊账。"
@@ -3382,6 +3742,10 @@
  "Kasbon. Wants customers to pay by transfer.": {
   "id": "Kasbon. Ingin pelanggan membayar lewat transfer.",
   "zh": "赊账。希望顾客通过转账付款。"
+ },
+ "Keep every grant, competition, accelerator and investor you’re going after in one place, with its deadline.": {
+  "id": "Simpan setiap hibah, kompetisi, akselerator, dan investor yang sedang kamu kejar di satu tempat, beserta tenggatnya.",
+  "zh": "把你正在争取的每一项资助、竞赛、加速器和投资人集中在一处，并附上截止日期。"
  },
  "Keep the company’s money apart from your own.": {
   "id": "Pisahkan uang perusahaan dari uang pribadimu.",
@@ -3483,6 +3847,10 @@
   "id": "Jalur peluncuran selesai",
   "zh": "创业路径已完成"
  },
+ "Launch path page": {
+  "id": "Halaman jalur peluncuran",
+  "zh": "创业路径页面"
+ },
  "Launch paths": {
   "id": "Jalur peluncuran",
   "zh": "创业路径"
@@ -3514,6 +3882,10 @@
  "Lean canvas": {
   "id": "Lean canvas",
   "zh": "精益画布"
+ },
+ "Lean canvas page": {
+  "id": "Halaman lean canvas",
+  "zh": "精益画布页面"
  },
  "Learn": {
   "id": "Belajar",
@@ -3603,6 +3975,10 @@
   "id": "Kumpulkan sepuluh pengguna awal atau pelanggan uji coba",
   "zh": "找到十位早期用户或试点客户"
  },
+ "Link": {
+  "id": "Tautan",
+  "zh": "链接"
+ },
  "Link address": {
   "id": "Alamat tautan",
   "zh": "链接地址"
@@ -3675,7 +4051,15 @@
   "id": "Catat wawancara",
   "zh": "记录访谈"
  },
+ "Log every problem interview.": {
+  "id": "Catat setiap wawancara masalah.",
+  "zh": "记录每一次问题访谈。"
+ },
  "Log interview": {
+  "id": "Catat wawancara",
+  "zh": "记录访谈"
+ },
+ "Log interviews": {
   "id": "Catat wawancara",
   "zh": "记录访谈"
  },
@@ -3702,6 +4086,10 @@
  "Mainframe": {
   "id": "Mainframe",
   "zh": "Mainframe"
+ },
+ "Mainframe page": {
+  "id": "Halaman Mainframe",
+  "zh": "Mainframe 页面"
  },
  "Make it real": {
   "id": "Wujudkan",
@@ -3766,6 +4154,10 @@
  "Marketing & Growth": {
   "id": "Pemasaran & Pertumbuhan",
   "zh": "营销与增长"
+ },
+ "Marketing page": {
+  "id": "Halaman pemasaran",
+  "zh": "营销页面"
  },
  "Marketing, branding and go-to-market frameworks": {
   "id": "Kerangka pemasaran, branding, dan go-to-market",
@@ -3875,9 +4267,21 @@
   "id": "Pesan",
   "zh": "消息"
  },
+ "Messages arrive here as soon as they’re sent.": {
+  "id": "Pesan masuk di sini begitu dikirim.",
+  "zh": "消息一发送就会出现在这里。"
+ },
+ "Messaging needs a Google sign-in": {
+  "id": "Pengiriman pesan memerlukan login Google",
+  "zh": "发消息需要使用 Google 登录"
+ },
  "Metrics": {
   "id": "Metrik",
   "zh": "指标"
+ },
+ "Metrics page": {
+  "id": "Halaman metrik",
+  "zh": "指标页面"
  },
  "Middle East": {
   "id": "Timur Tengah",
@@ -3886,6 +4290,10 @@
  "Milestone ladder": {
   "id": "Tangga milestone",
   "zh": "里程碑阶梯"
+ },
+ "Milestone ladder page": {
+  "id": "Halaman tangga milestone",
+  "zh": "里程碑阶梯页面"
  },
  "Minangkabau": {
   "id": "Bahasa Minangkabau",
@@ -3935,6 +4343,10 @@
   "id": "Uang keluar",
   "zh": "支出"
  },
+ "Monthly": {
+  "id": "Bulanan",
+  "zh": "每月"
+ },
  "Monthly accounts": {
   "id": "Laporan keuangan bulanan",
   "zh": "月度账目"
@@ -3942,6 +4354,10 @@
  "Monthly and annual filings": {
   "id": "Pelaporan bulanan dan tahunan",
   "zh": "月度和年度申报"
+ },
+ "Monthly bookkeeping close": {
+  "id": "Tutup buku bulanan",
+  "zh": "月度结账"
  },
  "Monthly burn": {
   "id": "Pengeluaran bulanan",
@@ -3955,9 +4371,17 @@
   "id": "bulan",
   "zh": "个月"
  },
+ "months runway": {
+  "id": "bulan runway",
+  "zh": "个月资金跑道"
+ },
  "More than {#}": {
   "id": "Lebih dari {#}",
   "zh": "多于 {#}"
+ },
+ "More toolkits for each rung": {
+  "id": "Toolkit lainnya untuk setiap tahap",
+  "zh": "每一级的更多工具包"
  },
  "More: links, CV, languages": {
   "id": "Lainnya: tautan, CV, bahasa",
@@ -4002,6 +4426,10 @@
  "Move the company’s money into it": {
   "id": "Pindahkan uang perusahaan ke rekening itu",
   "zh": "把公司的钱转入该账户"
+ },
+ "Move up to rung {#}": {
+  "id": "Naik ke tahap {#}",
+  "zh": "升至第 {#} 级"
  },
  "Move {1}": {
   "id": "Pindahkan {1}",
@@ -4107,6 +4535,10 @@
   "id": "Proyek Baru",
   "zh": "新项目"
  },
+ "New sprints are added every few weeks. The other lobbies have sprints starting sooner.": {
+  "id": "Sprint baru ditambahkan setiap beberapa minggu. Lobi lain punya sprint yang dimulai lebih cepat.",
+  "zh": "每隔几周会新增冲刺。其他大厅有更早开始的冲刺。"
+ },
  "New sprints show here as soon as they’re announced.": {
   "id": "Sprint baru muncul di sini begitu diumumkan.",
   "zh": "新的冲刺一经公布就会显示在这里。"
@@ -4175,13 +4607,29 @@
   "id": "Tidak ada koneksi yang cocok dengan “{1}”.",
   "zh": "没有与“{1}”匹配的联系人。"
  },
+ "No connections to message yet": {
+  "id": "Belum ada koneksi untuk dikirimi pesan",
+  "zh": "还没有可以发消息的联系人"
+ },
+ "No connections yet": {
+  "id": "Belum ada koneksi",
+  "zh": "还没有联系人"
+ },
  "No connections yet? Find people in the": {
   "id": "Belum punya koneksi? Temukan orang di",
   "zh": "还没有联系人？在"
  },
+ "No conversations match.": {
+  "id": "Tidak ada percakapan yang cocok.",
+  "zh": "没有匹配的会话。"
+ },
  "No deadlines coming up": {
   "id": "Tidak ada tenggat dalam waktu dekat",
   "zh": "近期没有截止日期"
+ },
+ "No documents yet": {
+  "id": "Belum ada dokumen",
+  "zh": "还没有文档"
  },
  "No documents yet.": {
   "id": "Belum ada dokumen.",
@@ -4199,6 +4647,14 @@
   "id": "Belum ada metrik. Tambahkan di",
   "zh": "还没有指标。前往添加："
  },
+ "No obligations yet": {
+  "id": "Belum ada kewajiban",
+  "zh": "还没有义务"
+ },
+ "No one has a verified sprint yet. They appear once sprints run.": {
+  "id": "Belum ada yang punya sprint terverifikasi. Akan muncul setelah sprint berjalan.",
+  "zh": "还没有人拥有经过验证的冲刺。冲刺开始后才会出现。"
+ },
  "No one matches those filters": {
   "id": "Tidak ada yang cocok dengan filter itu",
   "zh": "没有符合这些筛选条件的人"
@@ -4207,9 +4663,21 @@
   "id": "Belum ada",
   "zh": "暂时还没有"
  },
+ "No open roles": {
+  "id": "Tidak ada peran terbuka",
+  "zh": "没有空缺角色"
+ },
  "No pending requests.": {
   "id": "Tidak ada permintaan yang tertunda.",
   "zh": "没有待处理的请求。"
+ },
+ "No programmes are listed yet": {
+  "id": "Belum ada program yang terdaftar",
+  "zh": "暂无已列出的项目"
+ },
+ "No programmes match these filters": {
+  "id": "Tidak ada program yang cocok dengan filter ini",
+  "zh": "没有符合这些筛选条件的项目"
  },
  "No projects match your filters.": {
   "id": "Tidak ada proyek yang cocok dengan filtermu.",
@@ -4219,6 +4687,10 @@
   "id": "Belum ada proyek",
   "zh": "还没有项目"
  },
+ "No projects yet.": {
+  "id": "Belum ada proyek.",
+  "zh": "还没有项目。"
+ },
  "No requests waiting, nothing unread and nothing overdue.": {
   "id": "Tidak ada permintaan yang menunggu, tidak ada yang belum dibaca, dan tidak ada yang terlambat.",
   "zh": "没有待处理的请求、没有未读消息，也没有逾期事项。"
@@ -4227,7 +4699,19 @@
   "id": "Tidak ada permintaan yang menunggu. Saat pendiri atau spesialis ingin terhubung, mereka akan muncul di sini.",
   "zh": "没有待处理的请求。当创始人或专家想和你建立联系时，会显示在这里。"
  },
+ "No spots saved yet": {
+  "id": "Belum ada tempat yang diamankan",
+  "zh": "还没有预留名额"
+ },
  "No sprints scheduled": {
+  "id": "Belum ada sprint yang dijadwalkan",
+  "zh": "暂无已安排的冲刺"
+ },
+ "No sprints scheduled in this lobby yet": {
+  "id": "Belum ada sprint yang dijadwalkan di lobi ini",
+  "zh": "此大厅暂无已安排的冲刺"
+ },
+ "No sprints scheduled yet": {
   "id": "Belum ada sprint yang dijadwalkan",
   "zh": "暂无已安排的冲刺"
  },
@@ -4238,6 +4722,10 @@
  "No verified sprints yet": {
   "id": "Belum ada sprint terverifikasi",
   "zh": "还没有经过验证的冲刺"
+ },
+ "No verified sprints yet. The first sprints haven’t run.": {
+  "id": "Belum ada sprint terverifikasi. Sprint pertama belum berjalan.",
+  "zh": "还没有经过验证的冲刺。首批冲刺尚未开始。"
  },
  "No vetted {1} are listed yet": {
   "id": "Belum ada {1} terverifikasi yang terdaftar",
@@ -4302,6 +4790,10 @@
  "Not yet checked by a lawyer.": {
   "id": "Belum diperiksa oleh pengacara.",
   "zh": "尚未经律师审核。"
+ },
+ "Not you?": {
+  "id": "Bukan kamu?",
+  "zh": "不是你？"
  },
  "Notaries": {
   "id": "Notaris",
@@ -4443,6 +4935,10 @@
   "id": "Di layar yang lebih besar, Edit Mainframe memungkinkanmu memindahkan widget dari bilah atasnya dan mengubah ukurannya dari sudutnya. Widget menempel pada grid empat kolom.",
   "zh": "在更大的屏幕上，你可以用“编辑 Mainframe”拖动小组件顶栏来移动它，拖动边角来调整大小。小组件会自动对齐四列网格。"
  },
+ "on now": {
+  "id": "sedang berlangsung",
+  "zh": "正在进行"
+ },
  "Once": {
   "id": "Sekali",
   "zh": "一次"
@@ -4531,6 +5027,10 @@
   "id": "Buka rekening bank usaha",
   "zh": "开设企业银行账户"
  },
+ "Open a sprint below and save your spot. It shows here and on your homepage.": {
+  "id": "Buka salah satu sprint di bawah dan amankan tempatmu. Tempat itu muncul di sini dan di berandamu.",
+  "zh": "打开下方的一个冲刺并预留名额。它会显示在这里和你的主页上。"
+ },
  "Open Discover": {
   "id": "Buka Jelajahi",
   "zh": "打开“发现”"
@@ -4595,6 +5095,14 @@
   "id": "Siap ikut mendirikan",
   "zh": "愿意联合创办"
  },
+ "Open to co-found remotely": {
+  "id": "Siap ikut mendirikan dari jarak jauh",
+  "zh": "愿意远程联合创办"
+ },
+ "Open to every founder": {
+  "id": "Terbuka untuk semua pendiri",
+  "zh": "向所有创始人开放"
+ },
  "Open to join a team": {
   "id": "Siap bergabung dengan tim",
   "zh": "愿意加入团队"
@@ -4614,6 +5122,10 @@
  "Opening the demo": {
   "id": "Membuka demo",
   "zh": "正在打开演示"
+ },
+ "Opening the document…": {
+  "id": "Membuka dokumen…",
+  "zh": "正在打开文档…"
  },
  "Opening the Mainframe": {
   "id": "Membuka Mainframe",
@@ -4683,6 +5195,10 @@
   "id": "Pendapatan lain",
   "zh": "其他收入"
  },
+ "Other jobs or studies to declare": {
+  "id": "Pekerjaan atau studi lain yang perlu diungkapkan",
+  "zh": "需要申报的其他工作或学业"
+ },
  "Other link": {
   "id": "Tautan lain",
   "zh": "其他链接"
@@ -4710,6 +5226,22 @@
  "overdue": {
   "id": "terlambat",
   "zh": "已逾期"
+ },
+ "overdue obligation": {
+  "id": "kewajiban terlambat",
+  "zh": "项义务已逾期"
+ },
+ "overdue obligations": {
+  "id": "kewajiban terlambat",
+  "zh": "项义务已逾期"
+ },
+ "overdue task": {
+  "id": "tugas terlambat",
+  "zh": "项任务已逾期"
+ },
+ "overdue tasks": {
+  "id": "tugas terlambat",
+  "zh": "项任务已逾期"
  },
  "Overdue · {1}": {
   "id": "Terlambat · {1}",
@@ -4811,6 +5343,10 @@
   "id": "Sprint sebelumnya",
   "zh": "往期冲刺"
  },
+ "Past sprints and the teams’ proof will show here.": {
+  "id": "Sprint sebelumnya dan bukti tim akan muncul di sini.",
+  "zh": "往期冲刺和团队的成果证明会显示在这里。"
+ },
  "Payments": {
   "id": "Pembayaran",
   "zh": "付款"
@@ -4851,9 +5387,17 @@
   "id": "Orang",
   "zh": "成员"
  },
+ "people match": {
+  "id": "orang cocok",
+  "zh": "人符合条件"
+ },
  "People on a project": {
   "id": "Orang di sebuah proyek",
   "zh": "项目中的成员"
+ },
+ "People page": {
+  "id": "Halaman orang",
+  "zh": "成员页面"
  },
  "People to meet": {
   "id": "Orang untuk ditemui",
@@ -4870,6 +5414,10 @@
  "People:": {
   "id": "Orang:",
   "zh": "成员："
+ },
+ "person matches": {
+  "id": "orang cocok",
+  "zh": "人符合条件"
  },
  "Pet Care": {
   "id": "Perawatan Hewan",
@@ -4894,6 +5442,10 @@
  "Physical sprint · A sensor a farmer can install alone": {
   "id": "Sprint fisik · Sensor yang bisa dipasang petani sendiri",
   "zh": "实体冲刺 · 农民可以自行安装的传感器"
+ },
+ "Pick a conversation": {
+  "id": "Pilih percakapan",
+  "zh": "选择一个会话"
  },
  "Pick a date": {
   "id": "Pilih tanggal",
@@ -4947,6 +5499,10 @@
   "id": "Sematkan ke beranda",
   "zh": "固定到主页"
  },
+ "Pin {1} to your homepage": {
+  "id": "Sematkan {1} ke berandamu",
+  "zh": "将{1}固定到你的主页"
+ },
  "Pinned": {
   "id": "Disematkan",
   "zh": "已固定"
@@ -4954,6 +5510,18 @@
  "Pinned projects show on your homepage and in the Projects menu.": {
   "id": "Proyek yang disematkan tampil di berandamu dan di menu Proyek.",
   "zh": "固定的项目会显示在你的主页和“项目”菜单中。"
+ },
+ "Pinned projects show on your homepage and in the Projects menu.{1}": {
+  "id": "Proyek yang disematkan tampil di berandamu dan di menu Proyek.{1}",
+  "zh": "固定的项目会显示在你的主页和“项目”菜单中。{1}"
+ },
+ "Pinned to home": {
+  "id": "Disematkan di beranda",
+  "zh": "已固定到主页"
+ },
+ "Pinned to your homepage": {
+  "id": "Disematkan di berandamu",
+  "zh": "已固定到你的主页"
  },
  "Pitch and business-plan competitions give prize money, visibility and feedback.": {
   "id": "Kompetisi pitch dan rencana bisnis memberikan hadiah uang, eksposur, dan masukan.",
@@ -4990,6 +5558,10 @@
  "Plan the work with your team and follow a launch path for your business: what Indonesia requires at each stage, with templates for your team agreements.": {
   "id": "Rencanakan pekerjaan bersama timmu dan ikuti jalur peluncuran untuk usahamu: apa yang diwajibkan Indonesia di setiap tahap, dengan templat untuk perjanjian tim.",
   "zh": "和团队一起规划工作，并沿着创业路径推进你的企业：印尼在每个阶段的要求，并附团队协议模板。"
+ },
+ "Plan where you’ll find your first customers, then track what each campaign brings in.": {
+  "id": "Rencanakan di mana kamu akan menemukan pelanggan pertama, lalu lacak apa yang dihasilkan setiap kampanye.",
+  "zh": "规划在哪里找到首批客户，然后跟踪每次推广活动带来的成果。"
  },
  "Plan your first campaign.": {
   "id": "Rencanakan kampanye pertamamu.",
@@ -5035,6 +5607,10 @@
   "id": "Teks halaman pre-order",
   "zh": "预订页文案"
  },
+ "Pre-order sign-ups": {
+  "id": "Pendaftaran pre-order",
+  "zh": "预订注册"
+ },
  "preferences": {
   "id": "preferensi",
   "zh": "偏好"
@@ -5078,6 +5654,10 @@
  "private · you must be {#} or older": {
   "id": "privat · usiamu harus {#} tahun atau lebih",
   "zh": "不公开 · 你必须年满 {#} 岁"
+ },
+ "Problem": {
+  "id": "Masalah",
+  "zh": "问题"
  },
  "Problem brief": {
   "id": "Ringkasan masalah",
@@ -5171,6 +5751,10 @@
   "id": "Navigator program",
   "zh": "项目导航"
  },
+ "Program navigator page": {
+  "id": "Halaman navigator program",
+  "zh": "项目导航页面"
+ },
  "Program navigator: grants, incubators and competitions": {
   "id": "Navigator program: hibah, inkubator, dan kompetisi",
   "zh": "项目导航：资助、孵化器和竞赛"
@@ -5263,6 +5847,10 @@
   "id": "Lindungi ide sebelum kamu membagikannya.",
   "zh": "在分享之前保护好你的想法。"
  },
+ "Prototype": {
+  "id": "Prototipe",
+  "zh": "原型"
+ },
  "Prototype sprint": {
   "id": "Sprint prototipe",
   "zh": "原型冲刺"
@@ -5319,6 +5907,10 @@
   "id": "QRIS boleh saja, tapi mereka tetap minta utang.",
   "zh": "用 QRIS 没问题，但他们还是要赊账。"
  },
+ "Quarterly review with a tax adviser": {
+  "id": "Tinjauan triwulanan dengan konsultan pajak",
+  "zh": "与税务顾问的季度复核"
+ },
  "Questions": {
   "id": "Pertanyaan",
   "zh": "问题"
@@ -5343,6 +5935,10 @@
   "id": "Baca templat",
   "zh": "阅读模板"
  },
+ "Ready to launch.": {
+  "id": "Siap diluncurkan.",
+  "zh": "准备上线。"
+ },
  "Rearrange the Mainframe on a larger screen": {
   "id": "Atur ulang Mainframe di layar yang lebih besar",
   "zh": "在更大的屏幕上重新排列 Mainframe"
@@ -5364,8 +5960,8 @@
   "zh": "重做"
  },
  "Reduced": {
-  "id": "Diskon",
-  "zh": "优惠"
+  "id": "Dikurangi",
+  "zh": "减少"
  },
  "Reference {#}: email or phone": {
   "id": "Referensi {#}: email atau telepon",
@@ -5382,6 +5978,14 @@
  "Refunds": {
   "id": "Pengembalian dana",
   "zh": "退款"
+ },
+ "Region": {
+  "id": "Wilayah",
+  "zh": "地区"
+ },
+ "Regional agritech grant": {
+  "id": "Hibah agritech daerah",
+  "zh": "地区农业科技资助"
  },
  "Register and get an NIB": {
   "id": "Daftar dan dapatkan NIB",
@@ -5430,6 +6034,14 @@
  "Remove {1}": {
   "id": "Hapus {1}",
   "zh": "移除{1}"
+ },
+ "Removes the project, its tasks, tools and documents for everyone on the team. This can’t be undone.": {
+  "id": "Menghapus proyek, tugas, alat, dan dokumennya untuk semua orang di tim. Tindakan ini tidak bisa dibatalkan.",
+  "zh": "将为团队所有人删除该项目及其任务、工具和文档。此操作无法撤销。"
+ },
+ "Renew the domain and business email": {
+  "id": "Perpanjang domain dan email bisnis",
+  "zh": "续费域名和企业邮箱"
  },
  "Rent": {
   "id": "Sewa",
@@ -5506,6 +6118,10 @@
  "Reset the demo": {
   "id": "Atur ulang demo",
   "zh": "重置演示"
+ },
+ "Reset this browser": {
+  "id": "Atur ulang browser ini",
+  "zh": "重置此浏览器"
  },
  "Revenue streams": {
   "id": "Aliran pendapatan",
@@ -5607,6 +6223,10 @@
   "id": "Tahap {#} → {#}",
   "zh": "第 {#} 级 → {#}"
  },
+ "Rung {1}": {
+  "id": "Tahap {1}",
+  "zh": "第 {1} 级"
+ },
  "Rung {1} reached: {2}!": {
   "id": "Tahap {1} tercapai: {2}!",
   "zh": "已达到第 {1} 级：{2}！"
@@ -5618,6 +6238,10 @@
  "Rungs {#}–{#}": {
   "id": "Tahap {#}–{#}",
   "zh": "第 {#}–{#} 级"
+ },
+ "Rungs {1}–{2}": {
+  "id": "Tahap {1}–{2}",
+  "zh": "第 {1}–{2} 级"
  },
  "Runs out of cigarettes and instant noodles without noticing.": {
   "id": "Kehabisan rokok dan mi instan tanpa sadar.",
@@ -5699,6 +6323,10 @@
   "id": "Sandbox punya dua jenis anggota. Kamu bisa mengubahnya nanti. Mentor, investor, dan penyedia jasa bergabung sebagai mitra terverifikasi, melalui undangan atau lamaran.",
   "zh": "Sandbox 有两类成员，之后可以更改。导师、投资人和服务提供方则以经过审核的合作伙伴身份加入，需受邀或申请。"
  },
+ "SandBox invite": {
+  "id": "Undangan SandBox",
+  "zh": "SandBox 邀请"
+ },
  "SandBox is a prototype, invite only": {
   "id": "SandBox adalah prototipe, hanya dengan undangan",
   "zh": "SandBox 是原型版，仅限受邀"
@@ -5731,6 +6359,10 @@
   "id": "SandBox boleh memeriksa identitas saya, perusahaan atau rekam jejak saya, dan referensi saya.",
   "zh": "SandBox 可以核查我的身份、我的机构或过往业绩，以及我的推荐人。"
  },
+ "SandBox member": {
+  "id": "Anggota SandBox",
+  "zh": "SandBox 成员"
+ },
  "SandBox members are founders and specialists. Mentors, investors and service providers work with them as vetted partners: each one is checked and signs our partner agreement before they can see a founder’s work.": {
   "id": "Anggota SandBox adalah pendiri dan spesialis. Mentor, investor, dan penyedia jasa bekerja dengan mereka sebagai mitra terverifikasi: masing-masing diperiksa dan menandatangani perjanjian mitra kami sebelum mereka bisa melihat pekerjaan pendiri.",
   "zh": "SandBox 的成员是创始人和专家。导师、投资人和服务提供方以经过审核的合作伙伴身份与他们合作：每一位都要经过审核并签署我们的合作伙伴协议，之后才能看到创始人的工作。"
@@ -5738,6 +6370,10 @@
  "SandBox partner application": {
   "id": "Lamaran mitra SandBox",
   "zh": "SandBox 合作伙伴申请"
+ },
+ "SandBox report:": {
+  "id": "Laporan SandBox:",
+  "zh": "SandBox 举报："
  },
  "Sandbox tour": {
   "id": "Tur Sandbox",
@@ -5758,6 +6394,10 @@
  "SandBox uses your browser’s own storage, not tracking cookies.": {
   "id": "SandBox memakai penyimpanan bawaan browsermu, bukan cookie pelacak.",
   "zh": "SandBox 使用浏览器自带的存储，而不是追踪 Cookie。"
+ },
+ "SandBox — go to your homepage": {
+  "id": "SandBox — ke berandamu",
+  "zh": "SandBox — 前往你的主页"
  },
  "SandBox — home": {
   "id": "SandBox — beranda",
@@ -5823,9 +6463,17 @@
   "id": "SandBox • Mitra terverifikasi",
   "zh": "SandBox • 经过审核的合作伙伴"
  },
+ "SandBox’s words and dates. What members write stays as they wrote it.": {
+  "id": "Kata-kata dan tanggal di SandBox. Apa yang ditulis anggota tetap seperti yang mereka tulis.",
+  "zh": "SandBox 界面中的文字和日期。成员写的内容保持原样。"
+ },
  "Save": {
   "id": "Simpan",
   "zh": "保存"
+ },
+ "save a spot to join the first teams.": {
+  "id": "amankan tempat untuk bergabung dengan tim pertama.",
+  "zh": "预留名额即可加入首批团队。"
  },
  "Save banner": {
   "id": "Simpan banner",
@@ -5834,6 +6482,10 @@
  "Save changes": {
   "id": "Simpan perubahan",
   "zh": "保存更改"
+ },
+ "Save my spot": {
+  "id": "Amankan tempatku",
+  "zh": "预留我的名额"
  },
  "Save photo": {
   "id": "Simpan foto",
@@ -5874,6 +6526,10 @@
  "Say hello": {
   "id": "Sapa",
   "zh": "打个招呼"
+ },
+ "Say hello to {1}. Only the two of you can see this conversation.": {
+  "id": "Sapa {1}. Hanya kalian berdua yang bisa melihat percakapan ini.",
+  "zh": "跟 {1} 打个招呼吧。只有你们两人能看到这个会话。"
  },
  "Say what the meeting is.": {
   "id": "Tulis rapat tentang apa.",
@@ -5943,6 +6599,10 @@
   "id": "Bagian",
   "zh": "章节"
  },
+ "Sector": {
+  "id": "Sektor",
+  "zh": "行业"
+ },
  "Sector licence checklist": {
   "id": "Daftar periksa izin sektor",
   "zh": "行业许可证清单"
@@ -5954,6 +6614,10 @@
  "See it for yourself": {
   "id": "Lihat sendiri",
   "zh": "亲自看看"
+ },
+ "See the next sprint": {
+  "id": "Lihat sprint berikutnya",
+  "zh": "查看下一次冲刺"
  },
  "See the plans": {
   "id": "Lihat paket",
@@ -6018,6 +6682,10 @@
  "Services": {
   "id": "Layanan",
   "zh": "服务"
+ },
+ "Sessions with vetted mentors and investors open here once they’re available.": {
+  "id": "Sesi dengan mentor dan investor terverifikasi dibuka di sini setelah tersedia.",
+  "zh": "与经过审核的导师和投资人的交流开放后会在这里显示。"
  },
  "Sessions with vetted mentors and investors, once they’re available.": {
   "id": "Sesi dengan mentor dan investor terverifikasi, setelah tersedia.",
@@ -6131,9 +6799,17 @@
   "id": "Tampilkan di profilmu",
   "zh": "显示在你的个人资料中"
  },
+ "Show open to build": {
+  "id": "Tampilkan siap membangun",
+  "zh": "显示“愿意共建”"
+ },
  "Show or hide the tools": {
   "id": "Tampilkan atau sembunyikan alat",
   "zh": "显示或隐藏工具"
+ },
+ "Show that I’m open to build": {
+  "id": "Tunjukkan bahwa saya siap membangun",
+  "zh": "表明我愿意共建"
  },
  "Show the sidebar of tools in the project planner. The button at its top left hides and shows it too.": {
   "id": "Tampilkan bilah samping alat di perencana proyek. Tombol di kiri atasnya juga bisa menyembunyikan dan menampilkannya.",
@@ -6179,9 +6855,25 @@
   "id": "Masuk dengan Google untuk bertemu anggota",
   "zh": "使用 Google 登录以认识成员"
  },
+ "Sign in with Google to message members.": {
+  "id": "Masuk dengan Google untuk mengirim pesan kepada anggota.",
+  "zh": "使用 Google 登录即可给成员发消息。"
+ },
  "Sign out": {
   "id": "Keluar",
   "zh": "退出登录"
+ },
+ "Sign out everywhere": {
+  "id": "Keluar dari semua perangkat",
+  "zh": "退出所有设备"
+ },
+ "Sign out of all devices": {
+  "id": "Keluar dari semua perangkat",
+  "zh": "退出所有设备"
+ },
+ "Sign out of Sandbox on this browser.": {
+  "id": "Keluar dari Sandbox di browser ini.",
+  "zh": "在此浏览器上退出 Sandbox。"
  },
  "Sign the founders’ agreement": {
   "id": "Tanda tangani perjanjian pendiri",
@@ -6451,6 +7143,10 @@
   "id": "Mulai di jalur peluncuran: struktur, pendaftaran, izin.",
   "zh": "开始创业路径：企业结构、注册、许可证。"
  },
+ "Start page": {
+  "id": "Halaman awal",
+  "zh": "起始页面"
+ },
  "Start the launch path": {
   "id": "Mulai jalur peluncuran",
   "zh": "开始创业路径"
@@ -6538,6 +7234,14 @@
  "Strikethrough": {
   "id": "Coret",
   "zh": "删除线"
+ },
+ "Student": {
+  "id": "Mahasiswa",
+  "zh": "学生"
+ },
+ "Student fintech competition": {
+  "id": "Kompetisi fintech mahasiswa",
+  "zh": "学生金融科技竞赛"
  },
  "Style and size": {
   "id": "Gaya dan ukuran",
@@ -6923,6 +7627,10 @@
   "id": "Hari besar",
   "zh": "重要日子"
  },
+ "the big day": {
+  "id": "hari besar",
+  "zh": "重要日子"
+ },
  "The brief": {
   "id": "Ringkasannya",
   "zh": "简述"
@@ -6942,6 +7650,10 @@
  "The first notaries, lawyers, accountants and tax advisers are being checked. Until they’re here, your launch path’s checklists and templates show what to ask a professional. The guest demo shows the directory with sample partners.": {
   "id": "Notaris, pengacara, akuntan, dan konsultan pajak pertama sedang diperiksa. Sampai mereka hadir, daftar periksa dan templat di jalur peluncuranmu menunjukkan apa yang perlu ditanyakan kepada profesional. Demo tamu menampilkan direktori dengan contoh mitra.",
   "zh": "首批公证人、律师、会计师和税务顾问正在审核中。在他们上线之前，你的创业路径中的清单和模板会告诉你该向专业人士咨询什么。访客演示中展示了带有示例合作伙伴的名录。"
+ },
+ "The first one starts on {1}. Past sprints and the teams’ proof will show here.": {
+  "id": "Sprint pertama dimulai pada {1}. Sprint sebelumnya dan bukti tim akan muncul di sini.",
+  "zh": "首次冲刺将于 {1} 开始。往期冲刺和团队的成果证明会显示在这里。"
  },
  "The first people the company employs: which roles come first, and an employment contract a lawyer has checked.": {
   "id": "Orang pertama yang dipekerjakan perusahaan: peran mana yang lebih dulu, dan kontrak kerja yang sudah diperiksa pengacara.",
@@ -6970,6 +7682,10 @@
  "The Mainframe is made of widgets": {
   "id": "Mainframe terdiri dari widget",
   "zh": "Mainframe 由小组件组成"
+ },
+ "The member may be invisible on the MORI Network, may have left, or the link may be incomplete.": {
+  "id": "Anggota itu mungkin tidak terlihat di MORI Network, mungkin sudah keluar, atau tautannya tidak lengkap.",
+  "zh": "该成员可能在 MORI Network 中处于隐身状态，可能已经离开，或者链接不完整。"
  },
  "The MORI Network: founders and specialists with profiles, declared startups and matching by role and intent. Free to join.": {
   "id": "MORI Network: pendiri dan spesialis dengan profil, startup yang dideklarasikan, dan pencocokan berdasarkan peran dan tujuan. Gratis untuk bergabung.",
@@ -7079,8 +7795,16 @@
   "id": "Beginilah pendiri dan spesialis melihatmu di Sandbox.",
   "zh": "这就是创始人和专家在 Sandbox 上看到的你。"
  },
+ "This is the demo, so the report stays in this browser and nothing is sent.": {
+  "id": "Ini demo, jadi laporannya tetap di browser ini dan tidak ada yang dikirim.",
+  "zh": "这是演示版，所以举报只保存在此浏览器中，不会发送任何内容。"
+ },
  "this member": {
   "id": "anggota ini",
+  "zh": "该成员"
+ },
+ "This member": {
+  "id": "Anggota ini",
   "zh": "该成员"
  },
  "This month": {
@@ -7106,6 +7830,10 @@
  "Three things, in order": {
   "id": "Tiga hal, secara berurutan",
   "zh": "三件事，依次进行"
+ },
+ "Ticked: {#}+ interviews logged": {
+  "id": "Dicentang: {#}+ wawancara tercatat",
+  "zh": "已勾选：已记录 {#}+ 次访谈"
  },
  "TikTok": {
   "id": "TikTok",
@@ -7135,6 +7863,10 @@
   "id": "Sampai",
   "zh": "至"
  },
+ "to": {
+  "id": "sampai",
+  "zh": "至"
+ },
  "to add them to your team.": {
   "id": "untuk menambahkan mereka ke timmu.",
   "zh": "中与人建立联系，即可把他们加入你的团队。"
@@ -7162,6 +7894,10 @@
  "To see, correct or delete your personal data, ask here. The": {
   "id": "Untuk melihat, memperbaiki, atau menghapus data pribadimu, ajukan di sini.",
   "zh": "如需查看、更正或删除你的个人数据，请在此提出。"
+ },
+ "to {1}": {
+  "id": "ke {1}",
+  "zh": "距{1}"
  },
  "to {1} · {2}": {
   "id": "menuju {1} · {2}",
@@ -7210,6 +7946,10 @@
  "Top rung reached": {
   "id": "Tahap teratas tercapai",
   "zh": "已达到最高等级"
+ },
+ "Top rung reached.": {
+  "id": "Tahap teratas tercapai.",
+  "zh": "已达到最高等级。"
  },
  "Top rung reached: early traction.": {
   "id": "Tahap teratas tercapai: traksi awal.",
@@ -7275,9 +8015,17 @@
   "id": "Coba lagi dengan Google",
   "zh": "使用 Google 重试"
  },
+ "Try another rung, or any sector or region.": {
+  "id": "Coba tahap lain, atau sektor atau wilayah apa pun.",
+  "zh": "试试其他等级，或不限行业、不限地区。"
+ },
  "Try another service.": {
   "id": "Coba layanan lain.",
   "zh": "试试其他服务。"
+ },
+ "Try fewer filters or a different search.": {
+  "id": "Coba kurangi filter atau gunakan pencarian lain.",
+  "zh": "减少筛选条件或换个搜索词试试。"
  },
  "Try fewer filters, or clear them.": {
   "id": "Coba kurangi filter, atau hapus semuanya.",
@@ -7423,6 +8171,14 @@
   "id": "Diperbarui {1} · Dibuat pada {2}",
   "zh": "更新于 {1} · 创建于 {2}"
  },
+ "Upload a new image": {
+  "id": "Unggah gambar baru",
+  "zh": "上传新图片"
+ },
+ "Upload a new photo": {
+  "id": "Unggah foto baru",
+  "zh": "上传新照片"
+ },
  "Upload a PDF or Word document.": {
   "id": "Unggah dokumen PDF atau Word.",
   "zh": "请上传 PDF 或 Word 文档。"
@@ -7447,6 +8203,10 @@
   "id": "Pakai",
   "zh": "使用"
  },
+ "Use a template": {
+  "id": "Pakai templat",
+  "zh": "使用模板"
+ },
  "Use my Google photo": {
   "id": "Pakai foto Google saya",
   "zh": "使用我的 Google 头像"
@@ -7454,6 +8214,10 @@
  "Use Report on their profile. Or write to us with the link to their profile and what happened.": {
   "id": "Gunakan Laporkan di profilnya. Atau tulis kepada kami dengan tautan ke profilnya dan apa yang terjadi.",
   "zh": "在对方的个人资料上点击“举报”。或者写信给我们，附上对方资料的链接并说明情况。"
+ },
+ "Use template": {
+  "id": "Pakai templat",
+  "zh": "使用模板"
  },
  "Use the default banner": {
   "id": "Pakai banner bawaan",
@@ -7575,9 +8339,17 @@
   "id": "Pemilik warung di Jakarta Selatan dengan {#} pelanggan tetap atau lebih yang berutang.",
   "zh": "雅加达南区有 {#} 位或更多熟客赊账的小店店主。"
  },
+ "Warung owners interviewed": {
+  "id": "Pemilik warung yang diwawancarai",
+  "zh": "已访谈的小店店主"
+ },
  "Warung owners lose track of credit (kasbon) and run out of stock without noticing.": {
   "id": "Pemilik warung lupa catatan utang (kasbon) dan kehabisan stok tanpa sadar.",
   "zh": "小店店主记不清赊账（kasbon），货卖完了也没发现。"
+ },
+ "Warung visits in Tebet": {
+  "id": "Kunjungan warung di Tebet",
+  "zh": "Tebet 小店走访"
  },
  "WarungPay · Renew the domain and business email": {
   "id": "WarungPay · Perpanjang domain dan email bisnis",
@@ -7671,6 +8443,14 @@
   "id": "Kami akan membuka Sandbox di halaman yang sesuai. Dari sana kamu bisa ke mana saja.",
   "zh": "我们会在合适的页面打开 Sandbox。之后你可以随意前往任何地方。"
  },
+ "We’ll put you in a team before {1}.": {
+  "id": "Kami akan memasukkanmu ke tim sebelum {1}.",
+  "zh": "我们会在 {1} 之前为你分配团队。"
+ },
+ "What": {
+  "id": "Apa",
+  "zh": "内容"
+ },
  "What can’t easily be copied or bought.": {
   "id": "Apa yang tidak mudah ditiru atau dibeli.",
   "zh": "难以被复制或买到的东西。"
@@ -7711,6 +8491,14 @@
   "id": "Apa yang terjadi jika seseorang keluar",
   "zh": "有人离开怎么办"
  },
+ "What happens to shared material afterwards": {
+  "id": "Apa yang terjadi pada materi yang dibagikan setelahnya",
+  "zh": "之后如何处理已分享的材料"
+ },
+ "What happens to unvested shares": {
+  "id": "Apa yang terjadi pada saham yang belum ter-vesting",
+  "zh": "未兑现的股份如何处理"
+ },
  "What is Sandbox?": {
   "id": "Apa itu Sandbox?",
   "zh": "Sandbox 是什么？"
@@ -7750,6 +8538,10 @@
  "What they’d pay for:": {
   "id": "Yang mau mereka bayar:",
   "zh": "他们愿意付费的东西："
+ },
+ "What to write about": {
+  "id": "Apa yang perlu ditulis",
+  "zh": "写些什么"
  },
  "What vests each month after the cliff:": {
   "id": "Yang ter-vesting setiap bulan setelah cliff:",
@@ -7823,6 +8615,10 @@
   "id": "Saat paket dibuka",
   "zh": "套餐开放时"
  },
+ "When someone accepts your request, or you accept theirs, they’ll appear here.": {
+  "id": "Saat seseorang menerima permintaanmu, atau kamu menerima permintaan mereka, mereka akan muncul di sini.",
+  "zh": "当有人接受你的请求，或你接受了对方的请求时，对方会显示在这里。"
+ },
  "When you block a member, only you know: you stop seeing each other in the MORI Network, any connection between you ends, and neither of you can send the other a request or a message. When you report a member, your report goes to SandBox, never to them.": {
   "id": "Saat kamu memblokir anggota, hanya kamu yang tahu: kalian berhenti saling melihat di MORI Network, koneksi di antara kalian berakhir, dan tidak ada yang bisa mengirim permintaan atau pesan kepada yang lain. Saat kamu melaporkan anggota, laporanmu dikirim ke SandBox, tidak pernah ke orang itu.",
   "zh": "屏蔽成员时只有你自己知道：你们在 MORI Network 中将互相看不到，你们之间的联系会解除，双方都无法再向对方发送请求或消息。举报成员时，你的举报会发送给 SandBox，绝不会发给对方。"
@@ -7847,6 +8643,10 @@
   "id": "Tempat Sandbox terbuka setelah kamu masuk.",
   "zh": "登录后 Sandbox 打开的页面。"
  },
+ "Where to look": {
+  "id": "Tempat mencari",
+  "zh": "去哪里找"
+ },
  "Which document?": {
   "id": "Dokumen yang mana?",
   "zh": "哪份文档？"
@@ -7854,6 +8654,10 @@
  "Which metric?": {
   "id": "Metrik yang mana?",
   "zh": "哪个指标？"
+ },
+ "Which skills is the team missing? List them so specialists know.": {
+  "id": "Keahlian apa yang belum dimiliki tim? Daftarkan agar spesialis tahu.",
+  "zh": "团队还缺哪些技能？列出来让专家知道。"
  },
  "Who": {
   "id": "Siapa",
@@ -7955,6 +8759,10 @@
   "id": "Widget adalah jendela kecil ke alat-alatmu: tugas hari ini, tahap berikutnya, runway-mu, dan lainnya. Milikmu masih kosong, jadi mulailah dengan beberapa.",
   "zh": "小组件是通往各个工具的小窗口：今天的任务、下一级、你的资金跑道等。你的还空着，先添加几个吧。"
  },
+ "With a vetted notary · fixed price": {
+  "id": "Dengan notaris terverifikasi · harga tetap",
+  "zh": "由经过审核的公证人办理 · 固定价格"
+ },
  "With Supabase, in its us-east-{#} region (Ohio, United States). Your data is held outside Indonesia.": {
   "id": "Bersama Supabase, di region us-east-{#} (Ohio, Amerika Serikat). Datamu disimpan di luar Indonesia.",
   "zh": "由 Supabase 托管，位于其 us-east-{#} 区域（美国俄亥俄州）。你的数据存储在印尼境外。"
@@ -7970,6 +8778,10 @@
  "Withdraw": {
   "id": "Tarik",
   "zh": "撤回"
+ },
+ "Withdraw your request": {
+  "id": "Tarik permintaanmu",
+  "zh": "撤回你的请求"
  },
  "without signing in.": {
   "id": "tanpa masuk.",
@@ -8003,6 +8815,10 @@
   "id": "Menuju {1}",
   "zh": "正在努力达成{1}"
  },
+ "Would pay": {
+  "id": "Mau bayar",
+  "zh": "愿意付费"
+ },
  "Would they pay for a fix?": {
   "id": "Apakah mereka mau membayar untuk solusinya?",
   "zh": "他们愿意为解决方案付费吗？"
@@ -8027,6 +8843,10 @@
   "id": "Tulis ringkasan satu halaman tentang apa yang kamu pelajari",
   "zh": "用一页纸总结你学到的东西"
  },
+ "Write a problem brief, a plan or meeting notes. Everyone on the team can edit them.": {
+  "id": "Tulis ringkasan masalah, rencana, atau catatan rapat. Semua orang di tim bisa mengeditnya.",
+  "zh": "写问题简述、计划或会议记录。团队中的每个人都可以编辑。"
+ },
  "Write a short pitch or demo script": {
   "id": "Tulis pitch singkat atau naskah demo",
   "zh": "写一段简短的路演或演示脚本"
@@ -8046,6 +8866,10 @@
  "Write the split into your founders’ agreement, and have a vetted lawyer review both before anyone signs.": {
   "id": "Tuliskan pembagiannya di perjanjian pendiri, dan minta pengacara terverifikasi meninjau keduanya sebelum ada yang menandatangani.",
   "zh": "把分配方案写进创始人协议，并在任何人签字前请经过审核的律师审阅两者。"
+ },
+ "Write to us": {
+  "id": "Tulis kepada kami",
+  "zh": "写信给我们"
  },
  "Write your first investor update": {
   "id": "Tulis kabar investor pertamamu",
@@ -8103,6 +8927,10 @@
   "id": "Kamu",
   "zh": "你"
  },
+ "You also blocked {1}. You can unblock them in Settings → Privacy.": {
+  "id": "Kamu juga memblokir {1}. Kamu bisa membuka blokirnya di Pengaturan → Privasi.",
+  "zh": "你也屏蔽了 {1}。可以在“设置 → 隐私”中取消屏蔽。"
+ },
  "You blocked {1}. You won’t see or hear from each other on SandBox.": {
   "id": "Kamu memblokir {1}. Kalian tidak akan saling melihat atau mendengar di SandBox.",
   "zh": "你已屏蔽 {1}。你们在 SandBox 上将不会再看到或收到对方的内容。"
@@ -8147,6 +8975,10 @@
   "id": "Kamu membayar mitra secara langsung. SandBox menerima biaya rujukan.",
   "zh": "你直接向合作伙伴付款。SandBox 收取推荐费。"
  },
+ "You sign in with your Google account. Your profile, CV, projects and messages are stored in your Sandbox account.": {
+  "id": "Kamu masuk dengan akun Google-mu. Profil, CV, proyek, dan pesanmu disimpan di akun Sandbox-mu.",
+  "zh": "你使用 Google 账号登录。你的个人资料、简历、项目和消息都保存在你的 Sandbox 账号中。"
+ },
  "You unblocked {1}": {
   "id": "Kamu membuka blokir {1}",
   "zh": "你已取消屏蔽 {1}"
@@ -8159,9 +8991,17 @@
   "id": "Jawabanmu tampil di profilmu. Tambahkan atau ubah apa saja nanti dari Profil → Perbarui jawaban pendaftaranmu.",
   "zh": "你的回答会显示在个人资料中。之后可以在“个人资料 → 更新你的注册回答”中随时添加或修改。"
  },
+ "Your answers are filled in: check them and continue.": {
+  "id": "Jawabanmu sudah terisi: periksa lalu lanjutkan.",
+  "zh": "你的回答已填好：检查一下再继续。"
+ },
  "Your application": {
   "id": "Lamaranmu",
   "zh": "你的申请"
+ },
+ "Your application is ready to send": {
+  "id": "Lamaranmu siap dikirim",
+  "zh": "你的申请已可发送"
  },
  "Your business model on one page.": {
   "id": "Model bisnismu dalam satu halaman.",
@@ -8170,6 +9010,10 @@
  "Your business model on one page. Everything saves as you type, and the whole team can edit it.": {
   "id": "Model bisnismu dalam satu halaman. Semua tersimpan saat kamu mengetik, dan seluruh tim bisa mengeditnya.",
   "zh": "一页纸呈现你的商业模式。输入时自动保存，整个团队都可以编辑。"
+ },
+ "Your connections appear here once a request is accepted.": {
+  "id": "Koneksimu muncul di sini setelah permintaan diterima.",
+  "zh": "请求被接受后，你的联系人会显示在这里。"
  },
  "Your content": {
   "id": "Kontenmu",
@@ -8198,6 +9042,10 @@
  "Your email app should open with it, addressed to {1}. If it didn’t, use the button below or copy the text.": {
   "id": "Aplikasi email-mu seharusnya terbuka dengan pesan ini, ditujukan ke {1}. Jika tidak, gunakan tombol di bawah atau salin teksnya.",
   "zh": "你的邮件应用应该已经打开并填好收件人 {1}。如果没有，请使用下方按钮或复制文本。"
+ },
+ "Your email app should open with the report addressed to SandBox, so we see it straight away. If it didn’t, use the button.": {
+  "id": "Aplikasi email-mu seharusnya terbuka dengan laporan yang ditujukan ke SandBox, sehingga kami langsung melihatnya. Jika tidak, gunakan tombolnya.",
+  "zh": "你的邮件应用应该已经打开，并填好发给 SandBox 的举报，这样我们能立即看到。如果没有，请使用按钮。"
  },
  "your employment status": {
   "id": "status pekerjaanmu",
@@ -8259,6 +9107,10 @@
   "id": "Namamu, tanggal lahirmu, dan lokasimu. Sisanya bisa menunggu.",
   "zh": "你的姓名、出生日期和所在地。其他内容可以稍后再填。"
  },
+ "Your network on Sandbox": {
+  "id": "Jaringanmu di Sandbox",
+  "zh": "你在 Sandbox 上的人脉"
+ },
  "Your network, projects, documents and work record stay with you on Explorer. Anything above Explorer’s limits becomes read-only until you upgrade again or trim it.": {
   "id": "Jaringan, proyek, dokumen, dan rekam kerjamu tetap bersamamu di Explorer. Apa pun yang melebihi batas Explorer menjadi hanya-baca sampai kamu meningkatkan paket lagi atau menguranginya.",
   "zh": "在 Explorer 中，你的人脉、项目、文档和工作记录都会保留。超出 Explorer 限额的内容将变为只读，直到你再次升级或删减。"
@@ -8270,6 +9122,10 @@
  "Your picks": {
   "id": "Pilihanmu",
   "zh": "你的选择"
+ },
+ "Your pins, like these settings, follow you to every device you sign in on.": {
+  "id": "Pin-mu, seperti pengaturan ini, mengikutimu ke setiap perangkat tempat kamu masuk.",
+  "zh": "你的固定项目和这些设置一样，会同步到你登录的每台设备。"
  },
  "Your pipeline": {
   "id": "Pipeline-mu",
@@ -8295,6 +9151,10 @@
   "id": "proyekmu",
   "zh": "你的项目"
  },
+ "your project is here or past it": {
+  "id": "proyekmu ada di sini atau sudah melewatinya",
+  "zh": "你的项目已到达或超过此阶段"
+ },
  "Your projects and documents stay, whatever your plan": {
   "id": "Proyek dan dokumenmu tetap ada, apa pun paketmu",
   "zh": "无论选择哪个套餐，你的项目和文档都会保留"
@@ -8302,6 +9162,14 @@
  "your region": {
   "id": "wilayahmu",
   "zh": "你的地区"
+ },
+ "Your region is hidden": {
+  "id": "Wilayahmu disembunyikan",
+  "zh": "你的地区已隐藏"
+ },
+ "Your report about {1} is saved for SandBox to review. {2} won’t know you reported them.": {
+  "id": "Laporanmu tentang {1} disimpan untuk ditinjau SandBox. {2} tidak akan tahu kamu melaporkannya.",
+  "zh": "你关于 {1} 的举报已保存，等待 SandBox 审核。{2} 不会知道是你举报的。"
  },
  "Your report goes to SandBox, never to {1}.{2}": {
   "id": "Laporanmu dikirim ke SandBox, tidak pernah ke {1}.{2}",
@@ -8351,6 +9219,10 @@
   "id": "spesialisasimu",
   "zh": "你的专长"
  },
+ "Your spot is saved.": {
+  "id": "Tempatmu sudah diamankan.",
+  "zh": "你的名额已预留。"
+ },
  "Your spots": {
   "id": "Tempatmu",
   "zh": "你的名额"
@@ -8399,6 +9271,10 @@
   "id": "Semua sudah beres",
   "zh": "全部处理完毕"
  },
+ "You’re all caught up.": {
+  "id": "Semua sudah beres.",
+  "zh": "全部处理完毕。"
+ },
  "You’re all set": {
   "id": "Semua sudah siap",
   "zh": "一切就绪"
@@ -8411,6 +9287,10 @@
   "id": "Kamu sedang menjelajahi demo sebagai contoh pendiri. Tidak ada yang kamu lakukan di sini disimpan di luar browser ini.",
   "zh": "你正以示例创始人的身份体验演示版。你在这里的操作只保存在此浏览器中。"
  },
+ "You’re here": {
+  "id": "Kamu di sini",
+  "zh": "你在这里"
+ },
  "You’re in edit mode now, so try it: drag a widget by its top bar to move it, or by its corner to resize it. Widgets snap to a four-column grid. Press Done when it looks right.": {
   "id": "Kamu sekarang dalam mode edit, jadi cobalah: seret widget dari bilah atasnya untuk memindahkan, atau dari sudutnya untuk mengubah ukuran. Widget menempel pada grid empat kolom. Tekan Selesai jika sudah pas.",
   "zh": "你现在处于编辑模式，试试看：拖动小组件顶栏可移动它，拖动边角可调整大小。小组件会自动对齐四列网格。满意后点击“完成”。"
@@ -8418,6 +9298,10 @@
  "You’re invisible on the MORI Network": {
   "id": "Kamu tidak terlihat di MORI Network",
   "zh": "你在 MORI Network 中处于隐身状态"
+ },
+ "You’re invisible on the MORI Network: only people who search your full name can find you, and they see just your name and join date.": {
+  "id": "Kamu tidak terlihat di MORI Network: hanya orang yang mencari nama lengkapmu yang bisa menemukanmu, dan mereka hanya melihat nama dan tanggal bergabungmu.",
+  "zh": "你在 MORI Network 中处于隐身状态：只有搜索你全名的人才能找到你，而且只能看到你的名字和加入日期。"
  },
  "You’re joining as…": {
   "id": "Kamu bergabung sebagai…",
@@ -8443,6 +9327,10 @@
   "id": "Kamu tidak lagi di “{1}”.",
   "zh": "你已不在“{1}”中。"
  },
+ "You’re not open to build right now.": {
+  "id": "Kamu sedang tidak siap membangun.",
+  "zh": "你目前未开放共建。"
+ },
  "You’re now connected with {1}": {
   "id": "Sekarang kamu terhubung dengan {1}",
   "zh": "你现在已与 {1} 建立联系"
@@ -8459,6 +9347,10 @@
   "id": "Kamu terlihat lagi di MORI Network",
   "zh": "你在 MORI Network 中重新可见"
  },
+ "you’ve saved": {
+  "id": "yang sudah kamu amankan",
+  "zh": "你已预留的"
+ },
  "You’ve signed out. See you soon!": {
   "id": "Kamu sudah keluar. Sampai jumpa!",
   "zh": "你已退出登录。回头见！"
@@ -8471,9 +9363,21 @@
   "id": "{#} jawaban perlu dicek sebelum kamu kirim.",
   "zh": "有 {#} 个回答需要你在发送前检查。"
  },
+ "{#} connection requests": {
+  "id": "{#} permintaan koneksi",
+  "zh": "{#} 个联系请求"
+ },
+ "{#} connection{1}": {
+  "id": "{#} koneksi{1=}",
+  "zh": "{#} 位联系人{1=}"
+ },
  "{#} entries": {
   "id": "{#} entri",
   "zh": "{#} 条记录"
+ },
+ "{#} entr{1}": {
+  "id": "{#} entri{1=}",
+  "zh": "{#} 条记录{1=}"
  },
  "{#} founders are looking for ML skills": {
   "id": "{#} pendiri sedang mencari keahlian ML",
@@ -8522,6 +9426,10 @@
  "{#} of {#} interviews": {
   "id": "{#} dari {#} wawancara",
   "zh": "已完成 {#}/{#} 场访谈"
+ },
+ "{#} of {#} interviews logged ·": {
+  "id": "{#} dari {#} wawancara tercatat ·",
+  "zh": "已记录 {#}/{#} 次访谈 ·"
  },
  "{#} of {#} projects match": {
   "id": "{#} dari {#} proyek cocok",
@@ -8583,9 +9491,17 @@
   "id": "{#} proyek{1=}",
   "zh": "{#} 个项目{1=}"
  },
+ "{#} request{1}": {
+  "id": "{#} permintaan{1=}",
+  "zh": "{#} 个请求{1=}"
+ },
  "{#} role still open": {
   "id": "{#} peran masih terbuka",
   "zh": "{#} 个角色仍空缺"
+ },
+ "{#} role{1} still open": {
+  "id": "{#} peran{1=} masih terbuka",
+  "zh": "{#} 个角色{1=}仍空缺"
  },
  "{#} rungs": {
   "id": "{#} tahap",
@@ -8594,6 +9510,10 @@
  "{#} steps to go.": {
   "id": "{#} langkah lagi.",
   "zh": "还剩 {#} 步。"
+ },
+ "{#} step{1} to go.": {
+  "id": "{#} langkah{1=} lagi.",
+  "zh": "还剩 {#} 步{1=}。"
  },
  "{#} styles": {
   "id": "{#} gaya",
@@ -8606,6 +9526,10 @@
  "{#} unread": {
   "id": "{#} belum dibaca",
   "zh": "{#} 条未读"
+ },
+ "{#} unread conversation{1}": {
+  "id": "{#} percakapan belum dibaca{1=}",
+  "zh": "{#} 个未读会话{1=}"
  },
  "{#} upcoming": {
   "id": "{#} mendatang",
@@ -8723,6 +9647,10 @@
   "id": "{#}–{#} tahun",
   "zh": "{#}–{#} 年"
  },
+ "{#}★ and up": {
+  "id": "{#}★ ke atas",
+  "zh": "{#}★ 及以上"
+ },
  "{1} (its team sees it)": {
   "id": "{1} (timnya bisa melihat)",
   "zh": "{1}（团队成员可见）"
@@ -8783,14 +9711,6 @@
   "id": "{1} dari {#}",
   "zh": "{1}/{#}"
  },
- "{1} page": {
-  "id": "{1} halaman",
-  "zh": "{1} 页"
- },
- "{1} request{2}": {
-  "id": "{1} permintaan{2=}",
-  "zh": "{1} 个请求{2=}"
- },
  "{1} shares their full profile with connections only. Connect to see their skills, industries, languages and links.": {
   "id": "{1} hanya membagikan profil lengkapnya kepada koneksi. Hubungkan untuk melihat keahlian, industri, bahasa, dan tautannya.",
   "zh": "{1} 只向联系人公开完整资料。建立联系后即可查看对方的技能、行业、语言和链接。"
@@ -8798,6 +9718,10 @@
  "{1} shares their full profile with connections.": {
   "id": "{1} hanya membagikan profil lengkapnya kepada koneksi.",
   "zh": "{1} 只向联系人公开完整资料。"
+ },
+ "{1} spots": {
+  "id": "{1} tempat",
+  "zh": "{1} 个名额"
  },
  "{1} starts": {
   "id": "{1} dimulai",
@@ -8807,14 +9731,6 @@
   "id": "Batas saat ini {1} tugas",
   "zh": "目前上限为 {1} 项任务"
  },
- "{1} to {2}": {
-  "id": "{1} sampai {2}",
-  "zh": "{1} 至 {2}"
- },
- "{1} unread conversation{2}": {
-  "id": "{1} percakapan belum dibaca{2=}",
-  "zh": "{1} 个未读会话{2=}"
- },
  "{1} verified sprints": {
   "id": "{1} sprint terverifikasi",
   "zh": "{1} 次经过验证的冲刺"
@@ -8822,6 +9738,10 @@
  "{1} wants to connect": {
   "id": "{1} ingin terhubung",
   "zh": "{1} 想和你建立联系"
+ },
+ "{1} would pay": {
+  "id": "{1} mau bayar",
+  "zh": "{1} 人愿意付费"
  },
  "{1} years old": {
   "id": "{1} tahun",
@@ -8850,6 +9770,10 @@
  "{1} · {2} of": {
   "id": "{1} · {2} dari",
   "zh": "{1} · {2}/"
+ },
+ "{1}% of {2}": {
+  "id": "{1}% dari {2}",
+  "zh": "{2} 的 {1}%"
  },
  "{1}, {#}:{#} to {#}:{#}, {2}. Edit": {
   "id": "{1}, {#}:{#}–{#}:{#}, {2}. Edit",

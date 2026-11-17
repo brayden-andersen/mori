@@ -4,12 +4,23 @@
   "mainframe",
   "planner finance"
  ],
+ "checked disabled": [
+  "planner-tools.js"
+ ],
+ "data-pin=\"{1}\" aria-label=\"Pin {2} to your homepage\"": [
+  "shell.js"
+ ],
  "Deadline Jan {#}, {#}": [
   "planner programs"
  ],
- "Delete Interview notes, week {#}": [
-  "docs",
-  "planner docs"
+ "Edited {1}{2}{3}": [
+  "planner-docs.js"
+ ],
+ "ico nav-ico": [
+  "shell.js"
+ ],
+ "ico pl-add-ico": [
+  "planner-tools.js"
  ],
  "Jul": [
   "add widget drawer",
@@ -113,6 +124,9 @@
   "home",
   "meeting edit",
   "meeting errors"
+ ],
+ "{1} page": [
+  "project.js"
  ],
  "{1} to {2}.": [
   "landing.js"

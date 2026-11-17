@@ -56,7 +56,10 @@
       if (p.slots[i] === "#") continue;
       const v = m[i + 1] || "";
       if (v.length > 120) return false;
-      if (p.weak && (v.length > 32 || v.split(" ").length > 4 || /[.,;:!?“”"]/.test(v))) return false;
+      if (!p.weak || lookup(v) != null) continue;
+      if (v.length > 32 || v.split(" ").length > 4 || /[.,;:!?“”"]/.test(v)) return false;
+      // "Report Dewi Saraswati", "Due 18 Nov": a name, date or number. "Add a banner": not a value.
+      if (/(^|\s)[a-z]/.test(v)) return false;
     }
     return true;
   }
@@ -84,7 +87,9 @@
         if (slot === "#") return found[i++] || "";
         const v = values[slot] || "";
         const t = v ? lookup(v) : null; // a value that is itself a known phrase ("2d ago") is translated too (values are shorter, so this ends)
-        return t != null ? t : v;
+        if (t != null) return t;
+        if (v.includes(", ")) return v.split(", ").map((x) => { const y = lookup(x); return y != null ? y : x; }).join(lang === "zh" ? "、" : ", ");
+        return v;
       });
     }
     // A line made of parts ("Fintech · Starts in 3 days · teams of 3 to 4"): translate each part.
@@ -201,6 +206,7 @@
     Object.keys(dict || {}).forEach((en) => {
       const out = dict[en];
       if (typeof out !== "string" || !out) return;
+      if (/\{\d\}\{\d\}/.test(en)) return; // "{1}{2}": the split between the values is a guess
       if (/\{\d\}/.test(en)) {
         const slots = [];
         // A value right after a letter is a word ending ("project{2}" → "projects"), so it may be empty.

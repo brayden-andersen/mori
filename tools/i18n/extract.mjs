@@ -36,7 +36,7 @@ async function grab(page, where) {
   list.forEach((s) => { if (!seen.has(s)) seen.set(s, new Set()); seen.get(s).add(where); });
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-async function safe(fn) { try { await fn(); } catch (e) { /* a state we couldn't reach is fine */ } }
+async function safe(fn) { try { await fn(); } catch { /* a state we couldn't reach is fine */ } }
 
 const srv = spawn("node", ["tests/serve.mjs"], { cwd: new URL("../..", import.meta.url).pathname, env: { ...process.env, PORT: String(PORT) }, stdio: "ignore" });
 await wait(800);
