@@ -43,7 +43,7 @@ For signed-in members nothing is pre-filled: projects appear once the member dec
 
 ### Colours
 
-The site is shades of grey. Red is kept only where it means something: the logo and the red words on the landing page, *Mainframe* in a project's header, unread dots and counts, overdue markers, errors and delete buttons. The one accent is a dark cherry red (`--cherry` in `mori.css`, lighter in dark mode) on the small icon at the top left of each panel and Mainframe widget. Members choosing text colours in documents keep their colours. The page you're on in the nav shows in full ink on a faint grey pill.
+The site is shades of grey. Red is kept only where it means something: the logo and the red words on the landing page, *Mainframe* in a project's header, unread dots and counts, overdue markers, errors and delete buttons. The one accent is a dark cherry red (`--cherry` in `mori.css`, lighter in dark mode) on the small icon at the top left of each panel and Mainframe widget. Members choosing text colours in documents keep their colours. The page you're on in the nav shows in full ink on a faint grey pill. Icon tiles (the tick for *All caught up* and other empty states) and progress rings are ink: black in light mode, white in dark mode, for contrast.
 
 ### Homepage: the opening
 
@@ -94,7 +94,8 @@ A phrase without a translation simply shows in English.
 
 ### Network
 
-- **Discover** lists everyone who finished the sign-up questions, except you and the people you're already connected with (they're under *Manage my network → Connections*), newest members first. The **Requests** you received sit above it (the first three, then *Show all*), with Ignore and Accept. Search covers names, headlines, skills, regions, industries and languages.
+- **Discover** lists everyone who finished the sign-up questions, except you and the people you're already connected with (they're under *Manage my network → Connections*), newest members first. A click anywhere on a card opens that member's profile; the buttons at its foot (Connect, View profile) do their own thing. The **Requests** you received sit above it (the first three, then *Show all*), with Ignore and Accept. Search covers names, headlines, skills, regions, industries and languages.
+- **Requests** in *Manage my network* (and *Network → Requests* in the nav, or the address `network#requests`) opens a window listing everyone asking to connect, with their note, and Ignore and Accept.
 - **Filters** (dropdowns): **Role** (All, Founders, Specialists, or a specialist role) · years of experience · **region** (regions members are in come first) · minimum verified sprints · industry (searchable checklist; industries members chose are listed first).
 - **Connect** from a card, or from a member's profile with an optional note (300 characters). The other member sees it under **Requests**, in the nav badge and in Notifications, and can accept or ignore it. You can withdraw a request or remove a connection.
 - **Connections** can see each other's CV. A member who sets **Settings → Privacy → Profile visibility** to *Connections* shows only their name, photo, role and headline to everyone else.
@@ -230,10 +231,16 @@ The contact address for the Contact page, refused sign-ups, partner applications
 ## Run it locally
 
 ```bash
-python3 -m http.server 4173
+npm run serve
 ```
 
-Then open <http://localhost:4173>. (`npm run serve` does the same on port 4180, and serves `404.html` for missing addresses, as GitHub Pages does.)
+Then open <http://localhost:4180>. Like GitHub Pages, it serves `home.html` for `/home` and `404.html` for missing addresses. (`python3 -m http.server` also works if you open pages by their `.html` names; it doesn't do clean addresses.) Opened straight from disk (`file://`), the site puts the `.html` back on its links itself.
+
+### Clean addresses
+
+Pages are linked without `.html`: `/home`, `/projects`, `/project?id=…`, `/network#messages`, and the landing page is the site root `/`. The files are still `home.html` and so on; GitHub Pages serves `home.html` for `/home`. If an address without `.html` is ever missed, `404.html` sends it on to the `.html` file. An address that still says `.html` (an old bookmark, a link in an email) works, and the address bar is tidied to the short form (`assets/js/auth.js`). Links you add to the site should use the short form, `href="projects"`, and `href="./"` for the landing page.
+
+**Signed in already?** The landing page (`/`) goes straight to your start page (Home unless you chose another in Settings → Preferences), or to onboarding if sign-up isn't finished. It stays put while Google is returning from sign-in and right after you sign out.
 
 ## Checks: lint, HTML validation and tests
 
@@ -251,7 +258,7 @@ npx playwright install chromium
 
 The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
 
-**Cache tags:** every page loads its CSS and JS with `?v=16` (the language dictionaries take the same number). Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
+**Cache tags:** every page loads its CSS and JS with `?v=17` (the language dictionaries take the same number). Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
 ## Supabase (sign-in, profiles, CVs, network)
 

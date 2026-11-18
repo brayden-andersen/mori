@@ -5,7 +5,7 @@
    industries · CV · languages.
    Answers are kept as a draft while the member goes, then saved to their
    profile (Supabase for Google members, this browser in demo mode).
-   onboarding.html?edit=1 reopens the same questions to update them.
+   onboarding?edit=1 reopens the same questions to update them.
    ========================================================================== */
 (function () {
   "use strict";
@@ -20,7 +20,7 @@
   const session = S.session();
   const saved = S.profile();
   // Signing up asks only what the first useful action needs; the rest is
-  // "Complete your profile" (Profile → Update, or onboarding.html?edit=1), which
+  // "Complete your profile" (Profile → Update, or onboarding?edit=1), which
   // shows every step. Only the name and the role can't be skipped.
   const SHORT_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["industries", "Industry"], ["situation", "First step"]];
   const FULL_STEPS = [["about", "About you"], ["role", "Role"], ["specialty", "Specialty"], ["industries", "Industry"], ["details", "Details"], ["cv", "CV"], ["languages", "Languages"]];
@@ -31,9 +31,9 @@
   const REQUIRED = new Set(["about", "role"]); // every other step has a Skip
   /** Where the member is right now: picks the first action and the homepage's "Start here". */
   const SITUATIONS = [
-    { id: "idea", label: "I have an idea and need a team", blurb: "Declare the project and get its launch path.", icon: "bulb", c1: "#afafaf", c2: "#9d9d9d", go: "projects.html?new=1" },
-    { id: "skills", label: "I have skills and want to join something", blurb: "Discover founders, and the sprints starting soon.", icon: "code", c1: "#acacac", c2: "#8b8b8b", go: "network.html#explore" },
-    { id: "prototype", label: "I have a prototype and need to make it real", blurb: "Start on the launch path: structure, registration, licences.", icon: "rocket", c1: "#bbbbbb", c2: "#a3a3a3", go: "projects.html?new=1&rung=2" },
+    { id: "idea", label: "I have an idea and need a team", blurb: "Declare the project and get its launch path.", icon: "bulb", c1: "#afafaf", c2: "#9d9d9d", go: "projects?new=1" },
+    { id: "skills", label: "I have skills and want to join something", blurb: "Discover founders, and the sprints starting soon.", icon: "code", c1: "#acacac", c2: "#8b8b8b", go: "network#explore" },
+    { id: "prototype", label: "I have a prototype and need to make it real", blurb: "Start on the launch path: structure, registration, licences.", icon: "rocket", c1: "#bbbbbb", c2: "#a3a3a3", go: "projects?new=1&rung=2" },
   ];
   const MAX_INDUSTRIES = 3;
   const MAX_LANGUAGES = 6;
@@ -94,7 +94,7 @@
       <p class="meta ob-birth-note" id="obBirthNote">SandBox is for people aged 18 and over. Only you see your date of birth; your age shows on your profile only if you choose.</p>`,
     role: () => `
       <h1 class="grad-ink" tabindex="-1">You’re joining as…</h1>
-      <p class="ob-lead">Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application. <a class="link-btn" href="partners.html">How partners join</a></p>
+      <p class="ob-lead">Sandbox has two kinds of members. You can change this later. Mentors, investors and service providers join as vetted partners instead, by invitation or application. <a class="link-btn" href="partners">How partners join</a></p>
       <div class="ob-roles" role="radiogroup" aria-label="Role">
         ${Object.entries(D.roles).map(([k, r]) => `
           <label class="ob-option ${a.role === k ? "is-on" : ""}" style="--c1:${ROLE_TONES[k][0]};--c2:${ROLE_TONES[k][1]}">
@@ -476,15 +476,15 @@
         S.saveSettings({ tour: Object.assign({}, S.settings().tour, { site: "start" }) });
         const wanted = new URLSearchParams(location.search).get("next");
         const situation = SITUATIONS.find((x) => x.id === a.situation);
-        const dest = wanted && Mori.auth.APP_PAGES.includes(wanted.split(/[?#]/)[0]) ? wanted : situation ? situation.go : "home.html";
+        const dest = wanted && Mori.auth.isAppPage(wanted) ? wanted.replace(/^([a-z]+)\.html/, "$1") : situation ? situation.go : "home";
         Mori.auth.markSignedIn();
         loader.show(`Welcome to Sandbox, ${patch.firstName}`, situation ? situation.blurb : "Opening your homepage…");
-        location.replace(dest);
+        location.replace(Mori.href(dest));
         return;
       }
       Mori.auth.markSignedIn();
       loader.show("All saved", "Taking you back…");
-      location.replace(Mori.auth.nextUrl(editing ? "home.html" : Mori.auth.startPage()));
+      location.replace(Mori.href(Mori.auth.nextUrl(editing ? "home" : Mori.auth.startPage())));
     } catch (err) {
       if (err.code === "signed-out") {
         // Answers stay saved as a draft; signing in again brings the member back here.
@@ -492,7 +492,7 @@
         Mori.store.write(Mori.auth.PENDING_DRAFT_KEY, a);
         loader.show("Please sign in again", err.message);
         Mori.auth.clearSession();
-        setTimeout(() => location.replace("index.html?next=" + encodeURIComponent("home.html")), 1600);
+        setTimeout(() => location.replace(Mori.href("./?next=" + encodeURIComponent("home"))), 1600);
         return;
       }
       nextBtn.disabled = false;
@@ -548,7 +548,7 @@
     loader.show("Signing out", "See you soon…");
     await Promise.race([db.signOut(), new Promise((r) => setTimeout(r, 1500))]);
     Mori.auth.clearSession();
-    location.replace("index.html?signedout=1");
+    location.replace(Mori.href("./?signedout=1"));
   });
 
   // Start on the first unanswered step (or the first step when editing).

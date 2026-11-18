@@ -799,7 +799,8 @@
   "shell.js"
  ],
  "Connection requests need a Google sign-in, so demo accounts don’t have any.": [
-  "network.js"
+  "network.js",
+  "people.js"
  ],
  "Connection requests need a Sandbox account, so demo accounts don’t have any.": [
   "network.js"
@@ -2198,7 +2199,8 @@
   "home.js"
  ],
  "No requests waiting. When founders or specialists want to connect, they’ll show up here.": [
-  "network.js"
+  "network.js",
+  "people.js"
  ],
  "No spots saved yet": [
   "sprints.js"
@@ -2476,6 +2478,9 @@
  ],
  "Payments, lending and bookkeeping for small businesses.": [
   "data.js"
+ ],
+ "People asking to connect with you": [
+  "people.js"
  ],
  "People on a project": [
   "data.js"
@@ -4404,6 +4409,9 @@
  "billed monthly": [
   "subscription.js"
  ],
+ "button, a, input, select, textarea, label, .pcard-actions": [
+  "people.js"
+ ],
  "button, a, input, textarea, select": [
   "mainframe.js"
  ],
@@ -4491,6 +4499,9 @@
  ],
  "mailto:{1}": [
   "public.js"
+ ],
+ "modal--connections modal--requests": [
+  "people.js"
  ],
  "modal--drawer mf-drawer": [
   "mainframe.js"
@@ -4725,6 +4736,9 @@
  ],
  "{#} verified sprint{1}": [
   "network.js",
+  "people.js"
+ ],
+ "{#} waiting": [
   "people.js"
  ],
  "{#}% of the way from idea to early traction": [

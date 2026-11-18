@@ -4,7 +4,7 @@
    • "Join now" / "Sign in" / any [data-gate] open the auth modal
    • "Continue with Google" signs in through Supabase (or the demo sheet when
      Supabase isn't available) behind a full-screen loading screen
-   • New members go to onboarding.html; returning members to their start page
+   • New members go to onboarding; returning members to their start page
    • Scroll scenes: the hero recedes and "How Sandbox works" pins while its
      three steps play
    • Interactive milestone ladder, section scroll-spy
@@ -27,7 +27,7 @@
       session.onboarded ? "Opening your Sandbox…" : "Let’s set up your profile…"
     );
     Mori.auth.markSignedIn();
-    location.replace(Mori.auth.landingUrl(session));
+    location.replace(Mori.href(Mori.auth.landingUrl(session)));
   }
   const rememberRole = (role) => {
     try { role ? sessionStorage.setItem("mori.joinRole", role) : sessionStorage.removeItem("mori.joinRole"); } catch (e) { /* ignore */ }
@@ -95,7 +95,7 @@
     }
   }
 
-  /** Google sent the member back here (index.html?auth=callback&code=…). */
+  /** Google sent the member back here (./?auth=callback&code=…). */
   async function finishRedirect() {
     const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
     const problem = params.get("error_description") || hash.get("error_description") || params.get("error") || hash.get("error");
@@ -137,7 +137,7 @@
     if (Mori.modal.isOpen()) Mori.modal.close({ restoreFocus: false });
     loader.show("Opening the demo", "Setting up a sample founder, members and projects…");
     Mori.auth.startGuest();
-    location.replace(Mori.auth.nextUrl("home.html"));
+    location.replace(Mori.href(Mori.auth.nextUrl("home")));
   }
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-guest]");
@@ -148,7 +148,7 @@
   if (params.get("demo") === "1") startDemo(); // linked from the public pages
   // "Ask for one" after a refused sign-up goes to the contact address when there is one, else the Contact page.
   const ask = $("#refusedAsk");
-  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox invite")}` : "contact.html"; }
+  if (ask) { const mail = (window.MORI_CONFIG || {}).contactEmail; ask.href = mail ? `mailto:${mail}?subject=${encodeURIComponent("SandBox invite")}` : "contact"; }
 
   $("#demoForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -167,7 +167,7 @@
       loader.show("Signing out", "See you soon…");
       Promise.race([db.signOut(), new Promise((r) => setTimeout(r, 1500))]).then(() => {
         Mori.auth.clearSession();
-        location.replace("index.html?signedout=1");
+        location.replace(Mori.href("./?signedout=1"));
       });
       return;
     }

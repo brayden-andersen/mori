@@ -91,18 +91,51 @@
     if (draft) Mori.store.write(PENDING_DRAFT_KEY, draft);
     Mori.store.remove(SESSION_KEY);
   })();
-  const APP_PAGES = ["home.html", "projects.html", "project.html", "network.html", "sprints.html", "directory.html", "subscription.html"];
+  /* ---------- Clean addresses ----------
+     Pages are linked without ".html" (/home, /projects; the landing page is the site root). GitHub
+     Pages serves home for /home, and 404.html sends anything it misses on to the .html file.
+     An address that still says .html (an old bookmark) is tidied in the address bar. Opened straight
+     from disk (file://), links and redirects get their .html back, since there's no server to add it. */
+  const PAGES = ["onboarding", "home", "projects", "project", "network", "sprints", "directory", "subscription", "partners", "legal", "about", "contact", "toolkits"];
+  const APP_PAGES = ["home", "projects", "project", "network", "sprints", "directory", "subscription"];
+  const FILE = location.protocol === "file:";
+  /** A page address without its .html ending (an old ?next= of home.html#x becomes home#x). */
+  const bare = (url) => String(url || "").replace(/^(\.\/)?index\.html/, "./").replace(/^([a-z]+)\.html/, "$1");
+  /** The address to go to: as written, or with ".html" when opened from disk. */
+  const href = (url) => {
+    if (!FILE) return url;
+    const m = /^(\.\/|[a-z]+)?([?#].*)?$/.exec(String(url || ""));
+    if (!m) return url;
+    const page = !m[1] || m[1] === "./" ? "index" : m[1];
+    return page === "index" || PAGES.includes(page) ? page + ".html" + (m[2] || "") : url;
+  };
+  Mori.href = href;
+  if (FILE) {
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest && e.target.closest("a[href]");
+      if (!a || a.target === "_blank") return;
+      const raw = a.getAttribute("href");
+      const fixed = href(raw);
+      if (fixed !== raw) a.setAttribute("href", fixed);
+    }, true);
+  } else if (/\.html$/.test(location.pathname) && !/\/404\.html$/.test(location.pathname)) {
+    history.replaceState(history.state, "", location.pathname.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "") + location.search + location.hash);
+  }
   const params = new URLSearchParams(location.search);
-  const pageName = () => location.pathname.split("/").pop() || "index.html";
+  /** This page's name: "home", "project", "index" for the landing page. */
+  const pageName = () => (location.pathname.split("/").pop() || "").replace(/\.html$/, "") || "index";
+  const isAppPage = (url) => APP_PAGES.includes(bare(url).split(/[?#]/)[0]);
   const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "member";
   const leave = (url) => {
     Mori.redirecting = true;
     root.style.visibility = "hidden";
-    location.replace(url);
+    location.replace(href(url));
   };
 
   Mori.auth = {
     APP_PAGES,
+    isAppPage,
+    page: pageName,
     PENDING_DRAFT_KEY,
     isUuid: (id) => UUID.test(String(id || "")),
 
@@ -132,15 +165,15 @@
     /** Same-site app page from ?next=, else the fallback (or home). */
     nextUrl(fallback) {
       const next = params.get("next");
-      if (next && APP_PAGES.includes(next.split(/[?#]/)[0])) return next;
-      return APP_PAGES.includes(fallback) ? fallback : "home.html";
+      if (next && isAppPage(next)) return bare(next);
+      return isAppPage(fallback) ? bare(fallback) : "home";
     },
 
     /** Start page chosen in Settings → Preferences. */
     startPage(session) {
       const s = session || Mori.auth.session();
       const st = s ? Mori.store.read(`mori.${s.id}.settings`, {}) : {};
-      return APP_PAGES.includes(st && st.startPage) ? st.startPage : "home.html";
+      return st && isAppPage(st.startPage) ? bare(st.startPage) : "home"; // older settings say "home"
     },
 
     /** Where a member goes right after signing in. */
@@ -148,7 +181,7 @@
       const s = session || Mori.auth.session();
       if (s && !s.onboarded) {
         const next = params.get("next");
-        return "onboarding.html" + (next ? "?next=" + encodeURIComponent(next) : "");
+        return "onboarding" + (next ? "?next=" + encodeURIComponent(next) : "");
       }
       return Mori.auth.nextUrl(Mori.auth.startPage(s));
     },
@@ -197,12 +230,12 @@
       const here = pageName();
       if (!s) {
         // Onboarding isn't a ?next= target, but asking to sign in still makes sense there.
-        const next = APP_PAGES.includes(here) ? here + location.search + location.hash : here === "onboarding.html" ? "home.html" : "";
-        leave("index.html" + (next ? "?next=" + encodeURIComponent(next) : ""));
+        const next = APP_PAGES.includes(here) ? here + location.search + location.hash : here === "onboarding" ? "home" : "";
+        leave("./" + (next ? "?next=" + encodeURIComponent(next) : ""));
         return false;
       }
       if (kind === "required" && !s.onboarded) {
-        leave("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));
+        leave("onboarding?next=" + encodeURIComponent(here + location.search + location.hash));
         return false;
       }
       if (kind === "onboarding" && s.onboarded && !params.has("edit")) {
@@ -275,7 +308,7 @@
   if (s && s.onboarded && root.getAttribute("data-auth") === "required") {
     const justIn = session(() => sessionStorage.getItem(SIGNED_IN_KEY)) === "1";
     const calm = motion === "reduced" || (motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if (pageName() === "home.html" && justIn && !calm && !document.prerendering) root.classList.add("boot");
+    if (pageName() === "home" && justIn && !calm && !document.prerendering) root.classList.add("boot");
     if (justIn && !document.prerendering) session(() => sessionStorage.removeItem(SIGNED_IN_KEY)); // the first app page uses it up
     session(() => sessionStorage.setItem(VISIT_KEY, "1"));
   }
@@ -292,7 +325,7 @@
 
   // Google is redirecting back: show the sign-in screen, not the landing page.
   // ?code= alone: Supabase fell back to its Site URL (the site root) instead of ?auth=callback.
-  if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index.html")) root.classList.add("is-signing-in");
+  if (params.get("auth") === "callback" || (params.has("code") && pageName() === "index")) root.classList.add("is-signing-in");
 
   // The browser skips a page-change animation when it can't run it (for
   // example, the page was already showing). That's fine, but unhandled it
@@ -307,4 +340,9 @@
 
   const kind = root.getAttribute("data-auth");
   if (kind) Mori.auth.guard(kind);
+  // The landing page, for someone already signed in on this browser: straight to their homepage
+  // (or wherever ?next= points). Not while Google is returning, or just after signing out.
+  else if (pageName() === "index" && Mori.auth.isSignedIn() && !params.has("code") && !params.has("signedout") && params.get("auth") !== "callback") {
+    leave(Mori.auth.landingUrl());
+  }
 })();

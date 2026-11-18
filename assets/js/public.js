@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mori: Sandbox — the public pages (contact.html, toolkits.html, partners.html)
+   Mori: Sandbox — the public pages (contact, toolkits, partners)
    --------------------------------------------------------------------------
    • Contact: the address comes from config.js (contactEmail). Until it's
      set, the button shows a placeholder instead of a broken mailto link.

@@ -220,7 +220,7 @@ window.Mori.data = {
     { id: "agritech", name: "Agritech", blurb: "Tools for farmers, fishers and the people who buy from them." },
     { id: "creative", name: "Creative & media", blurb: "Content, brands and the tools creators use." },
   ],
-  /* Vetted partners by service, for the partner directory (directory.html) and the launch path. */
+  /* Vetted partners by service, for the partner directory (directory) and the launch path. */
   partnerKinds: {
     notary: { label: "Notaries", one: "Notary", icon: "file" },
     legal: { label: "Lawyers", one: "Lawyer", icon: "shield" },

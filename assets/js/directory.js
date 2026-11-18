@@ -1,8 +1,8 @@
 /* ==========================================================================
-   Mori: Sandbox — the partner directory (directory.html)
+   Mori: Sandbox — the partner directory (directory)
    --------------------------------------------------------------------------
    Vetted partners by service: notaries, lawyers, accountants, tax advisers
-   and designers. The service is in the address (directory.html#notary), so
+   and designers. The service is in the address (directory#notary), so
    the launch path's "Get help from a vetted partner" opens the right one.
    Only sample entries exist so far, and sample data stays in the guest
    demo: members see that the first partners haven't been listed yet.
@@ -46,7 +46,7 @@
         <div class="empty dir-empty empty--none"><span class="empty-ico">${icon("shield")}</span>
           <div>No vetted ${esc(label)} are listed yet</div>
           <div class="meta">The first notaries, lawyers, accountants and tax advisers are being checked. Until they’re here, your launch path’s checklists and templates show what to ask a professional. The guest demo shows the directory with sample partners.</div>
-          <a class="btn" href="projects.html">${icon("briefcase")} Open your launch path</a>
+          <a class="btn" href="projects">${icon("briefcase")} Open your launch path</a>
         </div>`;
       return;
     }

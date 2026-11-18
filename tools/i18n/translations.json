@@ -1451,6 +1451,10 @@
   "id": "Tutup proyek",
   "zh": "关闭项目"
  },
+ "Close requests": {
+  "id": "Tutup permintaan",
+  "zh": "关闭请求"
+ },
  "Close settings": {
   "id": "Tutup pengaturan",
   "zh": "关闭设置"
@@ -5387,6 +5391,10 @@
   "id": "Orang",
   "zh": "成员"
  },
+ "People asking to connect with you": {
+  "id": "Orang yang ingin terhubung denganmu",
+  "zh": "想和你建立联系的人"
+ },
  "people match": {
   "id": "orang cocok",
   "zh": "人符合条件"
@@ -8299,6 +8307,10 @@
   "id": "Lihat profil",
   "zh": "查看个人资料"
  },
+ "View your profile": {
+  "id": "Lihat profilmu",
+  "zh": "查看你的个人资料"
+ },
  "View {1}’s profile": {
   "id": "Lihat profil {1}",
   "zh": "查看{1}的资料"
@@ -9542,6 +9554,10 @@
  "{#} verified sprint{1}": {
   "id": "{#} sprint terverifikasi{1=}",
   "zh": "{#} 次经过验证的冲刺{1=}"
+ },
+ "{#} waiting": {
+  "id": "{#} menunggu",
+  "zh": "{#} 个待处理"
  },
  "{#} would pay": {
   "id": "{#} mau bayar",

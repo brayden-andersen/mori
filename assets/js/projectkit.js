@@ -17,7 +17,7 @@
   const HUES = ["orange", "blue", "emerald", "teal", "purple", "gray"];
   const STATUS = { todo: "To do", doing: "In progress", done: "Done" };
   const first = (name) => String(name || "").split(/\s+/)[0];
-  const plannerUrl = (id) => "project.html?id=" + encodeURIComponent(id);
+  const plannerUrl = (id) => "project?id=" + encodeURIComponent(id);
   const tagChips = (tags, cls = "chip") => (tags || []).map((t, i) => `<span class="${cls} ${cls}--${HUES[i % HUES.length]}">${esc(t)}</span>`).join("");
 
   /** People on a project (owner first), each with a label. You appear as "You". */
@@ -35,7 +35,7 @@
   function noPickerNote() {
     if (!N.available()) return "Teams need a Google sign-in: demo projects stay on this device.";
     if (S.profile().role !== "founder") return "Only founders can add people to their projects.";
-    return `Connect with people in the <a class="link-btn" href="network.html#explore">Network</a> to add them to your team.`;
+    return `Connect with people in the <a class="link-btn" href="network#explore">Network</a> to add them to your team.`;
   }
 
   /* ---------- Picker: your connections as a searchable checklist ---------- */

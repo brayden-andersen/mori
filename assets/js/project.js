@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mori: Sandbox — project planner (project.html?id=<project id>#<section>)
+   Mori: Sandbox — project planner (project?id=<project id>#<section>)
    --------------------------------------------------------------------------
    The project's full-screen workspace:
    • the header: tags, name, the section you're in ("Mainframe" in red on the
@@ -73,7 +73,7 @@
   };
 
   /* ---------- Frame (built once) ---------- */
-  const crumbs = (name) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home.html">Home</a> <span class="sep">/</span> <a href="projects.html">Projects</a>${name != null ? ` <span class="sep">/</span> <span id="crumbName">${esc(name)}</span>` : ""}</nav>`;
+  const crumbs = (name) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home">Home</a> <span class="sep">/</span> <a href="projects">Projects</a>${name != null ? ` <span class="sep">/</span> <span id="crumbName">${esc(name)}</span>` : ""}</nav>`;
   function navHTML() {
     return T.SECTIONS.map((s) => (s.group
       ? `<p class="pl-nav-group">${esc(s.group)}</p>`
@@ -115,7 +115,7 @@
         <div class="empty"><span class="empty-ico">${icon("projects")}</span>
           <div>This project isn’t available</div>
           <div class="meta">It may have been deleted, or you’re no longer on its team.</div>
-          <div><a class="btn btn--ink" href="projects.html">Back to your projects</a></div>
+          <div><a class="btn btn--ink" href="projects">Back to your projects</a></div>
         </div>
       </div></div>`;
     document.title = "SandBox • Project planner";
@@ -363,7 +363,7 @@
     K.bindTeam(main, project, {
       onAdded: () => renderAll(),
       beforeLeave: (p) => { leaving = !!p; },
-      onLeft: (p) => Mori.ui.go("projects.html", "You left the project", `You’re no longer on “${p.name}”.`),
+      onLeft: (p) => Mori.ui.go("projects", "You left the project", `You’re no longer on “${p.name}”.`),
     });
   }
 
@@ -414,7 +414,7 @@
       Mori.people.busy(del, () => {
         leaving = true;
         return S.deleteProject(pid).catch((err) => { leaving = false; throw err; });
-      }, () => { Mori.modal.close({ restoreFocus: false }); Mori.ui.go("projects.html", "Project deleted", `“${p.name}” and everything in it are gone.`); });
+      }, () => { Mori.modal.close({ restoreFocus: false }); Mori.ui.go("projects", "Project deleted", `“${p.name}” and everything in it are gone.`); });
     });
     Mori.modal.open("detailsModal", { opener });
   }

@@ -3,10 +3,10 @@
    --------------------------------------------------------------------------
    Search / tag filters / sort / pagination from the draft, plus:
    • a project preview (its board at a glance, milestone ladder, team);
-     the preview opens the full project planner (project.html?id=<id>)
+     the preview opens the full project planner (project?id=<id>)
    • "New Project" → declare a project; founders can add people from their
      connections, and everyone on the team sees the project
-   • deep links: projects.html?open=<id> and projects.html?new=1
+   • deep links: projects?open=<id> and projects?new=1
    ========================================================================== */
 (function () {
   "use strict";
@@ -226,7 +226,7 @@
 
       <div class="pd-actions">
         <a class="btn btn--ink" href="${url}">${icon("layers")} Open project planner</a>
-        <a class="btn" href="network.html#explore">${icon("userPlus")} Find specialists</a>
+        <a class="btn" href="network#explore">${icon("userPlus")} Find specialists</a>
         <button class="btn" type="button" data-pd-pin aria-pressed="${p.pinned}">${icon("pin")} <span>${p.pinned ? "Unpin from home" : "Pin to home"}</span></button>
       </div>`;
   }
@@ -333,7 +333,7 @@
     const created = (id, name, note, first) => {
       try { sessionStorage.setItem("mori.created", JSON.stringify({ id, note, first: !!first })); } catch (e) { /* private mode: the planner just won't show the note */ }
       Mori.modal.close({ restoreFocus: false });
-      Mori.ui.go("project.html?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
+      Mori.ui.go("project?id=" + encodeURIComponent(id) + "#mainframe", name, "Opening the Mainframe");
     };
     const create = async () => {
       const nameInput = form.elements.name;

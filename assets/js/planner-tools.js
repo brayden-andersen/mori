@@ -251,7 +251,7 @@
             <input class="input" name="note" maxlength="120" placeholder="Notes (hours, equity, skills)" aria-label="Notes">
             <button class="btn btn--sm" type="submit">${icon("plus")} Add role</button>
           </form>
-          <a class="btn btn--sm btn--ghost tool-find" href="network.html#explore">${icon("compass")} Find specialists in the MORI Network</a>`, `${ws.roles.filter((r) => !r.filled).length} open`)}
+          <a class="btn btn--sm btn--ghost tool-find" href="network#explore">${icon("compass")} Find specialists in the MORI Network</a>`, `${ws.roles.filter((r) => !r.filled).length} open`)}
       </div>`;
   }
 
@@ -432,8 +432,8 @@
     const reached = p.rung >= st.rung;
     const tools = st.open
       ? st.templates.map((id) => P.templates.find((t) => t.id === id)).filter(Boolean).map((t) => `<button class="btn btn--sm" type="button" data-template="${esc(t.id)}">${icon("file")} ${esc(t.name)}</button>`).join("")
-        + (st.partner ? `<a class="btn btn--sm" href="directory.html#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
-      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription.html">See the plans</a>`;
+        + (st.partner ? `<a class="btn btn--sm" href="directory#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
+      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription">See the plans</a>`;
     return `
       <li class="pl-card tool-card launch-stage${st.complete ? " is-done" : ""}${st.open ? "" : " is-locked"}" id="launch-${esc(st.id)}">
         <div class="launch-head">
@@ -491,7 +491,7 @@
       ${PLAN_NOTE("Founder Pro")}
       <div class="tool-grid tool-grid--wide">
         ${card("Obligations", items.length ? `<div class="tool-checks">${items.map(row).join("")}</div>`
-          : `<div class="empty tool-empty"><span class="empty-ico">${icon("shield")}</span><div>No obligations yet</div><div class="meta">Add the ones a vetted partner has confirmed for your company, with how often they come round.</div><a class="btn btn--sm" href="directory.html#accounting">${icon("shield")} Find a vetted accountant</a></div>`, `${open.length} open`)}
+          : `<div class="empty tool-empty"><span class="empty-ico">${icon("shield")}</span><div>No obligations yet</div><div class="meta">Add the ones a vetted partner has confirmed for your company, with how often they come round.</div><a class="btn btn--sm" href="directory#accounting">${icon("shield")} Find a vetted accountant</a></div>`, `${open.length} open`)}
         ${card("Add an obligation", `
           <form class="tool-form" data-comp-add autocomplete="off">
             <label class="field"><span>What it is</span><input class="input" name="name" maxlength="100" required placeholder="For example: monthly bookkeeping close"></label>

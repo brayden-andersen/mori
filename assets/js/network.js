@@ -67,7 +67,6 @@
       renderTab();
       if (pane === "messages") requestAnimationFrame(() => fitChat(true));
     }
-    if (tab === "requests") requestAnimationFrame(() => $("#requestsBox").scrollIntoView({ behavior: smooth(), block: "start" }));
   }
   function renderManage() {
     const on = N.available();
@@ -91,6 +90,10 @@
   function route() {
     const { tab, sub } = parseHash();
     showTab(tab);
+    if (tab === "requests" && !Mori.modal.isOpen("requestsModal")) {
+      const back = () => { if (location.hash === "#requests") history.replaceState(null, "", "#explore"); };
+      Mori.people.openRequests(null, { onClose: back });
+    }
     if (tab === "explore" && sub) {
       const back = () => { if (/^#(explore|member)\//.test(location.hash)) history.replaceState(null, "", "#explore"); };
       Mori.people.openMember(sub, { fromLink: true, onClose: back });

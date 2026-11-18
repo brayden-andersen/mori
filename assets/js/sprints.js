@@ -4,9 +4,9 @@
    Two-week online sprints, grouped in lobbies by niche. The first ones
    haven't run yet, and the page says so plainly. Three views, routed by the
    address so links can be shared and the back button works:
-     sprints.html               your spots, the lobbies, what starts next, how sprints work
-     sprints.html#lobby/<id>    a lobby: its upcoming and past sprints
-     sprints.html#sprint/<id>   a sprint: brief, dates, team size, how teams
+     sprints               your spots, the lobbies, what starts next, how sprints work
+     sprints#lobby/<id>    a lobby: its upcoming and past sprints
+     sprints#sprint/<id>   a sprint: brief, dates, team size, how teams
                                 form, what gets verified, how badges are earned,
                                 and "Save my spot"
    The catalogue is SandBox's own (data.js). Saved spots go through
@@ -57,7 +57,7 @@
         <span class="go" aria-hidden="true">${icon("arrowRight")}</span>
       </a></li>`;
   }
-  const crumbs = (...parts) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home.html">Home</a> <span class="sep">/</span> ${parts.join(' <span class="sep">/</span> ')}</nav>`;
+  const crumbs = (...parts) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home">Home</a> <span class="sep">/</span> ${parts.join(' <span class="sep">/</span> ')}</nav>`;
   const notRunYet = `<p class="sp-note">${icon("calendar")} <span>The first sprints haven’t run yet. Save a spot and you’ll be in the first teams. Dates and topics can still change.</span></p>`;
   const emptyBox = (ic, title, sub, action = "") => `<div class="empty sp-empty"><span class="empty-ico">${icon(ic)}</span><div>${title}</div><div class="meta">${sub}</div>${action}</div>`;
 

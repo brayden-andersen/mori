@@ -1,6 +1,6 @@
 // A tiny static server for the site: node tests/serve.mjs (PORT=4180 by default).
 // The tests use it; it also works for looking at the site locally. Missing
-// addresses get 404.html, as on GitHub Pages.
+// addresses get 404.html, and /home serves home.html, as on GitHub Pages.
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -18,6 +18,8 @@ http.createServer(async (req, res) => {
   let file = path.normalize(path.join(ROOT, decodeURIComponent(url.pathname)));
   if (!file.startsWith(ROOT) || /[\\/](node_modules|\.git)([\\/]|$)/.test(file)) { res.writeHead(403); res.end(); return; }
   try {
+    // /home serves home.html, as GitHub Pages does
+    if (!path.extname(file) && !(await stat(file).catch(() => null))) file += ".html";
     if ((await stat(file)).isDirectory()) file = path.join(file, "index.html");
     const body = await readFile(file);
     res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream", "cache-control": "no-store" });

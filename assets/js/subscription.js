@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mori: Sandbox — subscription page (subscription.html)
+   Mori: Sandbox — subscription page (subscription)
    --------------------------------------------------------------------------
    The plans as a ladder (Explorer → Builder → Founder Pro → Studio), monthly
    or yearly, a comparison table and a few questions. Prices and perks come

@@ -1642,7 +1642,8 @@
  ],
  "Connection requests need a Google sign-in, so demo accounts don’t have any.": [
   "network demo account",
-  "network.js"
+  "network.js",
+  "people.js"
  ],
  "Connection requests need a Sandbox account, so demo accounts don’t have any.": [
   "network.js"
@@ -5087,7 +5088,8 @@
   "onboarding 6"
  ],
  "No requests waiting. When founders or specialists want to connect, they’ll show up here.": [
-  "network.js"
+  "network.js",
+  "people.js"
  ],
  "No spots saved yet": [
   "sprints.js"
@@ -5897,6 +5899,9 @@
   "planner gtm",
   "planner ladder",
   "planner mainframe"
+ ],
+ "People asking to connect with you": [
+  "people.js"
  ],
  "people match": [
   "network.js"
@@ -10335,6 +10340,9 @@
  ],
  "{#} verified sprint{1}": [
   "network.js",
+  "people.js"
+ ],
+ "{#} waiting": [
   "people.js"
  ],
  "{#} would pay": [

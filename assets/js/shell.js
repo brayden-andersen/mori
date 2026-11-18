@@ -28,45 +28,45 @@
     return `
     <nav class="nav app-nav${Mori.guest && Mori.guest.active ? " has-demo" : ""}" id="topNav" aria-label="Main">
       <div class="nav-inner">
-        <a href="home.html" class="brand" aria-label="SandBox — go to your homepage">${brandMark()}<div class="brand-name">SandBox</div></a>
+        <a href="home" class="brand" aria-label="SandBox — go to your homepage">${brandMark()}<div class="brand-name">SandBox</div></a>
         <div class="menu" id="mainMenu">
           <span class="menu-glider" aria-hidden="true"></span>
-          <div class="item"><a class="nav-btn" href="home.html" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
+          <div class="item"><a class="nav-btn" href="home" data-nav="home">${icon("home", "ico nav-ico")}<span class="nav-label">Home</span></a></div>
           <div class="item">
-            <a class="nav-btn" href="projects.html" data-nav="projects">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
+            <a class="nav-btn" href="projects" data-nav="projects">${icon("projects", "ico nav-ico")}<span class="nav-label">Projects</span></a>
             <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddProjects" aria-label="Projects menu">${icon("chevronDown")}</button>
             <div class="dropdown" id="ddProjects">
               <div class="drop-label">Pinned</div>
-              ${S.pinnedProjects().map((p) => link(`project.html?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
+              ${S.pinnedProjects().map((p) => link(`project?id=${esc(p.id)}`, esc(p.name))).join("") || '<span class="drop-empty">Nothing pinned yet</span>'}
               <div class="drop-sep" aria-hidden="true"></div>
-              ${link("projects.html", "All projects")}
-              ${link("directory.html", "Vetted partners")}
+              ${link("projects", "All projects")}
+              ${link("directory", "Vetted partners")}
               <a class="drop-link" href="#" data-modal="settings" data-tab="projects">Project settings</a>
             </div>
           </div>
           <div class="item">
-            <a class="nav-btn" href="network.html" data-nav="network">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
+            <a class="nav-btn" href="network" data-nav="network">${icon("network", "ico nav-ico")}<span class="nav-label">Network</span><span class="nav-dot" data-nav-dot hidden></span></a>
             <button class="nav-more" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddNetwork" aria-label="Network menu">${icon("chevronDown")}</button>
             <div class="dropdown" id="ddNetwork">
-              ${link("network.html#explore", "Discover", "compass")}
-              <a class="drop-link" href="network.html#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
-              <a class="drop-link" href="network.html#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
+              ${link("network#explore", "Discover", "compass")}
+              <a class="drop-link" href="network#requests">${icon("inbox")} Requests <span class="drop-badge" data-badge="requests" hidden></span></a>
+              <a class="drop-link" href="network#messages">${icon("message")} Messages <span class="drop-badge" data-badge="messages" hidden></span></a>
               <a class="drop-link" href="#" data-connections>${icon("network")} Connections</a>
             </div>
           </div>
-          <div class="item"><a class="nav-btn" href="sprints.html" data-nav="sprints">${icon("zap", "ico nav-ico")}<span class="nav-label">Sprints</span></a></div>
+          <div class="item"><a class="nav-btn" href="sprints" data-nav="sprints">${icon("zap", "ico nav-ico")}<span class="nav-label">Sprints</span></a></div>
           <div class="item account">
             <button class="nav-btn account-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="ddAccount" aria-label="Account menu">
               <span class="nav-label acct-label">Account</span>
               <span class="pfp-wrap">${avatar(you, 24)}<span class="pfp-dot" hidden></span></span>
             </button>
             <div class="dropdown" id="ddAccount">
-              <div class="drop-head">${avatar(you, 36)}<div><b>${esc(you.name)}</b><span>${esc(sub)}</span></div></div>
+              <a class="drop-head" href="#" data-modal="profile" title="View your profile">${avatar(you, 36)}<div><b>${esc(you.name)}</b><span>${esc(sub)}</span></div></a>
               <div class="drop-sep" aria-hidden="true"></div>
               <a class="drop-link" href="#" data-modal="profile">${icon("user")} Profile</a>
               <a class="drop-link" href="#" data-modal="settings">${icon("sliders")} Settings</a>
               <a class="drop-link" href="#" data-modal="notifications">${icon("bell")} Notifications <span class="drop-badge" data-badge="notifications" hidden></span></a>
-              <a class="drop-link" href="subscription.html"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
+              <a class="drop-link" href="subscription"${page === "subscription" ? ' aria-current="page"' : ""}>${icon("card")} Subscription</a>
               <a class="drop-link" href="#" data-modal="settings" data-tab="preferences" data-focus="language">${icon("globe")} Language</a>
               <div class="drop-sep" aria-hidden="true"></div>
               <a class="drop-link" href="#" data-action="signout">${icon("logout")} ${s.provider === "guest" ? "Leave the demo" : "Sign out"}</a>
@@ -174,7 +174,7 @@
     const conn = navigator.connection || {};
     if (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "")) return;
     const phone = window.matchMedia("(hover: none), (max-width: 760px)").matches;
-    const links = 'a[href^="home.html"], a[href^="projects.html"], a[href^="project.html"], a[href^="network.html"], a[href^="sprints.html"], a[href^="directory.html"], a[href^="subscription.html"]';
+    const links = 'a[href^="home"], a[href^="project"], a[href^="network"], a[href^="sprints"], a[href^="directory"], a[href^="subscription"]'; // "project" covers "projects"
     const rules = phone
       ? { prefetch: [{ source: "document", where: { selector_matches: links }, eagerness: "conservative" }] }
       : {
@@ -198,8 +198,8 @@
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div class="footer-columns" aria-label="Footer navigation">
-          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about.html"], ["Partners", "partners.html"], ["Contact Us", "contact.html"], ["Terms &amp; Policy", "legal.html"]])}
-          ${col("productsTitle", "Products", [["Sprints", "sprints.html"], ["Partner directory", "directory.html"], ["Toolkits", "toolkits.html"], ["Subscription Pricing", "subscription.html"], ["Cancellation", "legal.html#cancellation"]])}
+          ${col("assistTitle", "Assistance", [["Sandbox Guide", "#", 'data-tour-start="site"'], ["About Sandbox", "about"], ["Partners", "partners"], ["Contact Us", "contact"], ["Terms &amp; Policy", "legal"]])}
+          ${col("productsTitle", "Products", [["Sprints", "sprints"], ["Partner directory", "directory"], ["Toolkits", "toolkits"], ["Subscription Pricing", "subscription"], ["Cancellation", "legal#cancellation"]])}
         </div>
         <div class="footer-bottom">© ${new Date().getFullYear()} Mori: Sandbox · SandBox by MORI Group <span class="footer-kanji" title="Mori — forest" aria-hidden="true">森</span></div>
       </div>
@@ -243,7 +243,7 @@
         : `<p class="meta">Declare a project to start your record.</p>`;
     const spots = S.sprints.spots().length;
     const sprintLine = S.settings().showRecord
-      ? `<p class="meta pf-sprints">${icon("zap")} <span><b>Verified sprints:</b> none yet. The first sprints haven’t run; ${spots ? `you’ve saved ${spots === 1 ? "a spot" : `${spots} spots`}.` : "save a spot to join the first teams."} <a href="sprints.html">${spots ? "Your sprints" : "See the sprints"}</a></span></p>`
+      ? `<p class="meta pf-sprints">${icon("zap")} <span><b>Verified sprints:</b> none yet. The first sprints haven’t run; ${spots ? `you’ve saved ${spots === 1 ? "a spot" : `${spots} spots`}.` : "save a spot to join the first teams."} <a href="sprints">${spots ? "Your sprints" : "See the sprints"}</a></span></p>`
       : "";
     const seen = shownAs(p);
     const where = Mori.people.whereLine(seen).concat(s.email || []).map(esc).join(" · ");
@@ -268,7 +268,7 @@
 
     const done = S.profileCompleteness(p);
     const completeLine = done.pct < 100
-      ? `<p class="meta pf-complete"><span class="pf-complete-bar" aria-hidden="true"><i style="width:${done.pct}%"></i></span>Profile ${done.pct}% complete · <a href="onboarding.html?edit=1">Add ${esc(done.missing.slice(0, 2).join(" and "))}</a></p>`
+      ? `<p class="meta pf-complete"><span class="pf-complete-bar" aria-hidden="true"><i style="width:${done.pct}%"></i></span>Profile ${done.pct}% complete · <a href="onboarding?edit=1">Add ${esc(done.missing.slice(0, 2).join(" and "))}</a></p>`
       : "";
     return `
       ${Mori.ui.coverHTML(p.cover, coverControls)}
@@ -303,7 +303,7 @@
           <section class="pf-sec">${Mori.people.factPills(seen)}</section>
         </details>
         ${S.network.available() && !p.invisible ? `<div class="pf-share-row">${Mori.people.shareBtn(s.id)}<span class="meta">Anyone signed in to SandBox can open it.</span></div>` : ""}
-        <a class="link-btn pf-update" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
+        <a class="link-btn pf-update" href="onboarding?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash)}">${icon("refresh")} Update your sign-up answers</a>
       </div>`;
   }
 
@@ -333,7 +333,7 @@
           <div class="pf-link-rows">${(p.links || []).map(linkRowHTML).join("")}</div>
           <button class="btn btn--sm" type="button" data-pf-addlink>${icon("plus")} Add a link</button>
         </fieldset>
-        <p class="field--full meta pf-edit-note">Name, date of birth, region, role, industries, LinkedIn, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding.html?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
+        <p class="field--full meta pf-edit-note">Name, date of birth, region, role, industries, LinkedIn, CV and languages come from your sign-up answers. <a class="link-btn" href="onboarding?edit=1&next=${encodeURIComponent(location.pathname.split("/").pop())}">Update them</a></p>
       </form>
       <div class="modal-foot"><button class="btn" type="button" data-pf-cancel>Cancel</button><button class="btn btn--ink" type="button" data-pf-save>${icon("check")} Save profile</button></div>`;
   }
@@ -619,8 +619,8 @@
               `<select class="select" id="stLanguage" aria-label="Language"${focus === "language" ? " autofocus" : ""}>${Object.keys(Mori.i18n.LANGS).map((k) => `<option value="${k}" lang="${Mori.i18n.LANGS[k].html}" translate="no" ${k === Mori.i18n.lang ? "selected" : ""}>${Mori.i18n.LANGS[k].label}</option>`).join("")}</select>`)}
             ${row("Motion effects", "Animations, tilt and parallax across Sandbox. System follows your device setting.", segHTML("motion", st.motion, [["system", "System"], ["full", "Full"], ["reduced", "Reduced"]]))}
             ${row("Start page", "Where Sandbox opens after you sign in.",
-              `<select class="select" data-setting="startPage" aria-label="Start page">${[["home.html", "Home"], ["projects.html", "Projects"], ["network.html", "Network"]]
-                .map(([v, l]) => `<option value="${v}" ${st.startPage === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
+              `<select class="select" data-setting="startPage" aria-label="Start page">${[["home", "Home"], ["projects", "Projects"], ["network", "Network"]]
+                .map(([v, l]) => `<option value="${v}" ${String(st.startPage || "home").replace(/\.html$/, "") === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
             ${row("Site tour", "A short tour of the MORI Network, your projects and the subscription ladder.", `<button class="btn btn--sm" type="button" data-tour-start="site">${icon("compass")} Take the tour</button>`)}
           `)}
           ${pane("projects", `
@@ -628,7 +628,7 @@
             ${row("Tools sidebar", "Show the sidebar of tools in the project planner. The button at its top left hides and shows it too.", switchHTML('data-setting="projectSidebar" aria-label="Show the tools sidebar"', st.projectSidebar !== false))}
             ${row("Project tour", S.projects().length ? "A walk through the planner: its tools, your team and the Mainframe’s widgets." : "A walk through the planner. It starts when you declare your first project.", `<button class="btn btn--sm" type="button" data-tour-start="project" ${S.projects().length ? "" : "disabled"}>${icon("compass")} Take the tour</button>`)}
             <div class="st-row st-row--list"><div class="st-copy"><h4>Pinned to your homepage</h4><p>Pinned projects show on your homepage and in the Projects menu.${s.provider === "google" ? " Your pins, like these settings, follow you to every device you sign in on." : ""}</p></div></div>
-            <div class="st-pins">${S.projects().map((p) => `<div class="st-pin"><span class="st-pin-name">${esc(p.name)}</span>${switchHTML(`data-pin="${esc(p.id)}" aria-label="Pin ${esc(p.name)} to your homepage"`, p.pinned)}</div>`).join("") || `<p class="meta">No projects yet. <a href="projects.html?new=1">Declare one</a>.</p>`}</div>
+            <div class="st-pins">${S.projects().map((p) => `<div class="st-pin"><span class="st-pin-name">${esc(p.name)}</span>${switchHTML(`data-pin="${esc(p.id)}" aria-label="Pin ${esc(p.name)} to your homepage"`, p.pinned)}</div>`).join("") || `<p class="meta">No projects yet. <a href="projects?new=1">Declare one</a>.</p>`}</div>
           `)}
           ${pane("notifications", `
             ${notifyRow("messages", "Messages", "A pop-up when a connection messages you. The Messages badge always shows unread conversations.")}
@@ -793,7 +793,7 @@
           if (location.hash !== url.hash) location.hash = url.hash;
           else window.dispatchEvent(new HashChangeEvent("hashchange"));
         } else {
-          location.href = n.link;
+          location.href = Mori.href(n.link);
         }
       })
     );
@@ -824,7 +824,7 @@
     if (!everywhere) await Promise.race([Mori.db ? Mori.db.signOut() : null, new Promise((r) => setTimeout(r, 1500))]);
     S.forgetPrivate(); // other members' details and messages don't stay on this device
     Mori.auth.clearSession();
-    location.replace("index.html?signedout=1");
+    location.replace(Mori.href("./?signedout=1"));
   }
 
   /* ---------- Global delegation ---------- */
@@ -886,8 +886,8 @@
       if (S.session().provider === "google" && !S.profileComplete()) {
         // No role, or no 18+ date of birth (members who joined before it was required): ask the sign-up questions once, answers filled in.
         Mori.auth.updateSession({ onboarded: false });
-        const here = location.pathname.split("/").pop() || "home.html";
-        location.replace("onboarding.html?next=" + encodeURIComponent(here + location.search + location.hash));
+        const here = location.pathname.split("/").pop() || "home";
+        location.replace(Mori.href("onboarding?next=" + encodeURIComponent(here + location.search + location.hash)));
         return;
       }
       const name = fullName(S.profile(), S.session());
