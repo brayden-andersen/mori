@@ -2,3 +2,9 @@
 node_modules/
 test-results/
 playwright-report/
+
+# Local secrets (staging keys, test password): never committed (CLAUDE.md, ground rules)
+.env
+.env.*
+# The e2e tests' saved sign-ins (session tokens for staging test members)
+tests/e2e/.auth/

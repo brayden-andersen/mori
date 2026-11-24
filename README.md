@@ -254,9 +254,21 @@ npx playwright install chromium
 - `npm run lint`: ESLint (`eslint.config.mjs`) on the site's scripts, `tools/` and `tests/`. The vendored Supabase library is skipped.
 - `npm run validate`: html-validate (`.htmlvalidate.json`, its recommended rules) on every page. Self-closing `<link/>` and `<meta/>` are allowed.
 - `npm test`: ten Playwright tests in `tests/demo.spec.mjs`, run against the guest demo, so they need no Supabase project or Google account; requests to Supabase are blocked. They cover: the guest demo and its reset; sign-up showing only once and the homepage opening at once on a reload; a deep link surviving sign-in; Escape closing a dialog with focus back on what opened it; menus with the keyboard; Projects and Discover filters, chips, live counts and pagination; no sideways scrolling at 360 px; no "coming soon" anywhere; hostile text staying text under the Content-Security-Policy.
+- `npm test` also runs `tests/guard.spec.mjs` (no script or test can run against the production Supabase project) and `tests/docs-fixture.spec.mjs` (a document with every format round-trips through the editor, and its Word export matches the approved copy in `tests/e2e/fixtures/docs/`).
 - `npm run check`: all three. GitHub runs the same on every push and pull request (`.github/workflows/checks.yml`).
 
-The two-account security check needs real accounts, so it runs separately: `tools/rls-check.mjs` (see *Security and accessibility*).
+### Authenticated tests on staging
+
+The reliability and collaboration work (the brief of 24 Nov 2026; rules in `CLAUDE.md`) tests the site as real signed-in members, against a **staging** Supabase project, never production. `docs/staging.md` has the one-time setup and the commands:
+
+- `npm run staging:seed`: twelve test members on `test.morisandbox.com`.
+- `npm run test:e2e`: the suite in `tests/e2e/`, in Chromium, WebKit and a Chromium phone. Each test's title carries its audit ID (`[E2E-03]`).
+- `npm run rls-check`: the two-member row-level security check (`tools/rls-check.mjs`), now on staging only.
+- `npm run report`: `reports/<date>-<sha>.md`, one row per audit ID.
+
+`.github/workflows/e2e-staging.yml` runs it all on pull requests, nightly and on demand, once the staging secrets exist. Every script that talks to Supabase refuses the production project (`tools/lib/env.mjs`).
+
+Where things stand: `docs/qa/baseline-2026-11.md` (the Gate 1 baseline), `docs/security/review-2026-11-24.md` (the security review), `docs/adr/` (decisions).
 
 **Cache tags:** every page loads its CSS and JS with `?v=17` (the language dictionaries take the same number). Raise the number in all pages when you change a stylesheet or script, so browsers fetch the new copy.
 
@@ -320,7 +332,7 @@ To make a new database change, add the next migration file here and apply it to 
 ## Security and accessibility
 
 - **Google sign-in:** the PKCE flow (the sign-in code is swapped for a session in the browser, and it's removed from the address straight after); Google shares only name, email address and photo; the address a member returns to after signing in must be one of the site's own pages; only Google accounts with an email Google has verified can create an account, checked in the database (see *Prototype, invite only*). *Sign out* ends the session in this browser and clears other members' details from it; *Settings → Account → Sign out of all devices* ends every session the account has (other devices within the hour, when their sign-in next refreshes).
-- **Row-level security, checked from outside:** `tools/rls-check.mjs` uses two test accounts' access tokens and calls the REST API directly. Account B must not read or change account A's private profile fields, CV, messages, projects, documents, connections, sprint spots or blocks, can't block or report as A, and can't read reports; anonymous callers must get nothing. How to get the tokens and run it is at the top of the file. On 16 Nov 2026 the same rules, plus the sign-up checks, the age rule and blocking, were checked inside the database by impersonating real members (39 checks, all passed, every change rolled back).
+- **Row-level security, checked from outside:** `tools/rls-check.mjs` signs in two staging test members (or takes two staging accounts' access tokens) and calls the REST API directly. It refuses production. Account B must not read or change account A's private profile fields, CV, messages, projects, documents, connections, sprint spots or blocks, can't block or report as A, and can't read reports; anonymous callers must get nothing. How to run it is at the top of the file and in docs/staging.md. On 16 Nov 2026 the same rules, plus the sign-up checks, the age rule and blocking, were checked inside the database by impersonating real members (39 checks, all passed, every change rolled back).
 - **SECURITY DEFINER functions:** `member_directory()`, `find_member()` and `my_blocks()` are flagged by the Supabase advisor on purpose. They set a fixed, empty `search_path`, only signed-in members can call them, and they return only the fields a member chose to show (`my_blocks()`: only your own blocks, with a name and photo). The directory and name search answer only members who are 18 or over and never cross a block. Comments on each function say so. The advisor's *Leaked password protection* warning doesn't apply: there are no passwords.
 - **No unsafe HTML:** every value from a member goes into the page through `esc()` or `textContent`. Links from members (LinkedIn, profile links, funding links, links in documents) are shown only if they start with `https://` (`mailto:` too, in documents). Photos load only from `https://`, `data:` or `blob:` addresses. A test fills a name, headline, project, task, message, document, obligation and links with script-carrying strings and checks nothing runs.
 - **Content-Security-Policy** (a `<meta>` tag on every page, since GitHub Pages can't set headers): scripts, styles, fonts and pages from this site only; data from the Supabase project (REST, storage, realtime); images also from Google profile photos. No inline scripts, apart from the 404 page's base-path snippet, allowed by its hash. Google sign-in is a redirect through Supabase, so it needs nothing more. **If you change `supabaseUrl` in `config.js`** or an inline script, run `python3 tools/set_csp.py` to rewrite the tags.
@@ -399,10 +411,19 @@ tools/
   dark-overrides.css hand-tuned dark values (aura images, base colour, logo)
   make_aura.py      renders the background aura images (needs numpy and Pillow)
   set_csp.py        writes the Content-Security-Policy tag into every page
-  rls-check.mjs     the two-account row-level security check (needs two test accounts' tokens)
+  rls-check.mjs     the two-account row-level security check (staging only; signs in seeded members)
+  staging-seed.mjs  creates the twelve staging test members (refuses production)
+  staging-clean.mjs deletes leftover e2e- projects on staging
+  report.mjs        test results → reports/<date>-<sha>.md, one row per audit ID
+  lib/env.mjs       staging settings and the production guard
 tests/
   demo.spec.mjs     the ten browser tests (guest demo)
-  serve.mjs         a small static server for the tests and for local use
+  guard.spec.mjs    nothing may run against the production Supabase project
+  docs-fixture.spec.mjs  the editor and Word export against the approved fixture
+  e2e/              the authenticated suite on staging (fixtures, sign-in setup, specs, docs fixtures)
+  serve.mjs         a small static server for the tests and for local use (MORI_ENV=staging serves the staging config)
+docs/               staging.md · adr/ · qa/ (baselines) · security/ (reviews)
+CLAUDE.md           the ground rules for every session
 package.json · eslint.config.mjs · .htmlvalidate.json · playwright.config.mjs   the checks (npm install)
 .github/workflows/checks.yml   runs them on GitHub
 supabase/
