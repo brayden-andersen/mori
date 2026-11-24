@@ -5,28 +5,29 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'inline-speculation-rules'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ovchugvbujrqkowjalfx.supabase.co https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://ovchugvbujrqkowjalfx.supabase.co wss://ovchugvbujrqkowjalfx.supabase.co; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SandBox • MORI Network</title>
+  <script src="assets/js/i18n.js?v=17"></script>
   <link rel="icon" href="assets/img/mori-icon.svg?v=7" type="image/svg+xml" />
   <link rel="icon" href="assets/img/mori-icon-32.png?v=7" type="image/png" sizes="32x32" />
   <link rel="icon" href="favicon.ico?v=7" sizes="48x48" />
   <link rel="apple-touch-icon" href="assets/img/mori-icon-180.png?v=7" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/mori.css?v=15" />
-  <link rel="stylesheet" href="assets/css/network.css?v=15" />
-  <link rel="stylesheet" href="assets/css/tour.css?v=15" />
-  <link rel="stylesheet" href="assets/css/dark.css?v=15" />
-  <script src="assets/js/config.js?v=15"></script>
-  <script src="assets/js/auth.js?v=15"></script>
-  <script defer src="assets/js/data.js?v=15"></script>
-  <script defer src="assets/js/state.js?v=15"></script>
-  <script defer src="assets/js/ui.js?v=15"></script>
-  <script defer src="assets/js/motion.js?v=15"></script>
-  <script defer src="assets/js/db.js?v=15"></script>
-  <script defer src="assets/js/sample.js?v=15"></script>
-  <script defer src="assets/js/guestdb.js?v=15"></script>
-  <script defer src="assets/js/shell.js?v=15"></script>
-  <script defer src="assets/js/people.js?v=15"></script>
-  <script defer src="assets/js/network.js?v=15"></script>
-  <script defer src="assets/js/tour.js?v=15"></script>
+  <link rel="stylesheet" href="assets/css/mori.css?v=17" />
+  <link rel="stylesheet" href="assets/css/network.css?v=17" />
+  <link rel="stylesheet" href="assets/css/tour.css?v=17" />
+  <link rel="stylesheet" href="assets/css/dark.css?v=17" />
+  <script src="assets/js/config.js?v=17"></script>
+  <script src="assets/js/auth.js?v=17"></script>
+  <script defer src="assets/js/data.js?v=17"></script>
+  <script defer src="assets/js/state.js?v=17"></script>
+  <script defer src="assets/js/ui.js?v=17"></script>
+  <script defer src="assets/js/motion.js?v=17"></script>
+  <script defer src="assets/js/db.js?v=17"></script>
+  <script defer src="assets/js/sample.js?v=17"></script>
+  <script defer src="assets/js/guestdb.js?v=17"></script>
+  <script defer src="assets/js/shell.js?v=17"></script>
+  <script defer src="assets/js/people.js?v=17"></script>
+  <script defer src="assets/js/network.js?v=17"></script>
+  <script defer src="assets/js/tour.js?v=17"></script>
 </head>
 <body data-page="network">
   <div class="aura" aria-hidden="true"></div>
@@ -38,7 +39,7 @@
     <header class="pagehead" role="banner">
       <div>
         <nav class="crumbs" aria-label="Breadcrumb" data-reveal="fade">
-          <a href="home.html">Home</a> <span class="sep">/</span> <span>MORI Network</span>
+          <a href="home">Home</a> <span class="sep">/</span> <span>MORI Network</span>
         </nav>
         <h1 class="title">MORI Network</h1>
         <p class="meta" data-reveal="fade" style="--reveal-delay:200ms">Find your people: founders and specialists who have joined Sandbox.</p>
@@ -52,7 +53,7 @@
         <h2 class="net-manage-title" id="manageTitle">Manage my network</h2>
         <nav class="manage-list" aria-label="Manage my network">
           <a class="manage-item" href="#explore" data-tab="explore"><i class="ico" data-icon="compass"></i><span>Discover</span></a>
-          <a class="manage-item" href="#requests" data-tab="requests"><i class="ico" data-icon="inbox"></i><span>Requests</span><span class="manage-badge" data-badge="requests" hidden></span></a>
+          <a class="manage-item" href="#requests" data-requests><i class="ico" data-icon="inbox"></i><span>Requests</span><span class="manage-badge" data-badge="requests" hidden></span></a>
           <a class="manage-item" href="#messages" data-tab="messages"><i class="ico" data-icon="message"></i><span>Messages</span><span class="manage-badge" data-badge="messages" hidden></span></a>
           <a class="manage-item" href="#" data-connections><i class="ico" data-icon="network"></i><span>Connections</span><span class="manage-num" id="mConnections"></span></a>
           <a class="manage-item" href="#sent" data-tab="sent"><i class="ico" data-icon="send"></i><span>Sent requests</span><span class="manage-num" id="mSent"></span></a>

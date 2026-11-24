@@ -218,10 +218,10 @@
     /** Warm up the library so the sign-in click responds instantly. */
     preload() { if (enabled) client().catch(() => {}); },
 
-    /** Redirects to Google; Supabase sends the member back to index.html?auth=callback. */
+    /** Redirects to Google; Supabase sends the member back to ./?auth=callback. */
     async signInWithGoogle(next) {
       const c = await client();
-      const back = new URL("index.html", location.href);
+      const back = new URL("./", location.href);
       back.searchParams.set("auth", "callback");
       if (next) back.searchParams.set("next", next);
       const { error } = await c.auth.signInWithOAuth({ provider: "google", options: { redirectTo: back.href } });

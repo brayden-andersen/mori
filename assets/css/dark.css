@@ -14,6 +14,7 @@ html[data-theme="dark"] .dropdown{ border:1px solid rgba(227,228,230,0.08); box-
 html[data-theme="dark"] .drop-link:hover{ background:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(108,110,112,0.07)); box-shadow:inset 0 0 0 1px rgba(0,0,0,0.2) }
 html[data-theme="dark"] .drop-sep{ background:rgba(227,228,230,0.08) }
 html[data-theme="dark"] .drop-badge{ color:#ffffff; box-shadow:0 4px 10px rgba(0,0,0,0.8) }
+html[data-theme="dark"] .drop-head:hover{ background:linear-gradient(to bottom right, rgba(108,110,112,0.16), rgba(108,110,112,0.07)); box-shadow:inset 0 0 0 1px rgba(0,0,0,0.2) }
 html[data-theme="dark"] .pfp-dot{ box-shadow:0 0 0 2px #1b1b1b }
 html[data-theme="dark"] .nav-dot{ box-shadow:0 0 0 2px #1b1b1b }
 html[data-theme="dark"] .avatar{ color:#ffffff; background:linear-gradient(135deg, var(--a1,#686868), var(--a2,#686868)); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.042) }
@@ -72,9 +73,9 @@ html[data-theme="dark"] .seg{ background:rgba(227,228,230,0.05); border:1px soli
 html[data-theme="dark"] .seg-glider{ background:#1b1b1b; box-shadow:0 2px 8px rgba(0,0,0,0.32) }
 html[data-theme="dark"] .subnav{ border:1px solid rgba(224,224,226,0.3) }
 html[data-theme="dark"] .empty{ color:#bfc0c2 }
-html[data-theme="dark"] .empty-ico{ color:#1b1b1b; background:linear-gradient(135deg, #585858, #838383); box-shadow:0 12px 24px -8px rgba(0,0,0,0.85) }
-html[data-theme="dark"] .progress-circle{ background:conic-gradient(var(--progress-orange) calc(var(--percent,0) * 1%), #212123 0) }
-html[data-theme="dark"] .progress-circle::after{ background:conic-gradient(rgba(120,120,120,0.75) calc(var(--percent,0) * 1%), transparent 0) }
+html[data-theme="dark"] .empty-ico{ color:#1b1b1b; background:linear-gradient(135deg, #dfe0e1, #e3e4e6); box-shadow:0 12px 24px -10px rgba(0,0,0,0.85) }
+html[data-theme="dark"] .progress-circle{ background:conic-gradient(var(--ink) calc(var(--percent,0) * 1%), #2b2b2d 0) }
+html[data-theme="dark"] .progress-circle::after{ background:conic-gradient(rgba(227,228,230,0.55) calc(var(--percent,0) * 1%), transparent 0) }
 html[data-theme="dark"] .progress-inner{ background:#1b1b1b; box-shadow:inset 0 0 0 1px #2b2b2b }
 html[data-theme="dark"] .progress-label{ color:#e3e4e6 }
 html[data-theme="dark"] .ladder-bar i{ background:#2b2b2b }
@@ -139,6 +140,7 @@ html[data-theme="dark"] .mp-remove:hover{ color:#ed8c8c }
 html[data-theme="dark"] .mp-connect{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .fact-pill{ background:#1b1b1b; border:1px solid #2b2b2b }
 html[data-theme="dark"] .cn-row{ background:#1b1b1b; border:1px solid #2b2b2b }
+html[data-theme="dark"] .rq-note{ background:rgba(227,228,230,0.04) }
 html[data-theme="dark"] .fpill{ color:#d0d0d0; background:rgba(131,131,131,0.1); border:1px solid rgba(131,131,131,0.28) }
 html[data-theme="dark"] .fpill button{ background:rgba(131,131,131,0.14) }
 html[data-theme="dark"] .pf-invisible{ border-top:1px solid rgba(224,224,226,0.12) }
@@ -162,6 +164,7 @@ html[data-theme="dark"] .problem > .ico{ color:#ff5c5c }
 html[data-theme="dark"] .problem-x{ color:#f88187 }
 html[data-theme="dark"] .field-error{ color:#ff5c5c }
 html[data-theme="dark"] .input[aria-invalid="true"], html[data-theme="dark"] .select[aria-invalid="true"], html[data-theme="dark"] .textarea[aria-invalid="true"]{ border-color:#951a15; box-shadow:0 0 0 3px rgba(178,31,26,0.15) }
+html[data-theme="dark"]:not([lang="en"]) .i18n-note{ border:1px solid rgba(227,228,230,0.14); background:rgba(227,228,230,0.04) }
 
 /* ---- landing.css ---- */
 html[data-theme="dark"] .l-actions .avatar{ box-shadow:0 0 0 2px #1b1b1b }
@@ -262,6 +265,9 @@ html[data-theme="dark"] .ob-actions{ border-top:1px solid rgba(227,228,230,0.06)
 html[data-theme="dark"] .ob-steps li{ background:rgba(227,228,230,0.08) }
 }
 html[data-theme="dark"] .ob-role-what{ border-top:1px dashed rgba(227,228,230,0.14) }
+html[data-theme="dark"] .ob-locale-btn{ border:1px solid rgba(227,228,230,0.16); background:rgba(27,27,27,0.6) }
+html[data-theme="dark"] .ob-locale-btn:hover{ border-color:rgba(227,228,230,0.32) }
+html[data-theme="dark"] .ob-locale-btn:focus-visible{ box-shadow:0 0 0 3px rgba(0,0,0,0.85) }
 
 /* ---- home.css ---- */
 html[data-theme="dark"] .start-ico{ background:rgba(227,228,230,0.07) }
@@ -331,7 +337,7 @@ html[data-theme="dark"] .wg-bar{ background:rgba(227,228,230,0.08) }
 html[data-theme="dark"] .wg-bar i{ background:linear-gradient(90deg, #d4d4d4, #b4b4b4) }
 html[data-theme="dark"] .wg-bar.is-green i{ background:linear-gradient(90deg, #585858, #717171) }
 html[data-theme="dark"] .wg-counts .is-late, html[data-theme="dark"] .wg-counts .is-late b{ color:#ff5c5c }
-html[data-theme="dark"] .wg-ring{ background:conic-gradient(#b4b4b4 calc(var(--p) * 1%), rgba(227,228,230,0.08) 0) }
+html[data-theme="dark"] .wg-ring{ background:conic-gradient(var(--ink) calc(var(--p) * 1%), rgba(227,228,230,0.1) 0) }
 html[data-theme="dark"] .wg-ring::before{ background:#1b1b1b }
 html[data-theme="dark"] .wg-list--rows li{ border-bottom:1px solid #232325 }
 html[data-theme="dark"] .wg-check input:checked + .task-box, html[data-theme="dark"] .tool-check input:checked + .task-box{ background:linear-gradient(135deg, #585858, #717171); border-color:#717171 }

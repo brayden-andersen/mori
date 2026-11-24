@@ -165,7 +165,7 @@
   /* =====================================================================
      The site tour
      ===================================================================== */
-  const CHAPTERS = [{ id: "start", label: "Sandbox tour", url: "home.html" }];
+  const CHAPTERS = [{ id: "start", label: "Sandbox tour", url: "home" }];
   const SLIDES = {
     start: [
       { art: "orbit", title: "Find your people", body: "Founders and specialists building in Indonesia, in one network. Search by role, skill or region, connect with a note, and message once you’re connected." },
@@ -581,7 +581,7 @@
             ? "Your team lives on the People page. Everyone on it sees the same Mainframe, tasks and documents, and you can give each other tasks."
             : "Your team lives on the People page. Add co-founders and teammates from your connections: everyone on the team sees the same Mainframe, tasks and documents, and you can give each other tasks."),
           extra: () => (addable() ? `<p class="coach-tip">${icon("userPlus")}<span>Use <b>Add to team</b> here, or at the top of the page, to bring people in.</span></p>`
-            : `<p class="coach-tip">${icon("compass")}<span>No connections yet? Find people in the <a href="network.html#explore">MORI Network</a>, connect, then add them here.</span></p>`) },
+            : `<p class="coach-tip">${icon("compass")}<span>No connections yet? Find people in the <a href="network#explore">MORI Network</a>, connect, then add them here.</span></p>`) },
         { target: () => [$("#plView .tool-grid > .tool-card:not(#plTeam)")], side: "left", before: () => page("people"), title: "Say who you’re looking for",
           body: "List the roles the team still needs, like a mobile developer, with the hours or equity on offer. Specialists in the MORI Network see what you need." },
         { target: () => [$(".pl-team-peek")], side: "bottom", before: () => page("people"), title: "Your team, always in view",
@@ -650,12 +650,12 @@
       const p = S.pinnedProjects()[0] || S.projects()[0];
       if (!p) { toast("Declare a project first: the tour starts on its Mainframe.", { icon: "projects" }); return; }
       setTour({ project: p.id });
-      Mori.ui.go(`project.html?id=${encodeURIComponent(p.id)}#mainframe`, p.name, "Project tour");
+      Mori.ui.go(`project?id=${encodeURIComponent(p.id)}#mainframe`, p.name, "Project tour");
       return;
     }
     setTour({ site: "start" });
     if (page !== "project") setTimeout(() => openDeck("start"), 320);
-    else Mori.ui.go("home.html", "Sandbox tour", "");
+    else Mori.ui.go("home", "Sandbox tour", "");
   });
 
   if (page === "project") startProject(false);

@@ -1,0 +1,107 @@
+# A-06: the authenticated end-to-end tests, against the STAGING Supabase project.
+# Applies pending migrations to staging, seeds the test members, runs the e2e projects
+# (Chromium desktop, WebKit desktop, Chromium mobile), cleans up, and builds the report.
+# Never touches production: every step refuses the production project ref.
+# Until the staging secrets exist (docs/staging.md), the job says so and does nothing.
+name: E2E staging
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ["assets/**", "supabase/**", "tests/**", "*.html", "playwright.config.mjs", "tools/**", "package*.json", ".github/workflows/e2e-staging.yml"]
+  schedule:
+    - cron: "23 19 * * *" # nightly (02:23 in Jakarta); also keeps the free staging project from pausing
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-staging # one run at a time on the shared staging project
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PRODUCTION_REF: ovchugvbujrqkowjalfx
+      STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      STAGING_ANON_KEY: ${{ secrets.STAGING_ANON_KEY }}
+      STAGING_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SERVICE_ROLE_KEY }}
+      STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      CI: "1"
+    steps:
+      - name: Staging configured?
+        id: cfg
+        run: |
+          if [ -z "$STAGING_SUPABASE_URL" ] || [ -z "$STAGING_SERVICE_ROLE_KEY" ] || [ -z "$TEST_USER_PASSWORD" ]; then
+            echo "::notice::Staging secrets aren't set yet (see docs/staging.md). Skipping the e2e run."
+            echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          case "$STAGING_SUPABASE_URL" in *"$PRODUCTION_REF"*) echo "::error::STAGING_SUPABASE_URL points at production. Refusing."; exit 1;; esac
+          ref=$(echo "$STAGING_SUPABASE_URL" | sed -E 's#^https://([a-z0-9]+)\.supabase\.co/?$#\1#')
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.cfg.outputs.ready == 'true'
+        run: npm ci
+      - if: steps.cfg.outputs.ready == 'true'
+        run: npx playwright install --with-deps chromium webkit
+
+      - uses: supabase/setup-cli@v1
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          version: latest
+      - name: Apply pending migrations to staging
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          [ "${{ steps.cfg.outputs.ref }}" != "$PRODUCTION_REF" ] || { echo "::error::Refusing production"; exit 1; }
+          supabase link --project-ref "${{ steps.cfg.outputs.ref }}" --password "$STAGING_DB_PASSWORD"
+          supabase db push --password "$STAGING_DB_PASSWORD"
+
+      - name: Seed test members
+        if: steps.cfg.outputs.ready == 'true'
+        run: node tools/staging-seed.mjs
+      - name: Clean leftovers from earlier runs
+        if: steps.cfg.outputs.ready == 'true'
+        run: node tools/staging-clean.mjs
+
+      - name: Run the e2e tests
+        id: run
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          npx playwright test --project=e2e-chromium-desktop --project=e2e-webkit-desktop --project=e2e-chromium-mobile || echo "failed=1" >> "$GITHUB_OUTPUT"
+      - name: RLS check
+        if: steps.cfg.outputs.ready == 'true'
+        run: node tools/rls-check.mjs || echo "failed=1" >> "$GITHUB_OUTPUT"
+        id: rls
+
+      - name: Clean up this run's projects
+        if: always() && steps.cfg.outputs.ready == 'true'
+        run: node tools/staging-clean.mjs --all
+      - name: Build the report
+        if: always() && steps.cfg.outputs.ready == 'true'
+        run: node tools/report.mjs --artifacts "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.cfg.outputs.ready == 'true'
+        with:
+          name: e2e-staging-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+            reports/
+          retention-days: 30
+      - name: Result
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          if [ -n "${{ steps.run.outputs.failed }}${{ steps.rls.outputs.failed }}" ]; then echo "::error::E2E or RLS checks failed (see the report)"; exit 1; fi

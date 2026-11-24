@@ -34,9 +34,10 @@
   const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return isoOf(d); };
   const todayISO = () => inDays(0);
   const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "short" }); };
-  const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayLabel = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(Mori.i18n.locale, { day: "numeric", month: "short" }); };
+  const L = () => Mori.i18n.locale;
+  const weekdayOf = (d) => d.toLocaleDateString(L(), { weekday: "long" });
+  const monthOf = (d) => d.toLocaleDateString(L(), { month: "long" });
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
   /* ---------- Greeting ---------- */
@@ -107,10 +108,10 @@
     const allDay = [];
     S.projects().forEach((p) => {
       const ws = W.get(p.id);
-      ws.compliance.items.forEach((x) => { if (x && !x.done && x.due === date) allDay.push({ text: `${x.name || "An obligation"} is due`, where: p.name, href: `project.html?id=${enc(p.id)}#compliance` }); });
-      ws.layout.forEach((w) => { if (w.type === "countdown" && w.opts && w.opts.date === date) allDay.push({ text: w.opts.label || "The big day", where: p.name, href: `project.html?id=${enc(p.id)}#mainframe` }); });
+      ws.compliance.items.forEach((x) => { if (x && !x.done && x.due === date) allDay.push({ text: `${x.name || "An obligation"} is due`, where: p.name, href: `project?id=${enc(p.id)}#compliance` }); });
+      ws.layout.forEach((w) => { if (w.type === "countdown" && w.opts && w.opts.date === date) allDay.push({ text: w.opts.label || "The big day", where: p.name, href: `project?id=${enc(p.id)}#mainframe` }); });
     });
-    D.sprints.forEach((x) => { if (x.startsIn === 0 && S.sprints.has(x.id)) allDay.push({ text: `${x.title} starts`, where: "Sprint", href: `sprints.html#sprint/${enc(x.id)}` }); });
+    D.sprints.forEach((x) => { if (x.startsIn === 0 && S.sprints.has(x.id)) allDay.push({ text: `${x.title} starts`, where: "Sprint", href: `sprints#sprint/${enc(x.id)}` }); });
     const tasks = [];
     S.projects().forEach((p) => p.tasks.forEach((t) => { if (t.due === date) tasks.push({ p, t }); }));
     return { date, allDay, meetings: meetingsOn(date), tasks };
@@ -136,7 +137,7 @@
     return `
     <section class="panel home-panel s4 td" id="todayPanel" aria-labelledby="todayPanelTitle">
       <div class="panel-head"><span class="panel-ico" aria-hidden="true">${icon("calendar")}</span><h2 class="panel-title" id="todayPanelTitle">Today</h2></div>
-      <div class="td-date"><span class="td-day">${d.getDate()}</span><span class="td-wk"><b>${WEEKDAYS[d.getDay()]}</b><span class="meta">${MONTHS[d.getMonth()]}</span></span></div>
+      <div class="td-date"><span class="td-day">${d.getDate()}</span><span class="td-wk"><b>${esc(weekdayOf(d))}</b><span class="meta">${esc(monthOf(d))}</span></span></div>
       ${t.allDay.map((x) => `<a class="td-allday" href="${x.href}"><span class="td-allday-tag">All day</span><span>${esc(x.text)}<span class="meta"> · ${esc(x.where)}</span></span></a>`).join("")}
       ${rows.length ? `<ol class="td-list" aria-label="Meetings today">${rows.join("")}</ol>` : ""}
       ${t.tasks.length ? `<div class="td-tasks"><p class="td-label">Due today</p>${t.tasks.map(({ p, t: k }) => `
@@ -155,7 +156,12 @@
     if (t.meetings.length) parts.push(plural(t.meetings.length, "meeting", "meetings"));
     if (open) parts.push(plural(open, "task", "tasks") + (t.meetings.length ? "" : " due"));
     const what = parts.length ? `${parts.join(" and ")} today` : hasActivity() ? "nothing scheduled today" : "let’s get you started";
-    return `${WEEKDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${what}`;
+    return { date: d.toLocaleDateString(L(), { weekday: "long", day: "numeric", month: "long" }), what };
+  }
+
+  function showSummary() {
+    const sm = summary();
+    $("#prompt").innerHTML = `<span>${esc(sm.date)}</span> · <span>${esc(sm.what)}</span>`;
   }
 
   /* ---------- Panels ---------- */
@@ -163,9 +169,9 @@
     const sit = S.settings().situation;
     const role = S.profile().role;
     const options = [
-      { id: "idea", icon: "bulb", title: "Declare your first project", body: "Put the idea in a form a specialist can judge in two minutes. It opens on its Mainframe, with its launch path.", href: "projects.html?new=1", cta: "Declare a project" },
-      { id: "skills", icon: "compass", title: "Find founders to build with", body: "Discover founders by industry and region, connect with a note, and join a sprint when the first ones start.", href: "network.html#explore", cta: "Discover members" },
-      { id: "prototype", icon: "rocket", title: "Make your prototype real", body: "Declare the project at the stage you’re at, then follow the launch path: structure, registration, licences, tax.", href: "projects.html?new=1&rung=2", cta: "Start the launch path" },
+      { id: "idea", icon: "bulb", title: "Declare your first project", body: "Put the idea in a form a specialist can judge in two minutes. It opens on its Mainframe, with its launch path.", href: "projects?new=1", cta: "Declare a project" },
+      { id: "skills", icon: "compass", title: "Find founders to build with", body: "Discover founders by industry and region, connect with a note, and join a sprint when the first ones start.", href: "network#explore", cta: "Discover members" },
+      { id: "prototype", icon: "rocket", title: "Make your prototype real", body: "Declare the project at the stage you’re at, then follow the launch path: structure, registration, licences, tax.", href: "projects?new=1&rung=2", cta: "Start the launch path" },
     ];
     const first = options.find((o) => o.id === (sit || (role === "specialist" ? "skills" : "idea")));
     const rest = options.filter((o) => o !== first);
@@ -184,10 +190,10 @@
   function continuePanel() {
     const list = recentProjects().slice(0, 3);
     if (!list.length) {
-      return panel("continuePanel", "projects", "Continue where you left off", ["projects.html", "All projects"],
-        emptyState("projects", "No projects yet", "Declare your first project to track its launch path and milestones here.", `<a class="btn btn--ink" href="projects.html?new=1">${icon("plus")} Declare a project</a>`), "s8");
+      return panel("continuePanel", "projects", "Continue where you left off", ["projects", "All projects"],
+        emptyState("projects", "No projects yet", "Declare your first project to track its launch path and milestones here.", `<a class="btn btn--ink" href="projects?new=1">${icon("plus")} Declare a project</a>`), "s8");
     }
-    return panel("continuePanel", "projects", "Continue where you left off", ["projects.html", "All projects"], `
+    return panel("continuePanel", "projects", "Continue where you left off", ["projects", "All projects"], `
       <div class="cp-list">${list.map((p) => {
         const l = launchNext(p);
         const tag = p.tags && p.tags.length ? p.tags[0] : "";
@@ -195,7 +201,7 @@
         return `
         <article class="cp-row" data-project="${esc(p.id)}">
           <div class="cp-main">
-            <div class="cp-top"><a class="cp-name continue-name" href="project.html?id=${enc(p.id)}">${esc(p.name)}</a>${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}${tag ? `<span class="chip">${esc(tag)}</span>` : ""}${p.pinned ? `<span class="chip">${icon("pin")} Pinned</span>` : ""}${when ? `<span class="meta cp-when">Updated ${esc(ago(when).toLowerCase())}</span>` : ""}</div>
+            <div class="cp-top"><a class="cp-name continue-name" href="project?id=${enc(p.id)}">${esc(p.name)}</a>${p.sample ? Mori.ui.sampleTag("A sample project for the demo") : ""}${tag ? `<span class="chip">${esc(tag)}</span>` : ""}${p.pinned ? `<span class="chip">${icon("pin")} Pinned</span>` : ""}${when ? `<span class="meta cp-when">Updated ${esc(ago(when).toLowerCase())}</span>` : ""}</div>
             ${p.focus ? `<p class="cp-focus">Focus: ${esc(p.focus)}</p>` : ""}
             ${l.next && l.next.open ? `<p class="meta cp-next">Next on the launch path: <b>${esc(l.next.text)}</b></p>` : ""}
           </div>
@@ -215,14 +221,14 @@
     const lateDuties = [];
     S.projects().forEach((p) => W.get(p.id).compliance.items.forEach((x) => { if (x && !x.done && x.due && x.due < date) lateDuties.push({ p, x }); }));
     const rows = [];
-    if (requests.length) rows.push(`<a class="attn-row" href="network.html#requests"><span class="attn-ico">${icon("inbox")}</span><div><b>${plural(requests.length, "connection request", "connection requests")}</b><span class="meta">${esc(requests.slice(0, 2).map((r) => r.person.name).join(", "))}</span></div></a>`);
-    threads.slice(0, 2).forEach((t) => rows.push(`<a class="attn-row" href="network.html#messages/${enc(t.id)}"><span class="attn-ico">${icon("message")}</span><div><b>${esc(t.person.name)}</b><span class="meta">${esc(t.last ? t.last.body : "")}</span></div></a>`));
-    if (overdue.length) rows.push(`<a class="attn-row" href="project.html?id=${enc(overdue[0].p.id)}#tasks"><span class="attn-ico is-late">${icon("clock")}</span><div><b>${plural(overdue.length, "overdue task", "overdue tasks")}</b><span class="meta">${esc(overdue[0].p.name)} · ${esc(overdue[0].t.text)}</span></div></a>`);
-    if (lateDuties.length) rows.push(`<a class="attn-row" href="project.html?id=${enc(lateDuties[0].p.id)}#compliance"><span class="attn-ico is-late">${icon("shield")}</span><div><b>${plural(lateDuties.length, "overdue obligation", "overdue obligations")}</b><span class="meta">${esc(lateDuties[0].p.name)} · ${esc(lateDuties[0].x.name || "")}</span></div></a>`);
+    if (requests.length) rows.push(`<a class="attn-row" href="network#requests"><span class="attn-ico">${icon("inbox")}</span><div><b>${plural(requests.length, "connection request", "connection requests")}</b><span class="meta">${esc(requests.slice(0, 2).map((r) => r.person.name).join(", "))}</span></div></a>`);
+    threads.slice(0, 2).forEach((t) => rows.push(`<a class="attn-row" href="network#messages/${enc(t.id)}"><span class="attn-ico">${icon("message")}</span><div><b>${esc(t.person.name)}</b><span class="meta">${esc(t.last ? t.last.body : "")}</span></div></a>`));
+    if (overdue.length) rows.push(`<a class="attn-row" href="project?id=${enc(overdue[0].p.id)}#tasks"><span class="attn-ico is-late">${icon("clock")}</span><div><b>${plural(overdue.length, "overdue task", "overdue tasks")}</b><span class="meta">${esc(overdue[0].p.name)} · ${esc(overdue[0].t.text)}</span></div></a>`);
+    if (lateDuties.length) rows.push(`<a class="attn-row" href="project?id=${enc(lateDuties[0].p.id)}#compliance"><span class="attn-ico is-late">${icon("shield")}</span><div><b>${plural(lateDuties.length, "overdue obligation", "overdue obligations")}</b><span class="meta">${esc(lateDuties[0].p.name)} · ${esc(lateDuties[0].x.name || "")}</span></div></a>`);
     const body = rows.length
       ? `<div class="attn-list">${rows.slice(0, 4).join("")}</div>`
       : emptyState("check", "You’re all caught up", "No requests waiting, nothing unread and nothing overdue.");
-    return panel("attentionPanel", "inbox", "Needs your attention", ["network.html#messages", "Open messages"], body, "s4");
+    return panel("attentionPanel", "inbox", "Needs your attention", ["network#messages", "Open messages"], body, "s4");
   }
 
   function launchPanel(p) {
@@ -230,10 +236,10 @@
       return panel("launchPanel", "ladder", "Your launch path", null, `
         <p class="lp-title">Eight stages from an idea to a registered company</p>
         <p class="meta lp-sub">Declare the idea, choose a structure, register and get an NIB, a tax number, a bank account, team agreements, licences and first hires. It starts with your first project.</p>
-        <a class="btn btn--sm" href="projects.html?new=1">${icon("plus")} Declare a project</a>`, "s4");
+        <a class="btn btn--sm" href="projects?new=1">${icon("plus")} Declare a project</a>`, "s4");
     }
     const l = launchNext(p);
-    const href = `project.html?id=${enc(p.id)}#launch`;
+    const href = `project?id=${enc(p.id)}#launch`;
     if (!l.next) {
       return panel("launchPanel", "ladder", "Launch path", [href, "Open it"],
         emptyState("check", "Launch path complete", `${esc(p.name)} has ticked every step. Keep its obligations up to date in the compliance tracker.`), "s4");
@@ -254,9 +260,9 @@
     const list = saved.concat(soon.filter((x) => !S.sprints.has(x.id))).slice(0, 3);
     const lobby = (id) => (D.sprintLobbies.find((l) => l.id === id) || {}).name || "";
     const body = list.length
-      ? `<ul class="sprint-list">${list.map((x) => `<li><a class="sprint-link" href="sprints.html#sprint/${enc(x.id)}"><span class="sprint-when">${esc(dayLabel(inDays(x.startsIn)))}</span><div><b>${esc(x.title)}</b><span class="meta">${esc(lobby(x.lobby))}${S.sprints.has(x.id) ? " · spot saved" : ` · teams of ${esc(x.teamSize)}`}</span></div></a></li>`).join("")}</ul>`
+      ? `<ul class="sprint-list">${list.map((x) => `<li><a class="sprint-link" href="sprints#sprint/${enc(x.id)}"><span class="sprint-when">${esc(dayLabel(inDays(x.startsIn)))}</span><div><b>${esc(x.title)}</b><span class="meta">${esc(lobby(x.lobby))}${S.sprints.has(x.id) ? " · spot saved" : ` · teams of ${esc(x.teamSize)}`}</span></div></a></li>`).join("")}</ul>`
       : emptyState("zap", "No sprints scheduled", "New sprints show here as soon as they’re announced.");
-    return panel("sprintsPanel", "zap", saved.length ? "Your sprints" : "Upcoming sprints", ["sprints.html", "All sprints"], body, "s4");
+    return panel("sprintsPanel", "zap", saved.length ? "Your sprints" : "Upcoming sprints", ["sprints", "All sprints"], body, "s4");
   }
 
   function peoplePanel(cls) {
@@ -267,11 +273,11 @@
     const mine = new Set(S.network.connections().map((m) => m.id));
     const people = S.network.members().filter((m) => !mine.has(m.id) && !m.invisible && S.network.status(m.id) === "none").slice(0, n);
     if (!people.length) {
-      return panel("peoplePanel", "userPlus", "People to meet", ["network.html#explore", "Discover"], emptyState("userPlus", "You’re one of the first members", "Founders and specialists appear here as they finish signing up.", `<a class="btn" href="network.html#explore">${icon("compass")} Open Discover</a>`), cls);
+      return panel("peoplePanel", "userPlus", "People to meet", ["network#explore", "Discover"], emptyState("userPlus", "You’re one of the first members", "Founders and specialists appear here as they finish signing up.", `<a class="btn" href="network#explore">${icon("compass")} Open Discover</a>`), cls);
     }
-    return panel("peoplePanel", "userPlus", "People to meet", ["network.html#explore", "Discover"], `
+    return panel("peoplePanel", "userPlus", "People to meet", ["network#explore", "Discover"], `
       <div class="people-row people-row--${n}">${people.map((m) => `
-        <a class="card spotlight person-mini" href="network.html#member/${enc(m.id)}">
+        <a class="card spotlight person-mini" href="network#member/${enc(m.id)}">
           ${avatar(m, 44)}
           <div><b>${esc(m.name)}${m.sample ? Mori.ui.sampleTag() : ""}</b><span class="meta">${esc(m.specialty || (D.roles[m.role] ? D.roles[m.role].label : ""))}${m.region ? ` · ${esc(m.region)}` : ""}</span>${m.headline ? `<span class="meta person-mini-line">${esc(m.headline)}</span>` : ""}</div>
         </a>`).join("")}</div>`, cls);
@@ -280,7 +286,7 @@
   function profilePanel() {
     const c = S.profileCompleteness();
     if (c.pct >= 100) return "";
-    return panel("profilePanel", "user", "Your profile", ["onboarding.html?edit=1", "Add details"], `
+    return panel("profilePanel", "user", "Your profile", ["onboarding?edit=1", "Add details"], `
       <p class="pp-pct"><b>${c.pct}%</b> complete</p>
       <div class="nudge-bar" role="img" aria-label="Profile ${c.pct}% complete"><i style="width:${c.pct}%"></i></div>
       <p class="meta pp-next">Still to add: ${esc(c.missing.slice(0, 3).join(", "))}. Founders and specialists reply more to full profiles.</p>`, "s4");
@@ -304,7 +310,7 @@
       S.projects().map((x) => x.tasks.filter((k) => !k.done && k.due && k.due < t.date).length), S.projects().map((x) => W.get(x.id).compliance.items.filter((i) => i && !i.done && i.due && i.due < t.date).length), S.sprints.spots().map((x) => x.id)]);
     if (key === lastKey) return;
     lastKey = key;
-    $("#prompt").textContent = summary();
+    showSummary();
     const profile = profilePanel();
     grid.innerHTML = (active ? continuePanel() : startPanel()) + todayPanel()
       + attentionPanel() + launchPanel(p) + sprintsPanel()
@@ -319,7 +325,7 @@
     const tmp = document.createElement("div");
     tmp.innerHTML = todayPanel().trim();
     el.replaceWith(tmp.firstElementChild);
-    $("#prompt").textContent = summary();
+    showSummary();
   }
 
   /* ---------- Meeting window: add, edit, delete ---------- */
@@ -516,7 +522,7 @@
     if (meet) { openMeeting(meet.dataset.meeting, meet); return; }
     if (e.target.closest("a, button, input, label")) return; // a link inside a row goes where it says
     const row = e.target.closest(".cp-row[data-project]");
-    if (row) { location.href = "project.html?id=" + encodeURIComponent(row.dataset.project); return; }
+    if (row) { location.href = Mori.href("project?id=" + encodeURIComponent(row.dataset.project)); return; }
   });
   document.addEventListener("change", (e) => {
     const box = e.target.closest("[data-today-task]");

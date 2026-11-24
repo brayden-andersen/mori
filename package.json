@@ -7,11 +7,18 @@
     "validate": "html-validate \"*.html\"",
     "test": "playwright test",
     "check": "npm run lint && npm run validate && npm test",
-    "serve": "node tests/serve.mjs"
+    "serve": "node tests/serve.mjs",
+    "test:demo": "playwright test --project=demo-chromium",
+    "test:e2e": "playwright test --project=e2e-chromium-desktop --project=e2e-webkit-desktop --project=e2e-chromium-mobile",
+    "staging:seed": "node tools/staging-seed.mjs",
+    "staging:clean": "node tools/staging-clean.mjs",
+    "rls-check": "node tools/rls-check.mjs",
+    "report": "node tools/report.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.63.0",
+    "@supabase/supabase-js": "2.58.0",
     "eslint": "10.15.0",
     "globals": "17.14.0",
     "html-validate": "11.21.1"

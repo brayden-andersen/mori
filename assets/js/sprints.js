@@ -4,9 +4,9 @@
    Two-week online sprints, grouped in lobbies by niche. The first ones
    haven't run yet, and the page says so plainly. Three views, routed by the
    address so links can be shared and the back button works:
-     sprints.html               your spots, the lobbies, what starts next, how sprints work
-     sprints.html#lobby/<id>    a lobby: its upcoming and past sprints
-     sprints.html#sprint/<id>   a sprint: brief, dates, team size, how teams
+     sprints               your spots, the lobbies, what starts next, how sprints work
+     sprints#lobby/<id>    a lobby: its upcoming and past sprints
+     sprints#sprint/<id>   a sprint: brief, dates, team size, how teams
                                 form, what gets verified, how badges are earned,
                                 and "Save my spot"
    The catalogue is SandBox's own (data.js). Saved spots go through
@@ -27,14 +27,14 @@
   const DAY = 864e5;
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const dateIn = (n) => { const d = new Date(); d.setHours(12, 0, 0, 0); return new Date(d.getTime() + n * DAY); };
-  const fmt = (d, opts = {}) => d.toLocaleDateString("en-GB", Object.assign({ day: "numeric", month: "short" }, opts));
+  const fmt = (d, opts = {}) => d.toLocaleDateString(Mori.i18n.locale, Object.assign({ day: "numeric", month: "short" }, opts));
   const kindOf = (x) => D.sprintKinds[x.kind] || D.sprintKinds.problem;
   const lobbyOf = (id) => D.sprintLobbies.find((l) => l.id === id) || null;
   const sprint = (id) => D.sprints.find((x) => x.id === id) || null;
   function dates(x) {
     const start = dateIn(x.startsIn);
     const end = dateIn(x.startsIn + D.sprintHow.days - 1);
-    return { start, end, label: `${fmt(start)} to ${fmt(end, { year: "numeric" })}`, iso: iso(start) };
+    return { start, end, label: `${fmt(start)} ${Mori.i18n.t("to")} ${fmt(end, { year: "numeric" })}`, iso: iso(start) };
   }
   const upcoming = (list = D.sprints) => list.filter((x) => x.startsIn >= 0).sort((a, b) => a.startsIn - b.startsIn);
   const startsLine = (x) => (x.startsIn === 0 ? "Starts today" : x.startsIn === 1 ? "Starts tomorrow" : `Starts in ${x.startsIn} days`);
@@ -57,7 +57,7 @@
         <span class="go" aria-hidden="true">${icon("arrowRight")}</span>
       </a></li>`;
   }
-  const crumbs = (...parts) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home.html">Home</a> <span class="sep">/</span> ${parts.join(' <span class="sep">/</span> ')}</nav>`;
+  const crumbs = (...parts) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="home">Home</a> <span class="sep">/</span> ${parts.join(' <span class="sep">/</span> ')}</nav>`;
   const notRunYet = `<p class="sp-note">${icon("calendar")} <span>The first sprints haven’t run yet. Save a spot and you’ll be in the first teams. Dates and topics can still change.</span></p>`;
   const emptyBox = (ic, title, sub, action = "") => `<div class="empty sp-empty"><span class="empty-ico">${icon(ic)}</span><div>${title}</div><div class="meta">${sub}</div>${action}</div>`;
 

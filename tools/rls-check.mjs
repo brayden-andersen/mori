@@ -9,34 +9,33 @@
    block or report as A, nor read reports, and an anonymous caller must get
    nothing.
 
-   Use two invited test accounts that have finished sign-up and are NOT
-   connected to each other. Before running, give account A some private data:
-   a date of birth, a CV, a project with a document, and a message with a
-   third member.
+   It runs against the STAGING project only (tools/lib/env.mjs), and refuses
+   production: writes are attempted, as B, against A's data, so a failure here
+   means real data was changed.
 
-   Get each access token: sign in on the site as that account, open the
-   browser console and run
+   Staging (the usual way): A is the seeded owner@, B is collab11@, who is
+   connected to nobody. The script signs both in with TEST_USER_PASSWORD and
+   gives A a project with a document first (named e2e-rls-…, deleted at the
+   end):
 
-     JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k) => /^sb-.*-auth-token$/.test(k)))).access_token
+     node tools/rls-check.mjs
 
-   Then, from the repository folder (Node 18 or newer):
+   Or bring your own two staging accounts' access tokens (not connected to
+   each other): A_TOKEN=… B_TOKEN=… node tools/rls-check.mjs
 
-     A_TOKEN=… B_TOKEN=… node tools/rls-check.mjs
-
-   Tokens last about an hour. The Supabase URL and public key are read from
-   assets/js/config.js. Writes are attempted only against account A's data
-   from account B, so a failure here means real data was changed: use test
-   accounts. Exit code 0 means every check passed.
+   Exit code 0 means every check passed.
    ========================================================================== */
-import { readFileSync } from "node:fs";
+import { createClient } from "@supabase/supabase-js";
+import { staging } from "./lib/env.mjs";
 
-const cfg = readFileSync(new URL("../assets/js/config.js", import.meta.url), "utf8");
-const URL_ = process.env.SUPABASE_URL || (cfg.match(/supabaseUrl:\s*"([^"]+)"/) || [])[1]; // SUPABASE_URL overrides it (for testing the script)
-const KEY = (cfg.match(/supabaseKey:\s*"([^"]+)"/) || [])[1];
-const A_TOKEN = process.env.A_TOKEN;
-const B_TOKEN = process.env.B_TOKEN;
-if (!URL_ || !KEY) { console.error("Couldn't read supabaseUrl and supabaseKey from assets/js/config.js"); process.exit(2); }
-if (!A_TOKEN || !B_TOKEN) { console.error("Set A_TOKEN and B_TOKEN (see the top of this file)."); process.exit(2); }
+let ENV;
+try { ENV = staging(); } catch (err) { console.error(err.message); process.exit(2); }
+if (!ENV) { console.error("Set STAGING_SUPABASE_URL and STAGING_ANON_KEY (see docs/staging.md). This check never runs against production."); process.exit(2); }
+const URL_ = ENV.url;
+const KEY = ENV.anonKey;
+let A_TOKEN = process.env.A_TOKEN;
+let B_TOKEN = process.env.B_TOKEN;
+let cleanup = async () => {};
 
 const results = [];
 const check = (label, ok, detail = "") => { results.push({ label, ok, detail }); console.log(`${ok ? "PASS" : "FAIL"}  ${label}${detail ? `  (${detail})` : ""}`); };
@@ -51,7 +50,26 @@ async function call(method, path, token, body, extra) {
 const rows = (r) => (r.ok && Array.isArray(r.data) ? r.data : []);
 const denied = (r) => !r.ok || (Array.isArray(r.data) && r.data.length === 0);
 
+async function signIn(name) {
+  const sb = createClient(URL_, KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await sb.auth.signInWithPassword({ email: ENV.email(name), password: ENV.password });
+  if (error) throw new Error(`${name}: ${error.message} (run tools/staging-seed.mjs first)`);
+  return { sb, token: data.session.access_token };
+}
+
 async function main() {
+if (!A_TOKEN || !B_TOKEN) {
+  if (!ENV.password) { console.error("Set TEST_USER_PASSWORD (or A_TOKEN and B_TOKEN)."); process.exit(2); }
+  const a = await signIn("owner");
+  const b = await signIn("collab11");
+  A_TOKEN = a.token;
+  B_TOKEN = b.token;
+  // Give A a project with a document, so there's something private to probe.
+  const { data: pj, error } = await a.sb.from("projects").insert({ name: `e2e-rls-${Date.now().toString(36)}`, focus: "rls-check" }).select("id").single();
+  if (error) throw error;
+  await a.sb.from("project_docs").insert({ project_id: pj.id, title: "rls-check", body: "<p>private</p>" });
+  cleanup = async () => { await a.sb.from("projects").delete().eq("id", pj.id); };
+}
 const me = async (token) => { const r = await call("GET", "/auth/v1/user", token); if (!r.ok) throw new Error("A token was refused: sign in again and copy a fresh one."); return r.data.id; };
 
 const A = await me(A_TOKEN);
@@ -79,6 +97,7 @@ check("B sees only conversations B is part of", bMsgs.every((m) => m.sender_id =
 check("B can't read A's messages with others", denied(await call("GET", `/rest/v1/messages?select=id&or=(sender_id.eq.${A},recipient_id.eq.${A})&sender_id=neq.${B}&recipient_id=neq.${B}`, B_TOKEN)), `A has ${aMessages.length}`);
 check("B can't read A's projects", denied(await call("GET", `/rest/v1/projects?select=id&owner_id=eq.${A}`, B_TOKEN)), `A has ${aProjects.length}`);
 check("B can't read the documents in A's projects", !aProjects.length || denied(await call("GET", `/rest/v1/project_docs?select=id&project_id=in.(${aProjects.join(",")})`, B_TOKEN)));
+check("B can't read A's project workspace or tasks", !aProjects.length || denied(await call("GET", `/rest/v1/projects?select=workspace,milestones&id=in.(${aProjects.join(",")})`, B_TOKEN)));
 check("B can't see A's project teams", !aProjects.length || denied(await call("GET", `/rest/v1/project_members?select=member_id&project_id=in.(${aProjects.join(",")})`, B_TOKEN)));
 const bLinks = rows(await call("GET", `/rest/v1/connections?select=requester_id,addressee_id`, B_TOKEN));
 check("B sees only connection requests B is part of", bLinks.every((l) => l.requester_id === B || l.addressee_id === B), `${bLinks.length} visible`);
@@ -97,6 +116,9 @@ check("B can't change A's profile", denied(await call("PATCH", `/rest/v1/profile
 check("B can't send a message as A", !(await call("POST", "/rest/v1/messages", B_TOKEN, { sender_id: A, recipient_id: B, body: "rls-check" }, ret)).ok);
 check("B can't create a project owned by A", !(await call("POST", "/rest/v1/projects", B_TOKEN, { owner_id: A, name: "rls-check" }, ret)).ok);
 check("B can't change A's projects", !aProjects.length || denied(await call("PATCH", `/rest/v1/projects?id=in.(${aProjects.join(",")})`, B_TOKEN, { name: "rls-check" }, ret)));
+check("B can't add a document to A's project", !aProjects.length || !(await call("POST", "/rest/v1/project_docs", B_TOKEN, { project_id: aProjects[0], title: "rls-check", body: "" }, ret)).ok);
+check("B can't join A's project", !aProjects.length || !(await call("POST", "/rest/v1/project_members", B_TOKEN, { project_id: aProjects[0], member_id: B }, ret)).ok);
+check("B can't delete A's projects", !aProjects.length || denied(await call("DELETE", `/rest/v1/projects?id=in.(${aProjects.join(",")})`, B_TOKEN, undefined, ret)));
 if (spots.status !== 404) check("B can't save a sprint spot for A", !(await call("POST", "/rest/v1/sprint_spots", B_TOKEN, { member_id: A, sprint_id: "rls-check" }, ret)).ok);
 check("B can't see who A blocked", denied(await call("GET", `/rest/v1/member_blocks?select=blocked_id&blocker_id=eq.${A}`, B_TOKEN)));
 check("B can't block someone as A", !(await call("POST", "/rest/v1/member_blocks", B_TOKEN, { blocker_id: A, blocked_id: B })).ok);
@@ -109,12 +131,14 @@ check("Anonymous callers can't use the member directory", !(await call("POST", "
 check("Anonymous callers can't read messages", denied(await call("GET", `/rest/v1/messages?select=id`, null)));
 check("Anonymous callers can't list blocks", !(await call("POST", "/rest/v1/rpc/my_blocks", null, {})).ok);
 
+await cleanup();
 const failed = results.filter((r) => !r.ok);
 console.log(failed.length ? `\n${failed.length} of ${results.length} checks FAILED` : `\nAll ${results.length} checks passed`);
 process.exit(failed.length ? 1 : 0);
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
+  await cleanup().catch(() => {});
   const why = (err && err.cause && err.cause.message) || (err && err.message) || String(err);
   console.error(`Stopped: ${why}`);
   process.exit(2);

@@ -7,38 +7,45 @@ const HOSTILE = `<img src=x onerror="window.__xss=1">"'><script>window.__xss=2</
 test.beforeEach(async ({ page, context }) => {
   // Nothing in these tests may depend on the real backend.
   await context.route(/supabase\.co/, (route) => route.abort());
-  await page.goto("/index.html");
+  await page.goto("/");
   await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
 });
 
 /** Open the guest demo the way a visitor does. */
 async function openDemo(page) {
-  await page.goto("/index.html");
-  await Promise.all([page.waitForURL(/home\.html/), page.click("#heroAuth [data-guest]")]);
+  await page.goto("/");
+  await Promise.all([page.waitForURL(/\/home(?:[?#]|$)/), page.click("#heroAuth [data-guest]")]);
   await expect(page.locator(".demo-bar")).toContainText("exploring a demo");
 }
 
 test("the guest demo opens with labelled sample data, and resets", async ({ page }) => {
   await openDemo(page);
+  // Clean addresses: /home, not /home.html; an old .html address tidies itself; signed in, the
+  // landing page goes straight to the homepage.
+  expect(new URL(page.url()).pathname).toBe("/home");
+  await page.goto("/projects.html");
+  await expect(page).toHaveURL(/\/projects$/);
+  await page.goto("/");
+  await page.waitForURL(/\/home(?:[?#]|$)/);
   await expect(page.locator("#continuePanel")).toContainText("WarungPay");
   await expect(page.locator("#continuePanel .sample-tag").first()).toBeVisible();
   await expect(page.locator("#todayPanel .td-meet")).toHaveCount(3); // the sample meetings, always on today's date
   await expect(page.locator("#prompt")).toContainText("3 meetings");
   await page.evaluate(() => Mori.state.createProject({ name: "My own idea" }));
-  await page.goto("/projects.html");
+  await page.goto("/projects");
   await expect(page.locator("#grid")).toContainText("My own idea");
   const reset = page.locator("[data-demo-reset]").first();
   await reset.click();
-  await Promise.all([page.waitForURL(/home\.html/), reset.click()]); // a second tap confirms
-  await page.goto("/projects.html");
+  await Promise.all([page.waitForURL(/\/home(?:[?#]|$)/), reset.click()]); // a second tap confirms
+  await page.goto("/projects");
   await expect(page.locator("#grid")).toContainText("WarungPay");
   await expect(page.locator("#grid")).not.toContainText("My own idea");
 });
 
 test("sign-up asks for an 18+ date of birth, shows once, and the homepage then opens straight away", async ({ page }) => {
   await page.evaluate(() => Mori.auth.completeSignIn({ provider: "demo", name: "Eka Putri" }, { onboarded: false }));
-  await page.goto("/home.html");
-  await page.waitForURL(/onboarding\.html/); // not signed up yet: sign-up first
+  await page.goto("/home");
+  await page.waitForURL(/\/onboarding(?:[?#]|$)/); // not signed up yet: sign-up first
   await page.click("#obNext"); // the name is filled in; the date of birth isn't
   const birth = page.locator('input[name="birthDate"]');
   await expect(birth).toHaveAttribute("aria-invalid", "true");
@@ -55,34 +62,34 @@ test("sign-up asks for an 18+ date of birth, shows once, and the homepage then o
   await page.click("#obSkip"); // industry
   await page.click('.ob-option:has(input[value="skills"])');
   // It came from the homepage, so it goes back there (a deep link survives sign-up)
-  await Promise.all([page.waitForURL(/home\.html/), page.click("#obNext")]);
-  await page.goto("/onboarding.html");
-  await expect(page).not.toHaveURL(/onboarding\.html/); // done: never asked again
-  await page.goto("/home.html");
+  await Promise.all([page.waitForURL(/\/home(?:[?#]|$)/), page.click("#obNext")]);
+  await page.goto("/onboarding");
+  await expect(page).not.toHaveURL(/\/onboarding(?:[?#]|$)/); // done: never asked again
+  await page.goto("/home");
   await page.reload();
   await expect(page.locator("html")).not.toHaveClass(/\bboot\b/); // a reload shows the page at once
   await expect(page.locator("#homeGrid > section").first()).toBeVisible();
 });
 
 test("a deep link survives signing in", async ({ page }) => {
-  await page.goto("/network.html#member/m-dewi");
-  await page.waitForURL(/index\.html\?next=/);
-  expect(decodeURIComponent(page.url())).toContain("next=network.html#member/m-dewi");
+  await page.goto("/network#member/m-dewi");
+  await page.waitForURL(/\/\?next=/);
+  expect(decodeURIComponent(page.url())).toContain("next=network#member/m-dewi");
   await page.keyboard.press("Escape"); // the join window opens by itself; the demo is behind it
-  await Promise.all([page.waitForURL(/network\.html#member\/m-dewi/), page.click("#heroAuth [data-guest]")]);
+  await Promise.all([page.waitForURL(/\/network#member\/m-dewi/), page.click("#heroAuth [data-guest]")]);
   await expect(page.locator("#mpTitle")).toContainText("Dewi Saraswati");
 });
 
 test("Escape closes a dialog and focus returns to what opened it", async ({ page }) => {
   await openDemo(page);
-  await page.goto("/projects.html");
+  await page.goto("/projects");
   await page.click("#newProjectBtn");
   await expect(page.locator("#newProjectModal")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.locator("#newProjectModal")).toBeHidden();
   await expect(page.locator("#newProjectBtn")).toBeFocused();
 
-  await page.goto("/network.html#explore");
+  await page.goto("/network#explore");
   const view = page.locator("#peopleGrid button.btn[data-view]").first();
   await view.click();
   await expect(page.locator("#memberModal .modal")).toBeVisible();
@@ -103,12 +110,29 @@ test("menus open with Enter, move with Tab and close with Escape", async ({ page
   await page.keyboard.press("Escape");
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(toggle).toBeFocused();
+
+  // Account → Language opens Settings on Preferences, at the language; choosing one translates the
+  // site and stays chosen; English comes back the same way.
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.click(".account-toggle");
+  await page.click('[data-focus="language"]');
+  const lang = page.locator("#stLanguage");
+  await expect(lang).toBeFocused();
+  await Promise.all([page.waitForEvent("load"), lang.selectOption("id")]);
+  await expect(page.locator("html")).toHaveAttribute("lang", "id");
+  await expect(page.locator('.nav-btn[data-nav="home"] .nav-label')).toHaveText("Beranda");
+  await page.goto("/network");
+  await expect(page.locator("html")).toHaveAttribute("lang", "id");
+  await page.click(".account-toggle");
+  await page.click('[data-focus="language"]');
+  await Promise.all([page.waitForEvent("load"), page.locator("#stLanguage").selectOption("en")]);
+  await expect(page.locator('.nav-btn[data-nav="home"] .nav-label')).toHaveText("Home");
 });
 
 test("Projects: filters show as chips, the count is announced, pagination stays valid", async ({ page }) => {
   await openDemo(page);
   await page.evaluate(() => { for (let i = 0; i < 8; i++) Mori.state.createProject({ name: "Extra " + i, tags: ["Extra"] }); });
-  await page.goto("/projects.html");
+  await page.goto("/projects");
   await expect(page.locator("#countMeta")).toHaveAttribute("aria-live", "polite");
   await page.click("#pages button:last-child");
   await page.click('#filterChips [data-tag="FinTech"]');
@@ -126,7 +150,7 @@ test("Projects: filters show as chips, the count is announced, pagination stays 
 
 test("Discover: filters show as chips with a live count, one reset; report, block and unblock", async ({ page }) => {
   await openDemo(page);
-  await page.goto("/network.html#explore");
+  await page.goto("/network#explore");
   await expect(page.locator("#peopleCount")).toHaveText(""); // no member count unless filtering
   await page.selectOption("#roleSel", "specialist");
   await expect(page.locator("#peopleCount")).toHaveText(/\d+ (people match|person matches)/);
@@ -167,9 +191,9 @@ test("no sideways scrolling on a 360 px phone", async ({ browser }) => {
     const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     if (over > 1) wide.push(`${u} (${over}px)`);
   };
-  for (const u of ["/index.html", "/partners.html", "/about.html", "/toolkits.html", "/legal.html"]) await check(u);
+  for (const u of ["/", "/partners", "/about", "/toolkits", "/legal"]) await check(u);
   await page.evaluate(() => { localStorage.clear(); Mori.auth.startGuest(); });
-  for (const u of ["/home.html", "/projects.html", "/project.html?id=p-warungpay#mainframe", "/project.html?id=p-warungpay#launch", "/network.html#explore", "/network.html#messages", "/sprints.html", "/sprints.html#sprint/fin-problem", "/directory.html", "/subscription.html", "/onboarding.html?edit=1"]) await check(u);
+  for (const u of ["/home", "/projects", "/project?id=p-warungpay#mainframe", "/project?id=p-warungpay#launch", "/network#explore", "/network#messages", "/sprints", "/sprints#sprint/fin-problem", "/directory", "/subscription", "/onboarding?edit=1"]) await check(u);
   expect(wide).toEqual([]);
   await ctx.close();
 });
@@ -181,10 +205,10 @@ test('no "coming soon" anywhere', async ({ page }) => {
     await page.waitForTimeout(300);
     if (/coming soon|\(soon\)/i.test(await page.locator("body").innerText())) found.push(u);
   };
-  for (const u of ["/index.html", "/about.html", "/contact.html", "/toolkits.html", "/partners.html", "/legal.html", "/404.html"]) await check(u);
+  for (const u of ["/", "/about", "/contact", "/toolkits", "/partners", "/legal", "/404.html"]) await check(u);
   await page.evaluate(() => Mori.auth.startGuest());
   const planner = ["mainframe", "tasks", "gtm", "ladder", "launch", "compliance", "people", "docs", "interviews", "canvas", "marketing", "metrics", "finance", "funding", "programs", "toolkits"];
-  for (const u of ["/home.html", "/projects.html", "/network.html#explore", "/network.html#messages", "/sprints.html", "/directory.html", "/subscription.html", ...planner.map((s) => `/project.html?id=p-warungpay#${s}`)]) await check(u);
+  for (const u of ["/home", "/projects", "/network#explore", "/network#messages", "/sprints", "/directory", "/subscription", ...planner.map((s) => `/project?id=p-warungpay#${s}`)]) await check(u);
   expect(found).toEqual([]);
 });
 
@@ -198,7 +222,7 @@ test("hostile text stays text, and the security policy blocks nothing", async ({
     window.__pid = id;
   }, HOSTILE);
   const pid = await page.evaluate(() => window.__pid);
-  const pages = ["/projects.html", `/project.html?id=${pid}#mainframe`, `/project.html?id=${pid}#tasks`, "/home.html"];
+  const pages = ["/projects", `/project?id=${pid}#mainframe`, `/project?id=${pid}#tasks`, "/home"];
   for (const u of pages) {
     await page.goto(u);
     await page.waitForTimeout(400);

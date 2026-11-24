@@ -60,8 +60,8 @@
   const bar = (p, cls = "") => `<span class="wg-bar ${cls}"><i style="width:${Math.max(0, Math.min(100, p))}%"></i></span>`;
   const checkbox = (attrs, on, text, sub = "") => `<label class="tool-check"><input type="checkbox" ${attrs} ${on ? "checked" : ""}><span class="task-box">${icon("check")}</span><span class="tool-check-text">${text}${sub ? `<span class="meta">${sub}</span>` : ""}</span></label>`;
   const removeBtn = (attrs, labelText) => `<button class="icon-btn tool-x" type="button" ${attrs} aria-label="${esc(labelText)}" title="${esc(labelText)}">${icon("trash")}</button>`;
-  const dayLabel = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { day: "numeric", month: "short", year: y === new Date().getFullYear() ? undefined : "numeric" }); };
-  const fmtNum = (n) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(Number(n) || 0);
+  const dayLabel = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(Mori.i18n.loc("en-US"), { day: "numeric", month: "short", year: y === new Date().getFullYear() ? undefined : "numeric" }); };
+  const fmtNum = (n) => new Intl.NumberFormat(Mori.i18n.loc("en-US"), { maximumFractionDigits: 2 }).format(Number(n) || 0);
   const memberOf = (p, id) => K.teamOf(p).find((m) => m.id === id) || null;
   const gtmItems = (ws) => P.gtm.flatMap((g, gi) => g.items.map((text, ii) => ({ key: `g${gi}.${ii}`, text, group: g.group }))).concat(ws.gtm.custom.map((c) => ({ key: c.id, text: c.text, group: c.group || "Your items", custom: true })));
   const formData = (form) => Object.fromEntries(new FormData(form).entries());
@@ -251,7 +251,7 @@
             <input class="input" name="note" maxlength="120" placeholder="Notes (hours, equity, skills)" aria-label="Notes">
             <button class="btn btn--sm" type="submit">${icon("plus")} Add role</button>
           </form>
-          <a class="btn btn--sm btn--ghost tool-find" href="network.html#explore">${icon("compass")} Find specialists in the MORI Network</a>`, `${ws.roles.filter((r) => !r.filled).length} open`)}
+          <a class="btn btn--sm btn--ghost tool-find" href="network#explore">${icon("compass")} Find specialists in the MORI Network</a>`, `${ws.roles.filter((r) => !r.filled).length} open`)}
       </div>`;
   }
 
@@ -381,7 +381,7 @@
         <div><span class="meta">This month</span><b><span class="is-in">+${W.fmtMoney(m.thisMonth.in, cur, { compact: true })}</span> <span class="is-out">−${W.fmtMoney(m.thisMonth.out, cur, { compact: true })}</span></b></div>
       </div>
       <div class="tool-grid tool-grid--side">
-        ${card("Cash flow", `<div class="wg-chart tool-chart">${m.byMonth.map((x) => { const [y, mo] = x.m.split("-").map(Number); return `<div class="wg-month" title="${new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "long" })}: in ${W.fmtMoney(x.in, cur)}, out ${W.fmtMoney(x.out, cur)}"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString("en-US", { month: "short" })}</span></div>`; }).join("")}</div>
+        ${card("Cash flow", `<div class="wg-chart tool-chart">${m.byMonth.map((x) => { const [y, mo] = x.m.split("-").map(Number); return `<div class="wg-month" title="${new Date(y, mo - 1, 1).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "long" })}: in ${W.fmtMoney(x.in, cur)}, out ${W.fmtMoney(x.out, cur)}"><div class="wg-bars"><i class="is-in" style="height:${(x.in / hi) * 100}%"></i><i class="is-out" style="height:${(x.out / hi) * 100}%"></i></div><span>${new Date(y, mo - 1, 1).toLocaleDateString(Mori.i18n.loc("en-US"), { month: "short" })}</span></div>`; }).join("")}</div>
           <div class="wg-legend"><span><i class="is-in"></i>Money in</span><span><i class="is-out"></i>Money out</span></div>
           <p class="meta">Burn is the average net spend of the last three months with entries; runway is your balance divided by it.</p>`)}
         ${card("Setup", `<form class="tool-form tool-form--stack" data-fin-setup autocomplete="off">
@@ -432,8 +432,8 @@
     const reached = p.rung >= st.rung;
     const tools = st.open
       ? st.templates.map((id) => P.templates.find((t) => t.id === id)).filter(Boolean).map((t) => `<button class="btn btn--sm" type="button" data-template="${esc(t.id)}">${icon("file")} ${esc(t.name)}</button>`).join("")
-        + (st.partner ? `<a class="btn btn--sm" href="directory.html#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
-      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription.html">See the plans</a>`;
+        + (st.partner ? `<a class="btn btn--sm" href="directory#${esc(st.partner)}">${icon("shield")} Get help from a vetted partner</a>` : "")
+      : `<span class="launch-lock">${icon("award")} ${esc(LP.unlock.text)}</span><a class="btn btn--sm" href="subscription">See the plans</a>`;
     return `
       <li class="pl-card tool-card launch-stage${st.complete ? " is-done" : ""}${st.open ? "" : " is-locked"}" id="launch-${esc(st.id)}">
         <div class="launch-head">
@@ -491,7 +491,7 @@
       ${PLAN_NOTE("Founder Pro")}
       <div class="tool-grid tool-grid--wide">
         ${card("Obligations", items.length ? `<div class="tool-checks">${items.map(row).join("")}</div>`
-          : `<div class="empty tool-empty"><span class="empty-ico">${icon("shield")}</span><div>No obligations yet</div><div class="meta">Add the ones a vetted partner has confirmed for your company, with how often they come round.</div><a class="btn btn--sm" href="directory.html#accounting">${icon("shield")} Find a vetted accountant</a></div>`, `${open.length} open`)}
+          : `<div class="empty tool-empty"><span class="empty-ico">${icon("shield")}</span><div>No obligations yet</div><div class="meta">Add the ones a vetted partner has confirmed for your company, with how often they come round.</div><a class="btn btn--sm" href="directory#accounting">${icon("shield")} Find a vetted accountant</a></div>`, `${open.length} open`)}
         ${card("Add an obligation", `
           <form class="tool-form" data-comp-add autocomplete="off">
             <label class="field"><span>What it is</span><input class="input" name="name" maxlength="100" required placeholder="For example: monthly bookkeeping close"></label>
@@ -751,7 +751,10 @@
       const tpl = e.target.closest("[data-template]");
       if (tpl) {
         const t = P.templates.find((x) => x.id === tpl.dataset.template);
-        Mori.people.busy(tpl, () => W.docs.create(ctx.pid, { title: t.name, body: t.body }), (d) => ctx.go("docs/" + d.id));
+        // In another language the document starts translated, and legal templates say the English counts.
+        const I = Mori.i18n;
+        const body = I.lang === "en" ? t.body : (t.legal ? `<p><em>${I.t(I.UNOFFICIAL)}</em></p>` : "") + I.html(t.body);
+        Mori.people.busy(tpl, () => W.docs.create(ctx.pid, { title: I.t(t.name), body }), (d) => ctx.go("docs/" + d.id));
         return;
       }
       const x = e.target.closest("[data-gtm-x], [data-role-x], [data-int-x], [data-camp-x], [data-metric-x], [data-fin-x], [data-fund-x], [data-comp-x]");

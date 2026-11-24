@@ -5,7 +5,8 @@ import js from "@eslint/js";
 import globals from "globals";
 
 export default [
-  { ignores: ["assets/vendor/**", "node_modules/**", "test-results/**", "playwright-report/**"] },
+  // assets/i18n/ holds the dictionaries tools/i18n/build.py writes: data, not code to check.
+  { ignores: ["assets/vendor/**", "assets/i18n/**", "node_modules/**", "test-results/**", "playwright-report/**"] },
   js.configs.recommended,
   {
     files: ["assets/js/**/*.js"],
@@ -36,8 +37,8 @@ export default [
     },
   },
   {
-    // Playwright tests also hold code that runs in the page (page.evaluate)
-    files: ["tests/**/*.spec.mjs"],
+    // Playwright tests (and the phrase crawler) also hold code that runs in the page (page.evaluate)
+    files: ["tests/**/*.spec.mjs", "tools/i18n/extract.mjs"],
     languageOptions: { globals: { ...globals.browser, Mori: "readonly" } },
   },
 ];

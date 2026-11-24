@@ -128,7 +128,7 @@
   /* ---------- Settings ---------- */
   const SETTINGS_DEFAULTS = {
     motion: "system",            // system | full | reduced
-    startPage: "home.html",
+    startPage: "home",
     showRecord: true,            // show milestone record on the profile
     projectStart: "mainframe",   // a project opens on: mainframe | tasks
     projectSidebar: true,        // the planner's tools sidebar is shown
@@ -246,6 +246,9 @@
   function applyPrefs() {
     const r = document.documentElement;
     const s = settings();
+    // Language: the member's choice follows them to their other devices. i18n.js reads it from this
+    // browser before a page draws, so a different one is copied across and the page reloads in it.
+    if (s.language && Mori.i18n && Mori.i18n.LANGS[s.language] && s.language !== Mori.i18n.lang) Mori.i18n.set(s.language);
     if (s.motion === "system") r.removeAttribute("data-motion");
     else r.setAttribute("data-motion", s.motion);
     r.removeAttribute("data-aura"); // an old setting: the background no longer moves
@@ -759,11 +762,11 @@
     network.links().forEach((l) => {
       if (l.to === me() && l.status === "pending") {
         const p = network.member(l.from);
-        if (p) out.push({ id: "req:" + l.id, type: "request", at: l.at, link: "network.html#requests",
+        if (p) out.push({ id: "req:" + l.id, type: "request", at: l.at, link: "network#requests",
           text: `<b>${esc(p.name)}</b> wants to connect.${l.note ? ` “${esc(l.note)}”` : ""}` });
       } else if (l.from === me() && l.status === "accepted") {
         const p = network.member(l.to);
-        if (p) out.push({ id: "acc:" + l.id, type: "accepted", at: l.respondedAt || l.at, link: "network.html#explore/" + encodeURIComponent(p.id),
+        if (p) out.push({ id: "acc:" + l.id, type: "accepted", at: l.respondedAt || l.at, link: "network#explore/" + encodeURIComponent(p.id),
           text: `<b>${esc(p.name)}</b> accepted your request. You’re now connected.` });
       }
     });

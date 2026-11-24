@@ -138,7 +138,7 @@ button.wg-title:hover{ color:var(--ink-2) }
 .wg-counts{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--muted) }
 .wg-counts b{ color:var(--ink); font-variant-numeric: tabular-nums }
 .wg-counts .is-late, .wg-counts .is-late b{ color:#b80000 }
-.wg-ring{ --p:0; position:relative; flex:0 0 auto; width:64px; height:64px; border-radius:50%; display:grid; place-items:center; background: conic-gradient(#646464 calc(var(--p) * 1%), rgba(26,28,31,.08) 0) }
+.wg-ring{ --p:0; position:relative; flex:0 0 auto; width:64px; height:64px; border-radius:50%; display:grid; place-items:center; background: conic-gradient(var(--ink) calc(var(--p) * 1%), rgba(26,28,31,.1) 0) }
 .wg-ring::before{ content:""; position:absolute; inset:7px; border-radius:50%; background:#fff }
 .wg-ring b{ position:relative; font-size:15px; font-variant-numeric: tabular-nums }
 .wg-list{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns: minmax(0,1fr); gap:2px; min-height:0 }

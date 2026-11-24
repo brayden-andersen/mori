@@ -63,7 +63,7 @@
   function reset() {
     Mori.store.clearUser();
     seed();
-    location.href = "home.html";
+    location.href = Mori.href("home");
   }
   if (!read("seededAt", 0) || read("seedVersion", 0) !== Mori.guest.SEED_VERSION) seed();
 
